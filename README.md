@@ -1,6 +1,8 @@
 # nobrainer-claude-skills
 
-Essential skills for [Claude Code](https://claude.ai/code) — security auditing, hardening guidance, and more.
+A collection of [Claude Code](https://claude.ai/code) skills that I build and use daily. Publishing them here so others can benefit too.
+
+This is a personal repo — I'm the sole maintainer. If you find a skill useful, feel free to grab it. If you have ideas or find bugs, open an issue.
 
 ## Skills
 
