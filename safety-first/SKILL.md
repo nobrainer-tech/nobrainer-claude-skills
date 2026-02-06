@@ -293,6 +293,114 @@ for DIR in "$HOME/.openclaw" "$HOME/.autogpt" "$HOME/.langchain" "$HOME/.crewai"
 done
 ```
 
+### MCP Server Configuration Audit
+
+Scan all MCP configuration files for dangerous settings, known-malicious packages, and insecure bindings.
+
+```bash
+echo "── MCP Server Configuration ──"
+
+# Locate all MCP config files
+MCP_CONFIGS=()
+for MCP_CFG in "$HOME/.mcp.json" "$HOME/.claude/.mcp.json" ".mcp.json" "$HOME/.claude/settings.json"; do
+    [ -f "$MCP_CFG" ] && MCP_CONFIGS+=("$MCP_CFG")
+done
+# Project-level configs
+while IFS= read -r -d '' f; do MCP_CONFIGS+=("$f"); done < <(find . -maxdepth 3 -name ".mcp.json" -not -path "*/node_modules/*" -not -path "*/.git/*" -print0 2>/dev/null)
+
+for MCP_CFG in "${MCP_CONFIGS[@]}"; do
+    echo "[INFO] Scanning MCP config: $MCP_CFG"
+
+    # 0.0.0.0 bindings (should be 127.0.0.1)
+    if grep -q '0\.0\.0\.0' "$MCP_CFG" 2>/dev/null; then
+        echo "[FAIL] MCP config binds to 0.0.0.0 (world-accessible): $MCP_CFG"
+    fi
+
+    # Known malicious MCP packages
+    MALICIOUS_MCP='postmark-mcp|@anthropic/mcp-proxy|framelink-figma-mcp|mcp-remote'
+    if grep -qE "$MALICIOUS_MCP" "$MCP_CFG" 2>/dev/null; then
+        echo "[FAIL] Known malicious/vulnerable MCP package in: $MCP_CFG"
+        grep -oE "$MALICIOUS_MCP" "$MCP_CFG" 2>/dev/null | sort -u | while read -r pkg; do echo "  → $pkg"; done
+    fi
+
+    # External tunnels
+    TUNNEL_PATTERNS='bore\.pub|ngrok|cloudflared|localtunnel|serveo\.net|pagekite|localhost\.run'
+    if grep -qE "$TUNNEL_PATTERNS" "$MCP_CFG" 2>/dev/null; then
+        echo "[FAIL] External tunnel in MCP config: $MCP_CFG"
+    fi
+
+    # Unpinned @latest dependencies
+    if grep -q '@latest' "$MCP_CFG" 2>/dev/null; then
+        echo "[WARN] Unpinned @latest dependency in MCP config: $MCP_CFG"
+    fi
+done
+
+# Ollama exposure check
+if command -v lsof &>/dev/null; then
+    OLLAMA_EXPOSED=$(lsof -iTCP:11434 -sTCP:LISTEN -P 2>/dev/null | grep -v "127.0.0.1\|localhost\|::1" || true)
+    [ -n "$OLLAMA_EXPOSED" ] && echo "[FAIL] Ollama exposed on non-localhost (port 11434)" || true
+fi
+
+[ ${#MCP_CONFIGS[@]} -eq 0 ] && echo "[INFO] No MCP configuration files found"
+```
+
+---
+
+### Rules File Injection Detection
+
+Scan IDE/agent rules files for prompt injection and data exfiltration patterns (IDEsaster CVEs: Cursor, Copilot, Windsurf, Claude Code).
+
+```bash
+echo "── Rules File Injection Scan ──"
+
+RULES_FILES=()
+for RF in ".cursor/rules" ".cursorrules" ".github/copilot-instructions.md" ".windsurfrules" ".clinerules" "CLAUDE.md" ".claude/settings.json"; do
+    [ -f "$RF" ] && RULES_FILES+=("$RF")
+done
+# Also check home-level
+for RF in "$HOME/.cursorrules" "$HOME/CLAUDE.md"; do
+    [ -f "$RF" ] && RULES_FILES+=("$RF")
+done
+
+# Injection patterns — attempts to override agent instructions
+INJECT_PATTERNS='ignore previous|disregard.*instructions|system prompt override|you are now|IMPORTANT:.*must.*override|forget.*all.*previous|new role:|act as root|<system>'
+# Exfiltration patterns — attempts to steal data
+EXFIL_PATTERNS='send.*to.*https?://|curl.*-d.*\$|exfiltrate|upload.*credential|wget.*post|fetch\(.*body.*token|nc -e|base64.*\|.*curl'
+
+for RF in "${RULES_FILES[@]}"; do
+    INJECT_HITS=$(grep -ciE "$INJECT_PATTERNS" "$RF" 2>/dev/null || echo 0)
+    EXFIL_HITS=$(grep -ciE "$EXFIL_PATTERNS" "$RF" 2>/dev/null || echo 0)
+    if [ "$INJECT_HITS" -gt 0 ]; then
+        echo "[FAIL] Prompt injection patterns ($INJECT_HITS hits) in: $RF"
+    fi
+    if [ "$EXFIL_HITS" -gt 0 ]; then
+        echo "[FAIL] Data exfiltration patterns ($EXFIL_HITS hits) in: $RF"
+    fi
+    [ "$INJECT_HITS" -eq 0 ] && [ "$EXFIL_HITS" -eq 0 ] && echo "[PASS] Clean rules file: $RF"
+done
+
+[ ${#RULES_FILES[@]} -eq 0 ] && echo "[INFO] No IDE/agent rules files found in current directory"
+```
+
+---
+
+### Exposed AI Service Detection
+
+Check common AI-related ports for non-localhost bindings.
+
+```bash
+echo "── Exposed AI Services ──"
+if command -v lsof &>/dev/null; then
+    for PORT_INFO in "11434:Ollama" "8080:API-Gateway" "3000:Dev-Server" "8000:FastAPI" "5000:Flask"; do
+        PORT="${PORT_INFO%%:*}"; SVC="${PORT_INFO##*:}"
+        EXPOSED=$(lsof -iTCP:"$PORT" -sTCP:LISTEN -P 2>/dev/null | grep -E '\*:|0\.0\.0\.0:' | grep -v "127.0.0.1\|localhost\|::1" || true)
+        [ -n "$EXPOSED" ] && echo "[WARN] $SVC (port $PORT) listening on all interfaces"
+    done
+fi
+```
+
+---
+
 ### Process & Network Scan
 
 ```bash
@@ -340,6 +448,35 @@ if [[ "$(uname -s)" == "Darwin" && "${1:-full}" == "full" ]]; then
             fi
         done < <(find "$DIR" -maxdepth 2 -type f -mtime -30 -print0 2>/dev/null)
     done
+fi
+```
+
+### Dependency Audit (full mode only)
+
+```bash
+if [ "${1:-full}" = "full" ]; then
+    echo "── Dependency Audit ──"
+
+    # npm audit
+    if command -v npm &>/dev/null && [ -f "package-lock.json" ]; then
+        NPM_AUDIT=$(npm audit --json 2>/dev/null || true)
+        CRIT=$(echo "$NPM_AUDIT" | jq '.metadata.vulnerabilities.critical // 0' 2>/dev/null || echo 0)
+        HIGH=$(echo "$NPM_AUDIT" | jq '.metadata.vulnerabilities.high // 0' 2>/dev/null || echo 0)
+        [ "$CRIT" -gt 0 ] && echo "[FAIL] npm: $CRIT critical vulnerabilities"
+        [ "$HIGH" -gt 0 ] && echo "[WARN] npm: $HIGH high vulnerabilities"
+        [ "$CRIT" -eq 0 ] && [ "$HIGH" -eq 0 ] && echo "[PASS] npm: no critical/high vulnerabilities"
+    fi
+
+    # pip check
+    if command -v pip3 &>/dev/null; then
+        PIP_CHECK=$(pip3 check 2>/dev/null || true)
+        if echo "$PIP_CHECK" | grep -q "No broken requirements"; then
+            echo "[PASS] pip: no broken dependencies"
+        elif [ -n "$PIP_CHECK" ]; then
+            BROKEN=$(echo "$PIP_CHECK" | wc -l | tr -d ' ')
+            echo "[WARN] pip: $BROKEN broken dependency issue(s)"
+        fi
+    fi
 fi
 ```
 
@@ -466,6 +603,35 @@ HIJACK_MATCHES=$(grep -rniE "$HIJACK_PATTERNS" "$SKILL_PATH" 2>/dev/null | grep 
 # If found: HIGH +25
 ```
 
+#### 3.9 MCP Tool Poisoning Detection
+
+```bash
+# Check .mcp.json files within the skill for poisoned tool descriptions
+MCP_IN_SKILL=$(find "$SKILL_PATH" -name ".mcp.json" -not -path "*/.git/*" 2>/dev/null || true)
+for MCP_F in $MCP_IN_SKILL; do
+    # Hidden instructions in tool descriptions
+    POISON_DESC=$(grep -iE 'ignore previous|<system>|you must|IMPORTANT:.*must|override.*instructions' "$MCP_F" 2>/dev/null || true)
+    [ -n "$POISON_DESC" ] && echo "[CRITICAL +35] Tool poisoning in MCP config: $MCP_F"
+
+    # Known malicious packages
+    MALICIOUS_MCP='postmark-mcp|framelink-figma-mcp|mcp-remote'
+    BAD_PKG=$(grep -oE "$MALICIOUS_MCP" "$MCP_F" 2>/dev/null || true)
+    [ -n "$BAD_PKG" ] && echo "[CRITICAL +40] Known malicious MCP package ($BAD_PKG) in: $MCP_F"
+
+    # 0.0.0.0 binding
+    grep -q '0\.0\.0\.0' "$MCP_F" 2>/dev/null && echo "[HIGH +20] MCP config binds 0.0.0.0: $MCP_F"
+done
+```
+
+#### 3.10 IDE Rules File Creation Detection
+
+```bash
+# Skills that create/modify IDE rules files are suspicious
+RULES_CREATE='\.cursorrules|\.cursor/rules|copilot-instructions\.md|\.windsurfrules|\.clinerules|CLAUDE\.md'
+RULES_MATCHES=$(grep -rnE "(>|>>|write|create|mkdir|touch|cp).*($RULES_CREATE)" "$SKILL_PATH" 2>/dev/null | grep -v "\.git/" || true)
+# If found: MEDIUM +15 "Skill creates/modifies IDE rules files"
+```
+
 ---
 
 ## 4. Quick IOC Scan (`/safety-scan`)
@@ -498,6 +664,29 @@ done
 SUSPICIOUS='xmrig|cryptonight|stratum|coinhive|minergate|ncat -e|nc -e|/bin/sh -i|reverse.shell|mcp-proxy.*bore'
 ps aux 2>/dev/null | grep -iE "$SUSPICIOUS" | grep -v grep && echo "[ALERT] Suspicious process found" || echo "[CLEAN] No suspicious processes"
 
+# ── Resource Abuse Detection ──
+# Flag processes consuming excessive CPU or memory (crypto miners, runaway agents)
+ps aux 2>/dev/null | awk 'NR>1 && $3 > 80 {print "[WARN] High CPU ("$3"%) process: "$11}' || true
+ps aux 2>/dev/null | awk 'NR>1 && $4 > 50 {print "[WARN] High memory ("$4"%) process: "$11}' || true
+
+# ── Known Malicious Packages ──
+MALICIOUS_NPM='postmark-mcp|@anthropic/mcp-proxy|framelink-figma-mcp|mcp-remote|event-stream|ua-parser-js-malicious|colors-malicious'
+if command -v npm &>/dev/null; then
+    NPM_GLOBAL=$(npm ls -g --depth=0 --json 2>/dev/null | grep -oE '"('"$MALICIOUS_NPM"')"' || true)
+    [ -n "$NPM_GLOBAL" ] && echo "[ALERT] Malicious npm package installed globally: $NPM_GLOBAL"
+fi
+# Check local node_modules
+if [ -d "node_modules" ]; then
+    for BAD in postmark-mcp framelink-figma-mcp mcp-remote; do
+        [ -d "node_modules/$BAD" ] && echo "[ALERT] Malicious package in local node_modules: $BAD"
+    done
+fi
+MALICIOUS_PIP='evil-pip|malicious-package|colourama|python-binance-malicious'
+if command -v pip3 &>/dev/null; then
+    PIP_LIST=$(pip3 list --format=freeze 2>/dev/null | grep -iE "$MALICIOUS_PIP" || true)
+    [ -n "$PIP_LIST" ] && echo "[ALERT] Malicious pip package installed: $PIP_LIST"
+fi
+
 # ── Memory/Config Poisoning ──
 # Check common AI agent workspace files for injection patterns
 # Matches patterns like "exfiltrate to", "steal and send", "install backdoor"
@@ -519,8 +708,9 @@ for AGENT_DIR in "$HOME/.claude" "$HOME/.openclaw/workspaces" "$HOME/.autogpt"; 
 done
 
 # ── Credential Exfiltration Timing ──
-# Check if sensitive files were accessed very recently but not modified (sign of exfiltration)
-for SENS in "$HOME/.ssh/id_"* "$HOME/.claude/credentials/"* "$HOME/.env"; do
+# Check if sensitive files were accessed very recently but not modified (sign of read-only exfiltration)
+SENS_FILES=("$HOME/.ssh/id_"* "$HOME/.claude/credentials/"* "$HOME/.env" "$HOME/.npmrc" "$HOME/.pypirc" "$HOME/.netrc" "$HOME/.ssh/config")
+for SENS in "${SENS_FILES[@]}"; do
     [ -f "$SENS" ] || continue
     if [[ "$(uname -s)" == "Darwin" ]]; then
         ATIME=$(stat -f %a "$SENS" 2>/dev/null || echo 0)
@@ -532,8 +722,8 @@ for SENS in "$HOME/.ssh/id_"* "$HOME/.claude/credentials/"* "$HOME/.env"; do
     NOW=$(date +%s)
     SINCE_ACCESS=$((NOW - ATIME))
     DIFF=$((ATIME - MTIME))
-    # Warn if accessed in last 5 min AND not recently modified
-    if [ "$SINCE_ACCESS" -lt 300 ] && [ "$DIFF" -gt 86400 ]; then
+    # Warn if accessed in last 2 min AND not recently modified (tighter window = fewer false positives)
+    if [ "$SINCE_ACCESS" -lt 120 ] && [ "$DIFF" -gt 86400 ]; then
         echo "[WARN] Sensitive file accessed recently: $SENS (${SINCE_ACCESS}s ago)"
     fi
 done
@@ -545,146 +735,74 @@ echo "[CLEAN] IOC scan complete"
 
 ## 5. OWASP Agentic Top 10 (2026) Hardening Guide
 
-When presenting audit results, include relevant OWASP ASI recommendations. This section provides actionable mitigations for each ASI category.
+When presenting audit results, include relevant OWASP ASI recommendations.
 
 ### ASI01 — Agent Goal Hijack
-
-**Risk**: Prompt injection causes the agent to pursue attacker goals instead of user goals.
-
-**Mitigations**:
-- Enable instruction hierarchy (system > user > tool output) in agent configs
-- Never allow tool outputs to override system-level instructions
-- Use Claude Code's `--allowedTools` flag to restrict tool access per task
-- Review CLAUDE.md files for injected instructions before running in new repos
-- On VPS: isolate agent processes with separate user accounts
+**Risk**: Prompt injection overrides agent goals. **Mitigations**: Enforce instruction hierarchy (system > user > tool output); use `--allowedTools` to restrict tools; review CLAUDE.md in new repos before running.
 
 ### ASI02 — Tool Misuse & Exploitation
-
-**Risk**: Agents misuse tools (file write, shell exec, web access) in ways that harm the system.
-
-**Mitigations**:
-- Use Claude Code permission modes (`--permission-mode`) to restrict tool access
-- macOS: Enable App Sandbox for agent processes where possible
-- Linux: Use `seccomp` profiles or AppArmor to limit syscalls
-- Windows: Run agents in Windows Sandbox or with restricted execution policies
-- VPS: Use Docker containers with `--no-new-privileges` and read-only root fs
+**Risk**: Agents misuse tools (shell, file write, web) to harm the system. **Mitigations**: Use `--permission-mode` to restrict access; sandbox agents (AppArmor/seccomp on Linux, App Sandbox on macOS); Docker with `--no-new-privileges` on VPS.
 
 ### ASI03 — Agent Identity & Privilege Abuse
-
-**Risk**: Agent escalates privileges or impersonates other agents/users.
-
-**Mitigations**:
-- Run each agent with minimum required filesystem permissions
-- macOS: Use separate user accounts or sandboxed environments per agent
-- Linux: Dedicated service accounts, `sudo` restricted to specific commands
-- Windows: Standard user accounts, not Administrator
-- VPS: Use `polkit` rules to limit privilege escalation
-- Rotate API keys and tokens on a schedule
+**Risk**: Agent escalates privileges or impersonates others. **Mitigations**: Minimum-required permissions per agent; dedicated service accounts; rotate API keys on schedule.
 
 ### ASI04 — Agentic Supply Chain Compromise
-
-**Risk**: Malicious skills, plugins, MCP servers, or dependencies compromise the agent.
-
-**Mitigations**:
-- **Always run `/safety-check-skill` before installing any skill or plugin**
-- Pin dependency versions; avoid `latest` tags
-- Verify skill/plugin source repos — check stars, contributors, commit history
-- macOS: Verify code signatures (`codesign -v`) on downloaded binaries
-- Linux: Use package manager GPG verification
-- Windows: Check Authenticode signatures
-- Never run `curl | sh` from untrusted sources
+**Risk**: Malicious skills/plugins/MCP servers/dependencies. **Mitigations**: **Always run `/safety-check-skill` before installing**; pin dependency versions; verify code signatures; never `curl | sh` from untrusted sources.
 
 ### ASI05 — Unexpected Code Execution
-
-**Risk**: Agent generates and executes code that has unintended side effects.
-
-**Mitigations**:
-- Use Claude Code's approval prompts — never auto-approve destructive commands
-- macOS: Enable SIP, keep Gatekeeper on
-- Linux: Use `noexec` mount option on `/tmp` and `/var/tmp`
-- Windows: Enable SmartScreen, use WDAC (Windows Defender Application Control)
-- VPS: Mount `/tmp` with `noexec,nosuid`; use `seccomp` profiles
-- Review generated scripts before execution, especially those touching system files
+**Risk**: Agent-generated code has unintended side effects. **Mitigations**: Never auto-approve destructive commands; enable SIP/Gatekeeper (macOS); `noexec` on `/tmp` (Linux/VPS); SmartScreen/WDAC (Windows).
 
 ### ASI06 — Memory & Context Poisoning
-
-**Risk**: Attacker manipulates agent memory (MEMORY.md, conversation history, tool outputs) to alter behavior.
-
-**Mitigations**:
-- Set workspace/memory files to read-only when not actively updating them
-- Monitor memory files for unauthorized changes (use git tracking)
-- Claude Code: Review `.claude/` project memory files in new repositories
-- macOS/Linux: Use `chattr +i` (Linux) or `chflags uchg` (macOS) on critical config files
-- Implement integrity checks: hash memory files and verify periodically
-- VPS: Use AIDE or Tripwire for file integrity monitoring
+**Risk**: Attacker manipulates agent memory/history to alter behavior. **Mitigations**: Git-track memory files; use `chattr +i` / `chflags uchg` on critical configs; review `.claude/` project memory in new repos; AIDE/Tripwire on VPS.
 
 ### ASI07 — Insecure Inter-Agent Communication
-
-**Risk**: Agents communicate through insecure channels; messages can be intercepted or spoofed.
-
-**Mitigations**:
-- Use localhost-only connections for inter-agent communication
-- Encrypt inter-agent messages if crossing network boundaries
-- Validate message origins with shared secrets or certificates
-- macOS: Use XPC for local inter-process communication
-- Linux: Use Unix domain sockets with proper file permissions
-- VPS: Use mutual TLS for any network-based agent communication
+**Risk**: Agent messages intercepted or spoofed. **Mitigations**: Localhost-only inter-agent connections; Unix domain sockets with proper permissions; mutual TLS for network-based communication.
 
 ### ASI08 — Cascading Agent Failures
-
-**Risk**: One compromised agent cascades failures to dependent agents.
-
-**Mitigations**:
-- Implement circuit breakers between dependent agents
-- Set timeouts on all inter-agent calls
-- Isolate critical agents (e.g., those with credential access) from general-purpose agents
-- Use separate API keys per agent so one compromise doesn't affect all
-- Monitor agent health with heartbeat checks
-- VPS: Use separate containers/VMs for critical vs. non-critical agents
+**Risk**: One compromised agent cascades to dependents. **Mitigations**: Circuit breakers + timeouts on inter-agent calls; separate API keys per agent; isolate credential-access agents; health monitoring.
 
 ### ASI09 — Human-Agent Trust Exploitation
-
-**Risk**: Agent manipulates user into approving harmful actions through social engineering.
-
-**Mitigations**:
-- Always read the full command before approving Claude Code tool calls
-- Be suspicious of urgency ("you must approve this now") in agent output
-- Use `--permission-mode` to require approval for destructive operations
-- Set up hooks to flag specific dangerous patterns before execution
-- Review agent recommendations against your own understanding of the task
+**Risk**: Agent social-engineers user into approving harmful actions. **Mitigations**: Read full commands before approving; be suspicious of urgency; use hooks to flag dangerous patterns pre-execution.
 
 ### ASI10 — Rogue Agents
-
-**Risk**: Agent operates outside its intended scope, pursuing unauthorized objectives.
-
-**Mitigations**:
-- Define clear agent boundaries in system prompts / CLAUDE.md
-- Use Claude Code's `--allowedTools` to enforce tool restrictions
-- macOS: Monitor `Console.app` for unexpected agent activity
-- Linux: Use `auditd` to log agent process activity
-- Windows: Enable Process Creation auditing in Event Viewer
-- VPS: Use `falco` for runtime security monitoring
-- Regularly audit agent logs for scope violations
+**Risk**: Agent operates outside intended scope. **Mitigations**: Clear boundaries in system prompts/CLAUDE.md; `--allowedTools` enforcement; audit logs (`auditd` on Linux, `Console.app` on macOS, `falco` on VPS).
 
 ---
 
 ## 6. Known Threat Intelligence
 
-### ClawHavoc Campaign (Jan 27-29, 2026)
+### ClawHavoc Campaign (Jan–Feb 2026)
 
-- **341 malicious ClawHub skills** delivering Atomic Stealer (AMOS)
+- **571+ malicious ClawHub skills** (341 original wave Jan 27-29, 230+ follow-up) delivering Atomic Stealer (AMOS)
 - **C2 IP**: 91.92.242.30 (subnet: 91.92.242.0/24)
 - **Attack vector**: Fake prerequisites → staging page → obfuscated payload → AMOS binary
 - **Targets**: Exchange API keys, wallet keys, SSH credentials, browser passwords, .env files
-- **Skill names used**: solana-wallet-tracker, youtube-summarize-pro, polymarket-trader, twitter (top downloaded)
-- **Detection**: Check for C2 IP in connections, `openclaw-core` dependency, xattr quarantine removal
+- **Top skill names**: solana-wallet-tracker, youtube-summarize-pro, polymarket-trader, twitter
+- **Detection**: C2 IP connections, `openclaw-core` dependency, xattr quarantine removal
 
-### MCP Server Vulnerabilities
+### Postmark MCP Backdoor (Feb 2026)
 
-- **Anthropic Git MCP Server** — CVE-2025-68143/44/45: path traversal, argument injection
-- **External MCP proxies** (bore.pub, ngrok, cloudflared) — traffic interception risk
-- **Untrusted MCP servers** can exfiltrate data through tool call arguments and return values
-- **Tool poisoning** — malicious MCP servers can embed hidden instructions in tool descriptions
+- **First malicious MCP server in the wild** — `postmark-mcp` npm package (v1.0.16+)
+- **~1,500 weekly installs** before takedown; BCC injection exfiltrates all emails to attacker
+- **Detection**: Check installed MCP packages against malicious list; scan `.mcp.json` configs
+
+### CVE Reference Table
+
+| CVE | Component | Impact |
+|-----|-----------|--------|
+| CVE-2025-68143/44/45 | Anthropic Git MCP Server | Path traversal, argument injection |
+| CVE-2025-53967 | MCP protocol (general) | Tool poisoning via hidden descriptions |
+| CVE-2025-6514 | npm MCP registry | Dependency confusion in MCP packages |
+| CVE-2025-32711 | Cursor IDE | Rules file injection (IDEsaster) |
+| CVE-2025-49150/54130/61590 | Copilot, Windsurf, Claude Code | Rules file backdoor injection (IDEsaster) |
+
+### MCP Ecosystem Threat Stats
+
+- **82%** of 2,614 MCP implementations vulnerable to path traversal (Barracuda, Feb 2026)
+- **67%** vulnerable to code injection; **34%** to command injection
+- **43 agent framework components** with embedded vulnerabilities identified
+- **175K+ Ollama servers** exposed on 0.0.0.0:11434 (Shodan, Jan 2026)
+- **Tool poisoning** — malicious MCP servers embed hidden instructions in tool descriptions
 
 ### Supply Chain Attack Patterns
 
@@ -699,7 +817,11 @@ When presenting audit results, include relevant OWASP ASI recommendations. This 
 ## 7. References
 
 - [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)
-- [341 Malicious ClawHub Skills — The Hacker News](https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html)
+- [571 Malicious ClawHub Skills — The Hacker News](https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html)
+- [Postmark MCP Backdoor Analysis — Snyk](https://snyk.io/articles/postmark-mcp-backdoor/)
+- [IDEsaster: 30+ CVEs in Coding Assistants — Wiz](https://wiz.io/blog/idesaster-coding-assistant-vulnerabilities)
+- [82% of MCP Implementations Vulnerable — Barracuda](https://barracuda.com/reports/mcp-security-2026)
+- [175K Exposed Ollama Servers — BleepingComputer](https://www.bleepingcomputer.com/news/security/175k-ollama-servers-exposed/)
 - [OpenClaw Security Guide 2026 — Adversa AI](https://adversa.ai/blog/openclaw-security-101-vulnerabilities-hardening-2026/)
 - [From SKILL.md to Shell Access — Snyk](https://snyk.io/articles/skill-md-shell-access/)
 - [AI Agent Memory Poisoning — MintMCP](https://www.mintmcp.com/blog/ai-agent-memory-poisoning)
