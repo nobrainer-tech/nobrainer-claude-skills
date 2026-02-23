@@ -6,7 +6,7 @@ This is a personal repo — I'm the sole maintainer. If you find a skill useful,
 
 ## Skills
 
-### [safety-first](./safety-first/)
+### [nobrainer-fast-audit](./nobrainer-fast-audit/)
 
 Universal security diagnostic skill for Claude Code. Cross-platform: macOS, Linux, Windows, VPS.
 
@@ -24,6 +24,22 @@ Universal security diagnostic skill for Claude Code. Cross-platform: macOS, Linu
 - OWASP Agentic Top 10 (2026) hardening guide (ASI01-ASI10)
 - Known threats: ClawHavoc campaign, MCP server CVEs, supply chain patterns
 
+### [nobrainer-starter](./nobrainer-starter/)
+
+Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering standards and workflow rules in any project directory.
+
+**Commands:**
+- `/nobrainer-starter` — Bootstrap current project with all standards
+- or: "setup project", "init project", "create AGENTS.md", "bootstrap project standards"
+
+**Creates:**
+- `AGENTS.md` — Engineering principles: DRY, KISS, SOLID, YAGNI, Clean Code, SOLID, error handling, testability, communication ethics (no docs unless asked, no emojis, single method approach)
+- `CLAUDE.md` — Workflow rules: Plan Mode, Subagent Strategy, Verification Before Done, Task Management, Git Rules
+- `tasks/todo.md` — Task tracker stub
+- `tasks/lessons.md` — Lessons log stub
+
+Merge-safe: if files already exist, only missing sections are added — existing content is never overwritten.
+
 ## Installation
 
 Copy any skill directory into `~/.claude/skills/`:
@@ -33,10 +49,12 @@ Copy any skill directory into `~/.claude/skills/`:
 git clone https://github.com/nobrainer-tech/nobrainer-claude-skills.git
 
 # Install a skill
-cp -r nobrainer-claude-skills/safety-first ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-fast-audit ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
 
-# Or symlink it (auto-updates with git pull)
-ln -s "$(pwd)/nobrainer-claude-skills/safety-first" ~/.claude/skills/safety-first
+# Or symlink (auto-updates with git pull)
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrainer-starter
 ```
 
 Then restart Claude Code — the skill will be available immediately.

@@ -1,5 +1,5 @@
 ---
-name: safety-first
+name: nobrainer-fast-audit
 description: "Universal security diagnostic skill for Claude Code. Audits system security posture, vets skills/plugins before installation, scans for indicators of compromise, and provides OWASP Agentic Top 10 hardening guidance. Cross-platform: macOS, Linux, Windows, VPS. Use on: /safety-audit, /safety-check-skill, /safety-scan."
 ---
 
