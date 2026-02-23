@@ -1,27 +1,26 @@
 ---
 name: nobrainer-starter
-description: Project starter - creates AGENTS.md and CLAUDE.md with NoBrainer engineering standards and workflow rules. Use when starting a new project or bootstrapping an existing one. Trigger on "setup project", "init project", "nobrainer-starter", "create AGENTS.md", "bootstrap project standards".
+description: Project starter - creates AGENTS.md and CLAUDE.md with identical NoBrainer engineering standards and workflow rules. Both files get the same content so the project works with Claude Code, Codex, Kimi, Cursor, or any AI coding assistant. Use when starting a new project or bootstrapping an existing one. Trigger on "setup project", "init project", "nobrainer-starter", "create AGENTS.md", "bootstrap project standards".
 ---
 
 # NoBrainer Project Starter
 
-Bootstraps a project with engineering standards (AGENTS.md) and workflow rules (CLAUDE.md).
+Bootstraps a project with engineering standards and workflow rules.
+
+Both `AGENTS.md` and `CLAUDE.md` receive **identical content** so the project works correctly regardless of which AI coding assistant reads it (Claude Code, Codex, Kimi, Cursor, etc.).
 
 ## Your Task
 
-1. **Check current working directory** for existing AGENTS.md and CLAUDE.md
-2. **Create or merge AGENTS.md** with engineering principles (never overwrite existing content — merge)
-3. **Create or merge CLAUDE.md** with workflow rules (never overwrite existing content — merge)
-4. **Create tasks/ directory** with stub files if not present
+1. Check current working directory for existing `AGENTS.md` and `CLAUDE.md`
+2. Write both files with the full content below — if a file already exists, merge intelligently (add only missing sections, never overwrite existing content)
+3. Create `tasks/` directory with stub files if not present
 
 ---
 
-## AGENTS.md — Full Content to Write
-
-If AGENTS.md does not exist, create it. If it exists, merge intelligently — add only missing sections.
+## Full Content — Write to Both AGENTS.md and CLAUDE.md
 
 ```markdown
-# AGENTS.md — Engineering Standards
+# Engineering Standards & Workflow Rules
 
 ## Core Engineering Principles
 
@@ -86,16 +85,6 @@ If AGENTS.md does not exist, create it. If it exists, merge intelligently — ad
 6. Document only when necessary — focus on why, not what.
 7. Communicate uncertainties clearly and seek confirmation.
 8. Deliver working solutions incrementally rather than waiting for perfection.
-```
-
----
-
-## CLAUDE.md — Full Content to Write
-
-If CLAUDE.md does not exist, create it. If it exists, merge intelligently — add only missing sections.
-
-```markdown
-# CLAUDE.md
 
 ## Workflow Orchestration
 
@@ -152,10 +141,17 @@ If CLAUDE.md does not exist, create it. If it exists, merge intelligently — ad
 
 ## Git Rules
 
-- Never commit without explicit user approval
+- Never commit without explicit user approval per each commit
 - Never commit directly to main/master — always use branches and PRs
 - Create PR only when explicitly asked
-- No large volumes of redundant files — patch files in place, don't create versioned copies
+- No large volumes of redundant versioned files — patch files in place
+
+## Safety Rules
+
+- **Never execute destructive commands without explicit user confirmation** — this includes: `rm -rf`, recursive deletion, `DROP TABLE`, `DELETE FROM` without WHERE, `git reset --hard`, `git push --force`, truncating files, wiping directories, killing critical processes
+- Before any irreversible operation: state clearly what will be deleted/destroyed and ask for confirmation
+- When in doubt whether an operation is destructive: ask first, act second
+- Prefer reversible operations — move to trash instead of delete, backup before overwrite, branch before rebase
 ```
 
 ---
@@ -204,8 +200,8 @@ Confirm to user:
 ```
 Project bootstrapped:
 
-AGENTS.md — engineering standards
-CLAUDE.md — workflow rules + git rules
+AGENTS.md — full standards (engineering + workflow + safety)
+CLAUDE.md — full standards (engineering + workflow + safety)
 tasks/todo.md — task tracker
 tasks/lessons.md — lessons log
 ```
