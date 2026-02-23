@@ -32,11 +32,15 @@ Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering st
 - `/nobrainer-starter` — Bootstrap current project with all standards
 - or: "setup project", "init project", "create AGENTS.md", "bootstrap project standards"
 
+Both files receive **identical content** — works with Claude Code, Codex, Kimi, Cursor, or any AI coding assistant that reads project config files.
+
 **Creates:**
-- `AGENTS.md` — Engineering principles: DRY, KISS, SOLID, YAGNI, Clean Code, SOLID, error handling, testability, communication ethics (no docs unless asked, no emojis, single method approach)
-- `CLAUDE.md` — Workflow rules: Plan Mode, Subagent Strategy, Verification Before Done, Task Management, Git Rules
-- `tasks/todo.md` — Task tracker stub
-- `tasks/lessons.md` — Lessons log stub
+- `AGENTS.md` + `CLAUDE.md` — identical content covering:
+  - Engineering principles: DRY, KISS, SOLID, YAGNI, Clean Code, error handling, testability, communication ethics (no docs unless asked, no emojis, single method approach)
+  - Workflow rules: Plan Mode, Subagent Strategy, Verification Before Done, Task Management, Git Rules
+  - Safety Rules: destructive commands (`rm -rf`, `DROP TABLE`, `git reset --hard`, force push, wiping directories) require explicit confirmation before execution
+- `tasks/todo.md` — task tracker stub
+- `tasks/lessons.md` — lessons log stub
 
 Merge-safe: if files already exist, only missing sections are added — existing content is never overwritten.
 
