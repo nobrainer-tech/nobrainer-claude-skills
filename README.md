@@ -24,6 +24,19 @@ Universal security diagnostic skill for Claude Code. Cross-platform: macOS, Linu
 - OWASP Agentic Top 10 (2026) hardening guide (ASI01-ASI10)
 - Known threats: ClawHavoc campaign, MCP server CVEs, supply chain patterns
 
+### [nobrainer-polymarket](./nobrainer-polymarket/)
+
+Interact with [Polymarket](https://polymarket.com) prediction markets via the official `polymarket-cli`. Browse markets, check prices, place orders, manage positions, and redeem winnings — all from the terminal.
+
+**Use when:** searching markets, checking prices/order books, trading, viewing portfolios, redeeming won positions, or any Polymarket task via CLI.
+
+**Includes:**
+- Installation instructions (install script, manual download with checksum verification, build from source)
+- Authentication setup (wallet import, config file, env vars, signature types)
+- All workflows: market research, trading, order management, CTF redeem, leaderboard
+- Full command reference in `references/commands.md`
+- NegRisk vs standard market guidance (most binary markets are NegRisk)
+
 ### [nobrainer-starter](./nobrainer-starter/)
 
 Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering standards and workflow rules in any project directory.
@@ -55,10 +68,12 @@ git clone https://github.com/nobrainer-tech/nobrainer-claude-skills.git
 # Install a skill
 cp -r nobrainer-claude-skills/nobrainer-fast-audit ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrainer-starter
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
 ```
 
 Then restart Claude Code — the skill will be available immediately.
