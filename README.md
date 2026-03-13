@@ -55,6 +55,20 @@ Dynamically assemble a team of expert subagents for any task from a catalog of *
 
 Agent definitions sourced from [davila7/claude-code-templates](https://github.com/davila7/claude-code-templates).
 
+### [nobrainer-memory](./nobrainer-memory/)
+
+Install persistent semantic memory for Claude Code using [memsearch](https://github.com/nicobailey/memsearch). Every session is auto-captured as markdown notes, with relevant context injected on every prompt via local Ollama embeddings — no API key needed.
+
+**Trigger:** "install memory", "setup memsearch", "nobrainer-memory", "dodaj pamiec do claude"
+
+**What gets installed:**
+- `memsearch` Python CLI (PyPI)
+- `nomic-embed-text` Ollama model — local embeddings
+- memsearch ccplugin registered in Claude Code plugins
+- Config: `~/.memsearch/config.toml`
+
+Supports global (`~/.memsearch/memory/`) or per-project memory scope.
+
 ### [nobrainer-starter](./nobrainer-starter/)
 
 Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering standards and workflow rules in any project directory.
@@ -88,12 +102,14 @@ cp -r nobrainer-claude-skills/nobrainer-fast-audit ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-memory ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrainer-starter
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/nobrainer-team-builder
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-memory" ~/.claude/skills/nobrainer-memory
 ```
 
 Then restart Claude Code — the skill will be available immediately.
