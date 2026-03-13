@@ -55,6 +55,18 @@ Dynamically assemble a team of expert subagents for any task from a catalog of *
 
 Agent definitions sourced from [davila7/claude-code-templates](https://github.com/davila7/claude-code-templates).
 
+### [nobrainer-continuous-improvement](./nobrainer-continuous-improvement/)
+
+Upgrades any project's `CLAUDE.md` with proven workflow rules — Workflow Orchestration (6 rules), Task Management (6 steps), and Core Principles (3 rules). Merge-safe: only adds missing sections, never overwrites existing content.
+
+**Trigger:** "continuous improvement", "upgrade CLAUDE.md", "dodaj zasady do CLAUDE.md", "dopisz workflow rules"
+
+**Adds:**
+- Workflow Orchestration: Plan Mode, Subagent Strategy, Self-Improvement Loop, Verification, Elegance, Autonomous Bug Fixing
+- Task Management: plan → verify → track → explain → document → capture lessons
+- Core Principles: Simplicity First, No Laziness, Minimal Impact
+- Scaffolds `tasks/todo.md` + `tasks/lessons.md`
+
 ### [nobrainer-memory](./nobrainer-memory/)
 
 Install persistent semantic memory for Claude Code using [memsearch](https://github.com/nicobailey/memsearch). Every session is auto-captured as markdown notes, with relevant context injected on every prompt via local Ollama embeddings — no API key needed.
@@ -103,6 +115,7 @@ cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-memory ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-continuous-improvement ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
@@ -110,6 +123,7 @@ ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrai
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/nobrainer-team-builder
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-memory" ~/.claude/skills/nobrainer-memory
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-continuous-improvement" ~/.claude/skills/nobrainer-continuous-improvement
 ```
 
 Then restart Claude Code — the skill will be available immediately.
