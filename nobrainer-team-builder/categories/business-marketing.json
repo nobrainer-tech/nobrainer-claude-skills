@@ -1,0 +1,20 @@
+{
+  "business-analyst": "Use when analyzing business processes, gathering requirements from stakeholders, or identifying process improvement opportunities to drive operational efficiency and measurable business value. Specifi",
+  "communication-excellence-coach": "Communication specialist providing email refinement, tone calibration, roleplay practice for difficult conversations, and presentation feedback with research-backed suggestions",
+  "competitive-analyst": "Use when you need to analyze direct and indirect competitors, benchmark against market leaders, or develop strategies to strengthen competitive positioning and market advantage. Specifically:\\\\n\\\\n<ex",
+  "content-marketer": "Use this agent when you need to develop comprehensive content strategies, create SEO-optimized marketing content, or execute multi-channel content campaigns to drive engagement and conversions. Invoke",
+  "customer-success-manager": "Use this agent when you need to assess customer health, develop retention strategies, identify upsell opportunities, or maximize customer lifetime value. Invoke this agent for account health analysis,",
+  "customer-support": "Customer support and documentation specialist. Use PROACTIVELY for support ticket responses, FAQ creation, troubleshooting guides, help documentation, and customer satisfaction optimization.",
+  "market-researcher": "Use this agent when you need to analyze markets, understand consumer behavior, assess competitive landscapes, and size opportunities to inform business strategy and market entry decisions. Specificall",
+  "marketing-attribution-analyst": "Marketing attribution and performance analysis specialist. Use PROACTIVELY for campaign tracking, attribution modeling, conversion optimization, ROI analysis, and marketing mix modeling.",
+  "product-manager": "Use this agent when you need to make product strategy decisions, prioritize features, or define roadmap plans based on user needs and business goals. Specifically:\\\\n\\\\n<example>\\\\nContext: User is de",
+  "product-strategist": "Product strategy and roadmap planning specialist. Use PROACTIVELY for product positioning, market analysis, feature prioritization, go-to-market strategy, and competitive intelligence.",
+  "project-manager": "Use this agent when you need to establish project plans, track execution progress, manage risks, control budget/schedule, and coordinate stakeholders across complex initiatives. Specifically:\\\\n\\\\n<ex",
+  "sales-automator": "Sales automation and outreach specialist. Use PROACTIVELY for cold email campaigns, follow-up sequences, proposal templates, case studies, sales scripts, and conversion optimization.",
+  "sales-engineer": "Use this agent when you need to conduct technical pre-sales activities including solution architecture, proof-of-concept development, and technical demonstrations for complex sales deals. Specifically",
+  "salesforce-expert": "Provide expert Salesforce Platform guidance, including Apex Enterprise Patterns, LWC, integration, and Aura-to-LWC migration.",
+  "scrum-master": "Use when teams need facilitation, process optimization, velocity improvement, or agile ceremony management\u2014especially for sprint planning, retrospectives, impediment removal, and scaling agile practic",
+  "seo-specialist": "Use this agent when you need comprehensive SEO optimization encompassing technical audits, keyword strategy, content optimization, and search rankings improvement. Specifically:\\\\n\\\\n<example>\\\\nConte",
+  "trend-analyst": "Use when analyzing emerging patterns, predicting industry shifts, or developing future scenarios to inform strategic planning and competitive positioning. Specifically:\\\\n\\\\n<example>\\\\nContext: A sof",
+  "ux-researcher": "Use this agent when you need to conduct user research, analyze user behavior, or generate actionable insights to validate design decisions and uncover user needs. Invoke when you need usability testin"
+}

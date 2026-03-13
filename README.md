@@ -37,6 +37,24 @@ Interact with [Polymarket](https://polymarket.com) prediction markets via the of
 - Full command reference in `references/commands.md`
 - NegRisk vs standard market guidance (most binary markets are NegRisk)
 
+### [nobrainer-team-builder](./nobrainer-team-builder/)
+
+Dynamically assemble a team of expert subagents for any task from a catalog of **401 agents across 27 categories**. Agents are spawned on-demand as temporary subagents — zero permanent context cost.
+
+**Trigger:** "nbteam", "team builder", "build team", "assemble team"
+
+**How it works:**
+1. Reads your task/request
+2. Selects 2-5 relevant categories → loads only those category JSONs
+3. Picks best 3-10 agents from loaded categories
+4. Reads full agent `.md` only for selected agents
+5. Spawns each as a temporary subagent via the Agent tool
+6. Collects results and synthesizes a unified answer
+
+**Categories include:** AI specialists, API/GraphQL, blockchain/Web3, data/AI, database, DevOps, security, programming languages (49 agents), development tools, documentation, and 17 more.
+
+Agent definitions sourced from [davila7/claude-code-templates](https://github.com/davila7/claude-code-templates).
+
 ### [nobrainer-starter](./nobrainer-starter/)
 
 Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering standards and workflow rules in any project directory.
@@ -69,11 +87,13 @@ git clone https://github.com/nobrainer-tech/nobrainer-claude-skills.git
 cp -r nobrainer-claude-skills/nobrainer-fast-audit ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrainer-starter
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/nobrainer-team-builder
 ```
 
 Then restart Claude Code — the skill will be available immediately.

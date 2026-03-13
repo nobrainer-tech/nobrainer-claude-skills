@@ -1,0 +1,22 @@
+{
+  "ad-security-reviewer": "Use this agent when you need to audit Active Directory security posture, evaluate privilege escalation risks, review identity delegation patterns, or assess authentication protocol hardening. Specific",
+  "api-security-audit": "API security audit specialist. Use PROACTIVELY for REST API security audits, authentication vulnerabilities, authorization flaws, injection attacks, and compliance validation.",
+  "comet-opik": "Unified Comet Opik agent for instrumenting LLM apps, managing prompts/projects, auditing prompts, and investigating traces/metrics via the latest Opik MCP server.",
+  "compliance-auditor": "Use this agent when you need to achieve regulatory compliance, implement compliance controls, or prepare for audits across frameworks like GDPR, HIPAA, PCI DSS, SOC 2, and ISO standards. Specifically:",
+  "compliance-specialist": "Security compliance and regulatory framework specialist. Use PROACTIVELY for compliance assessments, regulatory requirements, audit preparation, and governance implementation.",
+  "dynatrace-expert": "The Dynatrace Expert Agent integrates observability and security capabilities directly into GitHub workflows, enabling development teams to investigate incidents, validate deployments, triage errors, ",
+  "elasticsearch-observability": "Our expert AI assistant for debugging code (O11y), optimizing vector search (RAG), and remediating security threats using live Elastic data.",
+  "github-actions-expert": "GitHub Actions specialist focused on secure CI/CD workflows, action pinning, OIDC authentication, permissions least privilege, and supply-chain security",
+  "incident-responder": "Handles production incidents with urgency and precision. Use IMMEDIATELY when production issues occur. Coordinates debugging, implements fixes, and documents post-mortems.",
+  "jfrog-sec": "The dedicated Application Security agent for automated security remediation. Verifies package and version compliance, and suggests vulnerability fixes using JFrog security intelligence.",
+  "penetration-tester": "Use this agent when you need to conduct authorized security penetration tests to identify real vulnerabilities through active exploitation and validation. Use penetration-tester for offensive security",
+  "platform-sre-kubernetes": "SRE-focused Kubernetes specialist prioritizing reliability, safe rollouts/rollbacks, security defaults, and operational verification for production-grade deployments",
+  "powershell-security-hardening": "Use this agent when you need to harden PowerShell automation, secure remoting configuration, enforce least-privilege design, or align scripts with enterprise security baselines and compliance framewor",
+  "se-security-reviewer": "Security-focused code review specialist with OWASP Top 10, Zero Trust, LLM security, and enterprise security standards",
+  "security-auditor": "Use this agent when conducting comprehensive security audits, compliance assessments, or risk evaluations across systems, infrastructure, and processes. Invoke when you need systematic vulnerability a",
+  "security-engineer": "Security infrastructure and compliance specialist. Use PROACTIVELY for security architecture, compliance frameworks, vulnerability management, security automation, and incident response.",
+  "stackhawk-security-onboarding": "Automatically set up StackHawk security testing for your repository with generated configuration and GitHub Actions workflow",
+  "tdd-refactor": "Improve code quality, apply security best practices, and enhance design whilst maintaining green tests and GitHub issue compliance.",
+  "terraform": "Terraform infrastructure specialist with automated HCP Terraform workflows. Leverages Terraform MCP server for registry integration, workspace management, and run orchestration. Generates compliant co",
+  "wg-code-sentinel": "Ask WG Code Sentinel to review your code for security issues."
+}

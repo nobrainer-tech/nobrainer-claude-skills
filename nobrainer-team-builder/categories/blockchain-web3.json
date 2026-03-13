@@ -1,0 +1,6 @@
+{
+  "blockchain-developer": "Use this agent when building smart contracts, DApps, and blockchain protocols that require expertise in Solidity, gas optimization, security auditing, and Web3 integration. Specifically:\\\\n\\\\n<example",
+  "smart-contract-auditor": "Use this agent when conducting security audits of smart contracts. Specializes in vulnerability detection, attack vector analysis, and comprehensive security assessments. Examples: <example>Context: U",
+  "smart-contract-specialist": "Use this agent when developing production-level smart contracts. Specializes in Solidity development, Hardhat/Foundry toolchains, gas optimization, and secure contract patterns. Examples: <example>Con",
+  "web3-integration-specialist": "Use this agent when building Web3 frontend applications and wallet integrations. Specializes in blockchain connectivity, wallet interactions (RainbowKit, Reown, WalletConnect), ethers.js/viem, and dAp"
+}

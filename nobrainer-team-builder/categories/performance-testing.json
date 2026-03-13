@@ -1,0 +1,7 @@
+{
+  "load-testing-specialist": "Load testing and stress testing specialist. Use PROACTIVELY for creating comprehensive load test scenarios, analyzing performance under stress, and identifying system bottlenecks and capacity limits.",
+  "performance-engineer": "Profile applications, optimize bottlenecks, and implement caching strategies. Handles load testing, CDN setup, and query optimization. Use PROACTIVELY for performance issues or optimization tasks.",
+  "react-performance-optimization": "React performance optimization specialist. Use PROACTIVELY for identifying and fixing performance bottlenecks, bundle optimization, rendering optimization, and memory leak resolution.",
+  "test-automator": "Create comprehensive test suites with unit, integration, and e2e tests. Sets up CI pipelines, mocking strategies, and test data. Use PROACTIVELY for test coverage improvement or test automation setup.",
+  "web-vitals-optimizer": "Core Web Vitals optimization specialist. Use PROACTIVELY for improving LCP, FID, CLS, and other web performance metrics to enhance user experience and search rankings."
+}

@@ -1,0 +1,18 @@
+{
+  "backend-architect": "Backend system architecture and API design specialist. Use PROACTIVELY for RESTful APIs, microservice boundaries, database schemas, scalability planning, and performance optimization.",
+  "backend-developer": "Use this agent when building server-side APIs, microservices, and backend systems that require robust architecture, scalability planning, and production-ready implementation. Specifically:\\\\n\\\\n<examp",
+  "cli-ui-designer": "CLI interface design specialist. Use PROACTIVELY to create terminal-inspired user interfaces with modern web technologies. Expert in CLI aesthetics, terminal themes, and command-line UX patterns.",
+  "code-architect": "Designs feature architectures by analyzing existing codebase patterns and conventions, then providing comprehensive implementation blueprints with specific files to create/modify, component designs, d",
+  "code-explorer": "Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, understanding patterns and abstractions, and documenting dependencies to inform new development",
+  "electron-pro": "Use this agent when building Electron desktop applications that require native OS integration, cross-platform distribution, security hardening, and performance optimization. Use electron-pro for compl",
+  "frontend-developer": "Use when building complete frontend applications across React, Vue, and Angular frameworks requiring multi-framework expertise and full-stack integration. Specifically:\\n\\n<example>\\nContext: Starting",
+  "fullstack-developer": "Use this agent when you need to build complete features spanning database, API, and frontend layers together as a cohesive unit. Specifically:\\\\n\\\\n<example>\\\\nContext: User wants to build a new user ",
+  "ios-developer": "Native iOS development specialist with Swift and SwiftUI. Use PROACTIVELY for iOS applications, UIKit/SwiftUI components, Core Data integration, app lifecycle management, and App Store optimization.",
+  "mobile-app-developer": "Use this agent when developing iOS and Android mobile applications with focus on native or cross-platform implementation, performance optimization, and platform-specific user experience. Specifically:",
+  "mobile-developer": "Use this agent when building cross-platform mobile applications requiring native performance optimization, platform-specific features, and offline-first architecture. Use for React Native and Flutter ",
+  "sdd-spec-writer": "Specification writer for Spec-Driven Development (SDD) \u2014 creates executable specifications that serve as unambiguous contracts for both human developers and AI agents.",
+  "test-generator": "Analyzes code changes and generates comprehensive test cases by understanding existing test patterns, edge cases, and testing conventions in the codebase",
+  "test-runner": "Executes tests, analyzes results, identifies failures, diagnoses root causes, and provides actionable fixes for failing tests",
+  "ui-designer": "Use this agent when designing visual interfaces, creating design systems, building component libraries, or refining user-facing aesthetics requiring expert visual design, interaction patterns, and acc",
+  "ui-ux-designer": "Expert UI/UX design critic providing research-backed, opinionated feedback on interfaces with evidence from Nielsen Norman Group studies and usability research. Specializes in avoiding generic aesthet"
+}
