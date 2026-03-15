@@ -55,6 +55,20 @@ Dynamically assemble a team of expert subagents for any task from a catalog of *
 
 Agent definitions sourced from [davila7/claude-code-templates](https://github.com/davila7/claude-code-templates).
 
+### [nobrainer-autopilot](./nobrainer-autopilot/)
+
+Autonomous CI/CD workflow for any project. Converts TODOs to GitHub issues, spawns expert teams (min 5 agents via nobrainer-team-builder), implements, creates PRs with Copilot review gate, merges — all hands-free.
+
+**Trigger:** "autopilot", "go go", "dzialaj sam", "lec sam", "cisnij"
+
+**How it works:**
+1. **Discovery**: Spawns 3 agents to review codebase, find TODOs, assess test coverage
+2. **Planning**: Presents prioritized list, converts TODOs to GitHub issues after approval
+3. **Autonomous loop**: For each issue — spawns 5-agent team, implements, creates PR, waits for Copilot review, replies to all comments, resolves threads, merges, deploys
+4. **Quality gates**: DRY/KISS/SOLID/YAGNI, max 300 lines/file (350 acceptable), tests pass, Copilot reviewed with 0 unresolved threads
+
+**Prerequisites:** `nobrainer-team-builder` installed, GitHub Copilot code review enabled on repo.
+
 ### [nobrainer-continuous-improvement](./nobrainer-continuous-improvement/)
 
 Upgrades any project's `CLAUDE.md` with proven workflow rules — Workflow Orchestration (6 rules), Task Management (6 steps), and Core Principles (3 rules). Merge-safe: only adds missing sections, never overwrites existing content.
@@ -115,6 +129,7 @@ cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-memory ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-autopilot ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-continuous-improvement ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
@@ -123,6 +138,7 @@ ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrai
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/nobrainer-team-builder
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-memory" ~/.claude/skills/nobrainer-memory
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-autopilot" ~/.claude/skills/nobrainer-autopilot
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-continuous-improvement" ~/.claude/skills/nobrainer-continuous-improvement
 ```
 
