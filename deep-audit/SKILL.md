@@ -119,37 +119,6 @@ Show literal output:
 
 This catches: typos, "similar but wrong" names, stale paths after refactor, non-existent exports.
 
-## Step 1.5 — Orchestrator pre-processing (STANDARD + DEEP)
-
-Before spawning subagents (if scope > 5 files), extract structured inputs:
-
-### 1.5a — Extract S1 (structural) and S2 (semantic) inputs from diffs
-
-```bash
-cd "$PROJECT_ROOT"
-
-# S1 — Structural: what changed physically
-CHANGED_FILES=$({ git diff --name-only; git diff --cached --name-only; } | sort -u)
-CHANGED_SIGNATURES=$(git diff -U0 | grep -E '^\+.*(function |def |func |fn |class |interface |type |export )' | head -30)
-CHANGED_IMPORTS=$(git diff -U0 | grep -E '^\+.*(import |require\(|from )' | head -20)
-
-# S2 — Semantic: what the changes mean
-CHANGE_TYPE="unknown"
-echo "$CHANGED_FILES" | grep -q "migration\|schema\|\.sql" && CHANGE_TYPE="database"
-echo "$CHANGED_FILES" | grep -q "auth\|session\|token\|jwt" && CHANGE_TYPE="security"
-echo "$CHANGED_FILES" | grep -q "config\|\.env\|settings" && CHANGE_TYPE="configuration"
-echo "$CHANGED_FILES" | grep -q "api/\|route\|endpoint\|handler" && CHANGE_TYPE="api"
-```
-
-### 1.5b — Load context files
-
-```bash
-PLAN=$(find "$PROJECT_ROOT" -maxdepth 3 -name "*plan*" -o -name "*todo*" 2>/dev/null | head -3)
-RULES=$(find "$PROJECT_ROOT" -maxdepth 2 -name "CLAUDE.md" -o -name "AGENTS.md" -o -name "*.md" -path "*/.claude/rules/*" 2>/dev/null)
-```
-
-Pass S1, S2, CHANGE_TYPE, PLAN, and RULES to every subagent.
-
 ## Step 2 — Backward line-by-line review (STANDARD + DEEP)
 
 FRESHNESS RULE: Read files from disk (Read tool), NEVER from context memory. Your memory of what you wrote carries the same bias that could have caused a bug. The file on disk is truth — your memory is not.
@@ -400,120 +369,13 @@ If 0 issues -> "Clean audit. Ready to commit."
 If CRITICAL -> fix BEFORE committing.
 If WARNING -> propose fix, wait for decision.
 
-## Parallelization strategy (STANDARD + DEEP)
+## Execution model
 
-When scope > 5 files, split work across subagents (Agent tool). Orchestrator combines results into one report.
+**Default: sequential (single context).** The audit runs all steps sequentially in one context window. This produces more coherent results because each step builds on full awareness of previous findings. Cross-file patterns, subtle naming inconsistencies, and integration issues are easier to catch when one reviewer sees everything.
 
-### Grouping heuristic (4 steps)
+**Optional: parallel (--parallel flag).** Only use when scope > 15 files AND the user explicitly requests it. Parallelization trades coherence for speed — use it for massive refactors where sequential review would take too long, not as the default.
 
-Before spawning, group files into subagent clusters:
-
-1. **Split detection**: If a file was split (1->N), ALL resulting files go to ONE subagent — caller audit needs full context of both sides.
-2. **Producer-consumer**: If changes touch both a data producer (API route, DB query, service) and its consumer (component, handler, page), pair them in one subagent.
-3. **Cross-import**: If file A imports from changed file B, they go together. Check: `grep -l "from.*[changed-file]" $CHANGED_FILES`.
-4. **Directory grouping**: Remaining files grouped by directory/domain (max 4 files per subagent).
-
-### Work division
-
-1. After Step 1 + 1.5 — group files using heuristic above
-2. Spawn subagents in parallel (max 10):
-   - Each subagent gets structured prompt (template below)
-   - Each executes: Name & Path Verification, Backward review, Caller audit, Value trace, Hidden bugs
-   - Each returns structured output (format below)
-3. Orchestrator:
-   - Collects results from all subagents
-   - Runs 5-step merge (below)
-   - Runs Step 5 (machine verification) — centrally
-   - Combines into one report (Step 6)
-
-### Prompt template for subagents
-
-```
-<context>
-PROJECT_ROOT: [path]
-LANG: [detected language]
-MODE: [STANDARD or DEEP]
-CHANGE_TYPE: [from Step 1.5a]
-S1_CHANGED_FILES: [file list from this subagent's cluster]
-S1_CHANGED_SIGNATURES: [relevant signatures]
-S1_CHANGED_IMPORTS: [relevant imports]
-PLAN: [plan file content or "NONE"]
-DOMAIN_RULES: [relevant CLAUDE.md rules or "NONE"]
-</context>
-
-<task>
-Execute Steps 1c through 4 of the deep-audit skill on your assigned files:
-1. Name & Path Verification — verify every new symbol exists under that exact name
-2. Backward line-by-line review — read EVERY changed line from disk, reverse order
-3. Caller audit — grep all callers for changed signatures, show literal output
-4. Value trace — run concrete values through non-trivial functions
-5. Hidden bug hunt — consistency, edge cases, integration, copy-paste, project rules
-</task>
-
-<rules>
-1. Read files from DISK (Read tool), NEVER from memory.
-2. Every claim needs evidence: $ command + literal output.
-3. "Checked, OK" without grep output = NOT checked.
-4. Pick verification methods appropriate for file types (caller audit for signatures, truth table for conditions, value trace for functions).
-</rules>
-
-<output_format>
-Return a structured list of findings:
-
-FINDING: [one-line description]
-FILE: [path]
-LINE: [number]
-SEVERITY: CRITICAL / WARNING / INFO
-EVIDENCE: [$ command + literal output]
-CONFLICTS_WITH: [subagent number, or NONE]
-
-If no issues found:
-CLEAN: [list of files reviewed]
-METHODS_USED: [which verification methods applied]
-EVIDENCE: [$ commands run to confirm clean]
-</output_format>
-```
-
-### 5-step merge algorithm
-
-After all subagents complete:
-
-#### Merge 1 — Deduplicate
-Group findings pointing to the same file:line. Keep the finding with highest severity and most evidence.
-
-#### Merge 2 — Detect conflicts
-Scan all `CONFLICTS_WITH` fields. For each conflict:
-- Compare evidence side by side
-- If one subagent had more context (e.g. saw both sides of a split) -> that one wins
-- If equal evidence -> escalate (Merge 5)
-
-#### Merge 3 — Validate CLEAN results
-For each subagent that returned CLEAN:
-- Check METHODS_USED — did it actually run caller audit + value trace?
-- Check EVIDENCE — are there actual grep commands with output?
-- If CLEAN but no evidence -> re-run that subagent with explicit instructions
-
-#### Merge 4 — Cross-subagent integration check
-For findings that touch exports/imports across subagent boundaries:
-- Verify the change is consistent on BOTH sides
-- If subagent A found a renamed export but subagent B didn't check consumers -> run targeted grep
-
-#### Merge 5 — Escalation protocol
-When subagents contradict or evidence is ambiguous:
-1. Re-run conflicting subagent with the other's findings as additional context
-2. If still contradictory -> spawn a tiebreaker subagent with both outputs
-3. If tiebreaker fails -> report both with confidence levels, let user decide
-
-### Failure handling
-
-**Bad output**: Subagent returns no findings and no CLEAN -> re-run with explicit file list and `--verbose`
-**Suspicious CLEAN**: CLEAN with no EVIDENCE commands -> reject, re-run with mandatory grep/read output
-**Timeout**: Subagent doesn't return in 5 min -> kill, log "TIMEOUT", continue with others, note in Blind Spots
-
-### When NOT to parallelize
-
-- scope <= 5 files — do sequentially, subagent overhead not worth it
-- QUICK mode — too few steps, nothing to split
+When running sequentially, process files in reverse order (last changed first) and carry forward a running list of findings. Each file review benefits from context accumulated from previous files.
 
 ## Rules
 
@@ -526,6 +388,4 @@ When subagents contradict or evidence is ambiguous:
 7. **Honest blind spots > false "all OK"** — the "what was NOT verified" section is honesty.
 8. **Literal output > verbal claim** — "checked, OK" WITHOUT $ command and output = you did NOT check.
 9. **Freshness** — read files from disk, not from context memory.
-10. **Parallelize when scope > 5 files** — subagents per domain, orchestrator combines report.
-11. **HANDLE FAILURES** — bad output, suspicious CLEAN, timeout are expected. Handle them, don't ignore them.
-12. **STRUCTURED OUTPUT** — every subagent returns FINDING + EVIDENCE + SEVERITY + CONFLICTS_WITH. No free-form prose.
+10. **Sequential by default** — single context gives better coherence. Only parallelize on explicit `--parallel` flag with scope > 15 files.
