@@ -5,17 +5,19 @@ effort: max
 argument-hint: "[quick | standard | deep]"
 ---
 
-Evidence-based backward verification of completed work. Enforces line-by-line review, creative cross-checking methods, and active bug hunting. Universal — works with any language and framework.
+Dokladna weryfikacja wsteczna wykonanej pracy. Wymusza line-by-line review, kreatywne metody sprawdzania i aktywne szukanie bledow. Uniwersalna - dziala z kazdym jezykiem i frameworkiem.
 
-Triggers: "audit", "verify", "check thoroughly", "backward tests", "find bugs", "line by line", "review changes", "post-implementation review"
+Triggery: "audit", "analiza", "sprawdz dokladnie", "wsteczne testy", "szukaj bledow", "zweryfikuj", "line by line", "linijka po linijce", "review changes"
 
-## When to use
+## Kiedy uzywac
 
-After completing implementation (feature, refactor, fix, split) — BEFORE committing. This skill enforces verification that no compiler/linter can replace.
+Po zakonczeniu implementacji (feature, refactor, fix, split) - PRZED commitem. Skill wymusza weryfikacje, ktorej nie zastapi kompilator/linter.
 
-## Step 0 — Detect & Triage
+## Krok 0 - Detect & Triage
 
-### Auto-detect project
+### Auto-detect projektu
+
+Wykryj srodowisko automatycznie:
 
 ```bash
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
@@ -34,74 +36,74 @@ cd "$PROJECT_ROOT"
 [ -f "*.sln" -o -f "*.csproj" ] && LANG="csharp"
 ```
 
-Note: PROJECT_ROOT, LANG, FRAMEWORK — use them in subsequent steps.
+Zanotuj: PROJECT_ROOT, LANG, FRAMEWORK - uzywaj ich w kolejnych krokach.
 
-### Choose mode
+### Wybierz tryb
 
-Assess change risk:
+Ocen ryzyko zmian:
 
-| Signal | Mode |
+| Sygnal | Tryb |
 |---|---|
-| CSS/style only, docs, config, dotfiles | QUICK — steps 1, 5, 6 |
-| UI components, helpers, utilities (no core logic) | STANDARD — steps 1-6 |
-| Core business logic, API contracts, auth, payment, database migrations, security, split 1->N | DEEP — steps 1-6 + step 3b |
+| Tylko CSS/style, docs, config, dotfiles | QUICK - kroki 1, 5, 6 |
+| UI components, helpers, utilities (bez core logic) | STANDARD - kroki 1-6 |
+| Core business logic, API contracts, auth, payment, database migrations, security, split 1->N | DEEP - kroki 1-6 + krok 3b |
 
-If $ARGUMENTS = "quick" or "deep" -> force that mode.
+Jesli $ARGUMENTS = "quick" lub "deep" -> wymusz ten tryb.
 
-### Cross-reference with plan
+### Cross-reference z planem
 
-Check if a plan file exists:
+Sprawdz czy istnieje plan file:
 
 ```bash
 PLAN=$(find . .claude ~/.claude -maxdepth 3 -name "*plan*" -newer "$(git log -1 --format=%aI)" 2>/dev/null | head -1)
 [ -n "$PLAN" ] && echo "PLAN: $PLAN" || echo "NO PLAN"
 ```
 
-If plan exists — read it and extract:
-- "Done when" criteria per step — you will verify them in Step 2
-- "Critical traps" list — you will check them in Step 4
-- Integration test matrix — you will run it in Step 5
-- Evidence log — compare with actual code state
+Jesli plan istnieje - przeczytaj go i wyciagnij:
+- Liste "Done when" criteria per krok - bedziesz je weryfikowac w Kroku 2
+- Liste "Krytyczne pulapki" - bedziesz je sprawdzac w Kroku 4
+- Integration test matrix - uruchomisz go w Kroku 5
+- Evidence log - porownaj z aktualnym stanem kodu
 
-Plan is a checklist. Analysis is an audit of that checklist.
+Plan jest checklista. Analiza jest audytem tej checklisty.
 
-## Step 1 — Collect scope
+## Krok 1 - Zbierz scope
 
-Identify ALL files changed/created in this session:
+Zidentyfikuj WSZYSTKIE pliki zmienione/stworzone w tej sesji:
 
 ```bash
 cd "$PROJECT_ROOT" && { git diff --name-only; git diff --cached --name-only; git ls-files --others --exclude-standard; } | sort -u
 ```
 
-If no changes -> "No changes to analyze." and stop.
+Jesli brak zmian -> "Brak zmian do analizy." i zakoncz.
 
-For each file note:
-- Path and domain (ui / api / core / db / config / test / infra)
-- Whether it's a NEW file or MODIFICATION of existing
-- Lines changed (`git diff --stat`)
+Dla kazdego pliku zanotuj:
+- Sciezka i domena (ui / api / core / db / config / test / infra)
+- Czy to NOWY plik czy MODYFIKACJA istniejacego
+- Ile linii zmienionych (`git diff --stat`)
 
-## Step 1b — Predict the bug (STANDARD + DEEP)
+## Krok 1b - Predict the bug (STANDARD + DEEP)
 
-BEFORE reading the code — based on scope and change type alone, write 2-3 predictions of where you expect a bug. Examples:
+ZANIM przeczytasz kod - na podstawie samego scope'u i typu zmian, napisz 2-3 przewidywania gdzie spodziewasz sie buga. Przyklady:
 
-- "Change in hook + new component -> likely new signature doesn't match some consumer"
-- "File split -> likely lost export or changed return type"
-- "Guard condition change -> likely inverted logic or missing edge case"
-- "Math/calculations -> likely division by zero or Infinity"
-- "SQL migration -> likely missing rollback or inconsistent with ORM models"
-- "API endpoint change -> likely frontend not updated"
+- "Zmiana w hook + nowy komponent -> prawdopodobnie nowa sygnatura nie pasuje do jakiegos consumera"
+- "Split pliku -> prawdopodobnie zgubiony eksport lub zmieniony return type"
+- "Zmiana warunku guard -> prawdopodobnie odwrocona logika lub brakujacy edge case"
+- "Math/obliczenia -> prawdopodobnie division by zero lub Infinity"
+- "SQL migration -> prawdopodobnie brak rollback lub niespojne z ORM models"
+- "API endpoint change -> prawdopodobnie frontend nie zaktualizowany"
 
-Record predictions. After review — check if you were right. If you missed ALL — keep looking, the bug is somewhere you didn't expect.
+Zapisz przewidywania. Po review - sprawdz czy trafiles. Jesli NIE trafiles w zadne - szukaj dalej, bo bug jest gdzie indziej niz myslales.
 
-## Step 1c — Name & Path Verification (STANDARD + DEEP)
+## Krok 1c - Name & Path Verification (STANDARD + DEEP)
 
-BEFORE starting code review — verify that every new symbol in changed files actually exists under that name.
+ZANIM zaczniesz review kodu - zweryfikuj ze kazdy nowy symbol w zmienionych plikach faktycznie istnieje pod ta nazwa.
 
-For each changed file:
-1. List NEW imports, function calls, references to external symbols
-2. For EACH — grep confirms symbol exists under that exact name in target file
+Dla kazdego zmienionego pliku:
+1. Wylistuj NOWE importy, wywolania funkcji, referencje do zewnetrznych symboli
+2. Dla KAZDEGO - grep potwierdza ze symbol istnieje pod ta dokladna nazwa w target file
 
-Show literal output:
+Pokaz literal output:
 
 ```
 - import { handleSeasonEnd } from './GameScene':
@@ -109,162 +111,162 @@ Show literal output:
   (no results)
   $ grep -n "handleSeason" GameScene.ts
   1823:  handleSeasonEnded() {
-  -> BUG: typo in import. Correct name: handleSeasonEnded
+  -> BUG: literowka w imporcie. Poprawna nazwa: handleSeasonEnded
 
-- store.setEndReached(true):
-  $ grep -n "setEndReached" store.ts
-  52:  setEndReached: (flag: boolean) => set({ endReached: flag }),
+- seasonStore.setSeasonEndReached(true):
+  $ grep -n "setSeasonEndReached" seasonStore.ts
+  52:  setSeasonEndReached: (flag: boolean) => set({ seasonEndReached: flag }),
   -> OK
 ```
 
-This catches: typos, "similar but wrong" names, stale paths after refactor, non-existent exports.
+To lapie: literowki, "podobne ale bledne" nazwy, stale paths po refactorze, nieistniejace eksporty.
 
-## Step 2 — Backward line-by-line review (STANDARD + DEEP)
+## Krok 2 - Backward line-by-line review (STANDARD + DEEP)
 
-FRESHNESS RULE: Read files from disk (Read tool), NEVER from context memory. Your memory of what you wrote carries the same bias that could have caused a bug. The file on disk is truth — your memory is not.
+ZASADA FRESHNESS: Czytaj pliki z dysku (Read tool), NIGDY z pamieci kontekstu. Twoja pamiec tego co napisales jest obarczona tym samym biasem ktory mogl spowodowac buga. Plik na dysku jest prawda - twoja pamiec nie.
 
-For EACH changed file (from last to first — reverse order):
+Dla KAZDEGO zmienionego pliku (od ostatniego do pierwszego - kolejnosc wsteczna):
 
-1. Read the ENTIRE file from disk (Read tool — not a fragment, not from memory)
-2. Read the diff: `git diff [file]` (for NEW files: diff doesn't exist — read entire file as "changed", with special attention to imports, exports, and types)
-3. For EACH changed line ask yourself:
-   - Does this line do exactly what it should?
-   - Is there a typo in variable/function/property name?
-   - Are types correct (no any, no missing await, not string instead of number)?
-   - Is the logical condition inverted (e.g. extra/missing !, && vs ||)?
-   - Is the import/require path correct and does the target file exist?
-   - Is this dead code (unreachable, unused)?
-4. If there was a plan with "Done when" criteria — verify each criterion for this step. Not "does it compile" but "did we do what the plan said".
+1. Przeczytaj CALY plik z dysku (Read tool - nie fragment, nie z pamieci)
+2. Przeczytaj diff tego pliku: `git diff [plik]` (dla NOWYCH plikow: diff nie istnieje - czytaj caly plik jako "zmieniony", ze szczegolna uwaga na importy, eksporty i typy)
+3. Dla KAZDEJ zmienionej linii zadaj sobie pytania:
+   - Czy ta linia robi dokladnie to, co powinna?
+   - Czy nie ma literowki w nazwie zmiennej/funkcji/property?
+   - Czy typy sa poprawne (nie any, nie brakuje await, nie jest string zamiast number)?
+   - Czy warunek logiczny jest odwrotny (np. ! za duzo/za malo, && vs ||)?
+   - Czy import/require path jest poprawny i plik docelowy istnieje?
+   - Czy to nie jest dead code (nieosiagalny, nieuzywany)?
+4. Jesli byl plan z "Done when" criteria - zweryfikuj kazde kryterium dla tego kroku. Nie "czy sie kompiluje" ale "czy zrobiono to co plan mowil".
 
-IMPORTANT: Don't scan — READ. Every line. Record found issues as you go.
+WAZNE: Nie skanuj - CZYTAJ. Kazda linia. Zapisuj znalezione problemy na biezaco.
 
-## Step 3 — Creative cross-verification (STANDARD + DEEP)
+## Krok 3 - Kreatywna weryfikacja krzyzowa (STANDARD + DEEP)
 
-### 3a — Mandatory caller audit
+### 3a - Obowiazkowy caller audit
 
-For EACH changed function signature or export:
+Dla KAZDEJ zmienionej sygnatury funkcji lub eksportu:
 
 ```bash
 grep -rn "functionName" "$PROJECT_ROOT/src/" "$PROJECT_ROOT/lib/" "$PROJECT_ROOT/app/" 2>/dev/null
 ```
 
-Show literal grep output in the report. For each caller — confirm signature matches. Not "5 callers, OK" but:
+Pokaz literal output grepa w raporcie. Dla kazdego callera - potwierdz ze sygnatura pasuje. Nie "5 callerow, OK" ale:
 
 ```
-Caller audit: setCurrentState()
-$ grep -rn "setCurrentState" src/
-service.ts:234: setCurrentState(state)
-poller.ts:67: setCurrentState(data)
-handler.ts:12: setCurrentState(newState)
+Caller audit: setCurrentSeason()
+$ grep -rn "setCurrentSeason" src/
+chainDataService.ts:234: setCurrentSeason(season)
+seasonPoller.ts:67: setCurrentSeason(data)
+handleSeasonStarted.ts:12: setCurrentSeason(newSeason)
 [...]
--> 9 callers, signatures match (State type)
+-> 9 callerow, sygnatury zgodne (Season type)
 ```
 
-If callers > 15 — show first 5 + "and [N] more, spot-check 3 random: [results]".
+Jesli callerow jest >15 - pokaz pierwsze 5 + "i [N] wiecej, spot-check 3 losowych: [wyniki]".
 
-### 3b — Verification methods per change type (DEEP)
+### 3b - Metody weryfikacji per typ zmiany (DEEP)
 
-For each file choose an ADDITIONAL verification method:
+Dla kazdego pliku dobierz DODATKOWA metode sprawdzenia:
 
-| Change type | Verification method |
+| Typ zmiany | Metoda weryfikacji |
 |---|---|
-| New file extracted from existing | Compare with original: `git show HEAD:[original]` -> diff function by function. Anything lost? Return types identical? |
-| Change in hook/store/state | Grep all consumers + show output |
-| New function | Concrete value trace (see below) |
-| Guard condition change | Truth table: list input combinations and paths |
-| SQL/migration change | Check rollback, indexes, foreign keys, NULL handling |
-| API endpoint change | Check if client/frontend uses new signature |
-| CSS/style change | Check if classes exist, no conflicts, responsive works |
-| Import changes | `grep -rn "from.*[filename]"` — does anyone import old path? |
-| File split 1->N | List ALL exports from original -> confirm each export has new home |
-| Security/auth change | Check access control, token validation, input sanitization |
-| Config/env change | Check if new vars are in .env.example, CI/CD, docs |
+| Nowy plik wyekstrahowany z istniejacego | Porownaj z oryginalem: `git show HEAD:[oryginal]` -> diff funkcja po funkcji. Czy cos zgubione? Czy return types identyczne? |
+| Zmiana w hook/store/state | Grep wszystkich konsumentow + pokaz output |
+| Nowa funkcja | Concrete value trace (patrz nizej) |
+| Zmiana warunku/guard | Truth table: wypisz kombinacje inputow i sciezki |
+| Zmiana w SQL/migration | Sprawdz rollback, indeksy, foreign keys, NULL handling |
+| Zmiana API endpoint | Sprawdz czy klient/frontend uzywa nowej sygnatury |
+| Zmiana CSS/style | Sprawdz czy klasy istnieja, czy nie ma konfliktu, czy responsive dziala |
+| Zmiana importow | `grep -rn "from.*[nazwa_pliku]"` - czy ktos importuje stary path? |
+| Split pliku 1->N | Wylistuj WSZYSTKIE eksporty oryginalu -> potwierdz ze kazdy eksport ma nowe miejsce |
+| Zmiana w security/auth | Sprawdz access control, token validation, input sanitization |
+| Zmiana config/env | Sprawdz czy nowe zmienne sa w .env.example, CI/CD, docs |
 
-### 3c — Concrete value trace
+### 3c - Concrete value trace
 
-Pick functions and run CONCRETE values through them:
-- DEEP: every non-trivial function in scope
-- STANDARD: minimum 2 (riskiest + 1 random)
+Wybierz funkcje i przepusc przez nie KONKRETNE wartosci:
+- DEEP: kazda nietrywialna funkcja w scope
+- STANDARD: minimum 2 (najryzykowniejsza + 1 losowa)
 
 ```
-Trace: formatAmount(0.00000001)
+Trace: formatMarketCap(0.00000001)
 -> value = 0.00000001, threshold check: < 0.01 -> true
 -> return "< 0.01" OK
 
-Trace: formatAmount(Infinity)
+Trace: formatMarketCap(Infinity)
 -> value = Infinity, threshold check: Infinity < 0.01 -> false
--> toFixed(2) -> "Infinity" — BUG: missing guard on !isFinite()
+-> toFixed(2) -> "Infinity" - BUG: brak guard na !isFinite()
 ```
 
-Show trace in report — don't skip it even if no bug found.
+W raporcie pokaz trace - nie pomin go nawet jesli nie znalazl buga.
 
-### 3d — "Explain to a junior" (STANDARD + DEEP)
+### 3d - "Explain to a junior" (STANDARD + DEEP)
 
-For each non-trivial function in changed files:
+Dla kazdej nietrywialnej funkcji w zmienionych plikach:
 
-1. Read ONLY the signature (name + params + return type) — write one sentence about what this function SHOULD do
-2. Read the body — write one sentence about what this function ACTUALLY does
-3. Compare both sentences — discrepancy = bug or unclear intent
+1. Przeczytaj TYLKO sygnature (nazwa + params + return type) - napisz jednym zdaniem co ta funkcja POWINNA robic
+2. Przeczytaj body - napisz jednym zdaniem co ta funkcja FAKTYCZNIE robi
+3. Porownaj oba zdania - rozbieznosc = bug lub niejasna intencja
 
-This catches bugs where code "looks right" but does something different than intended.
+To lapie bugi gdzie kod "wyglada dobrze" ale robi cos innego niz zamierzono.
 
-## Step 4 — Hidden bug hunting (STANDARD + DEEP)
+## Krok 4 - Szukanie ukrytych bledow (STANDARD + DEEP)
 
-Actively search for these problem categories (check each):
+Aktywnie szukaj tych kategorii problemow (check kazda):
 
 ### A. Consistency errors
 
-- Variable/function names — consistent across entire scope? (e.g. isActive vs active vs isEnabled)
-- Formatting — does new code use same patterns as rest of file?
+- Nazwy zmiennych/funkcji - czy konsystentne w calym scope? (np. isActive vs active vs isEnabled)
+- Formatowanie - czy nowy kod uzywa tych samych wzorcow co reszta pliku?
 
 ### B. Edge cases
 
-- What happens with null/undefined/0/''/[] as input?
-- What happens with Infinity/NaN (JS/TS) or None/float('inf') (Python)?
-- What happens when array/list is empty?
-- What happens with concurrent calls (race condition)?
-- What happens with very large input (memory, timeout)?
+- Co sie stanie z null/undefined/0/''/[] jako input?
+- Co sie stanie z Infinity/NaN (JS/TS) lub None/float('inf') (Python)?
+- Co sie stanie gdy tablica/lista jest pusta?
+- Co sie stanie przy concurrent calls (race condition)?
+- Co sie stanie z very large input (memory, timeout)?
 
 ### C. Integration errors
 
-- Is changed interface/type used elsewhere? (Grep on type name — show output)
-- Is removed export imported in another file? (grep — show output)
-- Does changed function signature match all call sites? (from Step 3a — confirm)
+- Czy zmieniony interface/type jest uzywany gdzie indziej? (Grep na nazwe typu - pokaz output)
+- Czy usuniety eksport nie jest importowany w innym pliku? (grep - pokaz output)
+- Czy zmieniona sygnatura funkcji pasuje do wszystkich call sites? (z Kroku 3a - potwierdz)
 
 ### D. Copy-paste errors
 
-- Did I copy a variable from another block and forget to rename it?
-- Do conditions in if/else if/else check the same thing?
+- Czy nie skopiowalem zmiennej z innego bloku i nie zapomnialem zmienic nazwy?
+- Czy warunki w if/else if/else nie sprawdzaja tego samego?
 
-### E. Project rules
+### E. Znane pulapki z regul projektu
 
-Check if project rules exist:
+Sprawdz czy istnieja rules/CLAUDE.md w projekcie:
 
 ```bash
-find "$PROJECT_ROOT" -maxdepth 2 -name "CLAUDE.md" -o -name "AGENTS.md" -o -name "*.md" -path "*/.claude/rules/*" 2>/dev/null
+find "$PROJECT_ROOT" -maxdepth 2 -name "CLAUDE.md" -o -name "*.md" -path "*/.claude/rules/*" 2>/dev/null
 ```
 
-Read the relevant rules file for the domain of changed files. For EACH applicable rule — CITE in report with literal grep output:
+Przeczytaj odpowiedni plik regul dla domeny zmienianych plikow. Dla KAZDEJ reguly ktora ma zastosowanie - CYTUJ w raporcie z literal grep output:
 
 ```
 CLAUDE.md: "Never use any type"
-  $ grep -n ": any" [changed-files]
+  $ grep -n ": any" [zmienione-pliki]
   (no results)
   -> OK
 
 CLAUDE.md: "Always validate input at API boundary"
-  $ grep -n "req.body\|req.params\|req.query" [changed-files]
+  $ grep -n "req.body\|req.params\|req.query" [zmienione-pliki]
   handler.ts:42: const id = req.params.id
-  -> VIOLATION: no validation
+  -> NARUSZENIE: brak walidacji
 ```
 
-### F. Plan traps verification (if there was a /plan)
+### F. Plan traps verification (jesli byl /plan)
 
-If plan had a "Critical traps" section — verify EACH with literal grep output.
+Jesli plan mial sekcje "Krytyczne pulapki" - zweryfikuj KAZDA z literal grep output.
 
-## Step 5 — Machine verification
+## Krok 5 - Weryfikacja maszynowa
 
-Run appropriate tools based on detected LANG:
+Uruchom odpowiednie narzedzia na podstawie wykrytego LANG:
 
 ```bash
 cd "$PROJECT_ROOT"
@@ -303,108 +305,229 @@ if [ -f "Cargo.toml" ]; then
   cargo check 2>&1 | tail -20
 fi
 
-# Universal checks on new files
+# Universal checks na nowych plikach
 NEW_FILES=$(git ls-files --others --exclude-standard | grep -vE '\.(png|jpg|gif|svg|ico|woff|ttf|eot)$')
 [ -n "$NEW_FILES" ] && file $NEW_FILES | grep -i crlf || echo "OK: no CRLF"
 ```
 
-If a tool is not installed — skip and note in report.
+Jesli jakies narzedzie nie jest zainstalowane - pomin i zanotuj w raporcie.
 
-## Step 6 — Report
+## Krok 6 - Raport
 
-META-CHECK before writing the report: Review every claim you intend to write. Do you have evidence from a tool (grep output, Read output, compiler output)? If not — don't write "OK", go back and check, or write "NOT VERIFIED".
+META-CHECK przed pisaniem raportu: Przejrzyj kazdy claim ktory zamierzasz napisac. Czy masz na niego dowod z narzedzia (grep output, Read output, compiler output)? Jesli nie - nie pisz "OK", wroc i sprawdz, albo napisz "NIE ZWERYFIKOWANO".
 
-Present results in format:
+Przedstaw wyniki w formacie:
 
 ```
-## Post-Implementation Audit — [date]
+## Analiza wsteczna - [data]
 
-### Mode: QUICK / STANDARD / DEEP
-### Environment: [LANG] / [FRAMEWORK] / [PROJECT_ROOT]
+### Tryb: QUICK / STANDARD / DEEP
+### Srodowisko: [LANG] / [FRAMEWORK] / [PROJECT_ROOT]
 
 ### Scope
-- [N] files changed, [M] new
-- Domains: [list]
+- [N] plikow zmienionych, [M] nowych
+- Domeny: [lista]
 
-### Predictions vs reality (STANDARD/DEEP)
-- Prediction 1: [description] -> HIT / MISS
-- Prediction 2: [description] -> HIT / MISS
+### Przewidywania vs rzeczywistosc (STANDARD/DEEP)
+- Przewidywanie 1: [opis] -> TRAFIONE / PUDLO
+- Przewidywanie 2: [opis] -> TRAFIONE / PUDLO
 
 ### Name & Path Verification (STANDARD/DEEP)
 - [symbol]: $ grep ... -> [output] -> OK / BUG
 
 ### Caller audit (STANDARD/DEEP)
-- [function/export]: $ grep ... -> [N] callers, [summary]
+- [funkcja/eksport]: $ grep ... -> [N] callerow, [podsumowanie]
 
 ### Concrete value traces (STANDARD/DEEP)
-- [function]([values]) -> [trace result] -> OK / BUG
+- [funkcja]([wartosci]) -> [wynik trace] -> OK / BUG
 
-### Issues found
+### Znalezione problemy
 
-| # | File | Line | Problem | Severity | Evidence |
-|---|------|------|---------|----------|----------|
-| 1 | ... | ... | ... | CRITICAL / WARNING / INFO | [$ command + output] |
+| # | Plik | Linia | Problem | Severity | Dowod |
+|---|------|-------|---------|----------|-------|
+| 1 | ... | ... | ... | CRITICAL / WARNING / INFO | [$ komenda + output] |
 
-### Machine verification
+### Weryfikacja maszynowa
 - compiler: PASS / FAIL (N errors)
 - linter: PASS / FAIL (N warnings)
 - type checker: PASS / FAIL / SKIPPED
 - line endings: PASS / FAIL
 
-### Project rules (STANDARD/DEEP)
-- [file] [section]: "[rule]" -> [$ command + output] -> OK / VIOLATION
+### Reguly projektu (STANDARD/DEEP)
+- [plik] [sekcja]: "[regula]" -> [$ komenda + output] -> OK / NARUSZENIE
 
-### Plan verification (if there was a /plan)
-- Done when criteria: [N]/[M] met
-- Critical traps: [N]/[M] verified
+### Plan verification (jesli byl /plan)
+- Done when criteria: [N]/[M] spelnione
+- Krytyczne pulapki: [N]/[M] zweryfikowane
 
-### Blind spots — what was NOT verified
-- [explicit list]
+### Blind spots - czego NIE zweryfikowalem
+- [jawna lista]
 
-### Summary
-[1-2 sentences: overall quality assessment + whether ready to commit]
+### Podsumowanie
+[1-2 zdania: ogolna ocena jakosci + czy jest gotowe do commita]
 ```
 
-If 0 issues -> "Clean audit. Ready to commit."
-If CRITICAL -> fix BEFORE committing.
-If WARNING -> propose fix, wait for decision.
+Jesli 0 problemow -> "Analiza czysta. Gotowe do commita."
+Jesli CRITICAL -> napraw PRZED commitem.
+Jesli WARNING -> zaproponuj fix, czekaj na decyzje.
 
-## Parallelization strategy (STANDARD + DEEP)
+## Krok 1.5 — Orchestrator pre-processing (STANDARD + DEEP)
 
-When scope > 5 files, split work across subagents (Agent tool). Each subagent gets a subset of files and executes steps 1c-4 independently. Orchestrator combines results into one report.
+Before spawning subagents, the orchestrator extracts structured inputs:
 
-### Work division
+### 1.5a — Extract S1 (structural) and S2 (semantic) inputs from diffs
 
-1. After Step 1 (scope) — divide files into groups of 2-4 (group by domain/directory)
-2. Spawn subagents in parallel (max 10):
-   - Each subagent gets: file list, PROJECT_ROOT, LANG, mode (STANDARD/DEEP)
-   - Each executes: Name & Path Verification, Backward review, Caller audit, Value trace, Hidden bugs
-   - Each returns: issues table with severity + literal grep output
+```bash
+cd "$PROJECT_ROOT"
+
+# S1 — Structural: what changed physically
+CHANGED_FILES=$({ git diff --name-only; git diff --cached --name-only; } | sort -u)
+CHANGED_SIGNATURES=$(git diff -U0 | grep -E '^\+.*(function |def |func |fn |class |interface |type |export )' | head -30)
+CHANGED_IMPORTS=$(git diff -U0 | grep -E '^\+.*(import |require\(|from )' | head -20)
+
+# S2 — Semantic: what the changes mean
+CHANGE_TYPE="unknown"
+echo "$CHANGED_FILES" | grep -q "migration\|schema\|\.sql" && CHANGE_TYPE="database"
+echo "$CHANGED_FILES" | grep -q "auth\|session\|token\|jwt" && CHANGE_TYPE="security"
+echo "$CHANGED_FILES" | grep -q "config\|\.env\|settings" && CHANGE_TYPE="configuration"
+echo "$CHANGED_FILES" | grep -q "api/\|route\|endpoint\|handler" && CHANGE_TYPE="api"
+```
+
+### 1.5b — Load context files
+
+```bash
+PLAN=$(find "$PROJECT_ROOT" -maxdepth 3 -name "*plan*" -o -name "*todo*" 2>/dev/null | head -3)
+RULES=$(find "$PROJECT_ROOT" -maxdepth 2 -name "CLAUDE.md" -o -name "AGENTS.md" -o -name "*.md" -path "*/.claude/rules/*" 2>/dev/null)
+```
+
+Pass S1, S2, CHANGE_TYPE, PLAN, and RULES to every subagent.
+
+## Strategia paralelizacji (STANDARD + DEEP)
+
+Gdy scope > 5 plikow, rozdziel prace na subagentow (Agent tool). Orchestrator laczy wyniki w jeden raport.
+
+### Grouping heuristic (4 steps)
+
+Before spawning, group files into subagent clusters:
+
+1. **Split detection**: If a file was split (1->N), ALL resulting files go to ONE subagent — caller audit needs full context of both sides.
+2. **Producer-consumer**: If changes touch both a data producer (API route, DB query, service) and its consumer (component, handler, page), pair them in one subagent.
+3. **Cross-import**: If file A imports from changed file B, they go together. Check: `grep -l "from.*[changed-file]" $CHANGED_FILES`.
+4. **Directory grouping**: Remaining files grouped by directory/domain (max 4 files per subagent).
+
+### Podział pracy
+
+1. Po Kroku 1 + 1.5 — podziel pliki wg heurystyki powyzej
+2. Spawn subagentow rownolegle (max 10):
+   - Kazdy subagent dostaje structured prompt (szablon ponizej)
+   - Kazdy wykonuje: Name & Path Verification, Backward review, Caller audit, Value trace, Hidden bugs
+   - Kazdy zwraca structured output (format ponizej)
 3. Orchestrator:
-   - Collects results from all subagents
-   - Runs Step 5 (machine verification) — this must be central
-   - Combines into one report (Step 6)
-   - Deduplicates found issues
+   - Zbiera wyniki od wszystkich subagentow
+   - Runs 5-step merge (ponizej)
+   - Uruchamia Krok 5 (weryfikacja maszynowa) — centralne
+   - Laczy w jeden raport (Krok 6)
 
-### Subagent instruction
+### Prompt template for subagents
 
-Each subagent gets a file list and executes steps 1c-4 from this skill on its subset. Subagent picks verification methods appropriate for the file types it received (e.g. caller audit for changed signatures, value trace for new functions, truth table for changed conditions). Key: literal grep/read output with every CLAIM, read from disk not memory. Returns issues table (File | Line | Problem | Severity | Evidence).
+```
+<context>
+PROJECT_ROOT: [path]
+LANG: [detected language]
+MODE: [STANDARD or DEEP]
+CHANGE_TYPE: [from Step 1.5a]
+S1_CHANGED_FILES: [file list from this subagent's cluster]
+S1_CHANGED_SIGNATURES: [relevant signatures]
+S1_CHANGED_IMPORTS: [relevant imports]
+PLAN: [plan file content or "NONE"]
+DOMAIN_RULES: [relevant CLAUDE.md rules or "NONE"]
+</context>
 
-### When NOT to parallelize
+<task>
+Execute Steps 1c through 4 of the deep-audit skill on your assigned files:
+1. Name & Path Verification — verify every new symbol exists under that exact name
+2. Backward line-by-line review — read EVERY changed line from disk, reverse order
+3. Caller audit — grep all callers for changed signatures, show literal output
+4. Value trace — run concrete values through non-trivial functions
+5. Hidden bug hunt — consistency, edge cases, integration, copy-paste, project rules
+</task>
 
-- scope <= 5 files — do sequentially, subagent overhead not worth it
-- QUICK mode — too few steps, nothing to split
-- tightly coupled files (e.g. split 1->N) — must be in one subagent because caller audit needs context of both
+<rules>
+1. Read files from DISK (Read tool), NEVER from memory.
+2. Every claim needs evidence: $ command + literal output.
+3. "Checked, OK" without grep output = NOT checked.
+4. Pick verification methods appropriate for file types (caller audit for signatures, truth table for conditions, value trace for functions).
+</rules>
 
-## Rules
+<output_format>
+Return a structured list of findings:
 
-1. **DON'T TRUST YOURSELF** — assume you made a mistake. Actively search for it.
-2. **DON'T RUSH** — thoroughness > speed.
-3. **Compiler + linter is MINIMUM, not MAXIMUM** — Steps 2-4 catch what compilers can't see.
-4. **Concrete values > abstract reasoning** — "this should work" is NOT verification. Trace with values.
-5. **Reverse order** — reading from end breaks pattern recognition.
-6. **Read like SOMEONE ELSE'S code** — not your own. You read your own with intent, someone else's with suspicion.
-7. **Honest blind spots > false "all OK"** — the "what was NOT verified" section is honesty.
-8. **Literal output > verbal claim** — "checked, OK" WITHOUT $ command and output = you did NOT check.
-9. **Freshness** — read files from disk, not from context memory.
-10. **Parallelize when scope > 5 files** — subagents per domain, orchestrator combines report.
+FINDING: [one-line description]
+FILE: [path]
+LINE: [number]
+SEVERITY: CRITICAL / WARNING / INFO
+EVIDENCE: [$ command + literal output]
+CONFLICTS_WITH: [subagent number, or NONE]
+
+If no issues found:
+CLEAN: [list of files reviewed]
+METHODS_USED: [which verification methods applied]
+EVIDENCE: [$ commands run to confirm clean]
+</output_format>
+```
+
+### 5-step merge algorithm
+
+After all subagents complete:
+
+#### 3.1 — Deduplicate
+Group findings pointing to the same file:line. Keep the finding with highest severity and most evidence.
+
+#### 3.2 — Detect conflicts
+Scan all `CONFLICTS_WITH` fields. For each conflict:
+- Compare evidence side by side
+- If one subagent had more context (e.g. saw both sides of a split) → that one wins
+- If equal evidence → escalate (Step 3.5)
+
+#### 3.3 — Validate CLEAN results
+For each subagent that returned CLEAN:
+- Check METHODS_USED — did it actually run caller audit + value trace?
+- Check EVIDENCE — are there actual grep commands with output?
+- If CLEAN but no evidence → re-run that subagent with explicit instructions
+
+#### 3.4 — Cross-subagent integration check
+For findings that touch exports/imports across subagent boundaries:
+- Verify the change is consistent on BOTH sides
+- If subagent A found a renamed export but subagent B didn't check consumers → run targeted grep
+
+#### 3.5 — Escalation protocol
+When subagents contradict or evidence is ambiguous:
+1. Re-run conflicting subagent with the other's findings as additional context
+2. If still contradictory → spawn a tiebreaker subagent with both outputs
+3. If tiebreaker fails → report both with confidence levels, let user decide
+
+### Failure handling
+
+**Bad output**: Subagent returns no findings and no CLEAN → re-run with explicit file list and `--verbose`
+**Suspicious CLEAN**: CLEAN with no EVIDENCE commands → reject, re-run with mandatory grep/read output
+**Timeout**: Subagent doesn't return in 5 min → kill, log "TIMEOUT", continue with others, note in Blind Spots
+
+### Kiedy NIE paralelizowac
+
+- scope <= 5 plikow — rob sekwencyjnie, overhead subagentow nie wart
+- tryb QUICK — za malo krokow, nie ma co dzielic
+
+## Zasady
+
+1. NIE UFAJ SOBIE - zakladaj ze zrobiles blad. Szukaj go aktywnie.
+2. NIE SPIESZ SIE - dokladnosc > szybkosc.
+3. Compiler + linter to MINIMUM, nie MAKSIMUM - Krok 2-4 lapia to, czego kompilator nie widzi.
+4. Konkretne wartosci > abstrakcyjne rozumowanie - "to powinno dzialac" to NIE weryfikacja. Trace z wartosciami.
+5. Kolejnosc wsteczna - czytanie od konca lamie pattern recognition.
+6. Czytaj jak CUDZY kod - nie jak swoj. Swoj czytasz z intencja, cudzy z podejrzliwoscia.
+7. Honest blind spots > falszywe "wszystko OK" - sekcja "czego NIE zweryfikowalem" to uczciwosc.
+8. Literal output > verbal claim - "sprawdzilem, OK" BEZ $ komendy i outputu = NIE sprawdziles.
+9. Freshness - czytaj pliki z dysku, nie z pamieci kontekstu.
+10. Paralelizuj gdy scope > 5 plikow — subagenty per domena, orchestrator laczy raport.
+11. **HANDLE FAILURES** — bad output, suspicious CLEAN, timeout to norma. Obsluz je, nie ignoruj.
+12. **STRUCTURED OUTPUT** — kazdy subagent zwraca FINDING + EVIDENCE + SEVERITY + CONFLICTS_WITH. Bez prozy.
