@@ -115,6 +115,20 @@ Both files receive **identical content** — works with Claude Code, Codex, Kimi
 
 Merge-safe: if files already exist, only missing sections are added — existing content is never overwritten.
 
+### [nobrainer-npm-secure](./nobrainer-npm-secure/)
+
+Harden a machine or project against npm supply-chain attacks (compromised packages, malicious `postinstall` scripts, typosquats) — the kind behind the TanStack, axios, and chalk/debug incidents.
+
+**Trigger:** "secure npm", "npm supply chain", "cooldown", "minimum release age", "pin dependencies"
+
+**What it does:**
+- Sets a **minimum-release-age cooldown** (default 14 days) across npm, pnpm, and bun — each with the correct config key, file, and unit (npm=days, pnpm=minutes, bun=seconds)
+- Adds `ignore-scripts` to block malicious lifecycle scripts (with a caveat + rebuild escape hatch for native packages)
+- Pins `dependencies`/`devDependencies` to exact versions (leaves `peerDependencies` as ranges — pinning them breaks consumers)
+- Commits the lockfile so the transitive tree is reproducible
+
+Checks tool versions first — `min-release-age` needs **npm ≥ 11.10.0** or it's silently inert. Documents what the cooldown does *not* protect against (already-installed deps, Renovate PRs, registry compromise) and the patch-delay trade-off.
+
 ## Installation
 
 Copy any skill directory into `~/.claude/skills/`:
@@ -131,6 +145,7 @@ cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-memory ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-autopilot ~/.claude/skills/
 cp -r nobrainer-claude-skills/nobrainer-continuous-improvement ~/.claude/skills/
+cp -r nobrainer-claude-skills/nobrainer-npm-secure ~/.claude/skills/
 
 # Or symlink (auto-updates with git pull)
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
@@ -140,6 +155,7 @@ ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/n
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-memory" ~/.claude/skills/nobrainer-memory
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-autopilot" ~/.claude/skills/nobrainer-autopilot
 ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-continuous-improvement" ~/.claude/skills/nobrainer-continuous-improvement
+ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-npm-secure" ~/.claude/skills/nobrainer-npm-secure
 ```
 
 Then restart Claude Code — the skill will be available immediately.
