@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for $description
+
+[Timer]
+OnBootSec=$interval_seconds
+OnUnitActiveSec=$interval_seconds
+Unit=$service_unit
+
+[Install]
+WantedBy=timers.target
