@@ -1,0 +1,14 @@
+[Unit]
+Description=$description
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=$exec_start
+WorkingDirectory=$working_directory
+$environment_lines$restart_block
+StandardOutput=append:$stdout_log
+StandardError=append:$stderr_log
+
+[Install]
+WantedBy=default.target
