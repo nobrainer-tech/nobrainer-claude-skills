@@ -33,15 +33,38 @@ def _run(cmd: list[str], timeout: int = 15) -> tuple[int, str, str]:
 
 def verify_webwright() -> dict[str, Any]:
     info = detect.detect_webwright()
-    if not info["installed"]:
-        return {"ok": False, "detail": "clone missing under data_dir/webwright"}
-    # Probe the venv-installed entry point if it exists; non-fatal if not.
-    rc, out, _err = _run([sys.executable, "-c", "import importlib; importlib.import_module('webwright')"])
+    plugin = info.get("plugin_registered") or {}
+    any_registered = any(plugin.values())
+    from_source = info.get("installed_from_source", False)
+
+    if not from_source and not any_registered:
+        return {
+            "ok": False,
+            "detail": "webwright not installed (no source clone, no host registration)",
+            "plugin_registered": plugin,
+        }
+
+    if from_source:
+        rc, _out, _err = _run([
+            sys.executable, "-c",
+            "import importlib; importlib.import_module('webwright')",
+        ])
+        return {
+            "ok": rc == 0 or any_registered,
+            "detail": (
+                "webwright importable" if rc == 0
+                else ("module not importable but plugin registered" if any_registered
+                      else "webwright module not importable")
+            ),
+            "path": info.get("path"),
+            "playwright_chromium": info.get("playwright_chromium", False),
+            "plugin_registered": plugin,
+        }
+
     return {
-        "ok": rc == 0,
-        "detail": "webwright importable" if rc == 0 else "webwright module not importable",
-        "path": info["path"],
-        "playwright_chromium": info["playwright_chromium"],
+        "ok": True,
+        "detail": "webwright registered via marketplace (no local source)",
+        "plugin_registered": plugin,
     }
 
 

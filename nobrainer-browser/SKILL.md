@@ -25,12 +25,18 @@ Activate when the user says:
 1. Detects what is already installed (Node, npm, pip, each of the four tools,
    and the wiring state of Claude/Codex config files).
 2. Installs each tool through its native channel:
-   - **Webwright**: `git clone` into a skill-managed directory, then
-     `pip install --user -e <clone>`, then `python -m playwright install
-     chromium`. Prints the `/plugin marketplace add` and `/plugin install`
-     slash commands the user must run inside Claude (the skill cannot execute
-     slash commands itself). Shells out `codex plugin marketplace add` for
-     Codex.
+   - **Webwright**: two modes.
+     - `marketplace` (default, recommended): no clone, no pip, no playwright
+       download. The host's plugin loader fetches `microsoft/Webwright` from
+       GitHub. Supports `claude` and `codex` hosts only.
+     - `source` (opt-in via `--mode source`): `git clone` into a
+       skill-managed directory, `pip install --user -e <clone>`, then
+       `python -m playwright install chromium`. Required for `openclaw` and
+       `hermes` hosts.
+     Hosts: `claude`, `codex`, `openclaw`, `hermes` (select via
+     `--hosts a,b,c`; default `claude,codex`). For Claude the skill prints
+     the slash commands the user must run; for Codex/OpenClaw it shells out;
+     for Hermes it creates a symlink under `~/.hermes/skills/webwright`.
    - **Playwright MCP**: no global install; resolves a 7-day-safe version via
      `npm view @playwright/mcp time --json`, caches the pin under
      `state.json`, and exposes it for wiring.
@@ -81,7 +87,8 @@ nobrainer-browser/
 | `python -m nobrainer_browser` | First-run banner + host snapshot. |
 | `python -m nobrainer_browser detect [--json]` | Print host + tools + wiring as JSON. |
 | `python -m nobrainer_browser install all [--cooldown-days N]` | Install all four tools. |
-| `python -m nobrainer_browser install {webwright,playwright-mcp,playwright-cli,agent-browser}` | Install one tool. Add `--method={npm,cargo,brew}` for agent-browser; `--with-deps` on Linux. |
+| `python -m nobrainer_browser install {webwright,playwright-mcp,playwright-cli,agent-browser}` | Install one tool. Add `--method={npm,cargo,brew}` for agent-browser; `--with-deps` on Linux. Webwright: `--mode={marketplace,source}` and `--hosts=claude,codex,openclaw,hermes`. |
+| `python -m nobrainer_browser tool-uninstall webwright [--hosts ...] [--purge-source]` | Remove Webwright registration from hosts; optionally delete the source clone. |
 | `python -m nobrainer_browser wire {claude,codex,both} [--tool playwright-mcp]` | Register Playwright MCP. |
 | `python -m nobrainer_browser unwire {claude,codex,both} [--tool playwright-mcp]` | Remove the MCP entry. |
 | `python -m nobrainer_browser verify [--tool ...]` | Run health checks. |
@@ -91,10 +98,24 @@ nobrainer-browser/
 
 | Tool | Installed via | Claude integration | Codex integration |
 | --- | --- | --- | --- |
-| Webwright | git clone + pip install -e | `/plugin marketplace add <clone>` + `/plugin install webwright@webwright` (user types these) | `codex plugin marketplace add <clone>` (skill shells out) |
+| Webwright (marketplace, default) | Host plugin loader fetches `microsoft/Webwright` | `/plugin marketplace add microsoft/Webwright` + `/plugin install webwright@webwright` (user types these) | `codex plugin marketplace add microsoft/Webwright` (skill shells out) |
+| Webwright (source, opt-in) | `git clone` + `pip install --user -e` + `playwright install chromium` | `/plugin marketplace add <clone>` + `/plugin install webwright@webwright` | `codex plugin marketplace add <clone>` |
 | Playwright MCP | npx on demand (safe-version pin cached) | `claude mcp add playwright npx "@playwright/mcp@<pin>"` or atomic edit of `~/.claude.json` | `codex mcp add playwright ...` or atomic splice into `~/.codex/config.toml` |
 | Playwright CLI | `npm install -g playwright@<safe-version>` + `playwright install` | shell out via `npx playwright codegen`, `playwright test` | same |
 | agent-browser | `npm install -g agent-browser@<safe-version>` (default); `cargo install` / `brew install` opt-in; then `agent-browser install` + `npx skills add vercel-labs/agent-browser` | binary on PATH, called directly | binary on PATH, called directly |
+
+### Webwright supported hosts
+
+Webwright can be registered with four host environments. The marketplace mode
+is the default and works without any local checkout; the source mode is
+required for hosts that only accept a local path.
+
+| Host | Marketplace mode | Source mode | Install method |
+| --- | --- | --- | --- |
+| Claude Code | yes | yes | Two slash commands the user must paste. |
+| Codex CLI | yes | yes | `codex plugin marketplace add <spec-or-path>` (skill shells out). |
+| OpenClaw | no | yes only | `openclaw plugins install <path>` + `openclaw gateway restart`. |
+| Hermes Agent | no | yes only | Symlink `~/.hermes/skills/webwright` -> `<clone>/skills/webwright`. |
 
 ## Security model
 
