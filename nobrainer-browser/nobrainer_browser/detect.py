@@ -60,10 +60,91 @@ def _which_version(cmd: str, version_flag: str = "--version") -> str | None:
 # ---------------------------------------------------------------------------
 
 
+def _detect_webwright_plugin_registered() -> dict:
+    """Best-effort: is the Webwright plugin registered with each host?"""
+    home = Path.home()
+
+    # Claude: ~/.claude/plugins/installed_plugins.json or similar.
+    claude_registered = False
+    claude_candidates = [
+        home / ".claude" / "plugins" / "installed_plugins.json",
+        home / ".claude" / "plugins.json",
+    ]
+    for cand in claude_candidates:
+        if not cand.exists():
+            continue
+        data = paths.load_json(cand)
+        if isinstance(data, dict):
+            keys = data.keys()
+            if any("webwright" in str(k).lower() for k in keys):
+                claude_registered = True
+                break
+            plugins = data.get("plugins") or data.get("installed") or {}
+            if isinstance(plugins, dict) and any(
+                "webwright" in str(k).lower() for k in plugins
+            ):
+                claude_registered = True
+                break
+            if isinstance(plugins, list) and any(
+                "webwright" in str(item).lower() for item in plugins
+            ):
+                claude_registered = True
+                break
+        elif isinstance(data, list):
+            if any("webwright" in str(item).lower() for item in data):
+                claude_registered = True
+                break
+
+    # Codex: ~/.codex/config.toml [plugins.webwright] or ~/.codex/plugins/webwright.
+    codex_registered = False
+    codex_cfg = paths.codex_config_file()
+    if codex_cfg.exists():
+        try:
+            text = codex_cfg.read_text(encoding="utf-8")
+            for line in text.splitlines():
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                if s.startswith("[plugins.webwright]") or s == "[plugins.webwright]":
+                    codex_registered = True
+                    break
+        except OSError:
+            pass
+    if not codex_registered:
+        codex_plugins_dir = home / ".codex" / "plugins"
+        if codex_plugins_dir.exists():
+            try:
+                codex_registered = any(
+                    "webwright" in p.name.lower() for p in codex_plugins_dir.iterdir()
+                )
+            except OSError:
+                codex_registered = False
+
+    # OpenClaw: shell `openclaw plugins list | grep webwright`.
+    openclaw_registered = False
+    if shutil.which("openclaw") is not None:
+        rc, out, _ = _run(["openclaw", "plugins", "list"], timeout=10)
+        if rc == 0 and "webwright" in out.lower():
+            openclaw_registered = True
+
+    # Hermes: ~/.hermes/skills/webwright (file or symlink).
+    hermes_link = home / ".hermes" / "skills" / "webwright"
+    hermes_registered = hermes_link.exists() or hermes_link.is_symlink()
+
+    return {
+        "claude": claude_registered,
+        "codex": codex_registered,
+        "openclaw": openclaw_registered,
+        "hermes": hermes_registered,
+    }
+
+
 def detect_webwright() -> dict:
-    """Look for a Webwright clone under ``data_dir()/webwright``."""
+    """Look for a Webwright clone under ``data_dir()/webwright`` and host wiring."""
     clone = paths.data_dir() / "webwright"
-    installed = clone.exists() and (clone / "setup.py").exists() or (clone / "pyproject.toml").exists()
+    has_setup = clone.exists() and (
+        (clone / "setup.py").exists() or (clone / "pyproject.toml").exists()
+    )
     chromium = False
     # Best-effort: Playwright caches browsers in ~/Library/Caches/ms-playwright (mac),
     # ~/.cache/ms-playwright (linux), %USERPROFILE%\AppData\Local\ms-playwright (win).
@@ -78,10 +159,16 @@ def detect_webwright() -> dict:
             chromium = any(p.name.startswith("chromium") for p in cache.iterdir())
         except OSError:
             chromium = False
+
+    plugin_registered = _detect_webwright_plugin_registered()
+    any_host_registered = any(plugin_registered.values())
+
     return {
-        "installed": bool(installed),
-        "path": str(clone) if installed else None,
+        "installed": bool(has_setup) or any_host_registered,
+        "installed_from_source": bool(has_setup),
+        "path": str(clone) if has_setup else None,
         "playwright_chromium": bool(chromium),
+        "plugin_registered": plugin_registered,
     }
 
 
