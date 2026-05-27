@@ -42,9 +42,16 @@ def _emit(result: Any, json_out: bool) -> int:
 
 
 def _install_one(tool: str, *, cooldown_days: int, dry_run: bool,
-                 method: str = "npm", with_deps: bool = False) -> dict:
+                 method: str = "npm", with_deps: bool = False,
+                 webwright_mode: str = "marketplace",
+                 webwright_hosts: list[str] | None = None) -> dict:
     if tool == "webwright":
-        return t_ww.install(cooldown_days=cooldown_days, dry_run=dry_run)
+        return t_ww.install(
+            mode=webwright_mode,
+            hosts=webwright_hosts,
+            cooldown_days=cooldown_days,
+            dry_run=dry_run,
+        )
     if tool == "playwright-mcp":
         return t_pm.install(cooldown_days=cooldown_days, dry_run=dry_run)
     if tool == "playwright-cli":
@@ -55,16 +62,45 @@ def _install_one(tool: str, *, cooldown_days: int, dry_run: bool,
     return {"tool": tool, "ok": False, "error": f"unknown tool: {tool}"}
 
 
+def _parse_hosts_csv(value: str | None) -> tuple[list[str] | None, str | None]:
+    """Parse a ``--hosts`` CSV. Returns (hosts, error_msg)."""
+    if value is None:
+        return None, None
+    parts = [p.strip().lower() for p in value.split(",") if p.strip()]
+    if not parts:
+        return None, "empty --hosts list"
+    invalid = [p for p in parts if p not in t_ww.VALID_HOSTS]
+    if invalid:
+        return None, f"invalid host(s): {invalid} (valid: {list(t_ww.VALID_HOSTS)})"
+    # dedupe while preserving order
+    seen: set[str] = set()
+    out: list[str] = []
+    for p in parts:
+        if p not in seen:
+            seen.add(p)
+            out.append(p)
+    return out, None
+
+
 def _cmd_install(args: argparse.Namespace) -> int:
     target = args.target
     cooldown = args.cooldown_days
+    webwright_hosts, host_err = _parse_hosts_csv(getattr(args, "hosts", None))
+    if host_err:
+        print(host_err, file=sys.stderr)
+        return 2
+    webwright_mode = getattr(args, "mode", "marketplace")
     if target == "all":
         results = []
         ok = True
         for t in TOOL_KEYS:
             method = args.method if t == "agent-browser" else "npm"
-            res = _install_one(t, cooldown_days=cooldown, dry_run=args.dry_run,
-                               method=method, with_deps=args.with_deps)
+            res = _install_one(
+                t, cooldown_days=cooldown, dry_run=args.dry_run,
+                method=method, with_deps=args.with_deps,
+                webwright_mode=webwright_mode,
+                webwright_hosts=webwright_hosts,
+            )
             results.append(res)
             ok = ok and bool(res.get("ok"))
         out = {"ok": ok, "results": results}
@@ -74,8 +110,25 @@ def _cmd_install(args: argparse.Namespace) -> int:
     if target not in TOOL_KEYS:
         print(f"unknown install target: {target}", file=sys.stderr)
         return 2
-    res = _install_one(target, cooldown_days=cooldown, dry_run=args.dry_run,
-                       method=args.method, with_deps=args.with_deps)
+    res = _install_one(
+        target, cooldown_days=cooldown, dry_run=args.dry_run,
+        method=args.method, with_deps=args.with_deps,
+        webwright_mode=webwright_mode,
+        webwright_hosts=webwright_hosts,
+    )
+    return _emit(res, json_out=True)
+
+
+def _cmd_uninstall(args: argparse.Namespace) -> int:
+    if args.target != "webwright":
+        print(f"only 'webwright' is uninstallable today (got: {args.target})",
+              file=sys.stderr)
+        return 2
+    hosts, err = _parse_hosts_csv(getattr(args, "hosts", None))
+    if err:
+        print(err, file=sys.stderr)
+        return 2
+    res = t_ww.uninstall(hosts=hosts, keep_source=not args.purge_source)
     return _emit(res, json_out=True)
 
 
@@ -228,7 +281,35 @@ def _build_parser() -> argparse.ArgumentParser:
                            help="Install method for agent-browser (default: npm).")
     p_install.add_argument("--with-deps", action="store_true",
                            help="Linux only: pass --with-deps to browser drivers post-install.")
+    p_install.add_argument(
+        "--mode", choices=t_ww.VALID_MODES, default="marketplace",
+        help=("Webwright install mode (default: marketplace). 'source' clones "
+              "the repo locally; required for openclaw/hermes hosts."),
+    )
+    p_install.add_argument(
+        "--hosts", default=None,
+        help=("Webwright: comma-separated subset of "
+              f"{','.join(t_ww.VALID_HOSTS)} (default: claude,codex)."),
+    )
     p_install.set_defaults(func=_cmd_install)
+
+    # uninstall (webwright tool-level uninstall, distinct from MCP unwire)
+    p_un = sub.add_parser(
+        "tool-uninstall",
+        help="Uninstall a tool. Currently supports: webwright.",
+    )
+    p_un.add_argument("target", choices=("webwright",),
+                      help="Tool to uninstall.")
+    p_un.add_argument(
+        "--hosts", default=None,
+        help=("Comma-separated subset of "
+              f"{','.join(t_ww.VALID_HOSTS)} (default: all)."),
+    )
+    p_un.add_argument(
+        "--purge-source", action="store_true",
+        help="Also remove the local clone under <data_dir>/webwright.",
+    )
+    p_un.set_defaults(func=_cmd_uninstall)
 
     # wire
     p_wire = sub.add_parser("wire", help="Register an MCP server with Claude/Codex/both.")

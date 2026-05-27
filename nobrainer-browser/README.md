@@ -8,7 +8,7 @@ wires the Playwright MCP server into both Claude Code and Codex CLI with a
 
 | Tool | What it is | Where it lands |
 | --- | --- | --- |
-| Webwright | Microsoft's Python framework for browser-driving agents. | `git clone` into `<data_dir>/webwright`, installed `pip install --user -e`. |
+| Webwright | Microsoft's Python framework for browser-driving agents. | Default: registered via host marketplace from `microsoft/Webwright` (no clone). Opt-in `--mode source` clones into `<data_dir>/webwright` and runs `pip install --user -e`. |
 | Playwright MCP | Microsoft's MCP server exposing a browser as MCP tools. | Invoked on demand via `npx @playwright/mcp@<pin>`. Pin cached locally. |
 | Playwright CLI | The Playwright test framework. | `npm install -g playwright@<pin>` + `playwright install`. |
 | agent-browser | Vercel Labs' Rust CLI for headful agent browsing. | `npm install -g agent-browser@<pin>` + `agent-browser install` + Vercel skills stub. |
@@ -55,6 +55,32 @@ python3 -m nobrainer_browser wire claude --tool playwright-mcp
 python3 -m nobrainer_browser unwire codex --tool playwright-mcp
 python3 -m nobrainer_browser status
 ```
+
+## Webwright install modes
+
+Webwright supports two modes and four hosts (`claude`, `codex`, `openclaw`,
+`hermes`). Default mode is `marketplace`; default hosts are `claude,codex`.
+
+```bash
+# Marketplace (recommended). No clone, no pip, no playwright download.
+python3 -m nobrainer_browser install webwright
+python3 -m nobrainer_browser install webwright --hosts claude
+python3 -m nobrainer_browser install webwright --hosts codex
+
+# Source mode. Clones microsoft/Webwright locally; required for openclaw + hermes.
+python3 -m nobrainer_browser install webwright --mode source --hosts claude,codex,openclaw,hermes
+
+# Remove webwright from chosen hosts (Claude requires a slash command from the user).
+python3 -m nobrainer_browser tool-uninstall webwright --hosts hermes
+python3 -m nobrainer_browser tool-uninstall webwright --hosts claude,codex,openclaw,hermes --purge-source
+```
+
+| Host | `marketplace` | `source` | How it lands |
+| --- | --- | --- | --- |
+| `claude` | yes | yes | Skill prints the two `/plugin ...` slash commands to paste. |
+| `codex` | yes | yes | Shells out `codex plugin marketplace add ...`. |
+| `openclaw` | no | yes only | `openclaw plugins install <clone>` + `openclaw gateway restart`. |
+| `hermes` | no | yes only | Symlink `~/.hermes/skills/webwright` -> `<clone>/skills/webwright`. Windows requires Developer Mode or admin. |
 
 ## Where things land
 
