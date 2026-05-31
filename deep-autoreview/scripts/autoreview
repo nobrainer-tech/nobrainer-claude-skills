@@ -377,6 +377,55 @@ def local_bundle(repo: Path) -> str:
     return "\n\n".join(parts)
 
 
+def _diff_names(repo: Path, *, cached: bool) -> list[str]:
+    args = ["diff", "--name-only"]
+    if cached:
+        args.insert(1, "--cached")
+    return [line.strip() for line in git(repo, *args).splitlines() if line.strip()]
+
+
+def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
+    header = "# Git Status\n" + git(repo, "status", "--short")
+    entry_limit = max(1, min(120_000, int(max_bundle_chars * 0.6), max_bundle_chars))
+    file_entries: list[tuple[str, str]] = []
+    for rel in _diff_names(repo, cached=True):
+        patch = bounded(
+            git(repo, "diff", "--cached", "--patch", "--find-renames", "--", rel),
+            limit=entry_limit,
+        )
+        file_entries.append((f"# Staged File: {rel}", patch))
+    for rel in _diff_names(repo, cached=False):
+        patch = bounded(
+            git(repo, "diff", "--patch", "--find-renames", "--", rel),
+            limit=entry_limit,
+        )
+        file_entries.append((f"# Unstaged File: {rel}", patch))
+    for rel in [line for line in git(repo, "ls-files", "--others", "--exclude-standard").splitlines() if line]:
+        file_entries.append((f"# Untracked File: {rel}", read_text(repo / rel)))
+
+    if not file_entries:
+        return [local_bundle(repo)]
+
+    soft_limit = max(1, min(max_bundle_chars, int(max_bundle_chars * 0.85)))
+    chunks: list[list[tuple[str, str]]] = [[]]
+    current_size = len(header)
+    for entry in file_entries:
+        block = f"{entry[0]}\n{entry[1]}"
+        block_size = len(block) + 2
+        if chunks[-1] and current_size + block_size > soft_limit:
+            chunks.append([])
+            current_size = len(header)
+        chunks[-1].append(entry)
+        current_size += block_size
+
+    bundles = []
+    for idx, chunk in enumerate(chunks, start=1):
+        parts = [header, f"# Segment\n{idx}/{len(chunks)}"]
+        parts.extend(f"{title}\n{text}" for title, text in chunk)
+        bundles.append("\n\n".join(parts))
+    return bundles
+
+
 def branch_bundle(repo: Path, base_ref: str) -> str:
     git(repo, "fetch", "origin", "--quiet", check=False)
     return "\n\n".join(
@@ -1015,6 +1064,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--require-finding", action="append", default=[], help="Require finding text to contain this substring.")
     parser.add_argument("--expect-findings", action="store_true", help="Treat findings as success; for harness acceptance tests.")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--max-bundle-chars",
+        type=int,
+        default=int(os.environ.get("AUTOREVIEW_MAX_BUNDLE_CHARS", "180000")),
+        help="Maximum prompt size before local review auto-splits into file segments.",
+    )
     args = parser.parse_args()
     if args.engine not in ENGINES:
         raise SystemExit(f"invalid --engine/AUTOREVIEW_ENGINE: {args.engine}")
@@ -1151,7 +1206,14 @@ def merge_panel_reports(reports: list[tuple[str, dict[str, Any]]]) -> dict[str, 
     }
 
 
-def run_panel(args: argparse.Namespace, reviewers: list[argparse.Namespace], repo: Path, prompt: str, changed_paths: set[str]) -> dict[str, Any]:
+def run_panel(
+    args: argparse.Namespace,
+    reviewers: list[argparse.Namespace],
+    repo: Path,
+    prompt: str,
+    changed_paths: set[str],
+    required_findings: list[str] | None = None,
+) -> dict[str, Any]:
     reports: list[tuple[str, dict[str, Any]]] = []
     failures: list[str] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(reviewers)) as executor:
@@ -1176,7 +1238,7 @@ def run_panel(args: argparse.Namespace, reviewers: list[argparse.Namespace], rep
         raise SystemExit("autoreview panel produced no reports")
     reports.sort(key=lambda item: item[0])
     report = merge_panel_reports(reports)
-    validate_report(report, repo, changed_paths, args.require_finding)
+    validate_report(report, repo, changed_paths, required_findings or [])
     return report
 
 
@@ -1203,28 +1265,47 @@ def main() -> int:
     if args.dry_run:
         return 0
 
+    extra_prompt = load_extra_prompt(args)
+    datasets = load_datasets(args)
+    bundles: list[tuple[str, str | None, str]] = []
     if target == "local":
-        bundle = local_bundle(repo)
+        local = local_bundle(repo)
+        probe = build_prompt(repo, target, target_ref, local, extra_prompt, datasets)
+        if len(probe) > args.max_bundle_chars:
+            split = local_bundle_segments(repo, args.max_bundle_chars)
+            bundles = [("local", None, item) for item in split]
+            print(
+                f"bundle too large ({len(probe)} chars); splitting local review into {len(split)} segments",
+                file=sys.stderr,
+            )
+        else:
+            bundles = [("local", None, local)]
     elif target == "branch":
         assert target_ref
-        bundle = branch_bundle(repo, target_ref)
+        bundles = [("branch", target_ref, branch_bundle(repo, target_ref))]
     else:
-        bundle = commit_bundle(repo, args.commit)
-        target_ref = args.commit
-    prompt = build_prompt(repo, target, target_ref, bundle, load_extra_prompt(args), load_datasets(args))
+        bundles = [("commit", args.commit, commit_bundle(repo, args.commit))]
     changed_paths = review_paths(repo, target, target_ref, args.commit)
-    print(f"bundle: {len(prompt)} chars")
 
     tests_proc: tuple[subprocess.Popen, float] | None = None
     if args.parallel_tests:
         tests_proc = start_parallel_tests(args.parallel_tests, repo, args.parallel_tests_shell)
     try:
-        if len(reviewers) == 1:
-            report = run_reviewer(reviewers[0], repo, prompt, changed_paths, args.require_finding)
+        segment_reports: list[dict[str, Any]] = []
+        for idx, (seg_target, seg_ref, bundle) in enumerate(bundles, start=1):
+            prompt = build_prompt(repo, seg_target, seg_ref, bundle, extra_prompt, datasets)
+            print(f"bundle[{idx}/{len(bundles)}]: {len(prompt)} chars")
+            if len(reviewers) == 1:
+                segment_reports.append(run_reviewer(reviewers[0], repo, prompt, changed_paths, []))
+            else:
+                segment_reports.append(run_panel(args, reviewers, repo, prompt, changed_paths, []))
+        if len(segment_reports) == 1:
+            report = segment_reports[0]
             label = "autoreview"
         else:
-            report = run_panel(args, reviewers, repo, prompt, changed_paths)
-            label = "autoreview panel"
+            report = merge_panel_reports([(f"segment-{idx}", item) for idx, item in enumerate(segment_reports, start=1)])
+            label = "autoreview segmented"
+        validate_report(report, repo, changed_paths, args.require_finding)
         if args.json_output:
             Path(args.json_output).write_text(json.dumps(report, indent=2) + "\n")
 
