@@ -3,6 +3,8 @@ name: nobrainer-paperclip-setup
 description: Cross-platform installer and antifragile orchestrator for Paperclip plus read-only Jira ticket ingestion. Bootstraps the local Paperclip server, manages companies and repos, allocates per-agent git worktrees, browser pool (Chrome/Edge/Brave with CDP), schedules watchdogs (env-watcher per repo, backups-gc globally), ingests assigned Jira tickets during configured working hours, dispatches them to the right agent, and produces self-contained HTML reports for human review. Agents NEVER write to Jira and NEVER push commits or open PRs. Works on macOS, Windows, Linux. No external Python dependencies, no hardcoded users or paths.
 ---
 
+
+> **Codex:** Use generic/agent-browser steps; do NOT use Claude `mcp__...` tool names.
 # nobrainer-paperclip-setup
 
 A dynamic, cross-platform skill that stands up an antifragile Paperclip
