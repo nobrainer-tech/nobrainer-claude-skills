@@ -386,7 +386,7 @@ def _diff_names(repo: Path, *, cached: bool) -> list[str]:
 
 def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
     header = "# Git Status\n" + git(repo, "status", "--short")
-    entry_limit = max(10_000, min(120_000, int(max_bundle_chars * 0.6)))
+    entry_limit = max(64, min(120_000, int(max_bundle_chars * 0.6), max_bundle_chars))
     file_entries: list[tuple[str, str]] = []
     for rel in _diff_names(repo, cached=True):
         patch = bounded(
@@ -406,7 +406,7 @@ def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
     if not file_entries:
         return [local_bundle(repo)]
 
-    soft_limit = max(10_000, int(max_bundle_chars * 0.85))
+    soft_limit = max(128, min(max_bundle_chars, int(max_bundle_chars * 0.85)))
     chunks: list[list[tuple[str, str]]] = [[]]
     current_size = len(header)
     for entry in file_entries:
@@ -1206,7 +1206,14 @@ def merge_panel_reports(reports: list[tuple[str, dict[str, Any]]]) -> dict[str, 
     }
 
 
-def run_panel(args: argparse.Namespace, reviewers: list[argparse.Namespace], repo: Path, prompt: str, changed_paths: set[str]) -> dict[str, Any]:
+def run_panel(
+    args: argparse.Namespace,
+    reviewers: list[argparse.Namespace],
+    repo: Path,
+    prompt: str,
+    changed_paths: set[str],
+    required_findings: list[str] | None = None,
+) -> dict[str, Any]:
     reports: list[tuple[str, dict[str, Any]]] = []
     failures: list[str] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(reviewers)) as executor:
@@ -1231,7 +1238,7 @@ def run_panel(args: argparse.Namespace, reviewers: list[argparse.Namespace], rep
         raise SystemExit("autoreview panel produced no reports")
     reports.sort(key=lambda item: item[0])
     report = merge_panel_reports(reports)
-    validate_report(report, repo, changed_paths, args.require_finding)
+    validate_report(report, repo, changed_paths, required_findings or [])
     return report
 
 
@@ -1291,7 +1298,7 @@ def main() -> int:
             if len(reviewers) == 1:
                 segment_reports.append(run_reviewer(reviewers[0], repo, prompt, changed_paths, []))
             else:
-                segment_reports.append(run_panel(args, reviewers, repo, prompt, changed_paths))
+                segment_reports.append(run_panel(args, reviewers, repo, prompt, changed_paths, []))
         if len(segment_reports) == 1:
             report = segment_reports[0]
             label = "autoreview"
