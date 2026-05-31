@@ -386,7 +386,7 @@ def _diff_names(repo: Path, *, cached: bool) -> list[str]:
 
 def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
     header = "# Git Status\n" + git(repo, "status", "--short")
-    entry_limit = max(64, min(120_000, int(max_bundle_chars * 0.6), max_bundle_chars))
+    entry_limit = max(1, min(120_000, int(max_bundle_chars * 0.6), max_bundle_chars))
     file_entries: list[tuple[str, str]] = []
     for rel in _diff_names(repo, cached=True):
         patch = bounded(
@@ -406,7 +406,7 @@ def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
     if not file_entries:
         return [local_bundle(repo)]
 
-    soft_limit = max(128, min(max_bundle_chars, int(max_bundle_chars * 0.85)))
+    soft_limit = max(1, min(max_bundle_chars, int(max_bundle_chars * 0.85)))
     chunks: list[list[tuple[str, str]]] = [[]]
     current_size = len(header)
     for entry in file_entries:
