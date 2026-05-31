@@ -386,12 +386,19 @@ def _diff_names(repo: Path, *, cached: bool) -> list[str]:
 
 def local_bundle_segments(repo: Path, max_bundle_chars: int) -> list[str]:
     header = "# Git Status\n" + git(repo, "status", "--short")
+    entry_limit = max(10_000, min(120_000, int(max_bundle_chars * 0.6)))
     file_entries: list[tuple[str, str]] = []
     for rel in _diff_names(repo, cached=True):
-        patch = bounded(git(repo, "diff", "--cached", "--patch", "--find-renames", "--", rel))
+        patch = bounded(
+            git(repo, "diff", "--cached", "--patch", "--find-renames", "--", rel),
+            limit=entry_limit,
+        )
         file_entries.append((f"# Staged File: {rel}", patch))
     for rel in _diff_names(repo, cached=False):
-        patch = bounded(git(repo, "diff", "--patch", "--find-renames", "--", rel))
+        patch = bounded(
+            git(repo, "diff", "--patch", "--find-renames", "--", rel),
+            limit=entry_limit,
+        )
         file_entries.append((f"# Unstaged File: {rel}", patch))
     for rel in [line for line in git(repo, "ls-files", "--others", "--exclude-standard").splitlines() if line]:
         file_entries.append((f"# Untracked File: {rel}", read_text(repo / rel)))
@@ -1282,7 +1289,7 @@ def main() -> int:
             prompt = build_prompt(repo, seg_target, seg_ref, bundle, extra_prompt, datasets)
             print(f"bundle[{idx}/{len(bundles)}]: {len(prompt)} chars")
             if len(reviewers) == 1:
-                segment_reports.append(run_reviewer(reviewers[0], repo, prompt, changed_paths, args.require_finding))
+                segment_reports.append(run_reviewer(reviewers[0], repo, prompt, changed_paths, []))
             else:
                 segment_reports.append(run_panel(args, reviewers, repo, prompt, changed_paths))
         if len(segment_reports) == 1:
@@ -1290,8 +1297,8 @@ def main() -> int:
             label = "autoreview"
         else:
             report = merge_panel_reports([(f"segment-{idx}", item) for idx, item in enumerate(segment_reports, start=1)])
-            validate_report(report, repo, changed_paths, args.require_finding)
             label = "autoreview segmented"
+        validate_report(report, repo, changed_paths, args.require_finding)
         if args.json_output:
             Path(args.json_output).write_text(json.dumps(report, indent=2) + "\n")
 
