@@ -1,0 +1,8 @@
+# Merge this repo block into the repo's .pre-commit-config.yaml, then run:
+#   pre-commit install
+# https://github.com/gitleaks/gitleaks#pre-commit
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
