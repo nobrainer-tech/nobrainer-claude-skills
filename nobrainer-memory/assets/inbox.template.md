@@ -1,8 +1,8 @@
 # inbox — {{HOST}}
 
-Poczekalnia kandydatów do promocji na tej maszynie. Agent dopisuje TYLKO trwałe fakty, jedna linia:
-`- [ ] YYYY-MM-DDTHH:MMZ | <domena/folder> | <fakt> | (źródło)`
+Waiting room for promotion candidates on this machine. The agent appends ONLY durable facts, one line each:
+`- [ ] YYYY-MM-DDTHH:MMZ | <domain/folder> | <fact> | (source)`
 
-Promoter oznacza przetworzone `[x]` i przenosi treść do stron wiki. Nie kasuj ręcznie.
+The promoter marks processed items `[x]` and moves the content into wiki pages. Do not delete by hand.
 
-<!-- kandydaci poniżej -->
+<!-- candidates below -->
