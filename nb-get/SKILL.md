@@ -1,27 +1,27 @@
 ---
 name: nb-get
-description: Query the NoBrainer Wiki — answer a question by navigating index.md and grepping pages, synthesize with citations, optionally save the answer as a new page. Use when user says "nb-get", "co wiem o", "zapytaj wiki", "sprawdź w wiki", "query wiki".
+description: Query the NoBrainer Wiki — answer a question by navigating index.md and grepping pages, synthesize with citations, optionally save the answer as a new page. Use when user says "nb-get", "what do I know about", "ask the wiki", "check the wiki", "query wiki".
 ---
 
-# nb-get — Query wiki
+# nb-get — Query the wiki
 
-Odpowiada na pytanie z NoBrainer Wiki. Operacja "Query" z modelu LLM Wiki.
+Answers a question from the NoBrainer Wiki. The "Query" operation from the LLM Wiki model.
 
-> Koncepcja: **LLM Wiki** wg Andreja Karpathy'ego — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+> Concept: **LLM Wiki** after Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
-## Krok 1 — Zlokalizuj vault
-Domyślnie `~/GitHub/nobrainer-obsidian` (albo ścieżka z bloku `NB-WIKI-MEMORY`). Przeczytaj `index.md` (mapa).
+## Step 1 — Locate the vault
+Default `~/GitHub/nobrainer-obsidian` (or the path from the `NB-WIKI-MEMORY` block). Read `index.md` (the map).
 
-## Krok 2 — Znajdź
-- Wybierz kandydujące strony z `index.md`.
-- `grep -ri` po vaultcie dla terminów pytania. Otwórz trafione strony i ich `[[linki]]`.
+## Step 2 — Find
+- Pick candidate pages from `index.md`.
+- `grep -ri` across the vault for the question's terms. Open the matched pages and their `[[links]]`.
 
-## Krok 3 — Syntetyzuj
-- Odpowiedz zwięźle, **z cytatami** do konkretnych stron (`[[Nazwa]]`) i źródeł.
-- Jeśli są sprzeczności/luki — powiedz to wprost, nie zgaduj.
-- Jeśli wiki nie ma odpowiedzi — powiedz i zaproponuj `nb-add`.
+## Step 3 — Synthesize
+- Answer concisely, **with citations** to specific pages (`[[Name]]`) and sources.
+- If there are contradictions/gaps — say so plainly, do not guess.
+- If the wiki has no answer — say so and suggest `nb-add`.
 
-## Krok 4 — (opcjonalnie) Zapisz odpowiedź
-Jeśli odpowiedź jest wartościowa i wielokrotnego użytku — zaproponuj zapis jako nowa strona (przez `nb-add`) i dopisz do `index.md`.
+## Step 4 — (optional) Save the answer
+If the answer is valuable and reusable — propose saving it as a new page (via `nb-add`) and add it to `index.md`.
 
-Nie modyfikuj stron przy zwykłym query (tylko czytasz), chyba że user poprosi o zapis.
+Do not modify pages on an ordinary query (read only), unless the user asks to save.

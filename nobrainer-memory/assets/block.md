@@ -1,10 +1,10 @@
 <!-- NB-WIKI-MEMORY:START -->
 ## NoBrainer Wiki Memory
-Trwała baza wiedzy: `{{VAULT}}` (git). Zasady: `{{VAULT}}/WIKI.md`.
-- **START sesji:** przeczytaj `{{VAULT}}/index.md` (mapa wiki). Grepuj konkretne strony zamiast czytać cały vault.
-- **W TRAKCIE:** gdy poznasz TRWAŁY fakt (decyzja, konfiguracja, ustalenie, stan projektu, wskaźnik dostępu) dopisz JEDNĄ linię do `{{VAULT}}/_inbox/{{HOST}}.md`:
-  `- [ ] <ISO-UTC> | <folder/domena> | <fakt w jednym zdaniu> | (źródło)`
-  Tylko trwałe fakty — nie chwilowy kontekst sesji.
-- **"wrzuć to do wiki" / "zapisz do wiki":** od razu zsyntetyzuj do właściwej strony wg `WIKI.md` (nie tylko inbox).
-- Dopisuj/twórz strony; nie przepisuj cudzych masowo. Poufne (kontrakty `P0`–`P4`) nie trafiają do publicznych miejsc.
+Persistent knowledge base: `{{VAULT}}` (git). Rules: `{{VAULT}}/WIKI.md`.
+- **SESSION START:** read `{{VAULT}}/index.md` (the wiki map). Grep specific pages instead of reading the whole vault.
+- **DURING:** when you learn a DURABLE fact (decision, configuration, agreement, project state, access pointer) append ONE line to `{{VAULT}}/_inbox/{{HOST}}.md`:
+  `- [ ] <ISO-UTC> | <folder/domain> | <fact in one sentence> | (source)`
+  Only durable facts — not transient session context.
+- **"save this to the wiki" / "put this in the wiki":** immediately synthesize into the right page per `WIKI.md` (not just the inbox).
+- Append/create pages; do not mass-rewrite others' pages. Keep confidential material (e.g. `private/`) out of public places.
 <!-- NB-WIKI-MEMORY:END -->
