@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Idempotentnie wstrzykuje blok NB-WIKI-MEMORY do pliku always-on klienta.
-# Użycie: VAULT=... HOST=... inject-block.sh <target-file>
+# Idempotently injects the NB-WIKI-MEMORY block into a client's always-on file.
+# Usage: VAULT=... HOST=... inject-block.sh <target-file>
 set -euo pipefail
 
-TARGET="${1:?podaj plik docelowy, np. ~/.claude/CLAUDE.md}"
-: "${VAULT:?ustaw VAULT}"
-: "${HOST:?ustaw HOST}"
+TARGET="${1:?provide the target file, e.g. ~/.claude/CLAUDE.md}"
+: "${VAULT:?set VAULT}"
+: "${HOST:?set HOST}"
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BLOCK="$(sed -e "s#{{VAULT}}#${VAULT}#g" -e "s#{{HOST}}#${HOST}#g" "$SKILL_DIR/block.md")"
@@ -13,15 +13,15 @@ BLOCK="$(sed -e "s#{{VAULT}}#${VAULT}#g" -e "s#{{HOST}}#${HOST}#g" "$SKILL_DIR/b
 mkdir -p "$(dirname "$TARGET")"
 touch "$TARGET"
 
-# usuń istniejący blok (między markerami włącznie)
+# remove the existing block (between markers, inclusive)
 awk '
   /<!-- NB-WIKI-MEMORY:START -->/ { skip=1 }
   !skip { print }
   /<!-- NB-WIKI-MEMORY:END -->/ { skip=0 }
 ' "$TARGET" > "$TARGET.nbtmp"
 
-# dopisz świeży blok (jedna pusta linia separatora)
+# append the fresh block (one blank line as separator)
 { cat "$TARGET.nbtmp"; printf '\n%s\n' "$BLOCK"; } > "$TARGET"
 rm -f "$TARGET.nbtmp"
 
-echo "OK: NB-WIKI-MEMORY wstrzyknięty do $TARGET"
+echo "OK: NB-WIKI-MEMORY injected into $TARGET"
