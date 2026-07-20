@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Podstaw: {{HOME}} {{VAULT}} {{HOST}} {{INTERVAL}} {{PROMOTE_SH}}
-     Instalacja:  cp -> ~/Library/LaunchAgents/tech.nobrainer.wiki-promoter.plist
-     Aktywacja (za zgodą usera): launchctl load ~/Library/LaunchAgents/tech.nobrainer.wiki-promoter.plist -->
+<!-- Substitute: {{HOME}} {{VAULT}} {{HOST}} {{INTERVAL}} {{PROMOTE_SH}}
+     Install:  cp -> ~/Library/LaunchAgents/tech.nobrainer.wiki-promoter.plist
+     Activate (with user consent): launchctl load ~/Library/LaunchAgents/tech.nobrainer.wiki-promoter.plist -->
 <plist version="1.0">
 <dict>
   <key>Label</key>

@@ -1,12 +1,12 @@
-# index — mapa wiki
+# index — the wiki map
 
-Katalog po którym nawiguje LLM zamiast czytać cały vault. Aktualizowany przy każdej promocji/`nb-add`.
-Format: kategoria → jedna linia domeny → kluczowe strony (`[[link]]` + opis). Rośnie z czasem.
+The catalog the LLM navigates instead of reading the whole vault. Updated on every promotion/`nb-add`.
+Format: category → one domain line → key pages (`[[link]]` + description). Grows over time.
 
-> Zasady: [[WIKI]] · Kronika: [[log]]
+> Rules: [[WIKI]] · Chronicle: [[log]]
 
-## (przykładowa kategoria) — `Folder/`
-Krótki opis domeny.
-- _(strony dojdą przy promocji)_
+## (example category) — `Folder/`
+Short description of the domain.
+- _(pages will be added on promotion)_
 
-<!-- Dodaj sekcje odpowiadające folderom Twojego vaultu. Dziel po domenie, nie po projekcie. -->
+<!-- Add sections matching the folders of your vault. Split by domain, not by project. -->
