@@ -1,244 +1,152 @@
 ---
 name: nobrainer-memory
-description: Install memsearch persistent memory for Claude Code. Auto-captures every session as markdown notes, injects relevant context on every prompt. Uses local Ollama embeddings (nomic-embed-text) — no API key needed. Use when setting up a new machine or when user says "install memory", "setup memsearch", "nobrainer-memory", "dodaj pamiec do claude", "zainstaluj memory".
+description: Install NoBrainer Wiki Memory — a persistent, LLM-maintained knowledge wiki (Karpathy "LLM Wiki" pattern) in an Obsidian git vault, wired into every AI client (Claude Code, Codex, opencode) via always-on instructions. Auto-captures durable facts to a per-machine inbox during work; a promoter synthesizes them into interlinked wiki pages. Use when setting up a new machine or when user says "install memory", "nobrainer-memory", "wiki memory", "dodaj pamiec do claude", "zainstaluj memory", "setup wiki".
 ---
 
-# NoBrainer Memory — memsearch Installer
+# NoBrainer Wiki Memory — installer
 
-Installs memsearch persistent memory plugin for Claude Code.
-Philosophy: Markdown is the source of truth. Vector index is just a cache.
-Every session gets summarized into `.md` files. Semantic search injects relevant context automatically.
+Persistent, cross-client knowledge base built on the **LLM Wiki** pattern by Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+Philosophy: **markdown w git jest źródłem prawdy.** LLM utrzymuje spójne, połączone `[[linkami]]` strony; człowiek kieruje. Działa identycznie w Claude Code, Codex i opencode, bo opiera się tylko na czytaniu pliku i dopisaniu pliku — nie na proprietary hookach.
 
-## What Gets Installed
+Zastępuje stary memsearch-owy `nobrainer-memory` (w `archive/nobrainer-memory-memsearch/`). Jest wstecznie kompatybilny: wykryte pliki `~/.memsearch/memory/*.md` traktuje jak źródło i syntetyzuje do wiki.
 
-1. `memsearch` Python CLI (PyPI)
-2. `nomic-embed-text` Ollama model — local embeddings, no API key needed
-3. memsearch ccplugin registered in Claude Code plugins
-4. Config: `~/.memsearch/config.toml` (provider: ollama)
+## Architektura
 
-Memory files land in: `~/.memsearch/memory/YYYY-MM-DD.md` (global, all projects)
+```
+KAŻDY KLIENT  (blok always-on w CLAUDE.md / AGENTS.md wskazuje na vault)
+  ├─ START:    czytaj index.md (mapa) → grepuj właściwe strony
+  └─ W TRAKCIE: trwały fakt → dopisz linię do _inbox/<host>.md   (+ ręczne "wrzuć to")
 
-## Step 0 — Ask about memory scope
+PROMOTER  (launchd/cron, co godzinę, każda maszyna promuje SWÓJ inbox)
+  _inbox/<host>.md → strony wiki (synteza, dedup, linki) → index.md + log.md → git push
+```
 
-Before installing, ask the user:
+Kluczowe decyzje (zaszyte, potwierdzane per maszyna w Step 0):
+- **Odczyt:** `index.md` wstrzykiwany przez statyczny blok instrukcji (nie hook — Codex ma je zbugowane #17532, opencode nie ma prawdziwego session-start).
+- **Zapis:** inbox w trakcie + promoter okresowo. Bez zależności od końca sesji.
+- **Maszyny:** równorzędne; osobny plik inbox per host = minimum konfliktów git.
 
-> **Gdzie zapisywać memory?**
-> 1. **Global** (`~/.memsearch/memory/`) — jeden pool dla wszystkich projektów. Działa gdy zawsze otwierasz Claude z `~`. Kontekst z różnych projektów miesza się w jednych plikach, ale semantic search i tak znajdzie właściwy.
-> 2. **Per-projekt** (`<project-dir>/.memsearch/memory/`) — izolowana pamięć per repo. Wymaga otwierania Claude z folderu projektu (`cd ~/Github/mój-projekt && claude`).
->
-> Który tryb preferujesz? (1 = global, 2 = per-projekt)
+---
 
-Based on the answer:
-- **Global** → proceed with default install, `MEMORY_BASE=$HOME/.memsearch`
-- **Per-projekt** → ask which directory: `W jakim folderze projektu?` → set `MEMORY_BASE=<project-dir>/.memsearch`, note it in the summary
+## Step 0 — Zapytaj jak ma działać (per maszyna)
 
-Store the choice in `MEMORY_SCOPE` variable for use in Step 8 summary.
+Zapytaj i zapamiętaj w zmiennych:
 
-## Step 1 — Detect environment
+1. **Ścieżka vaultu?** domyślnie `$HOME/GitHub/nobrainer-obsidian`. → `VAULT`
+2. **Hostname tej maszyny?** pokaż `hostname -s`, potwierdź. → `HOST`
+3. **Których klientów podpiąć?** wykryj obecne (Step 1) i potwierdź listę. → `CLIENTS`
+4. **Włączyć automatyczny promoter (launchd co godzinę)?** tak/nie. Jeśli nie — promocja tylko ręcznie przez `nb-tidy`/`nb-add`. → `PROMOTER_AUTO`
+5. **Interwał promotera** (jeśli auto), domyślnie 3600 s. → `PROMOTER_INTERVAL`
+
+Nie instaluj nic zanim nie potwierdzi ścieżki vaultu i listy klientów.
+
+## Step 1 — Wykryj środowisko i klientów
 
 ```bash
-python3 --version
-which pip3 || which pip
-which ollama || echo "OLLAMA_MISSING"
-uname -s  # Darwin or Linux
+hostname -s; uname -s
+echo "claude:   $([ -d "$HOME/.claude" ] && echo yes)"
+echo "codex:    $([ -d "$HOME/.codex" ] && echo yes)"
+echo "opencode: $([ -d "$HOME/.config/opencode" ] && echo yes)"
+echo "memsearch(old): $(ls "$HOME/.memsearch/memory/"*.md 2>/dev/null | wc -l | tr -d ' ') plików"
 ```
 
-If Ollama is missing:
-- macOS: `brew install ollama` (if brew available) or instruct user to install from https://ollama.com
-- Linux: `curl -fsSL https://ollama.com/install.sh | sh`
-- If Ollama cannot be installed automatically, configure memsearch with `openai` provider instead (requires `OPENAI_API_KEY`)
+Globalne pliki always-on per klient (potwierdzone research 2026-07):
+| klient | plik always-on (globalny) |
+|--------|---------------------------|
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex | `~/.codex/AGENTS.md` (utwórz jeśli brak) |
+| opencode | `~/.config/opencode/AGENTS.md` |
 
-## Step 2 — Install memsearch CLI
+## Step 2 — Zapewnij vault + scaffolding (idempotentnie)
 
-Try in order until one succeeds:
+Jeśli `$VAULT` nie istnieje albo nie jest repo git — zatrzymaj się i zapytaj (nie twórz na ślepo).
+Utwórz brakujące pliki szkieletu (NIE nadpisuj istniejących):
+
+- `WIKI.md` — schemat/konwencje (patrz `assets/WIKI.template.md`)
+- `index.md` — mapa (patrz `assets/index.template.md`)
+- `log.md` — kronika (nagłówek + wpis init)
+- `_inbox/<HOST>.md` — inbox tej maszyny (patrz `assets/inbox.template.md`, podstaw HOST)
 
 ```bash
-# Option A: pip3 (preferred)
-pip3 install memsearch
-
-# Option B: if A fails with "externally-managed-environment" (macOS Homebrew Python)
-pip3 install memsearch --break-system-packages
-
-# Option C: pipx
-pipx install memsearch
-
-# Option D: uv
-uv tool install memsearch
+mkdir -p "$VAULT/_inbox"
+[ -f "$VAULT/WIKI.md" ]  || cp "$SKILL_DIR/assets/WIKI.template.md"  "$VAULT/WIKI.md"
+[ -f "$VAULT/index.md" ] || cp "$SKILL_DIR/assets/index.template.md" "$VAULT/index.md"
+[ -f "$VAULT/log.md" ]   || printf '# log — kronika wiki\n\n' > "$VAULT/log.md"
+[ -f "$VAULT/_inbox/$HOST.md" ] || sed "s/{{HOST}}/$HOST/g" "$SKILL_DIR/assets/inbox.template.md" > "$VAULT/_inbox/$HOST.md"
 ```
 
-Verify: `memsearch --version`
+## Step 3 — Wstrzyknij blok always-on do każdego klienta (idempotentnie)
 
-## Step 3 — Pull embedding model
+Blok jest ograniczony markerami. Jeśli marker już jest w pliku — podmień zawartość między markerami, nie duplikuj.
 
-```bash
-# Start ollama server if not running (macOS)
-# ollama is usually auto-started as a service
+Marker: `<!-- NB-WIKI-MEMORY:START -->` … `<!-- NB-WIKI-MEMORY:END -->`
 
-ollama pull nomic-embed-text
-```
-
-Verify: `ollama list | grep nomic-embed-text`
-
-If Ollama unavailable, skip to Step 4 and set provider to `openai`.
-
-## Step 4 — Configure memsearch
-
-```bash
-memsearch config set embedding.provider ollama
-memsearch config set embedding.model nomic-embed-text
-```
-
-If using OpenAI fallback:
-```bash
-memsearch config set embedding.provider openai
-memsearch config set embedding.model text-embedding-3-small
-# User must have OPENAI_API_KEY in their env
-```
-
-Verify: `cat ~/.memsearch/config.toml`
-
-## Step 5 — Install Claude Code plugin
-
-### Option A: Marketplace (preferred, simplest)
-
-Use the Claude Code built-in marketplace commands:
-
-```bash
-# From Claude Code CLI:
-marketplace add zilliztech/memsearch
-
-# Or equivalently:
-/plugin install memsearch
-```
-
-This handles downloading, registering, and configuring the plugin automatically.
-
-Full docs: https://zilliztech.github.io/memsearch/claude-plugin/
-
-### Option B: Manual install (fallback if marketplace unavailable)
-
-Check Claude Code plugins directory exists:
-```bash
-ls ~/.claude/plugins/installed_plugins.json
-```
-
-If it doesn't exist, Claude Code is not installed — tell the user to install Claude Code first.
-
-Clone memsearch repo and copy plugin files:
-```bash
-TMPDIR=$(mktemp -d)
-git clone --depth=1 https://github.com/zilliztech/memsearch.git "$TMPDIR/memsearch"
-
-PLUGIN_VERSION=$(memsearch --version | sed 's/memsearch, version //')
-PLUGIN_DIR="$HOME/.claude/plugins/cache/zilliztech/memsearch/$PLUGIN_VERSION"
-
-mkdir -p "$PLUGIN_DIR/hooks" "$PLUGIN_DIR/skills/memory-recall" "$PLUGIN_DIR/scripts"
-cp "$TMPDIR/memsearch/ccplugin/hooks/"* "$PLUGIN_DIR/hooks/"
-cp "$TMPDIR/memsearch/ccplugin/scripts/"* "$PLUGIN_DIR/scripts/"
-cp "$TMPDIR/memsearch/ccplugin/skills/memory-recall/"* "$PLUGIN_DIR/skills/memory-recall/"
-
-rm -rf "$TMPDIR"
-```
-
-## Step 6 — Register plugin (only for Option B manual install)
-
-Skip this step if you used marketplace install (Option A) — it registers automatically.
-
-Read `~/.claude/plugins/installed_plugins.json`.
-
-Check if `memsearch@zilliztech` already exists in the `plugins` object. If yes — update `installPath` and `version`. If no — add a new entry.
-
-Add/update this entry in the `plugins` object (before the closing `}`):
-
-```json
-"memsearch@zilliztech": [
-  {
-    "scope": "user",
-    "installPath": "/Users/<USERNAME>/.claude/plugins/cache/zilliztech/memsearch/<VERSION>",
-    "version": "<VERSION>",
-    "installedAt": "<ISO_TIMESTAMP>",
-    "lastUpdated": "<ISO_TIMESTAMP>"
-  }
-]
-```
-
-Replace `<USERNAME>` with `$HOME` resolved, `<VERSION>` with actual memsearch version, `<ISO_TIMESTAMP>` with current UTC time in ISO 8601 format.
-
-**IMPORTANT:** Use Edit tool (not Write) to update the JSON. Preserve all existing plugin entries.
-
-## Step 7 — Verify installation
-
-```bash
-echo "=== memsearch ===" && memsearch --version
-echo "=== config ===" && cat ~/.memsearch/config.toml
-echo "=== ollama ===" && ollama list | grep nomic
-echo "=== plugin ===" && ls ~/.claude/plugins/cache/zilliztech/memsearch/
-```
-
-All four checks should pass.
-
-## Step 8 — Initialize auto memory for current project
-
-Claude Code has a built-in **auto memory** system (separate from memsearch) at:
-`~/.claude/projects/<project-hash>/memory/MEMORY.md`
-
-This file is automatically loaded into every conversation context for that project.
-
-If the user is running this skill from within a project directory:
-
-1. Detect the project memory path from the system prompt (look for "persistent auto memory directory at")
-2. Create the `memory/` directory if it doesn't exist
-3. Create `MEMORY.md` with a basic template:
+Zawartość bloku (podstaw `$VAULT` i `$HOST` na twarde wartości tej maszyny):
 
 ```markdown
-# Project Auto Memory
-
-## Key Facts
-- (add project-specific facts here)
-
-## Conventions
-- (add coding conventions, preferences)
-
-## Detailed Topics
-See `~/.memsearch/memory/` for semantic search memory.
+<!-- NB-WIKI-MEMORY:START -->
+## NoBrainer Wiki Memory
+Trwała baza wiedzy: `$VAULT` (git). Zasady: `$VAULT/WIKI.md`.
+- **START sesji:** przeczytaj `$VAULT/index.md` (mapa wiki). Grepuj konkretne strony zamiast czytać cały vault.
+- **W TRAKCIE:** gdy poznasz TRWAŁY fakt (decyzja, konfiguracja, ustalenie, stan projektu, dane dostępowe-wskaźnik) dopisz JEDNĄ linię do `$VAULT/_inbox/$HOST.md`:
+  `- [ ] <ISO-UTC> | <folder/domena> | <fakt w jednym zdaniu> | (źródło)`
+  Tylko trwałe fakty — nie chwilowy kontekst sesji.
+- **"wrzuć to do wiki" / "zapisz do wiki":** od razu zsyntetyzuj do właściwej strony wg `WIKI.md` (nie tylko inbox).
+- Dopisuj/twórz strony; nie przepisuj cudzych masowo. Poufne (`Jobs/`) nie trafia do publicznych miejsc.
+<!-- NB-WIKI-MEMORY:END -->
 ```
 
-4. Tell the user: "Auto memory initialized. Edit `MEMORY.md` to add project-specific context that should always be available."
+Wstrzyknij do każdego z `CLIENTS`:
+- Claude Code → dopisz na końcu `~/.claude/CLAUDE.md`
+- Codex → dopisz do `~/.codex/AGENTS.md` (utwórz plik jeśli brak)
+- opencode → dopisz do `~/.config/opencode/AGENTS.md` (utwórz jeśli brak)
 
-## Step 9 — Report to user
+Użyj `assets/inject-block.sh "$FILE"` (idempotentny: podmienia między markerami albo dopisuje).
 
-Print a summary:
+## Step 4 — Promoter (opcjonalny, jeśli PROMOTER_AUTO=tak)
+
+Skopiuj `assets/promote.sh` → `$HOME/.nobrainer-wiki/promote.sh` (chmod +x), skonfiguruj VAULT/HOST przez env w plist.
+Zainstaluj launchd z `assets/promoter.plist.template` (podstaw HOME/VAULT/HOST/INTERVAL) do `~/Library/LaunchAgents/tech.nobrainer.wiki-promoter.plist`.
+
+**NIE ładuj launchd bez zgody użytkownika** (`launchctl load`). Pokaż komendę i pozwól zdecydować.
+Promoter commituje i pushuje vault — potwierdź że to OK (vault jest do tego zaprojektowany, git = undo).
+
+Ręczna alternatywa (gdy PROMOTER_AUTO=nie): użytkownik uruchamia `nb-tidy` / `nb-add` gdy chce.
+
+## Step 5 — Kompatybilność wsteczna (stary memsearch)
+
+Jeśli `~/.memsearch/memory/*.md` niepuste — potraktuj jak źródło raw: przeczytaj, zsyntetyzuj do wiki przez logikę `nb-add`, zaloguj w `log.md`. Nie kasuj katalogu.
+
+## Step 6 — Weryfikacja i raport
+
+```bash
+echo "VAULT: $VAULT ($(git -C "$VAULT" rev-parse --abbrev-ref HEAD))"
+ls "$VAULT"/{WIKI.md,index.md,log.md} "$VAULT/_inbox/$HOST.md"
+for f in ~/.claude/CLAUDE.md ~/.codex/AGENTS.md ~/.config/opencode/AGENTS.md; do
+  [ -f "$f" ] && echo "$f: $(grep -c NB-WIKI-MEMORY "$f") marker(y)"
+done
 ```
-memsearch installed successfully.
 
-Version: <version>
-Embeddings: ollama/nomic-embed-text (local, no API key needed)
-Memory files: ~/.memsearch/memory/YYYY-MM-DD.md
-Plugin: registered in Claude Code
-Auto memory: <project memory path>/MEMORY.md (always loaded)
+Raport: które pliki always-on dostały blok, czy promoter włączony (i komenda `launchctl load`), stan backward-compat, ścieżka vaultu i branch.
 
-Restart Claude Code to activate. From next session:
-  SessionStart  — injects last 2 days of notes as context
-  Every prompt  — semantic search injects top-3 relevant memories
-  Session end   — Claude Haiku summarizes session to .md
-  Always        — MEMORY.md loaded into context (project-specific)
-```
+## Operacje (osobne skille)
 
-## Error Handling
+- **`nb-add`** — wrzuć źródło/inbox do wiki (Ingest/promocja)
+- **`nb-get`** — zapytaj wiki (Query, synteza z cytatami)
+- **`nb-tidy`** — przegląd porządkowy (Lint: sieroty, sprzeczności, martwe linki) + ręczna promocja inboxa
+
+## Error handling
 
 | Problem | Fix |
 |---------|-----|
-| pip not found | Try pip3, pipx, uv in order |
-| externally-managed-environment | Add `--break-system-packages` |
-| Ollama not installed | Install via brew/curl or fall back to openai provider |
-| ollama pull fails (no internet) | Use `local` provider: `memsearch config set embedding.provider local` |
-| installed_plugins.json malformed | Read it, fix JSON, then edit |
-| git not found | Download zip: `curl -L https://github.com/zilliztech/memsearch/archive/main.zip -o /tmp/ms.zip && unzip /tmp/ms.zip -d /tmp/ms-extracted` |
+| VAULT nie jest repo git | zapytaj usera; nie inicjalizuj samowolnie |
+| brak `~/.codex/AGENTS.md` | utwórz pusty, potem wstrzyknij blok |
+| opencode czyta CLAUDE.md (brak AGENTS.md) | i tak utwórz `~/.config/opencode/AGENTS.md` — wygrywa nad CLAUDE.md, bez dublowania bloku |
+| launchd nie startuje | sprawdź ścieżki w plist (bezwzględne), `launchctl list | grep nobrainer` |
+| konflikt git przy push | promoter robi `git pull --rebase --autostash` przed; przy konflikcie zostawia i loguje |
 
 ## Notes
 
-- Memory is global (all projects share `~/.memsearch/memory/`) when Claude Code is launched from `~`
-- If user always opens Claude Code from a specific project folder, memory will be per-project in `<project>/.memsearch/memory/`
-- Haiku summarization uses the `claude` CLI — no extra setup needed if Claude Code is installed
-- Milvus-lite (local .db) is the default backend — no Milvus server needed
-- Watch process is skipped in lite mode — indexing happens once at SessionStart
+- Publiczna wersja skilla: identyczna, tylko bez twardych ścieżek — wszystko z odpowiedzi Step 0.
+- Vault jest prywatny; skill nigdzie nie zaszywa jego treści ani struktury folderów.
+- Blok always-on to jedyny punkt integracji — jeden plik per klient, idempotentny.
