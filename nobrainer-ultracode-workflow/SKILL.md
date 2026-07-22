@@ -16,27 +16,41 @@ Pairs with the **claude-fable** skill (which applies the leaked Fable 5 system p
 
 Do **not** use for trivial, single-file edits — do those directly. A multi-agent workflow for one file just burns tokens.
 
-## Model policy (hard rule)
+## Model tiers — and how to choose
 
-| role | model | why |
-|------|-------|-----|
-| **orchestration / main loop** | `fable` | planning, decisions, synthesis — where Fable adds the most value |
-| **agents (default)** | `opus` | 90% of the fan-out; cheaper than Fable, still strong |
-| **agents, trivial only** | `sonnet` | only when a stage is mechanical (rename/format/list/grep/count) and you're sure it suffices |
-| **agents** | ~~`fable`~~ | **never** — that's the whole point; Fable stays at the helm |
-| ~~`haiku`~~ | only on explicit user request | not by default |
+There is no single fixed model assignment. There are **three tiers**; this skill helps you choose. The orchestrator = the session model (set at launch, Step 1); agents and verify are set per-tier in the script.
 
-Principle: **Fable steers, Opus executes, Sonnet does the trivial grunt work.** If you have a better idea (a stage really is trivial) drop it to Sonnet and `log(...)` that choice — never silently.
+| tier | orchestrator (session) | agents | verify | when |
+|------|------------------------|--------|--------|------|
+| **premium** | `fable` | `opus` | `opus` | hard/creative slices, high stakes |
+| **standard** _(default)_ | `opus` | `sonnet` | `opus` | decomposable, verifiable slices |
+| **budget** | `opus`/`sonnet` | `sonnet` | `sonnet` | bulk sweep, mechanical |
 
-## Step 1 — steer with Fable (main loop)
+Leverage principle: **the orchestrator has more leverage than the agents** — one decomposition/synthesis/judgment decision shapes the whole run. So dropping the agents (Opus→Sonnet) hurts less than dropping the orchestrator (Fable→Opus). `fable` on agents — never; `haiku` — only on explicit request.
 
-The main-loop model is the session model; you can't change it mid-session. For the orchestration to run on Fable + the Fable system prompt, start the session via the **claude-fable** launcher:
+### How to choose a tier
+Start at **standard**. Then:
+- **→ premium** if ANY: a slice needs deep reasoning (bugs, security, design/architecture), high stakes (production/irreversible), creative synthesis, or ambiguous/underspecified slices.
+- **→ budget** only if ALL: slices are mechanical and well-specified (rename/format/extract/sweep), each independently verifiable, low stakes, large volume.
+- **unsure between two** → calibrate (below), don't guess.
+
+Quick heuristic: bug-hunt/security/design → premium · review/sweep/migration/research → standard · bulk mechanical → budget.
+
+### Calibrate — measure, don't guess
+For a new task class: take **one representative slice**, run it on both candidate tiers, score both outputs against the same rubric (blind judge panel — use `karpathy-auto-improver`). Stay on the cheaper tier if Δ is within judge noise (~<0.3/10). One calibration per task class, then reuse. A cheap agent's miss is still caught by the verify stage — so keep verify one notch above the agents.
+
+## Step 1 — orchestrator = the session model (per tier)
+
+The main-loop model is the session model; you can't change it mid-session. Set it to match your chosen tier:
 
 ```bash
-claude-fable --model fable          # main loop = Fable model + leaked Fable 5 system prompt
+# premium: orchestrator = Fable + Fable system prompt
+claude-fable --model fable
+# standard / budget: orchestrator = Opus — a plain opus session,
+#   or `claude-fable --model opus` if you want the Fable prompt at the helm more cheaply
 ```
 
-If you're already in such a session, proceed. If not, either ask the user to start it as above, or continue knowing the current model is steering (you still control every agent's model per-agent below).
+If you're already in the right session, proceed. If not, either ask the user to launch as above, or continue knowing the current model is steering (you still set the agents per-tier in the script below).
 
 ## Step 2 — Fable on the agents without burning tokens
 
@@ -75,17 +89,20 @@ const FABLE = `Operate as Claude Fable 5 (Mythos-tier) on a scoped slice of a Fa
 - Root cause over symptom. One correct approach, fully executed — no "…rest unchanged".
 - Lead with the outcome, be terse. Flag uncertainty; if evidence contradicts the premise, say so.`
 
-// every agent gets FABLE + task, and an EXPLICIT model
-const fa = (task, opts = {}) => agent(`${FABLE}\n\n---\n\n${task}`, { model: 'opus', ...opts })
+// tier -> agent/verify models (orchestrator = session model, Step 1)
+const TIER = args?.tier ?? 'standard'
+const T = ({ premium:{agent:'opus',verify:'opus'}, standard:{agent:'sonnet',verify:'opus'}, budget:{agent:'sonnet',verify:'sonnet'} })[TIER]
 
-// model per stage: opus by default, sonnet only when genuinely trivial
+// every agent gets FABLE (quality directive) + task, model from the tier
+const fa = (task, opts = {}) => agent(`${FABLE}\n\n---\n\n${task}`, { model: T.agent, ...opts })
+
 const UNITS = args?.units ?? [/* work-list — scout it inline before launching the workflow */]
 
 const results = await pipeline(
   UNITS,
   u => fa(`Fan-out slice: ${JSON.stringify(u)}. <what to do>`, { label: `work:${u.id ?? ''}`, phase: 'Fan-out' }),
   (r, u) => fa(`Adversarially verify this result against the real source: ${JSON.stringify(r)}`,
-              { model: 'opus', label: `verify:${u.id ?? ''}`, phase: 'Verify' })
+              { model: T.verify, label: `verify:${u.id ?? ''}`, phase: 'Verify' })
 )
 
 // example trivial stage (rename/format/count) → sonnet:
