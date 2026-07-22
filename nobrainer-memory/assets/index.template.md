@@ -1,6 +1,6 @@
 # index — the wiki map
 
-The catalog the LLM navigates instead of reading the whole vault. Updated on every promotion/`nb-add`.
+The catalog the LLM navigates instead of reading the whole vault. Updated on every promotion/`wiki-add`.
 Format: category → one domain line → key pages (`[[link]]` + description). Grows over time.
 
 > Rules: [[WIKI]] · Chronicle: [[log]]

@@ -35,7 +35,7 @@ Ask and remember in variables:
 1. **Vault path?** default `$HOME/GitHub/nobrainer-obsidian`. → `VAULT`
 2. **Hostname of this machine?** show `hostname -s`, confirm. → `HOST`
 3. **Which clients to wire up?** detect the present ones (Step 1) and confirm the list. → `CLIENTS`
-4. **Enable the automatic promoter (launchd hourly)?** yes/no. If no — promotion only manually via `nb-tidy`/`nb-add`. → `PROMOTER_AUTO`
+4. **Enable the automatic promoter (launchd hourly)?** yes/no. If no — promotion only manually via `wiki-tidy`/`wiki-add`. → `PROMOTER_AUTO`
 5. **Promoter interval** (if auto), default 3600 s. → `PROMOTER_INTERVAL`
 
 Do not install anything before the vault path and client list are confirmed.
@@ -111,11 +111,11 @@ Install launchd from `assets/promoter.plist.template` (substitute HOME/VAULT/HOS
 **Do NOT load launchd without the user's consent** (`launchctl load`). Show the command and let them decide.
 The promoter commits and pushes the vault — confirm that is OK (the vault is designed for it, git = undo).
 
-Manual alternative (when PROMOTER_AUTO=no): the user runs `nb-tidy` / `nb-add` whenever they want.
+Manual alternative (when PROMOTER_AUTO=no): the user runs `wiki-tidy` / `wiki-add` whenever they want.
 
 ## Step 5 — Backward compatibility (old memsearch)
 
-If `~/.memsearch/memory/*.md` is non-empty — treat it as a raw source: read it, synthesize into the wiki via the `nb-add` logic, log in `log.md`. Do not delete the directory.
+If `~/.memsearch/memory/*.md` is non-empty — treat it as a raw source: read it, synthesize into the wiki via the `wiki-add` logic, log in `log.md`. Do not delete the directory.
 
 ## Step 6 — Verification and report
 
@@ -131,9 +131,9 @@ Report: which always-on files got the block, whether the promoter is enabled (an
 
 ## Operations (separate skills)
 
-- **`nb-add`** — ingest a source/inbox into the wiki (Ingest/promotion)
-- **`nb-get`** — query the wiki (Query, synthesis with citations)
-- **`nb-tidy`** — housekeeping review (Lint: orphans, contradictions, dead links) + manual inbox promotion
+- **`wiki-add`** — ingest a source/inbox into the wiki (Ingest/promotion)
+- **`wiki-get`** — query the wiki (Query, synthesis with citations)
+- **`wiki-tidy`** — housekeeping review (Lint: orphans, contradictions, dead links) + manual inbox promotion
 
 ## Error handling
 

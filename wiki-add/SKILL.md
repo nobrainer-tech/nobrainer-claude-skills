@@ -1,16 +1,16 @@
 ---
-name: nb-add
-description: Ingest a source (URL, PDF, pasted text, notes) or promote the inbox into the NoBrainer Wiki — synthesize into interlinked pages, update index.md and log.md. Use when user says "nb-add", "save this to the wiki", "put this in the wiki", "ingest this", "add to knowledge base", "promote inbox".
+name: wiki-add
+description: Ingest a source (URL, PDF, pasted text, notes) or promote the inbox into the NoBrainer Wiki — synthesize into interlinked pages, update index.md and log.md. Use when user says "wiki-add", "save this to the wiki", "put this in the wiki", "ingest this", "add to knowledge base", "promote inbox".
 ---
 
-# nb-add — Ingest / promotion into the wiki
+# wiki-add — Ingest / promotion into the wiki
 
 Adds knowledge to the NoBrainer Wiki per the conventions in `WIKI.md`. The "Ingest" operation from the LLM Wiki model.
 
 > Concept: **LLM Wiki** after Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
 ## Step 1 — Locate the vault
-Default `~/GitHub/nobrainer-obsidian`. If a `NB-WIKI-MEMORY` block is in context, use the path from there. Read `WIKI.md` (rules) and `index.md` (the map).
+Default `<vault-repo>`. If a `NB-WIKI-MEMORY` block is in context, use the path from there. Read `WIKI.md` (rules) and `index.md` (the map).
 
 ## Step 2 — Determine the input
 - **Source** (URL/PDF/text/file) — read it in full.
