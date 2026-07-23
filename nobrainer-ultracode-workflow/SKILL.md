@@ -50,6 +50,8 @@ claude-fable --model fable
 #   or `claude-fable --model opus` if you want the Fable prompt at the helm more cheaply
 ```
 
+**Warning:** `claude-fable` launches with `--dangerously-skip-permissions` — the session won't prompt before running tools (file writes, shell commands, etc.). Only use it where that's acceptable; otherwise launch a plain `opus`/`sonnet` session and skip the Fable prompt.
+
 If you're already in the right session, proceed. If not, either ask the user to launch as above, or continue knowing the current model is steering (you still set the agents per-tier in the script below).
 
 ## Step 2 — Fable on the agents without burning tokens

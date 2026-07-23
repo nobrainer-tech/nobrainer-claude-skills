@@ -32,7 +32,7 @@ Key decisions (baked in, confirmed per machine in Step 0):
 
 Ask and remember in variables:
 
-1. **Vault path?** default `$HOME/GitHub/nobrainer-obsidian`. → `VAULT`
+1. **Vault path?** default `$HOME/wiki-vault` (any existing git repo the user points at). → `VAULT`
 2. **Hostname of this machine?** show `hostname -s`, confirm. → `HOST`
 3. **Which clients to wire up?** detect the present ones (Step 1) and confirm the list. → `CLIENTS`
 4. **Enable the automatic promoter (launchd hourly)?** yes/no. If no — promotion only manually via `wiki-tidy`/`wiki-add`. → `PROMOTER_AUTO`
