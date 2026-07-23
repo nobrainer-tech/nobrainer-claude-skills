@@ -1,16 +1,16 @@
 ---
-name: nb-tidy
-description: Lint and maintain the NoBrainer Wiki — find orphan pages, contradictions, stale claims, missing links; fix them; also promote pending inbox items. Use when user says "nb-tidy", "tidy the wiki", "review the wiki", "lint wiki", "check wiki consistency".
+name: wiki-tidy
+description: Lint and maintain the NoBrainer Wiki — find orphan pages, contradictions, stale claims, missing links; fix them; also promote pending inbox items. Use when user says "wiki-tidy", "tidy the wiki", "review the wiki", "lint wiki", "check wiki consistency".
 ---
 
-# nb-tidy — Lint / housekeeping review
+# wiki-tidy — Lint / housekeeping review
 
 Keeps the NoBrainer Wiki consistent. The "Lint" operation from the LLM Wiki model. This is the bookkeeping a human does not do — the LLM does.
 
 > Concept: **LLM Wiki** after Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
 ## Step 1 — Locate the vault
-Default `~/GitHub/nobrainer-obsidian` (or the path from the `NB-WIKI-MEMORY` block). `git pull --rebase --autostash`. Read `WIKI.md`, `index.md`.
+Default `<vault-repo>` (or the path from the `NB-WIKI-MEMORY` block). `git pull --rebase --autostash`. Read `WIKI.md`, `index.md`.
 
 ## Step 2 — Scan (report before fixing)
 - **Orphans:** pages nobody links to (grep `[[Name]]`).
@@ -24,7 +24,7 @@ Default `~/GitHub/nobrainer-obsidian` (or the path from the `NB-WIKI-MEMORY` blo
 ## Step 3 — Fix
 - Add missing links, create valuable dangling pages, add orphans to `index.md` or merge them.
 - Resolve contradictions (or leave a callout if it needs the user's decision — ask).
-- Promote unchecked inbox items (like `nb-add` promotion), mark `[x]`.
+- Promote unchecked inbox items (like `wiki-add` promotion), mark `[x]`.
 - Remove old `[x]` from the inbox.
 - Sync `index.md`.
 

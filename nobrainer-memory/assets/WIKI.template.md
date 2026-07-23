@@ -18,9 +18,9 @@ Facts go to the inbox during work (not at session end) — an interrupted sessio
 ## Operations
 | skill | operation | what it does |
 |-------|----------|---------|
-| `nb-add` | Ingest/promotion | source/inbox → updates pages, creates missing ones, links, logs |
-| `nb-get` | Query | answers via index.md + grep, synthesizes with citations |
-| `nb-tidy` | Lint | orphans, contradictions, dead links; fixes + manual promotion |
+| `wiki-add` | Ingest/promotion | source/inbox → updates pages, creates missing ones, links, logs |
+| `wiki-get` | Query | answers via index.md + grep, synthesizes with citations |
+| `wiki-tidy` | Lint | orphans, contradictions, dead links; fixes + manual promotion |
 
 ## Page conventions
 - One page = one entity/concept. Keep it short. H1 = title = filename.
@@ -32,7 +32,7 @@ Facts go to the inbox during work (not at session end) — an interrupted sessio
 ## Inbox (`_inbox/`)
 - One file per machine: `_inbox/<hostname>.md` (no git conflicts).
 - Line: `- [ ] YYYY-MM-DDTHH:MMZ | <domain/folder> | <fact> | (source)`.
-- The promoter marks `[x]` and moves it into pages. Old `[x]` (>30 days) is cleaned by `nb-tidy`.
+- The promoter marks `[x]` and moves it into pages. Old `[x]` (>30 days) is cleaned by `wiki-tidy`.
 
 ## Folder map (namespacing)
 Split by **domain**, not by project. The confidentiality boundary > the topic boundary.
@@ -49,4 +49,4 @@ Adjust the list to your own vault, e.g.:
 The vault is a git repo — sync = git (not iCloud). Each machine is a peer: it reads, appends to its own `_inbox/<host>.md`, promotes its own inbox. Promoter: `git pull --rebase` before, `git push` after.
 
 ## Backward compatibility
-If `~/.memsearch/memory/*.md` exists — treat it as a raw source and synthesize into the wiki via `nb-add`; do not delete the directory.
+If `~/.memsearch/memory/*.md` exists — treat it as a raw source and synthesize into the wiki via `wiki-add`; do not delete the directory.
