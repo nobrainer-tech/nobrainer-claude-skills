@@ -6,7 +6,7 @@ Personal repo — I'm the sole maintainer. Grab anything useful; open an issue f
 
 Each skill is a directory with a `SKILL.md` (YAML frontmatter `name` + `description` carrying its triggers). Claude Code auto-loads a skill when your request matches its description, or invoke it by name (`/skill-name`).
 
-## Skills (23)
+## Skills (24)
 
 ### Knowledge — LLM wiki (Karpathy pattern)
 
@@ -47,6 +47,7 @@ Each skill is a directory with a `SKILL.md` (YAML frontmatter `name` + `descript
 
 | Skill | What it does | Trigger |
 |-------|--------------|---------|
+| [playwright-cli](./playwright-cli/) | Latest Playwright from the CLI — agent `@playwright/cli` (attach to an existing logged-in browser over CDP, snapshot/click/eval, tracing) + classic test CLI (codegen, trace viewer `show-trace`, UI mode). Reads traces, binds to live sessions, macOS/Windows/WSL. | "playwright cli", "read trace", "attach to my browser" |
 | [agent-browser](./agent-browser/) | Drive Vercel's `agent-browser` — Rust CLI for AI browser automation via CDP with deterministic ref selectors and JSON output. | "agent-browser", "automate browser" |
 | [nobrainer-browser](./nobrainer-browser/) | Cross-platform installer that bootstraps four browser-automation tools (Webwright, Playwright MCP, Playwright CLI, agent-browser) and wires the MCP server into Claude Code + Codex. | "install browser tools" |
 
