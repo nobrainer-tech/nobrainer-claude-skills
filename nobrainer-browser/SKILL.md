@@ -40,7 +40,7 @@ Activate when the user says:
    - **Playwright MCP**: no global install; resolves a 7-day-safe version via
      `npm view @playwright/mcp time --json`, caches the pin under
      `state.json`, and exposes it for wiring.
-   - **Playwright CLI**: `npm install -g playwright@<safe-version>` followed
+   - **Playwright CLI**: `npm install -g playwright@latest` followed
      by `playwright install` (Chromium + Firefox + WebKit). On Linux,
      `--with-deps` is supported via a flag.
    - **agent-browser**: `npm install -g agent-browser@<safe-version>` by
@@ -101,7 +101,7 @@ nobrainer-browser/
 | Webwright (marketplace, default) | Host plugin loader fetches `microsoft/Webwright` | `/plugin marketplace add microsoft/Webwright` + `/plugin install webwright@webwright` (user types these) | `codex plugin marketplace add microsoft/Webwright` (skill shells out) |
 | Webwright (source, opt-in) | `git clone` + `pip install --user -e` + `playwright install chromium` | `/plugin marketplace add <clone>` + `/plugin install webwright@webwright` | `codex plugin marketplace add <clone>` |
 | Playwright MCP | npx on demand (safe-version pin cached) | `claude mcp add playwright npx "@playwright/mcp@<pin>"` or atomic edit of `~/.claude.json` | `codex mcp add playwright ...` or atomic splice into `~/.codex/config.toml` |
-| Playwright CLI | `npm install -g playwright@<safe-version>` + `playwright install` | shell out via `npx playwright codegen`, `playwright test` | same |
+| Playwright CLI | `npm install -g playwright@latest` + `playwright install` | shell out via `npx playwright codegen`, `playwright test` | same |
 | agent-browser | `npm install -g agent-browser@<safe-version>` (default); `cargo install` / `brew install` opt-in; then `agent-browser install` + `npx skills add vercel-labs/agent-browser` | binary on PATH, called directly | binary on PATH, called directly |
 
 ### Webwright supported hosts
