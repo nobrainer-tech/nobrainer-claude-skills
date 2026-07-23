@@ -1,165 +1,94 @@
 # nobrainer-claude-skills
 
-A collection of [Claude Code](https://claude.ai/code) skills that I build and use daily. Publishing them here so others can benefit too.
+A collection of [Claude Code](https://claude.ai/code) skills I build and use daily. Publishing them here so others can benefit too.
 
-This is a personal repo — I'm the sole maintainer. If you find a skill useful, feel free to grab it. If you have ideas or find bugs, open an issue.
+Personal repo — I'm the sole maintainer. Grab anything useful; open an issue for bugs or ideas.
 
-## Skills
+Each skill is a directory with a `SKILL.md` (YAML frontmatter `name` + `description` carrying its triggers). Claude Code auto-loads a skill when your request matches its description, or invoke it by name (`/skill-name`).
 
-### [nobrainer-fast-audit](./nobrainer-fast-audit/)
+## Skills (23)
 
-Universal security diagnostic skill for Claude Code. Cross-platform: macOS, Linux, Windows, VPS.
+### Knowledge — LLM wiki (Karpathy pattern)
 
-**Commands:**
-- `/safety-audit` — Full system security audit (OS posture, agent config, credentials, network, processes)
-- `/safety-check-skill <path>` — Vet a skill/plugin before installation (risk score 0-100)
-- `/safety-scan` — Quick IOC scan (C2 connections, malware artifacts, suspicious processes)
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [karpathy-llm-wiki](./karpathy-llm-wiki/) | Set up a compounding personal knowledge base as an "LLM wiki" — 3-layer model (sources / curated pages / index+log+inbox), page conventions, git sync, bootstrap templates. Setup + methodology. | "set up llm wiki", "wiki setup" |
+| [wiki-add](./wiki-add/) | Ingest a source (URL/PDF/notes) or promote the inbox into the wiki — synthesize into interlinked pages, update `index.md`/`log.md`. | "wiki-add", "save this to the wiki" |
+| [wiki-get](./wiki-get/) | Query the wiki — navigate the index, grep pages, answer with citations. | "wiki-get", "ask the wiki" |
+| [wiki-tidy](./wiki-tidy/) | Lint the wiki — orphans, dead links, contradictions, stale claims; promote pending inbox items. | "wiki-tidy", "lint wiki" |
+| [nobrainer-memory](./nobrainer-memory/) | Install the whole wiki-memory system in an Obsidian git vault, wired into every AI client via always-on instructions; auto-captures durable facts to a per-machine inbox. | "install memory", "nobrainer-memory" |
 
-**Covers:**
-- macOS: SIP, Gatekeeper, FileVault, Firewall, XProtect, Launch Agents
-- Linux: SELinux/AppArmor, UFW/iptables, LUKS, unattended upgrades, systemd
-- Windows: Defender, UAC, BitLocker, Windows Firewall, SmartScreen
-- VPS: SSH hardening, fail2ban, rootkit detection, open ports
-- AI Agent Platforms: Claude Code, OpenClaw, and other agent frameworks
-- OWASP Agentic Top 10 (2026) hardening guide (ASI01-ASI10)
-- Known threats: ClawHavoc campaign, MCP server CVEs, supply chain patterns
+### Multi-agent orchestration & autonomy
 
-### [nobrainer-polymarket](./nobrainer-polymarket/)
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [nobrainer-ultracode-workflow](./nobrainer-ultracode-workflow/) | Cost-disciplined "ultracode" multi-agent Workflow — orchestration steered by the top model, agents on cheaper tiers, a compact quality directive per agent. Includes a tier picker + calibration recipe. | "ultracode workflow", "fan out" |
+| [nobrainer-team-builder](./nobrainer-team-builder/) | Assemble a team of expert subagents on-demand from a catalog of **401 agents / 27 categories** — nothing loaded into context until picked. | "nbteam", "team builder" |
+| [nobrainer-autopilot](./nobrainer-autopilot/) | Autonomous CI/CD loop — collects work items, spawns teams, implements on branches, opens PRs, drives a **fail-closed Copilot review gate**, and (only when explicitly armed) merges/deploys. Language-agnostic. | "autopilot", "autonomous mode" |
+| [karpathy-auto-improver](./karpathy-auto-improver/) | Score-driven autonomous improvement loop for any artifact (SKILL.md, prompt, checklist) — rubric → baseline → diverse variants → judge panel → graft → repeat until plateau. | "auto improve", "autoresearch" |
 
-Interact with [Polymarket](https://polymarket.com) prediction markets via the official `polymarket-cli`. Browse markets, check prices, place orders, manage positions, and redeem winnings — all from the terminal.
+### Code review & quality
 
-**Use when:** searching markets, checking prices/order books, trading, viewing portfolios, redeeming won positions, or any Polymarket task via CLI.
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [deep-audit](./deep-audit/) | Evidence-based post-implementation verification — backward line-by-line review, value traces, caller audits with shown grep output. Any language. | after a feature/fix, before committing |
+| [deep-autoreview](./deep-autoreview/) | Structured closeout code review (Codex default, Claude optional) on a diff/commit/PR; verifies every finding against the real code path. | "deep autoreview", "codex review" |
+| [deep-bugs-finder](./deep-bugs-finder/) | Adversarially hunt for real bugs and write each verified one to a `bugs/` folder with a fix; loops until dry. | "find bugs", "bug hunt" |
+| [deep-rca](./deep-rca/) | Root-cause analysis with 10 parallel agents — traces code paths, logs, API calls; every claim backed by evidence. | "deep rca", "root cause" |
 
-**Includes:**
-- Installation instructions (install script, manual download with checksum verification, build from source)
-- Authentication setup (wallet import, config file, env vars, signature types)
-- All workflows: market research, trading, order management, CTF redeem, leaderboard
-- Full command reference in `references/commands.md`
-- NegRisk vs standard market guidance (most binary markets are NegRisk)
+### Security
 
-### [nobrainer-team-builder](./nobrainer-team-builder/)
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [nobrainer-fast-audit](./nobrainer-fast-audit/) | Universal security diagnostic — system posture, vet a skill/plugin before install, IOC scan, OWASP Agentic Top 10 hardening. macOS/Linux/Windows/VPS. | `/safety-audit`, `/safety-check-skill`, `/safety-scan` |
+| [nobrainer-npm-secure](./nobrainer-npm-secure/) | Harden against npm supply-chain attacks — minimum-release-age cooldown across npm/pnpm/bun, block lifecycle scripts, pin deps, commit lockfile. | "secure npm", "npm supply chain" |
 
-Dynamically assemble a team of expert subagents for any task from a catalog of **401 agents across 27 categories**. Agents are spawned on-demand as temporary subagents — zero permanent context cost.
+### Browser automation
 
-**Trigger:** "nbteam", "team builder", "build team", "assemble team"
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [agent-browser](./agent-browser/) | Drive Vercel's `agent-browser` — Rust CLI for AI browser automation via CDP with deterministic ref selectors and JSON output. | "agent-browser", "automate browser" |
+| [nobrainer-browser](./nobrainer-browser/) | Cross-platform installer that bootstraps four browser-automation tools (Webwright, Playwright MCP, Playwright CLI, agent-browser) and wires the MCP server into Claude Code + Codex. | "install browser tools" |
 
-**How it works:**
-1. Reads your task/request
-2. Selects 2-5 relevant categories → loads only those category JSONs
-3. Picks best 3-10 agents from loaded categories
-4. Reads full agent `.md` only for selected agents
-5. Spawns each as a temporary subagent via the Agent tool
-6. Collects results and synthesizes a unified answer
+### Tooling & integrations
 
-**Categories include:** AI specialists, API/GraphQL, blockchain/Web3, data/AI, database, DevOps, security, programming languages (49 agents), development tools, documentation, and 17 more.
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [claude-fable](./claude-fable/) | Launch Claude Code with a community-leaked "Claude Fable 5" system prompt. **Enables `--dangerously-skip-permissions`** — read the skill's caveats first. | "claude fable", "/claude-fable" |
+| [codex-in-claude-code](./codex-in-claude-code/) | Use OpenAI Codex from inside Claude Code — code reviews, adversarial reviews, task delegation via the official Codex plugin. | "/codex:review", "delegate to Codex" |
+| [pane](./pane/) | Install and drive RunPane — keyboard-first desktop manager for running multiple terminal AI agents in parallel, each in its own git worktree. | "pane", "runpane" |
+| [nobrainer-reddit](./nobrainer-reddit/) | Reddit CLI — read posts, search subreddits, comment, manage your account via PRAW + OAuth2. Personal, non-commercial. | "reddit", "search subreddit" |
 
-Agent definitions sourced from [davila7/claude-code-templates](https://github.com/davila7/claude-code-templates).
+### Project setup
 
-### [nobrainer-autopilot](./nobrainer-autopilot/)
-
-Autonomous CI/CD workflow for any project. Converts TODOs to GitHub issues, spawns expert teams (min 5 agents via nobrainer-team-builder), implements, creates PRs with Copilot review gate, merges — all hands-free.
-
-**Trigger:** "autopilot", "go go", "dzialaj sam", "lec sam", "cisnij"
-
-**How it works:**
-1. **Discovery**: Spawns 3 agents to review codebase, find TODOs, assess test coverage
-2. **Planning**: Presents prioritized list, converts TODOs to GitHub issues after approval
-3. **Autonomous loop**: For each issue — spawns 5-agent team, implements, creates PR, waits for Copilot review, replies to all comments, resolves threads, merges, deploys
-4. **Quality gates**: DRY/KISS/SOLID/YAGNI, max 300 lines/file (350 acceptable), tests pass, Copilot reviewed with 0 unresolved threads
-
-**Prerequisites:** `nobrainer-team-builder` installed, GitHub Copilot code review enabled on repo.
-
-### [nobrainer-continuous-improvement](./nobrainer-continuous-improvement/)
-
-Upgrades any project's `CLAUDE.md` with proven workflow rules — Workflow Orchestration (6 rules), Task Management (6 steps), and Core Principles (3 rules). Merge-safe: only adds missing sections, never overwrites existing content.
-
-**Trigger:** "continuous improvement", "upgrade CLAUDE.md", "dodaj zasady do CLAUDE.md", "dopisz workflow rules"
-
-**Adds:**
-- Workflow Orchestration: Plan Mode, Subagent Strategy, Self-Improvement Loop, Verification, Elegance, Autonomous Bug Fixing
-- Task Management: plan → verify → track → explain → document → capture lessons
-- Core Principles: Simplicity First, No Laziness, Minimal Impact
-- Scaffolds `tasks/todo.md` + `tasks/lessons.md`
-
-### [nobrainer-memory](./nobrainer-memory/)
-
-Install persistent semantic memory for Claude Code using [memsearch](https://github.com/nicobailey/memsearch). Every session is auto-captured as markdown notes, with relevant context injected on every prompt via local Ollama embeddings — no API key needed.
-
-**Trigger:** "install memory", "setup memsearch", "nobrainer-memory", "dodaj pamiec do claude"
-
-**What gets installed:**
-- `memsearch` Python CLI (PyPI)
-- `nomic-embed-text` Ollama model — local embeddings
-- memsearch ccplugin registered in Claude Code plugins
-- Config: `~/.memsearch/config.toml`
-
-Supports global (`~/.memsearch/memory/`) or per-project memory scope.
-
-### [nobrainer-starter](./nobrainer-starter/)
-
-Project bootstrapper — creates `AGENTS.md` and `CLAUDE.md` with engineering standards and workflow rules in any project directory.
-
-**Commands:**
-- `/nobrainer-starter` — Bootstrap current project with all standards
-- or: "setup project", "init project", "create AGENTS.md", "bootstrap project standards"
-
-Both files receive **identical content** — works with Claude Code, Codex, Kimi, Cursor, or any AI coding assistant that reads project config files.
-
-**Creates:**
-- `AGENTS.md` + `CLAUDE.md` — identical content covering:
-  - Engineering principles: DRY, KISS, SOLID, YAGNI, Clean Code, error handling, testability, communication ethics (no docs unless asked, no emojis, single method approach)
-  - Workflow rules: Plan Mode, Subagent Strategy, Verification Before Done, Task Management, Git Rules
-  - Safety Rules: destructive commands (`rm -rf`, `DROP TABLE`, `git reset --hard`, force push, wiping directories) require explicit confirmation before execution
-- `tasks/todo.md` — task tracker stub
-- `tasks/lessons.md` — lessons log stub
-
-Merge-safe: if files already exist, only missing sections are added — existing content is never overwritten.
-
-### [nobrainer-npm-secure](./nobrainer-npm-secure/)
-
-Harden a machine or project against npm supply-chain attacks (compromised packages, malicious `postinstall` scripts, typosquats) — the kind behind the TanStack, axios, and chalk/debug incidents.
-
-**Trigger:** "secure npm", "npm supply chain", "cooldown", "minimum release age", "pin dependencies"
-
-**What it does:**
-- Sets a **minimum-release-age cooldown** (default 14 days) across npm, pnpm, and bun — each with the correct config key, file, and unit (npm=days, pnpm=minutes, bun=seconds)
-- Adds `ignore-scripts` to block malicious lifecycle scripts (with a caveat + rebuild escape hatch for native packages)
-- Pins `dependencies`/`devDependencies` to exact versions (leaves `peerDependencies` as ranges — pinning them breaks consumers)
-- Commits the lockfile so the transitive tree is reproducible
-
-Checks tool versions first — `min-release-age` needs **npm ≥ 11.10.0** or it's silently inert. Documents what the cooldown does *not* protect against (already-installed deps, Renovate PRs, registry compromise) and the patch-delay trade-off.
+| Skill | What it does | Trigger |
+|-------|--------------|---------|
+| [nobrainer-starter](./nobrainer-starter/) | Bootstrap a project — create `AGENTS.md` + `CLAUDE.md` (identical content) with engineering standards, workflow rules, safety rules; scaffold `tasks/`. Merge-safe. | "setup project", "bootstrap standards" |
+| [nobrainer-continuous-improvement](./nobrainer-continuous-improvement/) | Upgrade an existing project's `CLAUDE.md` with proven workflow/task/core-principle rules — adds only missing sections, never overwrites. | "continuous improvement", "upgrade CLAUDE.md" |
 
 ## Installation
 
-Copy any skill directory into `~/.claude/skills/`:
+Each skill is self-contained. Copy or symlink a skill directory into `~/.claude/skills/`:
 
 ```bash
-# Clone the repo
 git clone https://github.com/nobrainer-tech/nobrainer-claude-skills.git
+cd nobrainer-claude-skills
 
-# Install a skill
-cp -r nobrainer-claude-skills/nobrainer-fast-audit ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-starter ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-polymarket ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-team-builder ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-memory ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-autopilot ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-continuous-improvement ~/.claude/skills/
-cp -r nobrainer-claude-skills/nobrainer-npm-secure ~/.claude/skills/
+# copy one skill
+cp -r deep-audit ~/.claude/skills/
 
-# Or symlink (auto-updates with git pull)
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-fast-audit" ~/.claude/skills/nobrainer-fast-audit
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-starter" ~/.claude/skills/nobrainer-starter
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-polymarket" ~/.claude/skills/nobrainer-polymarket
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-team-builder" ~/.claude/skills/nobrainer-team-builder
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-memory" ~/.claude/skills/nobrainer-memory
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-autopilot" ~/.claude/skills/nobrainer-autopilot
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-continuous-improvement" ~/.claude/skills/nobrainer-continuous-improvement
-ln -s "$(pwd)/nobrainer-claude-skills/nobrainer-npm-secure" ~/.claude/skills/nobrainer-npm-secure
+# or symlink it (auto-updates on git pull)
+ln -s "$(pwd)/deep-audit" ~/.claude/skills/deep-audit
 ```
 
-Then restart Claude Code — the skill will be available immediately.
+Then restart Claude Code — the skill loads on next session. Most skills also work with Codex/opencode if you point their skills dir at the same folder.
+
+A few skills need a prerequisite (a CLI, an MCP server, or a plugin) or ship a companion note/scripts alongside `SKILL.md` — read the skill's own `SKILL.md` first.
+
+## Contributing / conventions
+
+See [AGENTS.md](./AGENTS.md) (and its twin [CLAUDE.md](./CLAUDE.md)) for how skills in this repo are structured — frontmatter, triggers, and the public-clean rules (no secrets, no machine-specific paths, no private client names).
 
 ## License
 
-MIT
+MIT © 2026 Arkadiusz Mastalerz (nobrainer-tech)
