@@ -88,7 +88,7 @@ scripts/autoreview --mode commit --commit HEAD
 or with the helper:
 
 ```bash
-<agent-scripts-checkout>/skills/autoreview/scripts/autoreview --mode commit --commit HEAD
+/path/to/agent-scripts-checkout/skills/autoreview/scripts/autoreview --mode commit --commit HEAD
 ```
 
 Use commit review for already-landed or already-pushed work on `main`. Reviewing
@@ -183,7 +183,7 @@ Global helper from `agent-scripts`:
 If installed from `agent-scripts`, path is:
 
 ```bash
-<agent-scripts-checkout>/skills/autoreview/scripts/autoreview --help
+/path/to/agent-scripts-checkout/skills/autoreview/scripts/autoreview --help
 ```
 
 The helper:
