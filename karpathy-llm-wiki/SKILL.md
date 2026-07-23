@@ -34,9 +34,9 @@ add/query/lint work — that belongs to three companion skills:
 - **`wiki-tidy`** — lint the vault: dead wikilinks, orphan pages, stale dates,
   uncited claims, duplicate concepts, unresolved contradictions.
 
-> If those skills are installed as `nb-add` / `nb-get` / `nb-tidy` in this
-> environment, they are the same tools under the earlier name — use whichever
-> names are registered.
+> `wiki-add` / `wiki-get` / `wiki-tidy` are the canonical names for these
+> companion skills. `nb-add` / `nb-get` / `nb-tidy` was an earlier name; treat
+> it as deprecated and verify a skill is actually registered before invoking it.
 
 ---
 
