@@ -1,19 +1,20 @@
 ---
-name: karpathy-llm-wiki
+name: llm-wiki
 description: >-
   Set up and run a compounding personal knowledge base as an "LLM wiki" in Andrej
   Karpathy's style — a git-versioned vault of curated Markdown pages optimized for
-  both humans and LLMs to read and extend. This is the SETUP + METHODOLOGY skill:
-  it bootstraps the folder layout, the index/log/inbox schema, page conventions,
-  and the always-on wiring so every AI session reads the index at start and files
-  durable facts back into an inbox. Use when the user says "set up llm wiki",
-  "karpathy wiki", "knowledge base setup", "wiki setup", "start a personal wiki",
-  "second brain for my agents", or wants a persistent memory their tools compound
-  into over time. For day-to-day operation, hand off to the companion skills
-  wiki-add (ingest/promote), wiki-get (query), and wiki-tidy (lint).
+  both humans and LLMs to read and extend. This is the SETUP + METHODOLOGY skill
+  and the entry point of the family: it bootstraps the folder layout, the
+  index/log/inbox schema, page conventions, and the always-on wiring so every AI
+  session reads the index at start and files durable facts back into an inbox.
+  Use when the user says "llm wiki", "set up llm wiki", "karpathy wiki",
+  "knowledge base setup", "wiki setup", "start a personal wiki", "second brain
+  for my agents", "zbuduj wiki", "baza wiedzy", or wants a persistent memory
+  their tools compound into over time. For day-to-day operation, hand off to the
+  companion skills wiki-get (query), wiki-add (ingest/promote), wiki-tidy (lint).
 ---
 
-# Karpathy LLM Wiki — Setup & Methodology
+# LLM Wiki — Setup & Methodology
 
 A personal knowledge base you and your LLMs both read from and write to, so
 knowledge **compounds** instead of evaporating at the end of each session.
@@ -34,9 +35,8 @@ add/query/lint work — that belongs to three companion skills:
 - **`wiki-tidy`** — lint the vault: dead wikilinks, orphan pages, stale dates,
   uncited claims, duplicate concepts, unresolved contradictions.
 
-> `wiki-add` / `wiki-get` / `wiki-tidy` are the canonical names for these
-> companion skills. `nb-add` / `nb-get` / `nb-tidy` was an earlier name; treat
-> it as deprecated and verify a skill is actually registered before invoking it.
+> `wiki-get` / `wiki-add` / `wiki-tidy` are the canonical names. Install all
+> four skills together — this one defines the model the other three assume.
 
 ---
 

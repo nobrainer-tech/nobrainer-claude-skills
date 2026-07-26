@@ -1,11 +1,11 @@
 ---
 name: wiki-add
-description: Ingest a source (URL, PDF, pasted text, notes) or promote the inbox into the NoBrainer Wiki — synthesize into interlinked pages, update index.md and log.md. Use when user says "wiki-add", "save this to the wiki", "put this in the wiki", "ingest this", "add to knowledge base", "promote inbox".
+description: Ingest a source (URL, PDF, pasted text, notes) or promote the inbox into the LLM wiki — synthesize into interlinked pages, update index.md and log.md. Use when user says "wiki-add", "save this to the wiki", "put this in the wiki", "ingest this", "add to knowledge base", "promote inbox", or in Polish "wrzuć to do wiki", "zapisz do wiki", "dodaj do bazy wiedzy", "zingestuj", "promuj inbox".
 ---
 
 # wiki-add — Ingest / promotion into the wiki
 
-Adds knowledge to the NoBrainer Wiki per the conventions in `WIKI.md`. The "Ingest" operation from the LLM Wiki model.
+Adds knowledge to the wiki per the conventions in `WIKI.md`. The "Ingest" operation of the [`llm-wiki`](../llm-wiki/SKILL.md) model.
 
 > Concept: **LLM Wiki** after Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 

@@ -1,11 +1,16 @@
 ---
 name: wiki-tidy
-description: Lint and maintain the NoBrainer Wiki — find orphan pages, contradictions, stale claims, missing links; fix them; also promote pending inbox items. Use when user says "wiki-tidy", "tidy the wiki", "review the wiki", "lint wiki", "check wiki consistency".
+description: Lint and maintain the LLM wiki — find orphan pages, contradictions, stale claims, missing links; fix them; also promote pending inbox items. Use when user says "wiki-tidy", "tidy the wiki", "review the wiki", "lint wiki", "check wiki consistency", "ultracode tidy", or in Polish "posprzątaj wiki", "przejrzyj wiki", "sprawdź spójność wiki", "porządki w wiki".
 ---
 
 # wiki-tidy — Lint / housekeeping review
 
-Keeps the NoBrainer Wiki consistent. The "Lint" operation from the LLM Wiki model. This is the bookkeeping a human does not do — the LLM does.
+Keeps the wiki consistent. The "Lint" operation of the [`llm-wiki`](../llm-wiki/SKILL.md) model. This is the bookkeeping a human does not do — the LLM does.
+
+For a large or long-neglected vault, run the scan as a parallel multi-agent sweep — one agent per
+defect class (orphans, contradictions, stale claims, missing links, dangling links, index drift,
+inbox backlog) — and adversarially verify each finding against the actual page before rewriting
+anything. Reserve the single-pass version for small vaults.
 
 > Concept: **LLM Wiki** after Andrej Karpathy — https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
