@@ -12,7 +12,7 @@ Each skill is a directory with a `SKILL.md` (YAML frontmatter `name` + `descript
 
 | Skill | What it does | Trigger |
 |-------|--------------|---------|
-| [karpathy-llm-wiki](./karpathy-llm-wiki/) | Set up a compounding personal knowledge base as an "LLM wiki" — 3-layer model (sources / curated pages / index+log+inbox), page conventions, git sync, bootstrap templates. Setup + methodology. | "set up llm wiki", "wiki setup" |
+| [llm-wiki](./llm-wiki/) | Set up a compounding personal knowledge base as an "LLM wiki" — 3-layer model (sources / curated pages / index+log+inbox), page conventions, git sync, bootstrap templates. Setup + methodology; entry point for `wiki-get`/`wiki-add`/`wiki-tidy`. | "llm wiki", "set up llm wiki", "wiki setup" |
 | [wiki-add](./wiki-add/) | Ingest a source (URL/PDF/notes) or promote the inbox into the wiki — synthesize into interlinked pages, update `index.md`/`log.md`. | "wiki-add", "save this to the wiki" |
 | [wiki-get](./wiki-get/) | Query the wiki — navigate the index, grep pages, answer with citations. | "wiki-get", "ask the wiki" |
 | [wiki-tidy](./wiki-tidy/) | Lint the wiki — orphans, dead links, contradictions, stale claims; promote pending inbox items. | "wiki-tidy", "lint wiki" |
