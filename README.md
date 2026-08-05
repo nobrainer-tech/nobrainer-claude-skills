@@ -67,6 +67,20 @@ Each skill is a directory with a `SKILL.md` (YAML frontmatter `name` + `descript
 | [nobrainer-starter](./nobrainer-starter/) | Bootstrap a project — create `AGENTS.md` + `CLAUDE.md` (identical content) with engineering standards, workflow rules, safety rules; scaffold `tasks/`. Merge-safe. | "setup project", "bootstrap standards" |
 | [nobrainer-continuous-improvement](./nobrainer-continuous-improvement/) | Upgrade an existing project's `CLAUDE.md` with proven workflow/task/core-principle rules — adds only missing sections, never overwrites. | "continuous improvement", "upgrade CLAUDE.md" |
 
+### [agents-restraint](./agents-restraint/)
+
+Eight engineering rules for a repo's `CLAUDE.md` and `AGENTS.md` that stop a coding agent from over-building. The expensive failure mode in AI-written code isn't wrong code — it's *too much* code: three dependencies and five abstraction layers for what the standard library does in ten lines.
+
+**Trigger:** "agents-restraint", "add the engineering rules", "stop the agent over-engineering", "AGENTS.md rules", "dodaj zasady inzynierskie"
+
+**What it does:**
+- Inserts the rules into **both** `CLAUDE.md` and `AGENTS.md` — Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md` from the repo root automatically
+- Idempotent via `<!-- ENG-RULES:START -->` / `<!-- ENG-RULES:END -->` HTML-comment markers — applying it twice replaces rather than duplicates
+- Leaves managed blocks from other tools (e.g. `pane-agent-context`) untouched
+- Surfaces contradictions with existing rules instead of silently dropping one side
+
+Origin: a Vercel Next.js engineer reportedly spent ~60B tokens iterating on an `AGENTS.md`; what survived compresses to these eight. Ships with a warning that rule 1 ("delete obsolete paths, no fallbacks, no migrations") is right for a web product with one deploy target and dangerous in anything holding state or money.
+
 ## Installation
 
 Each skill is self-contained. Copy or symlink a skill directory into `~/.claude/skills/`:
