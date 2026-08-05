@@ -8,8 +8,8 @@ description: "Adversarially hunt for REAL bugs in code and write each verified b
 Find real bugs and record each one in `bugs/` as a separate `.md` file with a
 concrete proposed fix.
 
-> Installed helper: `/Users/nobrainer-tech/.claude/skills/deep-bugs-finder/scripts/bug-hunt`
-> Bug-file template: `/Users/nobrainer-tech/.claude/skills/deep-bugs-finder/assets/bug-template.md`
+> Installed helper: `scripts/bug-hunt`
+> Bug-file template: `assets/bug-template.md`
 > Engine-agnostic: `--engine codex` (default) · `--engine claude` · `--engine both` (cross-model).
 
 ## The loop is script-driven (works for Codex AND Claude)
@@ -50,7 +50,7 @@ before it becomes a bug file.** Pressure to find + rigor to confirm.
 
 ### 2. Run the adversarial loop
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-bugs-finder/scripts/bug-hunt --base origin/main --rounds 4
+scripts/bug-hunt --base origin/main --rounds 4
 ```
 Candidates land in `bugs/.bug-hunt-candidates.md` (and stdout). Big scopes: codex
 rounds can each take minutes — that is normal, let them finish. For a large module

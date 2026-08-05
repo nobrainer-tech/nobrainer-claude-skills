@@ -6,7 +6,7 @@ description: "Run a structured closeout code review (Codex default, Claude optio
 
 # Auto Review
 
-> Installed helper: `/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview` (run `--help`). Default engine Codex; needs the `codex` CLI (and `claude` for panels).
+> Installed helper: `scripts/autoreview` (run `--help`). Default engine Codex; needs the `codex` CLI (and `claude` for panels).
 
 Run the bundled structured review helper as a closeout check. This is code review, not Guardian `auto_review` approval routing.
 
@@ -50,7 +50,7 @@ Use when:
 Dirty local work:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --mode local
+scripts/autoreview --mode local
 ```
 
 Use this only when the patch is actually unstaged/staged/untracked in the
@@ -63,32 +63,32 @@ only proves there is no local patch.
 Branch/PR work:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --mode branch --base origin/main
+scripts/autoreview --mode branch --base origin/main
 ```
 
 Optional review context is first-class:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --mode branch --base origin/main --prompt-file /tmp/review-notes.md --dataset /tmp/evidence.json
+scripts/autoreview --mode branch --base origin/main --prompt-file /tmp/review-notes.md --dataset /tmp/evidence.json
 ```
 
 If an open PR exists, use its actual base:
 
 ```bash
 base=$(gh pr view --json baseRefName --jq .baseRefName)
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --mode branch --base "origin/$base"
+scripts/autoreview --mode branch --base "origin/$base"
 ```
 
 Committed single change:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --mode commit --commit HEAD
+scripts/autoreview --mode commit --commit HEAD
 ```
 
 or with the helper:
 
 ```bash
-/Users/steipete/Projects/agent-scripts/skills/autoreview/scripts/autoreview --mode commit --commit HEAD
+/path/to/agent-scripts-checkout/skills/autoreview/scripts/autoreview --mode commit --commit HEAD
 ```
 
 Use commit review for already-landed or already-pushed work on `main`. Reviewing
@@ -115,25 +115,25 @@ Tradeoff: tests may force code changes that stale the review. If tests or review
 Run multiple reviewers against one frozen bundle:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --reviewers codex,claude
+scripts/autoreview --reviewers codex,claude
 ```
 
 `--panel` is shorthand for Codex plus Claude unless `--engine` changes the first reviewer:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --panel
+scripts/autoreview --panel
 ```
 
 Set reviewer models and thinking/effort explicitly:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --reviewers codex,claude --model codex=gpt-5.1 --thinking codex=high --model claude=sonnet --thinking claude=max
+scripts/autoreview --reviewers codex,claude --model codex=gpt-5.1 --thinking codex=high --model claude=sonnet --thinking claude=max
 ```
 
 Inline syntax is also supported:
 
 ```bash
-/Users/nobrainer-tech/.claude/skills/deep-autoreview/scripts/autoreview --reviewers codex:gpt-5.1:high,claude:sonnet:max
+scripts/autoreview --reviewers codex:gpt-5.1:high,claude:sonnet:max
 ```
 
 Codex maps thinking to `model_reasoning_effort` and accepts `low`, `medium`,
@@ -183,7 +183,7 @@ Global helper from `agent-scripts`:
 If installed from `agent-scripts`, path is:
 
 ```bash
-/Users/steipete/Projects/agent-scripts/skills/autoreview/scripts/autoreview --help
+/path/to/agent-scripts-checkout/skills/autoreview/scripts/autoreview --help
 ```
 
 The helper:
