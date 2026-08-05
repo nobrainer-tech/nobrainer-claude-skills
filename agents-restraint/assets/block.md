@@ -25,4 +25,9 @@ can stay simple.
    for now, we'll swap it later" stopgap.
 8. **Look at how mature products solve the same problem.** Use proven patterns
    instead of inventing from zero.
+
+**Exception to rule 1 — anything holding state or money.** A service on a cron
+touching a live account, a repo mid-migration, an API with external consumers:
+there, deleting an "obsolete" path is an incident, not a cleanup. Rule 1 applies
+only behind a test that covers the path being removed.
 <!-- ENG-RULES:END -->

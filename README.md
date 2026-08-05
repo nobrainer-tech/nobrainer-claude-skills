@@ -137,7 +137,7 @@ Eight engineering rules for a repo's `CLAUDE.md` and `AGENTS.md` that stop a cod
 
 **What it does:**
 - Inserts the rules into **both** `CLAUDE.md` and `AGENTS.md` — Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md` from the repo root automatically
-- Idempotent via `ENG-RULES:START`/`:END` markers — applying it twice replaces rather than duplicates
+- Idempotent via `<!-- ENG-RULES:START -->` / `<!-- ENG-RULES:END -->` HTML-comment markers — applying it twice replaces rather than duplicates
 - Leaves managed blocks from other tools (e.g. `pane-agent-context`) untouched
 - Surfaces contradictions with existing rules instead of silently dropping one side
 

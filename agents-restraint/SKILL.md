@@ -22,16 +22,25 @@ from the repo root automatically.
 
 ## Apply
 
-Insert `assets/block.md` verbatim into **both** `CLAUDE.md` and `AGENTS.md` at
-the repo root, creating either if missing.
+For each of `CLAUDE.md` and `AGENTS.md` at the repo root:
 
-The block is delimited by `ENG-RULES:START` / `:END`. If those markers are
-already present, replace what is between them rather than appending — applying
-this twice must not leave two copies.
+1. **Locate the markers.** They are HTML comments — the literal lines
+   `<!-- ENG-RULES:START -->` and `<!-- ENG-RULES:END -->`.
+2. **If both are present:** replace everything between them (markers included)
+   with the current contents of `assets/block.md`. Stop here — the file is done.
+3. **If exactly one is present:** stop and report it. A half-marked file means a
+   previous run was interrupted or someone hand-edited the block; guessing the
+   boundary risks eating adjacent content.
+4. **If neither is present:** append `assets/block.md` verbatim to the end of the
+   file, preceded by one blank line. Create the file if it does not exist.
 
-Append after existing content. Do not reorder or rewrite anything else in those
-files. If `AGENTS.md` carries a managed block from another tool (a
-`pane-agent-context` section, for instance), leave it exactly as it is.
+Then verify: each file contains exactly one `ENG-RULES:START` and one
+`ENG-RULES:END`, and the text between them matches `assets/block.md` byte for
+byte. Report which files you created versus updated. Do not commit.
+
+Do not reorder or rewrite anything else in those files. If `AGENTS.md` carries a
+managed block from another tool (a `pane-agent-context` section, for instance),
+leave it exactly as it is — append after it, never inside it.
 
 ## Before you paste this into every repo
 
