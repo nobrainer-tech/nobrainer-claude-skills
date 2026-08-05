@@ -129,6 +129,20 @@ Harden a machine or project against npm supply-chain attacks (compromised packag
 
 Checks tool versions first — `min-release-age` needs **npm ≥ 11.10.0** or it's silently inert. Documents what the cooldown does *not* protect against (already-installed deps, Renovate PRs, registry compromise) and the patch-delay trade-off.
 
+### [agents-restraint](./agents-restraint/)
+
+Eight engineering rules for a repo's `CLAUDE.md` and `AGENTS.md` that stop a coding agent from over-building. The expensive failure mode in AI-written code isn't wrong code — it's *too much* code: three dependencies and five abstraction layers for what the standard library does in ten lines.
+
+**Trigger:** "agents-restraint", "add the engineering rules", "stop the agent over-engineering", "AGENTS.md rules", "dodaj zasady inzynierskie"
+
+**What it does:**
+- Inserts the rules into **both** `CLAUDE.md` and `AGENTS.md` — Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md` from the repo root automatically
+- Idempotent via `ENG-RULES:START`/`:END` markers — applying it twice replaces rather than duplicates
+- Leaves managed blocks from other tools (e.g. `pane-agent-context`) untouched
+- Surfaces contradictions with existing rules instead of silently dropping one side
+
+Origin: a Vercel Next.js engineer reportedly spent ~60B tokens iterating on an `AGENTS.md`; what survived compresses to these eight. Ships with a warning that rule 1 ("delete obsolete paths, no fallbacks, no migrations") is right for a web product with one deploy target and dangerous in anything holding state or money.
+
 ## Installation
 
 Copy any skill directory into `~/.claude/skills/`:
