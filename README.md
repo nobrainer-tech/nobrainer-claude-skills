@@ -73,13 +73,19 @@ Eight engineering rules for a repo's `CLAUDE.md` and `AGENTS.md` that stop a cod
 
 **Trigger:** "agents-restraint", "add the engineering rules", "stop the agent over-engineering", "AGENTS.md rules", "dodaj zasady inzynierskie"
 
+**Two ways in:**
+- **Repo already has agent instructions** → `assets/block.md`, the rules only, wrapped in markers so it can be re-applied
+- **Repo has nothing yet** → `assets/template-AGENTS.md`, a full starting file: engineering rules, design principles (YAGNI/KISS/DRY/SOLID), comment discipline, configuration and secrets, subagent delegation, verification before done
+
 **What it does:**
-- Inserts the rules into **both** `CLAUDE.md` and `AGENTS.md` — Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md` from the repo root automatically
+- Inserts into **both** `CLAUDE.md` and `AGENTS.md` — Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md` from the repo root automatically
 - Idempotent via `<!-- ENG-RULES:START -->` / `<!-- ENG-RULES:END -->` HTML-comment markers — applying it twice replaces rather than duplicates
 - Leaves managed blocks from other tools (e.g. `pane-agent-context`) untouched
 - Surfaces contradictions with existing rules instead of silently dropping one side
 
 Origin: a Vercel Next.js engineer reportedly spent ~60B tokens iterating on an `AGENTS.md`; what survived compresses to these eight. Ships with a warning that rule 1 ("delete obsolete paths, no fallbacks, no migrations") is right for a web product with one deploy target and dangerous in anything holding state or money.
+
+**The template is deliberately over budget, and says so.** Every line in these files is loaded into *every* prompt in the repo, relevant or not — a bloated `AGENTS.md` has the agent weighing git conventions while fixing a CSS bug. Karpathy's widely-copied `CLAUDE.md` is 65 lines; the template ships longer on purpose as a menu to cut from, not a finished file to paste whole.
 
 ## Installation
 
