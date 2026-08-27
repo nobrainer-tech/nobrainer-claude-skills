@@ -338,7 +338,7 @@ Present results in format:
 - [function/export]: $ grep ... -> [N] callers, [summary]
 
 ### Concrete value traces (STANDARD/DEEP)
-- [function]([values]) -> [trace result] -> OK / BUG
+- `[function] with [values] -> [trace result] -> OK / BUG`
 
 ### Issues found
 

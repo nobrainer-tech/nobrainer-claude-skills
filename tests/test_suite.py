@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-import re
 import json
+import re
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
+
+from scripts import validate_skills
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,6 +52,14 @@ ACTIVE = set(CANONICAL) | {
     "nobrainer-npm-secure",
     "nobrainer-reddit",
 }
+
+VERSION_MANIFESTS = (
+    "package.json",
+    "plugin.json",
+    ".claude-plugin/plugin.json",
+    ".codex-plugin/plugin.json",
+    ".cursor-plugin/plugin.json",
+)
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -121,6 +132,27 @@ class SuiteTests(unittest.TestCase):
         ):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
+        routing = (
+            SKILLS / "nobrainer-ultra" / "references" / "routing.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("nobrainer-browser", routing)
+
+    def test_ultra_setup_upgrade_contract(self) -> None:
+        skill = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
+        setup = (SKILLS / "nobrainer-ultra" / "references" / "setup.md").read_text(
+            encoding="utf-8"
+        )
+        for term in ("set up", "upgrade", "references/setup.md"):
+            self.assertIn(term, skill)
+        for term in (
+            "CURRENT",
+            "DRIFTED",
+            "OWNER_GATE",
+            "official Superpowers",
+            "RUNTIME_CHECKS",
+            "ROLLBACK",
+        ):
+            self.assertIn(term, setup)
 
     def test_sessions_fail_closed_contract(self) -> None:
         text = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(encoding="utf-8")
@@ -224,6 +256,90 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("https://nobrainer.tech", text)
         self.assertIn("https://nobrainertech.gumroad.com", text)
         self.assertIn("agentic workflows", text.lower())
+        self.assertIn("assets/nobrainer-skills-coverage.webp", text)
+        self.assertIn("docs/COMPATIBILITY.md", text)
+        self.assertIn("docs/TESTING.md", text)
+
+    def test_coverage_graphic_is_readme_ready(self) -> None:
+        path = ROOT / "assets" / "nobrainer-skills-coverage.webp"
+        data = path.read_bytes()
+        self.assertEqual(b"RIFF", data[:4])
+        self.assertEqual(b"WEBP", data[8:12])
+        frame = data.find(b"\x9d\x01\x2a")
+        self.assertGreaterEqual(frame, 0, "lossy WebP frame header is missing")
+        width = int.from_bytes(data[frame + 3 : frame + 5], "little") & 0x3FFF
+        height = int.from_bytes(data[frame + 5 : frame + 7], "little") & 0x3FFF
+        self.assertGreaterEqual(width, 1200)
+        self.assertGreaterEqual(height, 600)
+        self.assertLessEqual(len(data), 300_000)
+        self.assertGreater(width / height, 1.6)
+        self.assertLess(width / height, 2.0)
+
+    def test_product_repository_surface(self) -> None:
+        required = (
+            "CONTRIBUTING.md",
+            "SECURITY.md",
+            "docs/COMPATIBILITY.md",
+            "docs/TESTING.md",
+            ".github/PULL_REQUEST_TEMPLATE.md",
+            ".github/ISSUE_TEMPLATE/bug_report.md",
+            ".github/ISSUE_TEMPLATE/feature_request.md",
+            ".github/ISSUE_TEMPLATE/config.yml",
+            ".github/dependabot.yml",
+            ".github/workflows/validate.yml",
+        )
+        for relative in required:
+            with self.subTest(path=relative):
+                self.assertTrue((ROOT / relative).is_file())
+
+        workflow = (ROOT / ".github" / "workflows" / "validate.yml").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "scripts/validate_skills.py --suite",
+            "unittest discover",
+            "py_compile",
+            "bash -n",
+            "shell: pwsh",
+            "timeout-minutes:",
+            "persist-credentials: false",
+        ):
+            self.assertIn(term, workflow)
+        self.assertNotRegex(workflow, r"uses:\s+[^\s]+@v[0-9]+(?:\s|$)")
+
+    def test_manifest_versions_are_consistent(self) -> None:
+        versions = {
+            relative: json.loads(
+                (ROOT / relative).read_text(encoding="utf-8")
+            )["version"]
+            for relative in VERSION_MANIFESTS
+        }
+        marketplace = json.loads(
+            (ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
+        )
+        versions[".claude-plugin/marketplace.json"] = marketplace["plugins"][0][
+            "version"
+        ]
+        unique = set(versions.values())
+        self.assertEqual(1, len(unique), versions)
+        self.assertRegex(
+            next(iter(unique)),
+            r"^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$",
+        )
+
+        codex = json.loads(
+            (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        self.assertNotIn("hooks", codex)
+        self.assertEqual("./skills/", codex["skills"])
+        interface = codex["interface"]
+        self.assertEqual("./assets/nobrainer-tech-logo.svg", interface["composerIcon"])
+        self.assertEqual(
+            "https://nobrainer.tech/privacy", interface["privacyPolicyURL"]
+        )
+        self.assertEqual(
+            "https://nobrainer.tech/terms", interface["termsOfServiceURL"]
+        )
 
     def test_helper_paths_are_skill_relative(self) -> None:
         autoreview = (SKILLS / "deep-autoreview" / "SKILL.md").read_text(encoding="utf-8")
@@ -232,6 +348,14 @@ class SuiteTests(unittest.TestCase):
         self.assertNotIn("\nscripts/autoreview", autoreview)
         self.assertIn("BUG_HUNT_SKILL_DIR", bugs)
         self.assertNotIn("\nscripts/bug-hunt", bugs)
+
+    def test_autoreview_wrappers_require_python_three(self) -> None:
+        scripts = SKILLS / "deep-autoreview" / "scripts"
+        bash = (scripts / "test-review-harness").read_text(encoding="utf-8")
+        powershell = (scripts / "test-review-harness.ps1").read_text(encoding="utf-8")
+        self.assertIn("sys.version_info.major != 3", bash)
+        self.assertIn("Get-Command python3", powershell)
+        self.assertIn("sys.version_info.major != 3", powershell)
 
     def test_overlapping_generic_triggers_have_one_owner(self) -> None:
         audit = (SKILLS / "deep-audit" / "SKILL.md").read_text(encoding="utf-8")
@@ -254,6 +378,16 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_public_text_scan_ignores_unknown_extensionless_binary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / ".DS_Store"
+            binary.write_bytes(b"\x00\xff\x00\xff")
+            self.assertFalse(validate_skills.is_public_text_file(binary))
+
+        for helper in validate_skills.PUBLIC_EXTENSIONLESS_FILES:
+            with self.subTest(helper=helper):
+                self.assertTrue(validate_skills.is_public_text_file(helper))
 
 
 if __name__ == "__main__":

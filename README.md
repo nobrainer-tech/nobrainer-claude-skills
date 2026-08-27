@@ -11,6 +11,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/nobrainer-tech/nobrainer-tech-skills/actions/workflows/validate.yml"><img alt="Validation" src="https://github.com/nobrainer-tech/nobrainer-tech-skills/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2DE2FF.svg"></a>
+  <a href="https://github.com/obra/superpowers"><img alt="Complements Superpowers" src="https://img.shields.io/badge/complements-Superpowers-8247E5.svg"></a>
+</p>
+
+<p align="center">
   <a href="https://nobrainer.tech">NoBrainer.tech</a>
   ·
   <a href="https://nobrainertech.gumroad.com">NoBrainer workflow blueprints and field guides</a>
@@ -19,6 +25,13 @@
 One canonical set of Agent Skills for Claude Code, Codex, Cursor, OpenCode and
 GitHub Copilot. The clients get thin adapters; the operational truth stays in
 `skills/`.
+
+![NoBrainer Tech Skills coverage map: understand, specify, orchestrate, execute, verify, and learn, with owner gates, evidence, and rollback](assets/nobrainer-skills-coverage.webp)
+
+NoBrainer is the control plane around delivery: it decides what should happen,
+when work is ready, which session owns it, what evidence is required, and when
+the workflow must stop. Official Superpowers remains the external implementation
+methodology for planning, worktrees, TDD, debugging, review, and verification.
 
 ## Start here
 
@@ -54,19 +67,20 @@ directories.
 | [`nobrainer-wiki-get`](skills/nobrainer-wiki-get/) | `nb-wiki-get` | Read-only query with provenance, freshness, contradictions and gaps |
 | [`nobrainer-wiki-tidy`](skills/nobrainer-wiki-tidy/) | `nb-wiki-tidy` | Audit-first maintenance with deterministic apply gates |
 
-## Compatibility
+## Compatibility and proof
 
-| Client | Adapter/discovery | Status represented by this repo |
-|---|---|---|
-| Claude Code | `.claude-plugin/plugin.json` or personal skills install | Manifest and cold local install validated |
-| Codex | `.codex-plugin/plugin.json` or personal skills install | Manifest, skills path and cold local install validated |
-| Cursor | `.cursor-plugin/plugin.json` / Agent Plugin layout | Manifest and canonical skills discovery configured |
-| OpenCode | git package adapter or personal skills install | Config hook and cold local install validated |
-| GitHub Copilot | native Agent Skills plus repository instructions | Personal skills install and repository routing configured |
+| Client | Discovery path | Repository evidence | Clean-session runtime |
+|---|---|---|---|
+| Claude Code | `.claude-plugin/plugin.json` or personal skills | Manifest + conflict-safe local install | Not yet recorded |
+| Codex | `.codex-plugin/plugin.json` or personal skills | Manifest, skills path + local install | Not yet recorded for this public package |
+| Cursor | `.cursor-plugin/plugin.json` | Manifest and canonical skills path | Not yet recorded |
+| OpenCode | git adapter or personal skills | Config hook imported and registered in tests | Not yet recorded |
+| GitHub Copilot | native Agent Skills + repo instructions | Personal install + repository routing | Not yet recorded |
 
-This table does not claim marketplace publication or every hosted runtime was
-tested. See [Installation](docs/INSTALL.md) for client-specific setup and
-readback steps.
+Portable source, adapter wiring, clean-session routing, and marketplace
+distribution are separate proof levels. See [Compatibility](docs/COMPATIBILITY.md)
+for the acceptance transcript required to promote any client to runtime-verified,
+and [Installation](docs/INSTALL.md) for client-specific setup and readback.
 
 ## Why one repository
 
@@ -104,7 +118,7 @@ The curated non-core tools remain available from the same canonical directory:
 | Area | Skills |
 |---|---|
 | Evidence and review | [`deep-audit`](skills/deep-audit/), [`deep-autoreview`](skills/deep-autoreview/), [`deep-bugs-finder`](skills/deep-bugs-finder/) |
-| Browser work | [`nobrainer-browser`](skills/nobrainer-browser/) — latest Playwright CLI, existing-session attach, tests and trace analysis |
+| Browser work | [`nobrainer-browser`](skills/nobrainer-browser/) — thin policy around the current Playwright CLI: approved attach, deep inspection, tests and trace analysis; no extra MCP/plugin stack by default |
 | Security | [`nobrainer-fast-audit`](skills/nobrainer-fast-audit/), [`nobrainer-npm-secure`](skills/nobrainer-npm-secure/) |
 | Agent restraint | [`agents-restraint`](skills/agents-restraint/) |
 | Integrations | [`codex-in-claude-code`](skills/codex-in-claude-code/), [`nobrainer-reddit`](skills/nobrainer-reddit/) |
@@ -115,9 +129,8 @@ the active tree and remain recoverable from Git history.
 
 ## Installation
 
-The public repository now exists. The commands below apply after this release
-candidate is merged into its default branch; before installing, confirm the
-checkout contains `skills/nobrainer-ultra/SKILL.md` and
+The commands install the exact Git ref you checked out. Before applying writes,
+confirm that checkout contains `skills/nobrainer-ultra/SKILL.md` and
 `scripts/validate_skills.py`.
 
 Clone the repository, validate it and dry-run the portable installer:
@@ -137,20 +150,22 @@ Superpowers setup and rollback are in [docs/INSTALL.md](docs/INSTALL.md).
 ## Quality gates
 
 The core contracts have frozen pressure scenarios and independent review in
-[`docs/evals/core-suite-2026-08-27.md`](docs/evals/core-suite-2026-08-27.md).
+[`docs/evals/core-suite-2026-08-27.md`](docs/evals/core-suite-2026-08-27.md),
+plus a baseline/candidate setup comparison in
+[`docs/evals/setup-upgrade-2026-08-27.md`](docs/evals/setup-upgrade-2026-08-27.md).
 These are local contract checks, not production or buyer-outcome proof.
 Deterministic repository checks:
 
 ```bash
 python3 scripts/validate_skills.py
 python3 scripts/validate_skills.py --suite
-python3 tests/test_suite.py -v
-python3 tests/test_installer.py -v
+python3 -m unittest discover -s tests -v
 ```
 
 The validator checks frontmatter, directory/name identity, aliases, public-clean
 content, relative links and retired-name exclusion. Behavioral tests remain
 necessary: valid Markdown does not prove a workflow makes the right decision.
+See [Testing](docs/TESTING.md) for the four evidence layers and CI boundary.
 
 ## Design sources and attribution
 
@@ -163,10 +178,11 @@ necessary: valid Markdown does not prove a workflow makes the right decision.
 
 ## Contributing
 
-Read [AGENTS.md](AGENTS.md). Change one skill at a time, start with a failing
-behavior/eval, preserve public-clean boundaries, run the full local validation,
-and use a focused branch and PR. `CLAUDE.md` must remain byte-identical to
-`AGENTS.md`.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md). Change one
+behavioral concern at a time, start with a failing behavior/eval, preserve
+public-clean boundaries, run the full local validation, and use a focused branch
+and PR. `CLAUDE.md` must remain byte-identical to `AGENTS.md`. Report security
+issues through [SECURITY.md](SECURITY.md), not a public issue.
 
 ## License
 

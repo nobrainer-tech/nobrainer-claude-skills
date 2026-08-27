@@ -17,7 +17,6 @@
     "verification"
   ],
   "skills": "./skills/",
-  "hooks": {},
   "interface": {
     "displayName": "NoBrainer Tech Skills",
     "shortDescription": "Fast, visible, evidence-gated agentic workflows",
@@ -34,7 +33,10 @@
       "Set up visible, audited sessions for this project."
     ],
     "websiteURL": "https://nobrainer.tech",
+    "privacyPolicyURL": "https://nobrainer.tech/privacy",
+    "termsOfServiceURL": "https://nobrainer.tech/terms",
     "brandColor": "#00D8E8",
+    "composerIcon": "./assets/nobrainer-tech-logo.svg",
     "logo": "./assets/nobrainer-tech-logo.svg",
     "screenshots": []
   }

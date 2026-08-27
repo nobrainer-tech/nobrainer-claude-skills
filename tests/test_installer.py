@@ -38,6 +38,8 @@ class InstallerTests(unittest.TestCase):
                 "nobrainer-ultra",
             )
             self.assertEqual(0, result.returncode, result.stderr)
+            self.assertIn("SYMLINK: nobrainer-ultra", result.stdout)
+            self.assertNotIn("LEGACY", result.stdout)
             self.assertIn("DRY_RUN", result.stdout)
             self.assertFalse(destination.exists())
 
@@ -79,6 +81,61 @@ class InstallerTests(unittest.TestCase):
             )
             self.assertEqual(3, result.returncode)
             self.assertEqual("owned by user\n", marker.read_text(encoding="utf-8"))
+
+    def test_relocated_legacy_symlink_requires_explicit_migration(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            destination.mkdir()
+            target = destination / "deep-audit"
+            old_source = ROOT / "deep-audit"
+            target.symlink_to(old_source, target_is_directory=True)
+
+            refused = self.run_installer(
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "deep-audit",
+                "--apply",
+            )
+            self.assertEqual(3, refused.returncode)
+            self.assertIn("legacy symlink", refused.stderr)
+            self.assertEqual(str(old_source), str(target.readlink()))
+
+            migrated = self.run_installer(
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "deep-audit",
+                "--migrate-legacy",
+                "--apply",
+            )
+            self.assertEqual(0, migrated.returncode, migrated.stderr)
+            self.assertIn("MIGRATE", migrated.stdout)
+            self.assertEqual((ROOT / "skills" / "deep-audit").resolve(), target.resolve())
+
+    def test_unknown_symlink_remains_a_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            destination.mkdir()
+            target = destination / "deep-audit"
+            foreign = Path(temp) / "foreign-target"
+            target.symlink_to(foreign, target_is_directory=True)
+            result = self.run_installer(
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "deep-audit",
+                "--migrate-legacy",
+                "--apply",
+            )
+            self.assertEqual(3, result.returncode)
+            self.assertEqual(foreign, target.readlink())
 
     def test_interrupted_copy_removes_partial_target(self) -> None:
         spec = importlib.util.spec_from_file_location("skill_installer_under_test", INSTALLER)

@@ -3,17 +3,22 @@
 Add the git-backed package to the `plugin` array in the global or project
 `opencode.json`:
 
-Use this package reference only after the release is present on the repository's
-default branch. For pre-merge review, use a local checkout and explicit skills
-path instead.
+Use an immutable reviewed commit, not the moving default branch. Replace the
+example ref only after the new commit passes the repository suite and its
+public-clean/readback checks. For pre-merge review, use a local checkout and
+explicit skills path instead.
 
 ```json
 {
   "plugin": [
-    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git"
+    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#f8d4f0b05359b5765e8c826b9ca5fd433aa3ebf8"
   ]
 }
 ```
+
+The example is intentionally pinned to a full commit. After a reviewed
+release, update the ref and record the new SHA in the release notes; do not
+silently follow `main`.
 
 Restart OpenCode, list native skills, and confirm `nobrainer-ultra` is present.
 The adapter only registers the canonical `skills/` directory; it does not inject

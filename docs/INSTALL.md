@@ -100,12 +100,23 @@ https://github.com/obra/superpowers
 Run:
 
 ```bash
-python3 tests/test_suite.py -v
-python3 tests/test_installer.py -v
+python3 scripts/validate_skills.py
 python3 scripts/validate_skills.py --suite
+python3 -m unittest discover -s tests -v
 ```
+
+These checks prove the portable source and local adapters only. Follow
+[`COMPATIBILITY.md`](COMPATIBILITY.md) for clean-session runtime proof; do not
+infer client discovery from files on disk or an installer exit code.
 
 For symlink installs, rollback is removing only the symlinks created in the
 client's skills directory. For copy installs, remove only the copied NoBrainer
 skill directories after confirming their names and contents. Never recursively
 delete a broad skills root.
+
+If a previous install left a symlink pointing at this checkout's deleted
+root-level skill path, the installer reports `LEGACY` and refuses to change it.
+Inspect the printed target, then rerun the same command with
+`--migrate-legacy --apply`. Only an exact relocated path from this checkout is
+migrated; unknown symlinks remain conflicts. A dry run never removes or
+replaces a target.

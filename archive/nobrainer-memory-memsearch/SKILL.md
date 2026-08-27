@@ -154,7 +154,7 @@ Add/update this entry in the `plugins` object (before the closing `}`):
 "memsearch@zilliztech": [
   {
     "scope": "user",
-    "installPath": "/Users/<USERNAME>/.claude/plugins/cache/zilliztech/memsearch/<VERSION>",
+    "installPath": "/path/to/home/.claude/plugins/cache/zilliztech/memsearch/<VERSION>",
     "version": "<VERSION>",
     "installedAt": "<ISO_TIMESTAMP>",
     "lastUpdated": "<ISO_TIMESTAMP>"

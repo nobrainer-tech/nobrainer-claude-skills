@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -56,10 +57,62 @@ ACTIVE = set(SUITE) | {
 
 PUBLIC_FORBIDDEN = (
     "/Users/",
+    "nobrainer-tech@",
     "--dangerously-skip-permissions",
     "CLAUDE-CODE-FABLE",
 )
 PORTABLE_FRONTMATTER = {"name", "description"}
+PUBLIC_TEXT_SUFFIXES = {
+    ".json",
+    ".js",
+    ".md",
+    ".ps1",
+    ".py",
+    ".sh",
+    ".svg",
+    ".yaml",
+    ".yml",
+}
+PUBLIC_EXTENSIONLESS_FILES = {
+    ROOT / "skills" / "deep-autoreview" / "scripts" / "autoreview",
+    ROOT / "skills" / "deep-autoreview" / "scripts" / "test-review-harness",
+    ROOT / "skills" / "deep-bugs-finder" / "scripts" / "bug-hunt",
+}
+PUBLIC_ROOT_FILES = (
+    ROOT / ".gitignore",
+    ROOT / "README.md",
+    ROOT / "AGENTS.md",
+    ROOT / "CLAUDE.md",
+    ROOT / "CONTRIBUTING.md",
+    ROOT / "LICENSE",
+    ROOT / "SECURITY.md",
+    ROOT / "plugin.json",
+    ROOT / "package.json",
+)
+PUBLIC_ROOT_DIRS = (
+    ROOT / "archive",
+    ROOT / "docs",
+    ROOT / "assets",
+    ROOT / ".agents",
+    ROOT / ".claude-plugin",
+    ROOT / ".codex-plugin",
+    ROOT / ".cursor-plugin",
+    ROOT / ".github",
+    ROOT / ".opencode",
+    ROOT / "scripts",
+    ROOT / "tests",
+)
+DETECTOR_FIXTURE_FILES = {
+    ROOT / "scripts" / "validate_skills.py",
+    ROOT / "tests" / "test_suite.py",
+}
+VERSION_PATHS = (
+    ROOT / "package.json",
+    ROOT / "plugin.json",
+    ROOT / ".claude-plugin" / "plugin.json",
+    ROOT / ".codex-plugin" / "plugin.json",
+    ROOT / ".cursor-plugin" / "plugin.json",
+)
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], str]:
@@ -96,13 +149,63 @@ def active_skill_files() -> list[Path]:
     return sorted(SKILLS.glob("*/SKILL.md"))
 
 
+def is_public_text_file(path: Path) -> bool:
+    return path.is_file() and (
+        path.suffix.lower() in PUBLIC_TEXT_SUFFIXES
+        or path in PUBLIC_EXTENSIONLESS_FILES
+    )
+
+
+def public_text_files() -> list[Path]:
+    paths = {path for path in PUBLIC_ROOT_FILES if path.is_file()}
+    for directory in PUBLIC_ROOT_DIRS:
+        if not directory.is_dir():
+            continue
+        paths.update(
+            path
+            for path in directory.rglob("*")
+            if is_public_text_file(path)
+        )
+    for skill in active_skill_files():
+        paths.update(
+            path
+            for path in skill.parent.rglob("*")
+            if is_public_text_file(path)
+        )
+    return sorted(paths)
+
+
+def relative_link_errors(path: Path, text: str) -> list[str]:
+    errors: list[str] = []
+    for match in LINK_RE.finditer(text):
+        target = match.group(1).split("#", 1)[0]
+        if not target or target.startswith("/") or "$" in target:
+            continue
+        if not (path.parent / target).resolve().exists():
+            errors.append(f"{path.relative_to(ROOT)}: broken relative link {target}")
+    return errors
+
+
+def public_scan_text(path: Path, text: str) -> str:
+    """Remove the one intentional detector fixture, but scan every other use."""
+    if path not in DETECTOR_FIXTURE_FILES:
+        return text
+    indent = "            " if path.name == "test_suite.py" else "    "
+    for forbidden in PUBLIC_FORBIDDEN:
+        fixture = f'{indent}"{forbidden}",'
+        if text.count(fixture) != 1:
+            return text
+        text = text.replace(fixture, "", 1)
+    return text
+
+
 def validate(suite_only: bool) -> list[str]:
     errors: list[str] = []
     seen: dict[str, Path] = {}
 
     for path in active_skill_files():
         try:
-            frontmatter, _ = parse_frontmatter(path)
+            frontmatter, text = parse_frontmatter(path)
         except ValueError as exc:
             errors.append(f"{path.relative_to(ROOT)}: {exc}")
             continue
@@ -128,6 +231,7 @@ def validate(suite_only: bool) -> list[str]:
                 f"{path.relative_to(ROOT)}"
             )
         seen[name] = path
+        errors.extend(relative_link_errors(path, text))
 
     if not suite_only:
         return errors
@@ -144,7 +248,7 @@ def validate(suite_only: bool) -> list[str]:
             errors.append(f"missing canonical skill {name}")
             continue
         try:
-            frontmatter, text = parse_frontmatter(path)
+            frontmatter, _ = parse_frontmatter(path)
         except ValueError as exc:
             errors.append(f"{path.relative_to(ROOT)}: {exc}")
             continue
@@ -154,19 +258,57 @@ def validate(suite_only: bool) -> list[str]:
             errors.append(f"{path.relative_to(ROOT)}: description must start with 'Use when'")
         if alias not in frontmatter.get("description", ""):
             errors.append(f"{path.relative_to(ROOT)}: missing alias trigger {alias}")
-        for forbidden in PUBLIC_FORBIDDEN:
-            if forbidden in text:
-                errors.append(f"{path.relative_to(ROOT)}: forbidden public value {forbidden!r}")
-        for match in LINK_RE.finditer(text):
-            target = match.group(1).split("#", 1)[0]
-            if not target or target.startswith("/") or "$" in target:
-                continue
-            if not (path.parent / target).resolve().exists():
-                errors.append(f"{path.relative_to(ROOT)}: broken relative link {target}")
-
     for name in LEGACY:
         if (SKILLS / name / "SKILL.md").exists():
             errors.append(f"legacy skill remains discoverable: {name}")
+
+    for path in public_text_files():
+        text = path.read_text(encoding="utf-8")
+        scanned_text = public_scan_text(path, text)
+        for forbidden in PUBLIC_FORBIDDEN:
+            if forbidden in scanned_text:
+                errors.append(
+                    f"{path.relative_to(ROOT)}: forbidden public value {forbidden!r}"
+                )
+        if (
+            path.suffix.lower() == ".md"
+            and path.name != "SKILL.md"
+            and not path.is_relative_to(ROOT / "archive")
+        ):
+            errors.extend(relative_link_errors(path, text))
+
+    versions: dict[str, str] = {}
+    for path in VERSION_PATHS:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{path.relative_to(ROOT)}: invalid version manifest: {exc}")
+            continue
+        version = data.get("version")
+        if not isinstance(version, str) or not version:
+            errors.append(f"{path.relative_to(ROOT)}: missing version")
+            continue
+        versions[str(path.relative_to(ROOT))] = version
+
+    marketplace = ROOT / ".claude-plugin" / "marketplace.json"
+    try:
+        data = json.loads(marketplace.read_text(encoding="utf-8"))
+        versions[str(marketplace.relative_to(ROOT))] = data["plugins"][0]["version"]
+    except (OSError, json.JSONDecodeError, KeyError, IndexError, TypeError) as exc:
+        errors.append(f"{marketplace.relative_to(ROOT)}: invalid plugin version: {exc}")
+
+    if len(set(versions.values())) > 1:
+        errors.append(f"manifest version mismatch: {versions}")
+
+    codex_manifest = ROOT / ".codex-plugin" / "plugin.json"
+    try:
+        codex_data = json.loads(codex_manifest.read_text(encoding="utf-8"))
+        if "hooks" in codex_data:
+            errors.append(f"{codex_manifest.relative_to(ROOT)}: unsupported top-level hooks field")
+        if codex_data.get("skills") != "./skills/":
+            errors.append(f"{codex_manifest.relative_to(ROOT)}: skills path must be ./skills/")
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        errors.append(f"{codex_manifest.relative_to(ROOT)}: invalid Codex manifest: {exc}")
 
     return errors
 

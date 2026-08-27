@@ -1,6 +1,6 @@
 ---
 name: nobrainer-ultra
-description: "Use when the owner says nb-ultra, ultracode, or asks for the fastest high-quality execution of a non-trivial project task that may require requirements discovery, durable planning, named sessions, guarded autonomy, or workflow reconciliation."
+description: "Use when the owner says nb-ultra or ultracode; asks to set up, upgrade, or reconcile a project's agent workflow; or wants the fastest high-quality execution of a non-trivial task requiring requirements discovery, durable planning, named sessions, guarded autonomy, or final audit."
 ---
 
 # NoBrainer Ultra
@@ -25,6 +25,10 @@ outcome. Classify drift as `CLEAN`, `RECONCILABLE`, `OWNER_DECISION`, or
 
 Read [references/routing.md](references/routing.md) before choosing artifacts or
 dependent skills.
+
+When the request is setup, upgrade, installation, or repair of the workflow
+itself, also read [references/setup.md](references/setup.md). Setup is a
+re-runnable reconciliation mode, not a one-time scaffold.
 
 ### 2. `BUDDY`
 
@@ -56,6 +60,11 @@ multi-session, architectural, risky, or expensive to misinterpret.
 Default session title: `<repo> | MAIN`. Do not create workers before bounded
 work units exist. A coherent task may stay in MAIN; hidden subagents are not a
 substitute for requested visible sessions.
+
+For setup or upgrade, keep one canonical portable skill source and use each
+client's native install mechanism. Detect official Superpowers separately,
+install or guide its native installation only when that setup is in scope, and
+verify actual discovery. Never vendor or silently fork it.
 
 ### 4. `READY_GATE`
 

@@ -1,0 +1,64 @@
+# Testing and evaluation
+
+The repository uses four evidence layers. A green lower layer never proves a
+higher one.
+
+## 1. Structure and public safety
+
+- portable frontmatter, directory/name identity and exact active inventory;
+- relative companion links and retired-name exclusion;
+- public-clean text, manifest parsing and version consistency;
+- installer conflict refusal, idempotence, readback and rollback;
+- secret scanning before publication.
+
+Run:
+
+```bash
+python3 scripts/validate_skills.py
+python3 scripts/validate_skills.py --suite
+```
+
+## 2. Deterministic behavior contracts
+
+Unit tests pressure the routing and safety invariants that can be checked
+without an LLM: Ultra states, session identity and lease gates, SDD boundaries,
+trigger ownership, browser routing, adapter registration and installer races.
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+GitHub Actions runs these deterministic layers on Linux and macOS. It also
+checks Python, Bash, PowerShell and the OpenCode JavaScript adapter. CI does not
+claim a client UI or model followed a skill.
+
+## 3. Forward behavior evaluation
+
+Behavior-shaping changes need a frozen scenario set, an unchanged baseline and
+an independent judge. Keep development cases separate from final holdout cases;
+do not tune against a failed holdout. Record accepted findings, null results,
+digest, rollback and any model/harness substitutions.
+
+The current records are
+[`evals/core-suite-2026-08-27.md`](evals/core-suite-2026-08-27.md) and the
+setup/upgrade comparison in
+[`evals/setup-upgrade-2026-08-27.md`](evals/setup-upgrade-2026-08-27.md).
+
+## 4. Client runtime acceptance
+
+A client becomes runtime-verified only after a clean-session transcript proves
+discovery and correct first actions. Follow
+[`COMPATIBILITY.md`](COMPATIBILITY.md). Marketplace publication, production
+behavior and buyer usefulness each require their own readback.
+
+## Release gate
+
+A releasable commit requires:
+
+- all deterministic checks green on the exact commit;
+- no unresolved P0/P1 review finding;
+- a public-clean and secret scan;
+- a recorded behavior holdout for changed workflow controls;
+- honest compatibility labels;
+- a rollback path;
+- owner approval for merge and publication.

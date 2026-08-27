@@ -16,6 +16,10 @@ forks of a skill.
 - `scripts/validate_skills.py` — portable structure and suite validator.
 - `tests/` — deterministic and behavioral regression gates.
 - `assets/` — shared public brand assets.
+- `docs/COMPATIBILITY.md` — client proof levels and clean-session acceptance.
+- `docs/TESTING.md` — deterministic, behavioral and runtime evidence layers.
+- `.github/workflows/validate.yml` and `.github/*_TEMPLATE*` — public CI and
+  contribution intake, not alternate workflow truth.
 
 ## Skill format
 
@@ -136,6 +140,20 @@ Use the current official plugin for each harness. Do not vendor, rename, fork or
 copy Superpowers skills here. If a required capability is unavailable, report
 the missing dependency and one installation/repair action.
 
+## Browser evidence boundary
+
+Prefer a task-native API, MCP or first-party CLI when it exposes the required
+state directly. When rendered behavior matters or no suitable structured path
+exists, route to `nobrainer-browser`: use the current official
+`@playwright/cli`, attach to an already approved Chromium session only when its
+login/state is required, and use the repository's Playwright runner for tests
+and trace evidence. Inspect DOM snapshots, network, console and the resulting
+state; preserve and open the actual trace instead of trusting a green exit code.
+
+Do not add a browser plugin, a second automation stack or Playwright MCP merely
+to duplicate the CLI. Installation, extension attach, authentication and every
+consequential browser action remain explicit scope or owner gates.
+
 ## Changing a skill
 
 Follow the local `skill-creator` and official Superpowers writing-skills method:
@@ -157,13 +175,13 @@ Required baseline commands:
 ```bash
 python3 scripts/validate_skills.py
 python3 scripts/validate_skills.py --suite
-python3 tests/test_suite.py -v
-python3 tests/test_installer.py -v
+python3 -m unittest discover -s tests -v
 ```
 
 Run every changed skill's scripts or syntax checks and the relevant client
 adapter readback. Do not claim marketplace, install or runtime compatibility
-from JSON parsing alone.
+from JSON parsing alone. Use the proof levels and clean-session protocol in
+`docs/COMPATIBILITY.md`; use `docs/TESTING.md` for the release evidence boundary.
 
 ## Public-clean and safety
 

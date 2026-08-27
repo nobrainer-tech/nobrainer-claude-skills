@@ -47,6 +47,12 @@ Package installation is a machine write. Perform it only when setup is within
 scope, and do not claim success until the binary readback passes. For a test
 repository, prefer its lockfile and package scripts over changing dependencies.
 
+The CLI also offers `playwright-cli install --skills`. Do not run it by default
+while `nobrainer-browser` owns browser routing: that would add another skill
+owner with overlapping triggers. Read the live CLI help instead. If the owner
+chooses the upstream Playwright skills, reconcile to one browser-skill owner
+rather than keeping both active.
+
 ## Existing-session attach
 
 Use attach when the owner needs the actual approved session, login or open tab:
@@ -83,7 +89,7 @@ playwright-cli snapshot
 playwright-cli find "Settings"
 playwright-cli click e4
 playwright-cli fill e7 "value"
-playwright-cli eval e4 "el => el.textContent"
+playwright-cli eval "el => el.textContent" e4
 ```
 
 Prefer semantic refs and visible state over brittle coordinates. For each

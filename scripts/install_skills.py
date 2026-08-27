@@ -20,6 +20,51 @@ CLIENT_DESTINATIONS = {
     "agents": Path.home() / ".agents" / "skills",
 }
 
+# Root-level names from the previous public layout. A legacy symlink is
+# migratable only when it points at the exact deleted path in this checkout;
+# unknown targets remain conflicts and are never touched.
+LEGACY_TO_CANONICAL = {
+    "agent-browser": "nobrainer-browser",
+    "agents-restraint": "agents-restraint",
+    "codex-in-claude-code": "codex-in-claude-code",
+    "deep-audit": "deep-audit",
+    "deep-autoreview": "deep-autoreview",
+    "deep-bugs-finder": "deep-bugs-finder",
+    "deep-rca": "nobrainer-rca",
+    "karpathy-auto-improver": "nobrainer-autoimprove",
+    "llm-wiki": "nobrainer-wiki",
+    "nobrainer-autopilot": "nobrainer-ultra",
+    "nobrainer-browser": "nobrainer-browser",
+    "nobrainer-continuous-improvement": "nobrainer-autoimprove",
+    "nobrainer-memory": "nobrainer-wiki",
+    "nobrainer-starter": "nobrainer-ultra",
+    "nobrainer-ultracode-workflow": "nobrainer-ultra",
+    "nobrainer-fast-audit": "nobrainer-fast-audit",
+    "nobrainer-npm-secure": "nobrainer-npm-secure",
+    "nobrainer-reddit": "nobrainer-reddit",
+    "wiki-add": "nobrainer-wiki-add",
+    "wiki-get": "nobrainer-wiki-get",
+    "wiki-tidy": "nobrainer-wiki-tidy",
+}
+
+
+def legacy_source_for(target: Path, canonical: Path) -> Path | None:
+    """Return the exact relocated source this symlink used to reference."""
+
+    if not target.is_symlink():
+        return None
+    try:
+        resolved = target.resolve(strict=False)
+    except OSError:
+        return None
+    for legacy_name, canonical_name in LEGACY_TO_CANONICAL.items():
+        if canonical_name != canonical.name:
+            continue
+        old_source = (ROOT / legacy_name).resolve(strict=False)
+        if resolved == old_source and old_source != canonical.resolve(strict=False):
+            return old_source
+    return None
+
 
 def available_skills() -> dict[str, Path]:
     return {
@@ -36,7 +81,8 @@ def existing_state(target: Path, source: Path, mode: str) -> str:
             if target.resolve(strict=True) == source.resolve(strict=True):
                 return "current"
         except FileNotFoundError:
-            pass
+            if legacy_source_for(target, source) is not None:
+                return "legacy"
     return "conflict"
 
 
@@ -62,6 +108,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Perform writes. Without this flag the command is a dry-run.",
     )
+    parser.add_argument(
+        "--migrate-legacy",
+        action="store_true",
+        help="Migrate only symlinks that point at this checkout's relocated legacy paths.",
+    )
     return parser.parse_args()
 
 
@@ -82,26 +133,53 @@ def main() -> int:
         target = destination / name
         state = existing_state(target, source, args.mode)
         plan.append((name, source, target, state))
-        if state == "conflict":
+        if state == "conflict" or (state == "legacy" and not args.migrate_legacy):
             conflicts.append(target)
 
     for name, source, target, state in plan:
-        action = "KEEP" if state == "current" else "CONFLICT" if state == "conflict" else args.mode.upper()
+        action = (
+            "KEEP"
+            if state == "current"
+            else "CONFLICT"
+            if state == "conflict"
+            else "MIGRATE"
+            if state == "legacy" and args.migrate_legacy
+            else "LEGACY"
+            if state == "legacy"
+            else args.mode.upper()
+        )
         print(f"{action}: {name}: {source} -> {target}")
 
     if conflicts:
-        print("ERROR: refusing to overwrite existing targets", file=sys.stderr)
+        if any(state == "legacy" for _, _, _, state in plan) and not args.migrate_legacy:
+            print(
+                "ERROR: legacy symlink detected; rerun with "
+                "--migrate-legacy --apply",
+                file=sys.stderr,
+            )
+        else:
+            print("ERROR: refusing to overwrite existing targets", file=sys.stderr)
         return 3
     if not args.apply:
-        print("DRY_RUN: no files changed; rerun with --apply to install")
+        suffix = (
+            " with --migrate-legacy --apply"
+            if any(state == "legacy" for _, _, _, state in plan)
+            else " with --apply"
+        )
+        print(f"DRY_RUN: no files changed; rerun{suffix} to install")
         return 0
 
     destination.mkdir(parents=True, exist_ok=True)
     created: list[Path] = []
+    migrated: list[tuple[Path, str]] = []
     try:
         for _, source, target, state in plan:
             if state == "current":
                 continue
+            if state == "legacy":
+                previous_link = os.readlink(target)
+                target.unlink()
+                migrated.append((target, previous_link))
             if args.mode == "symlink":
                 os.symlink(source, target, target_is_directory=True)
                 created.append(target)
@@ -128,6 +206,12 @@ def main() -> int:
                     shutil.rmtree(target)
             except OSError as rollback_exc:
                 rollback_errors.append(f"{target}: {rollback_exc}")
+        for target, previous_link in reversed(migrated):
+            try:
+                if not target.exists() and not target.is_symlink():
+                    os.symlink(previous_link, target, target_is_directory=True)
+            except OSError as rollback_exc:
+                rollback_errors.append(f"{target} (legacy restore): {rollback_exc}")
         if rollback_errors:
             print(
                 "ERROR: installation failed and rollback was incomplete: "

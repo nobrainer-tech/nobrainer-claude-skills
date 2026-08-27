@@ -31,6 +31,8 @@ class NoBrainerBrowserTests(unittest.TestCase):
         text = " ".join(SKILL.read_text(encoding="utf-8").lower().split())
         self.assertIn("do not install mcp", text)
         self.assertIn("do not install a browser plugin", text)
+        self.assertIn("playwright-cli install --skills", text)
+        self.assertIn("another skill owner", text)
         self.assertIn("do not bypass", text)
 
 

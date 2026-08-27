@@ -15,6 +15,8 @@ one source of truth. Do not create an artifact merely because a template exists.
 | durable cross-session specification | `nobrainer-spec-driven-development` |
 | scored improvement loop | `nobrainer-autoimprove` |
 | durable knowledge base | `nobrainer-wiki` family |
+| rendered-site inspection or browser evidence after native API/CLI routing | `nobrainer-browser` with official Playwright CLI |
+| project workflow setup, upgrade, or drift repair | `references/setup.md` |
 
 Superpowers is an external dependency. Detect it through the current harness,
 prefer the official namespaced/plugin source, and verify required capabilities.
