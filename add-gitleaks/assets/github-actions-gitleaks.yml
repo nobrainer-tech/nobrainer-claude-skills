@@ -1,0 +1,23 @@
+name: gitleaks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: gitleaks secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so gitleaks can scan all commits
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+          # Baseline: remove this line if the repo has no gitleaks-baseline.json
+          GITLEAKS_BASELINE_PATH: gitleaks-baseline.json
+          # Org accounts require a license key stored as a repo/org secret:
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
