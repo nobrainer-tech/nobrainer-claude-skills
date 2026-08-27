@@ -64,8 +64,10 @@ jobs:
       - name: Run deterministic tests
         run: python3 -m unittest discover -s tests -v
 
-      - name: Check Python helpers
-        run: python3 -m py_compile scripts/*.py tests/*.py
+      - name: Check adapter syntax
+        run: |
+          python3 -m py_compile scripts/*.py tests/*.py
+          bash -n hooks/session-start hooks/run-hook.cmd
 
       - name: Verify checkout remains unchanged
         run: git diff --exit-code
