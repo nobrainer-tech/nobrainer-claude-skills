@@ -1,9 +1,0 @@
-{
-  "document-structure-analyzer": "Document structure analysis specialist. Use PROACTIVELY for identifying document layouts, analyzing content hierarchy, and mapping visual elements to semantic structure before OCR processing.",
-  "markdown-syntax-formatter": "Markdown formatting specialist. Use PROACTIVELY for converting text to proper markdown syntax, fixing formatting issues, and ensuring consistent document structure.",
-  "ocr-grammar-fixer": "OCR text correction specialist. Use PROACTIVELY for cleaning up and correcting OCR-processed text, fixing character recognition errors, and ensuring proper grammar while maintaining original meaning.",
-  "ocr-preprocessing-optimizer": "OCR preprocessing and image optimization specialist. Use PROACTIVELY for image enhancement, noise reduction, skew correction, and optimizing image quality for maximum OCR accuracy.",
-  "ocr-quality-assurance": "OCR pipeline validation specialist. Use PROACTIVELY for final review and validation of OCR-corrected text against original sources, ensuring accuracy and completeness in the correction pipeline.",
-  "text-comparison-validator": "Text comparison and validation specialist. Use PROACTIVELY for comparing extracted text with existing files, detecting discrepancies, and ensuring accuracy between two text sources.",
-  "visual-analysis-ocr": "Visual analysis and OCR specialist. Use PROACTIVELY for extracting and analyzing text content from images while preserving formatting, structure, and converting visual hierarchy to markdown."
-}

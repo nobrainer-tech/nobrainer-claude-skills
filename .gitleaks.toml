@@ -1,24 +1,4 @@
-# gitleaks configuration
-# Extends the built-in ruleset; add project-specific allowlist entries below.
-# Docs: https://github.com/gitleaks/gitleaks#configuration
-
+# Extend the maintained built-in ruleset. Add only narrow, reviewed false-positive
+# exceptions; never allowlist whole documentation, test or fixture trees.
 [extend]
 useDefault = true
-
-[allowlist]
-description = "Global allowlist for known-safe paths and placeholder values"
-
-paths = [
-  '''(.*?)(test|spec|fixture|example|sample)(.*?)''',
-  '''.*\.md$''',
-  '''(^|/)\.env\.example$''',
-]
-
-# Regexes that match obvious placeholder / documentation values, not real secrets.
-regexes = [
-  '''AKIAIOSFODNN7EXAMPLE''',
-  '''EXAMPLE[_-]?KEY''',
-  '''your[_-]?(api[_-]?)?(key|token|secret)[_-]?here''',
-  '''xxxx+''',
-  '''\$\{[A-Z0-9_]+\}''',
-]

@@ -1,0 +1,18 @@
+{
+  "name": "nobrainer-tech-skills",
+  "description": "Portable NoBrainer workflows for high-quality agentic delivery across projects.",
+  "version": "1.0.0",
+  "author": {
+    "name": "NoBrainer Tech"
+  },
+  "homepage": "https://nobrainer.tech",
+  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-skills",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "agentic-workflows",
+    "multi-session",
+    "spec-driven-development",
+    "verification"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nobrainer-tech-skills",
+  "description": "Portable NoBrainer workflows for guarded autonomy, visible sessions, SDD, decisions, RCA, measurable improvement, and durable knowledge.",
+  "version": "1.0.0",
+  "author": {
+    "name": "NoBrainer Tech"
+  }
+}

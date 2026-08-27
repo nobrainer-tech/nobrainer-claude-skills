@@ -1,0 +1,18 @@
+{
+  "name": "nobrainer-tech",
+  "description": "NoBrainer Tech portable agent skills",
+  "owner": {
+    "name": "NoBrainer Tech"
+  },
+  "plugins": [
+    {
+      "name": "nobrainer-tech-skills",
+      "description": "Guarded autonomy, visible sessions, SDD, decisions, RCA, improvement, and wiki workflows.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "NoBrainer Tech"
+      }
+    }
+  ]
+}
