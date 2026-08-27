@@ -1,0 +1,20 @@
+{
+  "name": "nobrainer-tech-skills-dev",
+  "interface": {
+    "displayName": "NoBrainer Tech Skills Dev"
+  },
+  "plugins": [
+    {
+      "name": "nobrainer-tech-skills",
+      "source": {
+        "source": "url",
+        "url": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

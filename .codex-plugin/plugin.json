@@ -1,0 +1,43 @@
+{
+  "name": "nobrainer-tech-skills",
+  "version": "1.0.0",
+  "description": "Portable NoBrainer workflows for guarded autonomy, visible sessions, SDD, decisions, RCA, improvement, and durable knowledge.",
+  "author": {
+    "name": "NoBrainer Tech",
+    "url": "https://nobrainer.tech"
+  },
+  "homepage": "https://nobrainer.tech",
+  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "agentic-workflows",
+    "multi-session",
+    "sdd",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "NoBrainer Tech Skills",
+    "shortDescription": "Fast, visible, evidence-gated agentic workflows",
+    "longDescription": "Route non-trivial work through requirements, guarded autonomy, visible multi-session execution, SDD, independent audit, RCA, measurable improvement, and durable wiki knowledge.",
+    "developerName": "NoBrainer Tech",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use nb-ultra to deliver this task with the smallest safe workflow.",
+      "Set up visible, audited sessions for this project."
+    ],
+    "websiteURL": "https://nobrainer.tech",
+    "privacyPolicyURL": "https://nobrainer.tech/privacy",
+    "termsOfServiceURL": "https://nobrainer.tech/terms",
+    "brandColor": "#00D8E8",
+    "composerIcon": "./assets/nobrainer-tech-logo.svg",
+    "logo": "./assets/nobrainer-tech-logo.svg",
+    "screenshots": []
+  }
+}

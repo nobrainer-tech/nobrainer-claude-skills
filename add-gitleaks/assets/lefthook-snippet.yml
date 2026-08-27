@@ -1,6 +1,0 @@
-# Merge into the repo's lefthook.yml under pre-commit.commands, then run:
-#   lefthook install
-pre-commit:
-  commands:
-    gitleaks:
-      run: gitleaks git --staged --redact -v --config .gitleaks.toml
