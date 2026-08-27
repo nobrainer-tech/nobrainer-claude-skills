@@ -10,7 +10,6 @@ forks of a skill.
 ## Repository map
 
 - `skills/<name>/SKILL.md` — active, discoverable skills.
-- `archive/` — historical predecessors; never route or install them.
 - `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.opencode/`,
   `.github/` — thin client adapters, not alternate protocol sources.
 - `scripts/validate_skills.py` — portable structure and suite validator.
@@ -141,7 +140,7 @@ After an owner correction or newly verified fact, classify it before persisting:
 
 - transient clarification stays in the current task;
 - an explicit reusable preference, decision or fact may go through
-  `nobrainer-wiki-add`, with source, date, scope and confidentiality;
+  `nobrainer-wiki` mode `ADD`, with source, date, scope and confidentiality;
 - a repeatable behavior gap becomes a regression scenario and may route to
   `nobrainer-autoimprove`;
 - a durable repository rule may receive one minimal instruction change with a
@@ -155,13 +154,29 @@ public/private and secret boundaries as its source.
 ## Superpowers boundary
 
 Official Superpowers is an external dependency for brainstorming, planning,
-worktrees, TDD, systematic debugging, execution, review and verification.
+worktrees, TDD, systematic debugging, execution, implementation review methods
+and verification.
 NoBrainer owns lifecycle, visible sessions, owner gates, spec contracts,
 decision/RCA records, measurable improvement and durable knowledge.
 
 Use the current official plugin for each harness. Do not vendor, rename, fork or
 copy Superpowers skills here. If a required capability is unavailable, report
 the missing dependency and one installation/repair action.
+
+## Skill portfolio and discovery
+
+The active directory is the complete nine-skill product. Every active directory
+uses the `nobrainer-` prefix and must own a recurring cross-project boundary;
+stack-, account-, client- and task-specific helpers stay out. Do not promote a
+skill because it is popular or already exists. The active decisions and
+retirement tests live in `docs/SKILL_CURATION.md`.
+
+Do not add an always-installed wrapper for community discovery. Ultra may use
+the official `skills` CLI only after the curated suite and first-party
+capabilities leave a real gap. External skills are untrusted: inspect the exact
+source/ref, instructions, scripts, permissions, network/credential behavior,
+trigger overlap and rollback. Persistent/global installation or script execution
+requires owner approval.
 
 ## Browser evidence boundary
 
@@ -199,6 +214,7 @@ Required baseline commands:
 python3 scripts/validate_skills.py
 python3 scripts/validate_skills.py --suite
 python3 -m unittest discover -s tests -v
+gitleaks git --pre-commit --staged --redact --no-banner --ignore-gitleaks-allow
 ```
 
 Run every changed skill's scripts or syntax checks and the relevant client

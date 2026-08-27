@@ -19,41 +19,50 @@ SUITE = {
     "nobrainer-ultra": "nb-ultra",
     "nobrainer-sessions": "nb-sessions",
     "nobrainer-spec-driven-development": "nb-sdd",
+    "nobrainer-wiki": "nb-wiki",
+    "nobrainer-browser": "nb-browser",
+    "nobrainer-autoimprove": "nb-autoimprove",
     "nobrainer-decide": "nb-decide",
     "nobrainer-rca": "nb-rca",
-    "nobrainer-autoimprove": "nb-autoimprove",
-    "nobrainer-wiki": "nb-wiki",
-    "nobrainer-wiki-add": "nb-wiki-add",
-    "nobrainer-wiki-get": "nb-wiki-get",
-    "nobrainer-wiki-tidy": "nb-wiki-tidy",
+    "nobrainer-review": "nb-review",
 }
 
 LEGACY = {
-    "deep-rca",
-    "karpathy-auto-improver",
-    "llm-wiki",
-    "nobrainer-autopilot",
-    "nobrainer-continuous-improvement",
-    "nobrainer-memory",
-    "nobrainer-starter",
-    "nobrainer-team-builder",
-    "nobrainer-ultracode-workflow",
-    "wiki-add",
-    "wiki-get",
-    "wiki-tidy",
-}
-
-ACTIVE = set(SUITE) | {
+    "add-gitleaks",
+    "agent-browser",
     "agents-restraint",
     "codex-in-claude-code",
     "deep-audit",
     "deep-autoreview",
     "deep-bugs-finder",
-    "nobrainer-browser",
+    "deep-decide",
+    "deep-rca",
+    "karpathy-auto-improver",
+    "karpathy-llm-wiki",
+    "llm-wiki",
+    "nb-add",
+    "nb-get",
+    "nb-tidy",
+    "nobrainer-autopilot",
+    "nobrainer-continuous-improvement",
+    "nobrainer-memory",
+    "nobrainer-memory-memsearch",
     "nobrainer-fast-audit",
     "nobrainer-npm-secure",
     "nobrainer-reddit",
+    "nobrainer-starter",
+    "nobrainer-team-builder",
+    "nobrainer-ultracode-workflow",
+    "nobrainer-wiki-add",
+    "nobrainer-wiki-get",
+    "nobrainer-wiki-tidy",
+    "playwright-cli",
+    "wiki-add",
+    "wiki-get",
+    "wiki-tidy",
 }
+
+ACTIVE = set(SUITE)
 
 PUBLIC_FORBIDDEN = (
     "/Users/",
@@ -70,16 +79,15 @@ PUBLIC_TEXT_SUFFIXES = {
     ".py",
     ".sh",
     ".svg",
+    ".toml",
     ".yaml",
     ".yml",
 }
-PUBLIC_EXTENSIONLESS_FILES = {
-    ROOT / "skills" / "deep-autoreview" / "scripts" / "autoreview",
-    ROOT / "skills" / "deep-autoreview" / "scripts" / "test-review-harness",
-    ROOT / "skills" / "deep-bugs-finder" / "scripts" / "bug-hunt",
-}
+PUBLIC_EXTENSIONLESS_FILES: set[Path] = set()
 PUBLIC_ROOT_FILES = (
+    ROOT / ".gitleaks.toml",
     ROOT / ".gitignore",
+    ROOT / ".pre-commit-config.yaml",
     ROOT / "README.md",
     ROOT / "AGENTS.md",
     ROOT / "CLAUDE.md",
@@ -90,7 +98,6 @@ PUBLIC_ROOT_FILES = (
     ROOT / "package.json",
 )
 PUBLIC_ROOT_DIRS = (
-    ROOT / "archive",
     ROOT / "docs",
     ROOT / "assets",
     ROOT / ".agents",
@@ -273,7 +280,6 @@ def validate(suite_only: bool) -> list[str]:
         if (
             path.suffix.lower() == ".md"
             and path.name != "SKILL.md"
-            and not path.is_relative_to(ROOT / "archive")
         ):
             errors.extend(relative_link_errors(path, text))
 

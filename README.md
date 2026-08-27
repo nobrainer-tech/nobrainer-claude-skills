@@ -64,23 +64,26 @@ DRIFT_CHECK -> BUDDY -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT
 - Merge, deploy, publishing, spending, credentials, destructive actions and
   production mutation remain owner gates.
 
-## Core workflow suite
+## Nine skills, no filler
 
 Aliases are trigger phrases in each description; they are not duplicate skill
-directories.
+directories. The installer adds the complete curated set because every active
+skill has a distinct role in normal delivery.
 
 | Skill | Alias | Responsibility |
 |---|---|---|
 | [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-ultra` | End-to-end lifecycle, drift reconciliation, requirements, routing, guarded autonomy and final audit |
 | [`nobrainer-sessions`](skills/nobrainer-sessions/) | `nb-sessions` | Visible named sessions, exact identity, checkout/lease ownership, audited handoff and recovery |
 | [`nobrainer-spec-driven-development`](skills/nobrainer-spec-driven-development/) | `nb-sdd` | Durable specification, acceptance ledger, change control and rollback for work that justifies SDD |
+| [`nobrainer-wiki`](skills/nobrainer-wiki/) | `nb-wiki` | One LLM-wiki owner with explicit setup, read-only query, durable capture and audit/apply modes |
+| [`nobrainer-browser`](skills/nobrainer-browser/) | `nb-browser` | Playwright-first rendered UI inspection, approved session attach, tests and trace evidence |
+| [`nobrainer-autoimprove`](skills/nobrainer-autoimprove/) | `nb-autoimprove` | Baseline/variant/eval/holdout loop with promotion or rollback |
 | [`nobrainer-decide`](skills/nobrainer-decide/) | `nb-decide` | Evidence-based option generation, scorecard, blind attack, cold review and one decision |
 | [`nobrainer-rca`](skills/nobrainer-rca/) | `nb-rca` | Adaptive, read-only root-cause analysis with a continuous evidence chain |
-| [`nobrainer-autoimprove`](skills/nobrainer-autoimprove/) | `nb-autoimprove` | Baseline/variant/eval/holdout loop with promotion or rollback |
-| [`nobrainer-wiki`](skills/nobrainer-wiki/) | `nb-wiki` | Decide, set up and govern a durable Markdown knowledge base |
-| [`nobrainer-wiki-add`](skills/nobrainer-wiki-add/) | `nb-wiki-add` | Classified, sanitized and cited ingestion/promotion |
-| [`nobrainer-wiki-get`](skills/nobrainer-wiki-get/) | `nb-wiki-get` | Read-only query with provenance, freshness, contradictions and gaps |
-| [`nobrainer-wiki-tidy`](skills/nobrainer-wiki-tidy/) | `nb-wiki-tidy` | Audit-first maintenance with deterministic apply gates |
+| [`nobrainer-review`](skills/nobrainer-review/) | `nb-review` | Acceptance trace, adversarial bug search, verified findings and pre-merge/release close gates without review slop |
+
+The rationale and retirement rules for every active skill are recorded in the
+[skill curation audit](docs/SKILL_CURATION.md).
 
 ## Compatibility and proof
 
@@ -111,8 +114,8 @@ skills/              canonical portable skills
 .github/             Copilot repository instructions
 ```
 
-Archived predecessors remain outside `skills/`, so plugin discovery and the
-installer cannot load them.
+Retired predecessors exist only in Git history, so plugin discovery and the
+installer expose only the nine canonical skills.
 
 ## Superpowers: complementary, not copied
 
@@ -120,27 +123,36 @@ NoBrainer Tech Skills owns lifecycle, visible sessions, owner gates,
 specification contracts, decision/RCA records, measurable improvement and wiki
 knowledge. [Official Superpowers](https://github.com/obra/superpowers) owns
 implementation methods such as brainstorming, planning, worktrees, TDD,
-systematic debugging, review and verification.
+systematic debugging, requesting/receiving implementation review and
+verification. `nobrainer-review` owns the final evidence-gated finding contract,
+not another implementation framework.
 
 Install Superpowers separately for each client. This repository deliberately
 does not vendor or rename its skills, preventing duplicate triggers and stale
 private wrappers.
 
-## Additional active skills
+## Specialist discovery without permanent bloat
 
-The curated non-core tools remain available from the same canonical directory:
+NoBrainer Ultra first checks this complete curated set and the task's native
+tool. Only a real capability gap may route to the open
+[`skills` CLI](https://github.com/vercel-labs/skills):
 
-| Area | Skills |
-|---|---|
-| Evidence and review | [`deep-audit`](skills/deep-audit/), [`deep-autoreview`](skills/deep-autoreview/), [`deep-bugs-finder`](skills/deep-bugs-finder/) |
-| Browser work | [`nobrainer-browser`](skills/nobrainer-browser/) — thin policy around the current Playwright CLI: approved attach, deep inspection, tests and trace analysis; no extra MCP/plugin stack by default |
-| Security | [`nobrainer-fast-audit`](skills/nobrainer-fast-audit/), [`nobrainer-npm-secure`](skills/nobrainer-npm-secure/) |
-| Agent restraint | [`agents-restraint`](skills/agents-restraint/) |
-| Integrations | [`codex-in-claude-code`](skills/codex-in-claude-code/), [`nobrainer-reddit`](skills/nobrainer-reddit/) |
+```bash
+npx skills find "$SKILL_QUERY"
+npx skills use "$SKILL_SOURCE@$SKILL_NAME"
+```
 
-The retired monolithic autopilot, fixed ten-agent RCA, duplicated wiki/memory,
-401-agent team builder, old Ultracode and old Karpathy wrapper are absent from
-the active tree and remain recoverable from Git history.
+`skills use` is preferred for one-off evaluation because it does not make a
+permanent installation. External skills are untrusted input: inspect the exact
+source/ref, `SKILL.md`, scripts, license, write scope and secret/network behavior
+before use. Persistent or global installation remains an explicit owner gate.
+There is deliberately no separate NoBrainer “find skills” wrapper; discovery is
+a fallback inside `nobrainer-ultra`, not another always-installed trigger.
+
+The retired monolithic autopilot, fixed ten-agent RCA, duplicated wiki helpers,
+custom multi-review harnesses, client/account integrations, broad security
+catalog, 401-agent team builder, old Ultracode and old Karpathy wrappers are
+absent from the active tree and remain recoverable from Git history.
 
 ## Installation
 
@@ -155,12 +167,16 @@ git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
+python3 scripts/install_skills.py --client codex --apply
 ```
 
-The installer writes nothing until `--apply`, refuses to overwrite existing
-targets and supports Claude, Codex, OpenCode, Copilot and the shared
+The installer writes all nine curated skills, and nothing else, unless repeated
+`--skill NAME` flags request an exact subset. It writes nothing until `--apply`,
+refuses to overwrite existing targets and supports Claude, Codex, OpenCode,
+Copilot and the shared
 `~/.agents/skills` convention. Cursor uses the plugin manifest. Full commands,
-Superpowers setup and rollback are in [docs/INSTALL.md](docs/INSTALL.md).
+Superpowers setup, dynamic discovery and rollback are in
+[docs/INSTALL.md](docs/INSTALL.md).
 
 ## Quality gates
 

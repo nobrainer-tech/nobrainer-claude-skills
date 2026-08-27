@@ -41,6 +41,7 @@ not ordinary prose.
 python3 scripts/validate_skills.py
 python3 scripts/validate_skills.py --suite
 python3 -m unittest discover -s tests -v
+gitleaks git --pre-commit --staged --redact --no-banner --ignore-gitleaks-allow
 ```
 
 Run every changed helper with its actual interpreter. Scan for secrets and

@@ -19,8 +19,13 @@ python3 scripts/install_skills.py --client codex
 python3 scripts/install_skills.py --client codex --apply
 ```
 
-Use `--mode copy` if symlinks are unsuitable. Repeat `--skill NAME` to install a
+The default installs the complete nine-skill curated set. Use `--mode copy` if
+symlinks are unsuitable. Repeat `--skill NAME` only for a deliberate exact
 subset. On error, entries created by that run are rolled back.
+
+Before any write, the installer verifies that the checkout contains exactly the
+nine reviewed skill entrypoints. A missing or additional `SKILL.md` is inventory
+drift and blocks both default and subset installation until it is reviewed.
 
 ## Claude Code
 
@@ -94,6 +99,32 @@ Install the current official release separately for every harness. Do not copy
 its skills into this repository and do not keep an older local wrapper with the
 same names. See the official project:
 https://github.com/obra/superpowers
+
+## Dynamic specialist discovery
+
+Do not permanently install a broad community pack pre-emptively. When a task has
+a real capability gap:
+
+1. Check the installed NoBrainer set.
+2. Prefer the task's maintained first-party CLI, API or existing project tool.
+3. Search the open skills ecosystem only if a reusable instruction set would
+   materially help:
+
+   ```bash
+   npx skills find "$SKILL_QUERY"
+   npx skills use "$SKILL_SOURCE@$SKILL_NAME"
+   ```
+
+The official `skills` CLI supports discovery and one-off `use` without a
+permanent install. It also collects anonymous usage telemetry by default, so do
+not invoke it where network or telemetry policy forbids that behavior.
+
+Treat every external skill as untrusted input. Before use, inspect the exact
+repository/ref, `SKILL.md`, companion scripts, license, requested permissions,
+network/credential behavior and overlaps with installed triggers. Prefer an
+immutable source ref. For a persistent install, use a reviewed project-local
+source and require owner approval; do not silently add it globally or execute
+its scripts. Record source/ref, reason, checks and rollback.
 
 ## Verification and rollback
 

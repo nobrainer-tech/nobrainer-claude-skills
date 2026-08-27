@@ -1,8 +1,8 @@
 # NoBrainer Tech Skills repository instructions for Copilot
 
-The canonical Agent Skills are under `skills/`; predecessors outside that
-directory are not active. Read the relevant `skills/<name>/SKILL.md` before
-changing a skill.
+The nine canonical Agent Skills are under `skills/`; retired predecessors exist
+only in Git history. Read the relevant `skills/<name>/SKILL.md` before changing
+a skill.
 
 For a non-trivial delivery workflow start with `nobrainer-ultra`. Use
 `nobrainer-sessions` only when visible handoff, isolation, resume, or real

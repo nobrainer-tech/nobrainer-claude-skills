@@ -69,6 +69,12 @@ client's native install mechanism. Detect official Superpowers separately,
 install or guide its native installation only when that setup is in scope, and
 verify actual discovery. Never vendor or silently fork it.
 
+Keep the installed surface to the curated NoBrainer set. If a task needs a
+specialist outside those nine boundaries, follow the reviewed external-skill
+ladder in `references/routing.md`. Do not permanently or globally install an
+external skill, execute its companion scripts, or accept its requested
+credentials merely because a search result ranks highly.
+
 ### 4. `READY_GATE`
 
 Enter `READY` only when the goal, current state, acceptance, next work unit,
@@ -76,6 +82,11 @@ write scope, dependencies, verifier, rollback, owner gates, and session mode are
 explicit. Required capabilities must pass readback. Unknown identity, dirty
 scope, stale inputs, lease conflict, or ambiguous irreversible effects block
 execution.
+
+Before implementation, remove process and design that has not earned its cost:
+reuse maintained project capabilities, choose the smallest complete solution,
+avoid speculative abstraction and keep one owner for each mutable fact. This is
+an anti-slop gate, not permission to skip acceptance or future-proof a guess.
 
 ### 5. `AUTOPILOT`
 
@@ -101,8 +112,8 @@ default. Classify new information after verification:
 
 - discard transient task state;
 - route an explicit durable preference, decision or verified fact to
-  `nobrainer-wiki-add` only when persistence is authorized and appropriately
-  classified;
+  `nobrainer-wiki` mode `ADD` only when persistence is authorized and
+  appropriately classified;
 - route a repeatable skill, prompt or instruction gap to
   `nobrainer-autoimprove` with the failing scenario and a measurable eval;
 - update project instructions only when a durable project rule is missing, with

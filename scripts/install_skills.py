@@ -4,9 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import os
 import shutil
+import stat
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -20,64 +23,242 @@ CLIENT_DESTINATIONS = {
     "agents": Path.home() / ".agents" / "skills",
 }
 
-# Root-level names from the previous public layout. A legacy symlink is
+CURATED_SKILLS = frozenset(
+    {
+        "nobrainer-autoimprove",
+        "nobrainer-browser",
+        "nobrainer-decide",
+        "nobrainer-rca",
+        "nobrainer-review",
+        "nobrainer-sessions",
+        "nobrainer-spec-driven-development",
+        "nobrainer-ultra",
+        "nobrainer-wiki",
+    }
+)
+
+# Names retired from the previous public layouts. A legacy symlink is
 # migratable only when its name and target both match this table and this
 # checkout; unknown targets remain conflicts and are never touched.
 LEGACY_TO_CANONICAL = {
+    "add-gitleaks": "nobrainer-review",
     "agent-browser": "nobrainer-browser",
-    "agents-restraint": "agents-restraint",
-    "codex-in-claude-code": "codex-in-claude-code",
-    "deep-audit": "deep-audit",
-    "deep-autoreview": "deep-autoreview",
-    "deep-bugs-finder": "deep-bugs-finder",
+    "agents-restraint": "nobrainer-ultra",
+    "codex-in-claude-code": "nobrainer-ultra",
+    "deep-audit": "nobrainer-review",
+    "deep-autoreview": "nobrainer-review",
+    "deep-bugs-finder": "nobrainer-review",
+    "deep-decide": "nobrainer-decide",
     "deep-rca": "nobrainer-rca",
     "karpathy-auto-improver": "nobrainer-autoimprove",
+    "karpathy-llm-wiki": "nobrainer-wiki",
     "llm-wiki": "nobrainer-wiki",
+    "nb-add": "nobrainer-wiki",
+    "nb-get": "nobrainer-wiki",
+    "nb-tidy": "nobrainer-wiki",
     "nobrainer-autopilot": "nobrainer-ultra",
     "nobrainer-browser": "nobrainer-browser",
     "nobrainer-continuous-improvement": "nobrainer-autoimprove",
-    "nobrainer-memory": "nobrainer-wiki",
     "nobrainer-starter": "nobrainer-ultra",
+    "nobrainer-fast-audit": "nobrainer-review",
+    "nobrainer-memory": "nobrainer-wiki",
+    "nobrainer-memory-memsearch": "nobrainer-wiki",
+    "nobrainer-npm-secure": "nobrainer-review",
+    "nobrainer-reddit": "nobrainer-ultra",
+    "nobrainer-team-builder": "nobrainer-sessions",
     "nobrainer-ultracode-workflow": "nobrainer-ultra",
-    "nobrainer-fast-audit": "nobrainer-fast-audit",
-    "nobrainer-npm-secure": "nobrainer-npm-secure",
-    "nobrainer-reddit": "nobrainer-reddit",
-    "wiki-add": "nobrainer-wiki-add",
-    "wiki-get": "nobrainer-wiki-get",
-    "wiki-tidy": "nobrainer-wiki-tidy",
+    "nobrainer-wiki-add": "nobrainer-wiki",
+    "nobrainer-wiki-get": "nobrainer-wiki",
+    "nobrainer-wiki-tidy": "nobrainer-wiki",
+    "playwright-cli": "nobrainer-browser",
+    "wiki-add": "nobrainer-wiki",
+    "wiki-get": "nobrainer-wiki",
+    "wiki-tidy": "nobrainer-wiki",
 }
 
 
-def resolved_link_target(target: Path) -> Path | None:
-    """Resolve a symlink target lexically, including a broken target."""
+EntryFingerprint = tuple[int, int, int, str | None]
 
-    if not target.is_symlink():
-        return None
+
+def entry_fingerprint(target: Path) -> EntryFingerprint | None:
+    """Fingerprint one directory entry without following a symlink."""
+
     try:
-        linked = Path(os.readlink(target))
+        metadata = target.lstat()
+        linked = os.readlink(target) if stat.S_ISLNK(metadata.st_mode) else None
     except OSError:
         return None
-    if not linked.is_absolute():
-        linked = target.parent / linked
-    return linked.resolve(strict=False)
+    return metadata.st_dev, metadata.st_ino, metadata.st_mode, linked
 
 
 def is_exact_legacy_link(target: Path, legacy_name: str) -> bool:
     """Return whether target is the known stale link owned by this checkout."""
 
-    resolved = resolved_link_target(target)
-    return resolved is not None and resolved == (ROOT / legacy_name).resolve(strict=False)
+    return legacy_link_snapshot(target, legacy_name) is not None
 
 
-def legacy_source_for(target: Path, canonical: Path) -> Path | None:
-    """Return the same-name root source this canonical target used to reference."""
+def legacy_link_snapshot(
+    target: Path, legacy_name: str
+) -> EntryFingerprint | None:
+    """Verify and fingerprint the same legacy symlink directory entry."""
 
-    old_source = (ROOT / canonical.name).resolve(strict=False)
-    if is_exact_legacy_link(target, canonical.name) and old_source != canonical.resolve(
-        strict=False
-    ):
-        return old_source
+    try:
+        before = target.lstat()
+        if not stat.S_ISLNK(before.st_mode):
+            return None
+        linked = os.readlink(target)
+        after = target.lstat()
+    except OSError:
+        return None
+
+    before_id = before.st_dev, before.st_ino, before.st_mode
+    after_id = after.st_dev, after.st_ino, after.st_mode
+    if before_id != after_id:
+        return None
+
+    resolved = Path(linked)
+    if not resolved.is_absolute():
+        resolved = target.parent / resolved
+    known_sources = {
+        (ROOT / legacy_name).resolve(strict=False),
+        (SKILLS / legacy_name).resolve(strict=False),
+    }
+    if resolved.resolve(strict=False) not in known_sources:
+        return None
+    return before_id[0], before_id[1], before_id[2], linked
+
+
+def legacy_name_for(target: Path, canonical: Path) -> str | None:
+    """Return the known root-level predecessor referenced by a canonical target."""
+
+    candidates = [canonical.name]
+    candidates.extend(
+        legacy_name
+        for legacy_name, canonical_name in sorted(LEGACY_TO_CANONICAL.items())
+        if canonical_name == canonical.name and legacy_name != canonical.name
+    )
+    canonical_source = canonical.resolve(strict=False)
+    for legacy_name in candidates:
+        old_source = (ROOT / legacy_name).resolve(strict=False)
+        if old_source != canonical_source and is_exact_legacy_link(
+            target, legacy_name
+        ):
+            return legacy_name
     return None
+
+
+def claim_legacy_link(target: Path, legacy_name: str) -> Path:
+    """Atomically move a candidate aside, then verify ownership before deletion."""
+
+    expected = legacy_link_snapshot(target, legacy_name)
+    if expected is None:
+        raise RuntimeError(f"legacy link changed before claim: {target}")
+
+    claim_dir = Path(
+        tempfile.mkdtemp(prefix=".nobrainer-migration-", dir=target.parent)
+    )
+    claim = claim_dir / target.name
+    try:
+        target.rename(claim)
+    except OSError as exc:
+        claim_dir.rmdir()
+        raise RuntimeError(f"legacy link changed after preflight: {target}") from exc
+
+    claimed = entry_fingerprint(claim)
+
+    # Compare the moved directory entry itself. Re-resolving a relative link
+    # from claim.parent would change its base and reject a valid legacy link.
+    if claimed == expected:
+        return claim
+
+    try:
+        restore_claim(target, claim)
+    except RuntimeError as exc:
+        raise RuntimeError(
+            f"legacy link changed after preflight; {exc}"
+        ) from exc
+    raise RuntimeError(
+        f"legacy link changed after preflight; replacement restored at {target}"
+    )
+
+
+def atomic_rename_no_replace(source: Path, target: Path) -> None:
+    """Rename one entry only when target is absent, using the native primitive."""
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    source_bytes = os.fsencode(source)
+    target_bytes = os.fsencode(target)
+
+    if sys.platform == "darwin":
+        renamex = getattr(libc, "renamex_np", None)
+        if renamex is None:
+            raise RuntimeError("atomic no-replace rename is unavailable")
+        renamex.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        renamex.restype = ctypes.c_int
+        result = renamex(source_bytes, target_bytes, 0x00000004)  # RENAME_EXCL
+    elif sys.platform.startswith("linux"):
+        renameat2 = getattr(libc, "renameat2", None)
+        if renameat2 is None:
+            raise RuntimeError("atomic no-replace rename is unavailable")
+        renameat2.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        ]
+        renameat2.restype = ctypes.c_int
+        result = renameat2(
+            -100, source_bytes, -100, target_bytes, 0x00000001
+        )  # AT_FDCWD, RENAME_NOREPLACE
+    elif os.name == "nt":
+        # Windows os.rename already refuses to replace an existing target.
+        os.rename(source, target)
+        return
+    else:
+        raise RuntimeError("atomic no-replace rename is unavailable")
+
+    if result != 0:
+        error_number = ctypes.get_errno()
+        raise OSError(error_number, os.strerror(error_number), str(target))
+
+
+def restore_claim(target: Path, claim: Path) -> None:
+    """Restore a claimed entry atomically without replacing a new target."""
+
+    fingerprint = entry_fingerprint(claim)
+    if fingerprint is None:
+        raise RuntimeError(f"missing or unreadable claim preserved at {claim}")
+    try:
+        if stat.S_ISLNK(fingerprint[2]):
+            previous_link = fingerprint[3]
+            if previous_link is None:
+                raise RuntimeError(f"unreadable symlink claim preserved at {claim}")
+            # os.symlink is an atomic create and fails with EEXIST if another
+            # process installed a replacement.
+            os.symlink(previous_link, target, target_is_directory=True)
+        else:
+            atomic_rename_no_replace(claim, target)
+    except OSError as exc:
+        raise RuntimeError(
+            f"replacement preserved at {claim}; restore blocked by {target}"
+        ) from exc
+    except RuntimeError as exc:
+        raise RuntimeError(f"replacement preserved at {claim}; {exc}") from exc
+
+    if stat.S_ISLNK(fingerprint[2]):
+        try:
+            claim.unlink()
+        except OSError as exc:
+            raise RuntimeError(
+                f"replacement restored at {target}; duplicate claim remains at {claim}"
+            ) from exc
+    try:
+        claim.parent.rmdir()
+    except OSError as exc:
+        raise RuntimeError(
+            f"replacement restored at {target}; claim directory remains at {claim.parent}"
+        ) from exc
 
 
 def available_skills() -> dict[str, Path]:
@@ -97,8 +278,9 @@ def existing_state(target: Path, source: Path, mode: str) -> str:
             ):
                 return "current"
         except FileNotFoundError:
-            if legacy_source_for(target, source) is not None:
-                return "legacy"
+            pass
+        if legacy_name_for(target, source) is not None:
+            return "legacy"
     return "conflict"
 
 
@@ -117,7 +299,7 @@ def parse_args() -> argparse.Namespace:
         "--skill",
         action="append",
         dest="skills",
-        help="Install only this skill; repeat for several. Default: all active skills.",
+        help="Install only this skill; repeat for several. Default: all curated skills.",
     )
     parser.add_argument(
         "--apply",
@@ -138,8 +320,18 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     catalogue = available_skills()
-    requested = args.skills or sorted(catalogue)
-    unknown = sorted(set(requested) - set(catalogue))
+    actual_inventory = set(catalogue)
+    if actual_inventory != CURATED_SKILLS:
+        missing = sorted(CURATED_SKILLS - actual_inventory)
+        extra = sorted(actual_inventory - CURATED_SKILLS)
+        print(
+            f"ERROR: curated skill inventory drift: missing={missing}, extra={extra}",
+            file=sys.stderr,
+        )
+        return 2
+
+    requested = sorted(set(args.skills)) if args.skills else sorted(CURATED_SKILLS)
+    unknown = sorted(set(requested) - CURATED_SKILLS)
     if unknown:
         print(f"ERROR: unknown active skill(s): {', '.join(unknown)}", file=sys.stderr)
         return 2
@@ -219,26 +411,23 @@ def main() -> int:
 
     destination.mkdir(parents=True, exist_ok=True)
     created: list[Path] = []
-    migrated: list[tuple[Path, str]] = []
+    migrated: list[tuple[Path, Path, str]] = []
     try:
         for legacy_name, _, target, state in alias_plan:
             if state != "legacy":
                 continue
-            if not is_exact_legacy_link(target, legacy_name):
-                raise RuntimeError(f"legacy alias changed after preflight: {target}")
-            previous_link = os.readlink(target)
-            target.unlink()
-            migrated.append((target, previous_link))
+            claim = claim_legacy_link(target, legacy_name)
+            migrated.append((target, claim, legacy_name))
 
         for _, source, target, state in plan:
             if state == "current":
                 continue
             if state == "legacy":
-                if legacy_source_for(target, source) is None:
+                legacy_name = legacy_name_for(target, source)
+                if legacy_name is None:
                     raise RuntimeError(f"legacy target changed after preflight: {target}")
-                previous_link = os.readlink(target)
-                target.unlink()
-                migrated.append((target, previous_link))
+                claim = claim_legacy_link(target, legacy_name)
+                migrated.append((target, claim, legacy_name))
             if args.mode == "symlink":
                 os.symlink(source, target, target_is_directory=True)
                 created.append(target)
@@ -268,16 +457,13 @@ def main() -> int:
                     shutil.rmtree(target)
             except OSError as rollback_exc:
                 rollback_errors.append(f"{target}: {rollback_exc}")
-        for target, previous_link in reversed(migrated):
+        for target, claim, _ in reversed(migrated):
             try:
-                if target.exists() or target.is_symlink():
-                    rollback_errors.append(
-                        f"{target} (legacy restore blocked by a new target)"
-                    )
-                else:
-                    os.symlink(previous_link, target, target_is_directory=True)
-            except OSError as rollback_exc:
-                rollback_errors.append(f"{target} (legacy restore): {rollback_exc}")
+                restore_claim(target, claim)
+            except (OSError, RuntimeError) as rollback_exc:
+                rollback_errors.append(
+                    f"{target} (legacy preserved at {claim}): {rollback_exc}"
+                )
         if rollback_errors:
             print(
                 "ERROR: installation failed and rollback was incomplete: "
@@ -287,6 +473,20 @@ def main() -> int:
         else:
             print(f"ERROR: installation rolled back: {exc}", file=sys.stderr)
         return 4
+
+    cleanup_errors: list[str] = []
+    for _, claim, _ in migrated:
+        try:
+            claim.unlink()
+            claim.parent.rmdir()
+        except OSError as cleanup_exc:
+            cleanup_errors.append(f"{claim}: {cleanup_exc}")
+    if cleanup_errors:
+        print(
+            "WARNING: install succeeded, but legacy migration backups remain: "
+            + "; ".join(cleanup_errors),
+            file=sys.stderr,
+        )
 
     print(
         f"OK: installed {len(created)} skill(s) for {args.client}; "

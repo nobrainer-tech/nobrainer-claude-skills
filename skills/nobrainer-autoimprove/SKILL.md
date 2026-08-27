@@ -27,7 +27,8 @@ system. Classify it first:
 
 - a task-local clarification changes only the current task;
 - an explicit durable preference, decision or verified fact may be captured
-  through `nobrainer-wiki-add` when its scope and confidentiality permit it;
+  through `nobrainer-wiki` mode `ADD` when its scope and confidentiality permit
+  it;
 - a repeatable behavior gap becomes a regression scenario for this skill;
 - a deterministic defect is fixed directly and covered by a test.
 

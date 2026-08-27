@@ -31,8 +31,9 @@ Smallest write-enabled reconciliation:
    Dry-run `scripts/install_skills.py` separately for `--client codex` and
    `--client claude`, review every target, then use `--apply` only if
    conflict-free.
-3. Preserve `AGENTS.md`. Add one short marked `NB-ULTRA` routing block only if
-   equivalent workflow and owner gates are missing.
+3. Preserve `AGENTS.md`. Add one short `NOBRAINER-WORKFLOW` block using the
+   canonical START/END markers only if equivalent workflow and owner gates are
+   missing.
 4. If absent, create a minimal `CLAUDE.md` containing `@AGENTS.md`; Claude Code
    officially recommends this rather than duplicating existing rules.
    [Claude Code project-instruction documentation](https://code.claude.com/docs/en/memory)

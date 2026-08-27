@@ -28,6 +28,31 @@ short: point non-trivial work to `nobrainer-ultra`, state owner gates and name
 the repository's canonical spec/state/test locations. Link to project docs;
 never paste the complete skill protocols into every repository.
 
+Use this as the maximum generic block, then remove lines already owned by the
+project and add only its real canonical paths/commands:
+
+```markdown
+<!-- NOBRAINER-WORKFLOW:START -->
+## NoBrainer delivery
+
+- Route non-trivial work through `nobrainer-ultra`; keep simple tasks simple.
+- Read the actual checkout, instructions and tests before planning or writing.
+- Prefer the smallest complete change; no speculative abstraction or duplicate
+  tool/skill owner.
+- Use one writer per shared mutable state and audit delegated results before
+  advancing.
+- Verify the target workflow. A timeout, partial output or exit code alone is
+  not success.
+- Merge, deploy, publish, spend, delete, credentials and production mutation
+  remain explicit owner gates.
+- Persist only durable sourced learning; never secrets or transient task state.
+<!-- NOBRAINER-WORKFLOW:END -->
+```
+
+Before replacing a managed block, require exactly one START and one END in the
+correct order and preserve surrounding bytes. If markers are malformed, stop
+for repair rather than guessing the boundary.
+
 If multiple instruction files must carry identical content, compare them byte
 for byte after the change or document why their scopes differ.
 
@@ -38,9 +63,19 @@ local checkout, dry-run `scripts/install_skills.py`, review every target, then
 apply. Existing different targets are conflicts, not overwrite candidates.
 Read back the loaded skill list after restarting the client.
 
+Install the complete curated nine-skill set, or use repeated `--skill` flags only
+when the owner deliberately wants an exact subset. Do not copy retired wrappers
+or client/account-specific helpers back into active discovery.
+
 An install exit code or files on disk prove installation only; they do not prove
 automatic routing. Use the clean-session acceptance protocol in
 `docs/COMPATIBILITY.md` when that repository document is available.
+
+If the reviewed NoBrainer set and existing project tools still leave a capability
+gap, use the acquisition ladder in `routing.md`. Search and evaluate
+an external skill before installation, pin its source when possible, and require
+an owner gate for persistent or global installation. Never treat a `skills.sh`
+ranking as a security review.
 
 ## 4. Reconcile official Superpowers
 

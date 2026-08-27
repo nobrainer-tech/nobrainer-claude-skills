@@ -1,0 +1,4 @@
+# Extend the maintained built-in ruleset. Add only narrow, reviewed false-positive
+# exceptions; never allowlist whole documentation, test or fixture trees.
+[extend]
+useDefault = true

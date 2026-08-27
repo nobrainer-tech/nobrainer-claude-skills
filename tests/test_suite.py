@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts import validate_skills
+from scripts import install_skills, validate_skills
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,41 +17,50 @@ CANONICAL = {
     "nobrainer-ultra": "nb-ultra",
     "nobrainer-sessions": "nb-sessions",
     "nobrainer-spec-driven-development": "nb-sdd",
+    "nobrainer-wiki": "nb-wiki",
+    "nobrainer-browser": "nb-browser",
+    "nobrainer-autoimprove": "nb-autoimprove",
     "nobrainer-decide": "nb-decide",
     "nobrainer-rca": "nb-rca",
-    "nobrainer-autoimprove": "nb-autoimprove",
-    "nobrainer-wiki": "nb-wiki",
-    "nobrainer-wiki-add": "nb-wiki-add",
-    "nobrainer-wiki-get": "nb-wiki-get",
-    "nobrainer-wiki-tidy": "nb-wiki-tidy",
+    "nobrainer-review": "nb-review",
 }
 
 LEGACY = {
-    "deep-rca",
-    "karpathy-auto-improver",
-    "llm-wiki",
-    "nobrainer-autopilot",
-    "nobrainer-continuous-improvement",
-    "nobrainer-memory",
-    "nobrainer-starter",
-    "nobrainer-team-builder",
-    "nobrainer-ultracode-workflow",
-    "wiki-add",
-    "wiki-get",
-    "wiki-tidy",
-}
-
-ACTIVE = set(CANONICAL) | {
+    "add-gitleaks",
+    "agent-browser",
     "agents-restraint",
     "codex-in-claude-code",
     "deep-audit",
     "deep-autoreview",
     "deep-bugs-finder",
-    "nobrainer-browser",
+    "deep-decide",
+    "deep-rca",
+    "karpathy-auto-improver",
+    "karpathy-llm-wiki",
+    "llm-wiki",
+    "nb-add",
+    "nb-get",
+    "nb-tidy",
+    "nobrainer-autopilot",
+    "nobrainer-continuous-improvement",
+    "nobrainer-memory",
+    "nobrainer-memory-memsearch",
     "nobrainer-fast-audit",
     "nobrainer-npm-secure",
     "nobrainer-reddit",
+    "nobrainer-starter",
+    "nobrainer-team-builder",
+    "nobrainer-ultracode-workflow",
+    "nobrainer-wiki-add",
+    "nobrainer-wiki-get",
+    "nobrainer-wiki-tidy",
+    "playwright-cli",
+    "wiki-add",
+    "wiki-get",
+    "wiki-tidy",
 }
+
+ACTIVE = set(CANONICAL)
 
 VERSION_MANIFESTS = (
     "package.json",
@@ -96,6 +105,15 @@ class SuiteTests(unittest.TestCase):
     def test_curated_active_inventory(self) -> None:
         actual = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
         self.assertEqual(ACTIVE, actual)
+
+    def test_repository_contains_only_the_curated_skill_tree(self) -> None:
+        actual = {
+            path.relative_to(ROOT)
+            for path in ROOT.rglob("SKILL.md")
+            if ".git" not in path.parts
+        }
+        expected = {Path("skills") / name / "SKILL.md" for name in ACTIVE}
+        self.assertEqual(expected, actual)
 
     def test_all_active_frontmatter_is_portable(self) -> None:
         for skill in sorted(SKILLS.glob("*/SKILL.md")):
@@ -209,6 +227,17 @@ class SuiteTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertFalse((SKILLS / name / "SKILL.md").exists())
 
+    def test_installer_migrates_every_retired_name(self) -> None:
+        self.assertEqual(ACTIVE, set(install_skills.CURATED_SKILLS))
+        self.assertLessEqual(
+            validate_skills.LEGACY,
+            set(install_skills.LEGACY_TO_CANONICAL),
+        )
+        self.assertLessEqual(
+            set(install_skills.LEGACY_TO_CANONICAL.values()),
+            ACTIVE,
+        )
+
     def test_public_clean_suite(self) -> None:
         forbidden = (
             "/Users/",
@@ -301,6 +330,7 @@ class SuiteTests(unittest.TestCase):
             "SECURITY.md",
             "docs/COMPATIBILITY.md",
             "docs/TESTING.md",
+            "docs/SKILL_CURATION.md",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
             ".github/ISSUE_TEMPLATE/feature_request.md",
@@ -319,8 +349,9 @@ class SuiteTests(unittest.TestCase):
             "scripts/validate_skills.py --suite",
             "unittest discover",
             "py_compile",
-            "bash -n",
-            "shell: pwsh",
+            "GITLEAKS_VERSION: 8.30.1",
+            "GITLEAKS_SHA256:",
+            "--config .gitleaks.toml --redact --no-banner --ignore-gitleaks-allow",
             "timeout-minutes:",
             "persist-credentials: false",
         ):
@@ -361,33 +392,48 @@ class SuiteTests(unittest.TestCase):
             "https://nobrainer.tech/terms", interface["termsOfServiceURL"]
         )
 
-    def test_helper_paths_are_skill_relative(self) -> None:
-        autoreview = (SKILLS / "deep-autoreview" / "SKILL.md").read_text(encoding="utf-8")
-        bugs = (SKILLS / "deep-bugs-finder" / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("AUTOREVIEW_SKILL_DIR", autoreview)
-        self.assertNotIn("\nscripts/autoreview", autoreview)
-        self.assertIn("BUG_HUNT_SKILL_DIR", bugs)
-        self.assertNotIn("\nscripts/bug-hunt", bugs)
+    def test_review_has_one_evidence_gated_owner(self) -> None:
+        directory = SKILLS / "nobrainer-review"
+        text = (directory / "SKILL.md").read_text(encoding="utf-8")
+        self.assertEqual({"SKILL.md"}, {path.name for path in directory.iterdir()})
+        for term in (
+            "CLOSEOUT",
+            "BUG_HUNT",
+            "RELEASE_GATE",
+            "Finding gate",
+            "reachable input/state/sequence",
+            "PARTIAL",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("filter out speculative AI noise", text)
+        self.assertIn("Ordinary implementation-time", text)
+        self.assertIn("official Superpowers", text)
+        self.assertNotIn("asks for a code or change review", text)
+        self.assertNotIn("continue until dry", text.lower())
 
-    def test_autoreview_wrappers_require_python_three(self) -> None:
-        scripts = SKILLS / "deep-autoreview" / "scripts"
-        bash = (scripts / "test-review-harness").read_text(encoding="utf-8")
-        powershell = (scripts / "test-review-harness.ps1").read_text(encoding="utf-8")
-        self.assertIn("sys.version_info.major != 3", bash)
-        self.assertIn("Get-Command python3", powershell)
-        self.assertIn("sys.version_info.major != 3", powershell)
-
-    def test_overlapping_generic_triggers_have_one_owner(self) -> None:
-        audit = (SKILLS / "deep-audit" / "SKILL.md").read_text(encoding="utf-8")
-        codex_bridge = (SKILLS / "codex-in-claude-code" / "SKILL.md").read_text(
-            encoding="utf-8"
+    def test_opencode_guide_has_no_stale_package_pin(self) -> None:
+        text = (ROOT / ".opencode" / "INSTALL.md").read_text(encoding="utf-8")
+        self.assertIn("NB_REVIEWED_COMMIT_SHA", text)
+        self.assertNotIn(
+            "881bcafad8d1a7c2708b80186ef33400ac67f343",
+            text,
         )
-        wiki = parse_frontmatter(SKILLS / "nobrainer-wiki" / "SKILL.md")
-        wiki_tidy = parse_frontmatter(SKILLS / "nobrainer-wiki-tidy" / "SKILL.md")
-        self.assertNotIn('"find bugs"', audit)
-        self.assertIn("Use deep-autoreview for a generic closeout", codex_bridge)
-        self.assertNotIn("repair", wiki["description"].lower())
-        self.assertIn("repair", wiki_tidy["description"].lower())
+
+    def test_wiki_modes_have_one_owner(self) -> None:
+        text = (SKILLS / "nobrainer-wiki" / "SKILL.md").read_text(encoding="utf-8")
+        setup = (
+            SKILLS / "nobrainer-wiki" / "references" / "setup.md"
+        ).read_text(encoding="utf-8")
+        for mode in ("SETUP", "GET", "ADD", "TIDY_AUDIT", "TIDY_APPLY"):
+            self.assertIn(mode, text)
+        self.assertIn("One skill owns all wiki behavior", text)
+        self.assertIn("TIDY_AUDIT", setup)
+        for retired in (
+            "nobrainer-wiki-add",
+            "nobrainer-wiki-get",
+            "nobrainer-wiki-tidy",
+        ):
+            self.assertFalse((SKILLS / retired / "SKILL.md").exists())
 
     def test_repository_validator(self) -> None:
         result = subprocess.run(

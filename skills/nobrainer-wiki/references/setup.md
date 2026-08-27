@@ -60,8 +60,8 @@ instructions do not become a copy of the wiki protocol.
 Knowledge root: `WIKI_ROOT`. Rules: `WIKI_ROOT/WIKI.md`.
 - At session start, read `WIKI_ROOT/index.md`, then search only relevant pages.
 - Capture only durable facts in the current writer's inbox; never secrets.
-- "Save to wiki" routes to `nobrainer-wiki-add`; queries to
-  `nobrainer-wiki-get`; maintenance to `nobrainer-wiki-tidy`.
+- Use `nobrainer-wiki` mode `GET` for queries, `ADD` for explicit persistence,
+  and `TIDY_AUDIT` before any maintenance write.
 - Runtime state, leases and transient blockers stay in their canonical ledgers.
 <!-- NB-WIKI:END -->
 ```

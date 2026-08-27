@@ -11,18 +11,18 @@ explicit skills path instead.
 ```json
 {
   "plugin": [
-    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#881bcafad8d1a7c2708b80186ef33400ac67f343"
+    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#NB_REVIEWED_COMMIT_SHA"
   ]
 }
 ```
 
-The example is intentionally pinned to a full commit. After a reviewed
-release, update the ref and record the new SHA in the release notes; do not
-silently follow `main`.
+`NB_REVIEWED_COMMIT_SHA` is an intentionally non-runnable placeholder. Replace
+it with the full SHA of the exact reviewed release. Record that SHA in the
+release notes; do not silently follow `main` or copy an older package pin.
 
 Restart OpenCode, list native skills, and confirm `nobrainer-ultra` is present.
 The adapter only registers the canonical `skills/` directory; it does not inject
-an always-on prompt or copy archived skills into discovery.
+an always-on prompt or add alternate skill trees.
 
 Install official Superpowers separately when you want its implementation
 methods. NoBrainer Tech Skills routes to it but does not vendor it.

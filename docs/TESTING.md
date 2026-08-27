@@ -28,9 +28,10 @@ trigger ownership, browser routing, adapter registration and installer races.
 python3 -m unittest discover -s tests -v
 ```
 
-GitHub Actions runs these deterministic layers on Linux and macOS. It also
-checks Python, Bash, PowerShell and the OpenCode JavaScript adapter. CI does not
-claim a client UI or model followed a skill.
+GitHub Actions runs these deterministic layers on Linux and macOS. It checks
+Python plus deterministic adapter contracts, including OpenCode registration,
+and runs a checksum-pinned Gitleaks tree scan on Linux. CI does not claim a
+client UI or model followed a skill.
 
 ## 3. Forward behavior evaluation
 
@@ -62,3 +63,13 @@ A releasable commit requires:
 - honest compatibility labels;
 - a rollback path;
 - owner approval for merge and publication.
+
+Scan the exact staged candidate with:
+
+```bash
+gitleaks git --pre-commit --staged --redact --no-banner --ignore-gitleaks-allow
+```
+
+A full-history finding is a separate history-remediation decision. Investigate
+it explicitly; do not hide it behind a broad allowlist or treat it as proof that
+the staged candidate introduced a secret.
