@@ -1,0 +1,20 @@
+# Add this step to your Buildkite pipeline (e.g. .buildkite/pipeline.yml).
+# Runs gitleaks in a pinned container against full history.
+steps:
+  - label: ":lock: gitleaks secret scan"
+    key: "gitleaks"
+    plugins:
+      - docker#v5.11.0:
+          image: "zricethezav/gitleaks:latest"
+          entrypoint: ""
+          command:
+            - "gitleaks"
+            - "git"
+            - "."
+            - "--config=.gitleaks.toml"
+            # Baseline: remove the next line if there is no gitleaks-baseline.json
+            - "--baseline-path=gitleaks-baseline.json"
+            - "--redact"
+            - "-v"
+    agents:
+      queue: "default"
