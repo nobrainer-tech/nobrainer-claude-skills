@@ -105,6 +105,13 @@ can stay simple.
 touching a live account, a repo mid-migration, an API with external consumers:
 there, deleting an "obsolete" path is an incident, not a cleanup. Rule 1 applies
 only behind a test that covers the path being removed.
+
+**Delegating to subagents.** Delegate when the work would otherwise flood this
+context — reading across many files for one answer, independent tasks that can
+run in parallel. Keep the conclusion, not the file dumps. Do it yourself when you
+already know the file and symbol; a subagent that must rediscover your context
+costs more than the lookup saves. Give each one a scoped task and say what to
+return. Never let a subagent's unverified conclusion drive a destructive step.
 <!-- ENG-RULES:END -->
 
 ## Design principles

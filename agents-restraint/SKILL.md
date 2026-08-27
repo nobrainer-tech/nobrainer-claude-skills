@@ -20,6 +20,22 @@ dollar amount) iterating on an `AGENTS.md`, and what survived compresses to
 these eight rules. Cursor, Claude Code, Codex and Windsurf all read `AGENTS.md`
 from the repo root automatically.
 
+## Two ways to use this
+
+**Repo already has agent instructions** → apply `assets/block.md`. It is the
+rules only, wrapped in markers so it can be re-applied. Follow *Apply* below.
+
+**Repo has nothing yet** → start from `assets/template-AGENTS.md`, a full
+starting file covering rules, design principles, comments, configuration,
+subagent delegation and verification. Copy it to the repo root as **both**
+`AGENTS.md` and `CLAUDE.md`, then cut what does not apply.
+
+That trimming step is not optional politeness. Every line in these files is
+loaded into **every** prompt in the repo, relevant or not — a bloated AGENTS.md
+makes the agent weigh git conventions while fixing a CSS bug. Karpathy's
+widely-copied `CLAUDE.md` is 65 lines; the template ships deliberately over that
+budget because it is a menu, not a finished file.
+
 ## Apply
 
 For each of `CLAUDE.md` and `AGENTS.md` at the repo root:
