@@ -94,8 +94,10 @@ The owner then rejected the three-skill browser stack. A behavior test was
 written first and failed because there was no single `nb-browser` owner, no
 complete trace contract and no explicit MCP/plugin exclusion. The replacement
 `nobrainer-browser` passed all three browser tests. Live npm readback on the
-freeze date resolved `@playwright/cli@latest` to `0.1.18`; its attach help
-confirmed that `--cdp` takes an endpoint URL rather than a browser name.
+freeze date resolved `@playwright/cli@latest` to `0.1.18`. The command help
+documents a CDP endpoint URL, while the current upstream README documents both
+the `chrome` channel and an endpoint URL; the public skill therefore accepts
+both and requires live help readback.
 
 ## Verification of v2
 

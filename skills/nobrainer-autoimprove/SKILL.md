@@ -20,6 +20,23 @@ Do not start when success cannot be measured, the target cannot be isolated, or
 the proposed mutation touches credentials, production, safety controls,
 external publishing or irreversible data without an owner-approved experiment.
 
+## From feedback to durable improvement
+
+Treat an owner correction as evidence, not automatic permission to rewrite the
+system. Classify it first:
+
+- a task-local clarification changes only the current task;
+- an explicit durable preference, decision or verified fact may be captured
+  through `nobrainer-wiki-add` when its scope and confidentiality permit it;
+- a repeatable behavior gap becomes a regression scenario for this skill;
+- a deterministic defect is fixed directly and covered by a test.
+
+For a behavior change, preserve the failing example, define the expected
+response, and run the bounded experiment below. One anecdote does not justify a
+broad inferred user trait or a global instruction rewrite. Record what was
+learned, its source, scope and rollback so personalization remains visible and
+correctable.
+
 ## Experiment contract
 
 Freeze before changing the target:
@@ -116,6 +133,10 @@ Promotion requires:
 A development gain that disappears on holdout is overfitting. Revert to the
 previous champion and record the negative result. Any further tuning requires a
 new holdout, a new baseline and a new experiment record.
+
+Prefer the smallest promoted change. Continuous improvement beats delayed
+perfection only when each increment passes its current acceptance gates; the
+principle never converts known failure or missing proof into success.
 
 ## Stop conditions
 

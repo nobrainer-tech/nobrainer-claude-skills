@@ -115,8 +115,17 @@ skill directories after confirming their names and contents. Never recursively
 delete a broad skills root.
 
 If a previous install left a symlink pointing at this checkout's deleted
-root-level skill path, the installer reports `LEGACY` and refuses to change it.
-Inspect the printed target, then rerun the same command with
-`--migrate-legacy --apply`. Only an exact relocated path from this checkout is
-migrated; unknown symlinks remain conflicts. A dry run never removes or
+root-level skill path or a known renamed predecessor, the installer reports
+`LEGACY`/`LEGACY_ALIAS` and refuses to change it. Inspect every printed target,
+then dry-run and apply the explicit migration:
+
+```bash
+python3 scripts/install_skills.py --client codex --migrate-legacy
+python3 scripts/install_skills.py --client codex --migrate-legacy --apply
+```
+
+Only exact symlinks whose names and targets match the previous layout in this
+same checkout are removed. Unknown symlinks, copied directories and foreign
+targets remain conflicts. If installation fails, removed legacy links are
+restored; an incomplete rollback is reported loudly. A dry run never removes or
 replaces a target.

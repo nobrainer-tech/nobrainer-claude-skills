@@ -129,6 +129,29 @@ concerns. Never store secrets.
 One fact has one canonical owner. Link between spec, plan, execution state,
 reports and wiki; do not duplicate mutable status across them.
 
+## Lightweight learning loop
+
+Continuous improvement beats delayed perfection: deliver the smallest safe,
+verified increment, then improve the measured bottleneck. This does not waive
+acceptance, tests, owner gates or proof. A clear daily task stays in one session
+without SDD, a wiki, workers or an evaluation loop unless one has a concrete
+benefit.
+
+After an owner correction or newly verified fact, classify it before persisting:
+
+- transient clarification stays in the current task;
+- an explicit reusable preference, decision or fact may go through
+  `nobrainer-wiki-add`, with source, date, scope and confidentiality;
+- a repeatable behavior gap becomes a regression scenario and may route to
+  `nobrainer-autoimprove`;
+- a durable repository rule may receive one minimal instruction change with a
+  diff, verification and rollback.
+
+Do not infer a permanent user trait from one interaction, load an entire wiki
+when a targeted query is enough, or silently self-modify global instructions.
+Personalization must remain inspectable, correctable and bounded by the same
+public/private and secret boundaries as its source.
+
 ## Superpowers boundary
 
 Official Superpowers is an external dependency for brainstorming, planning,

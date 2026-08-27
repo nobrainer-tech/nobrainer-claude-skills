@@ -21,8 +21,8 @@ CLIENT_DESTINATIONS = {
 }
 
 # Root-level names from the previous public layout. A legacy symlink is
-# migratable only when it points at the exact deleted path in this checkout;
-# unknown targets remain conflicts and are never touched.
+# migratable only when its name and target both match this table and this
+# checkout; unknown targets remain conflicts and are never touched.
 LEGACY_TO_CANONICAL = {
     "agent-browser": "nobrainer-browser",
     "agents-restraint": "agents-restraint",
@@ -48,21 +48,35 @@ LEGACY_TO_CANONICAL = {
 }
 
 
-def legacy_source_for(target: Path, canonical: Path) -> Path | None:
-    """Return the exact relocated source this symlink used to reference."""
+def resolved_link_target(target: Path) -> Path | None:
+    """Resolve a symlink target lexically, including a broken target."""
 
     if not target.is_symlink():
         return None
     try:
-        resolved = target.resolve(strict=False)
+        linked = Path(os.readlink(target))
     except OSError:
         return None
-    for legacy_name, canonical_name in LEGACY_TO_CANONICAL.items():
-        if canonical_name != canonical.name:
-            continue
-        old_source = (ROOT / legacy_name).resolve(strict=False)
-        if resolved == old_source and old_source != canonical.resolve(strict=False):
-            return old_source
+    if not linked.is_absolute():
+        linked = target.parent / linked
+    return linked.resolve(strict=False)
+
+
+def is_exact_legacy_link(target: Path, legacy_name: str) -> bool:
+    """Return whether target is the known stale link owned by this checkout."""
+
+    resolved = resolved_link_target(target)
+    return resolved is not None and resolved == (ROOT / legacy_name).resolve(strict=False)
+
+
+def legacy_source_for(target: Path, canonical: Path) -> Path | None:
+    """Return the same-name root source this canonical target used to reference."""
+
+    old_source = (ROOT / canonical.name).resolve(strict=False)
+    if is_exact_legacy_link(target, canonical.name) and old_source != canonical.resolve(
+        strict=False
+    ):
+        return old_source
     return None
 
 
@@ -76,9 +90,11 @@ def available_skills() -> dict[str, Path]:
 def existing_state(target: Path, source: Path, mode: str) -> str:
     if not target.exists() and not target.is_symlink():
         return "missing"
-    if mode == "symlink" and target.is_symlink():
+    if target.is_symlink():
         try:
-            if target.resolve(strict=True) == source.resolve(strict=True):
+            if mode == "symlink" and target.resolve(strict=True) == source.resolve(
+                strict=True
+            ):
                 return "current"
         except FileNotFoundError:
             if legacy_source_for(target, source) is not None:
@@ -111,7 +127,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--migrate-legacy",
         action="store_true",
-        help="Migrate only symlinks that point at this checkout's relocated legacy paths.",
+        help=(
+            "Migrate only exact stale symlinks from this checkout's previous "
+            "root-level layout and renamed aliases."
+        ),
     )
     return parser.parse_args()
 
@@ -136,6 +155,18 @@ def main() -> int:
         if state == "conflict" or (state == "legacy" and not args.migrate_legacy):
             conflicts.append(target)
 
+    alias_plan: list[tuple[str, str, Path, str]] = []
+    for legacy_name, canonical_name in sorted(LEGACY_TO_CANONICAL.items()):
+        if legacy_name == canonical_name or canonical_name not in requested:
+            continue
+        target = destination / legacy_name
+        if not target.exists() and not target.is_symlink():
+            continue
+        state = "legacy" if is_exact_legacy_link(target, legacy_name) else "conflict"
+        alias_plan.append((legacy_name, canonical_name, target, state))
+        if state == "conflict" or not args.migrate_legacy:
+            conflicts.append(target)
+
     for name, source, target, state in plan:
         action = (
             "KEEP"
@@ -150,8 +181,24 @@ def main() -> int:
         )
         print(f"{action}: {name}: {source} -> {target}")
 
+    for legacy_name, canonical_name, target, state in alias_plan:
+        action = (
+            "MIGRATE_ALIAS"
+            if state == "legacy" and args.migrate_legacy
+            else "LEGACY_ALIAS"
+            if state == "legacy"
+            else "CONFLICT_ALIAS"
+        )
+        print(f"{action}: {legacy_name} -> {canonical_name}: {target}")
+
     if conflicts:
-        if any(state == "legacy" for _, _, _, state in plan) and not args.migrate_legacy:
+        has_unknown_conflict = any(state == "conflict" for _, _, _, state in plan) or any(
+            state == "conflict" for _, _, _, state in alias_plan
+        )
+        has_migratable_legacy = any(
+            state == "legacy" for _, _, _, state in plan
+        ) or any(state == "legacy" for _, _, _, state in alias_plan)
+        if has_migratable_legacy and not args.migrate_legacy and not has_unknown_conflict:
             print(
                 "ERROR: legacy symlink detected; rerun with "
                 "--migrate-legacy --apply",
@@ -164,6 +211,7 @@ def main() -> int:
         suffix = (
             " with --migrate-legacy --apply"
             if any(state == "legacy" for _, _, _, state in plan)
+            or any(state == "legacy" for _, _, _, state in alias_plan)
             else " with --apply"
         )
         print(f"DRY_RUN: no files changed; rerun{suffix} to install")
@@ -173,10 +221,21 @@ def main() -> int:
     created: list[Path] = []
     migrated: list[tuple[Path, str]] = []
     try:
+        for legacy_name, _, target, state in alias_plan:
+            if state != "legacy":
+                continue
+            if not is_exact_legacy_link(target, legacy_name):
+                raise RuntimeError(f"legacy alias changed after preflight: {target}")
+            previous_link = os.readlink(target)
+            target.unlink()
+            migrated.append((target, previous_link))
+
         for _, source, target, state in plan:
             if state == "current":
                 continue
             if state == "legacy":
+                if legacy_source_for(target, source) is None:
+                    raise RuntimeError(f"legacy target changed after preflight: {target}")
                 previous_link = os.readlink(target)
                 target.unlink()
                 migrated.append((target, previous_link))
@@ -194,7 +253,10 @@ def main() -> int:
         for _, source, target, _ in plan:
             if not (target / "SKILL.md").is_file():
                 raise RuntimeError(f"readback failed for {target}")
-            if args.mode == "symlink" and target.resolve(strict=True) != source.resolve(strict=True):
+            if (
+                args.mode == "symlink"
+                and target.resolve(strict=True) != source.resolve(strict=True)
+            ):
                 raise RuntimeError(f"symlink readback mismatch for {target}")
     except Exception as exc:
         rollback_errors: list[str] = []
@@ -208,7 +270,11 @@ def main() -> int:
                 rollback_errors.append(f"{target}: {rollback_exc}")
         for target, previous_link in reversed(migrated):
             try:
-                if not target.exists() and not target.is_symlink():
+                if target.exists() or target.is_symlink():
+                    rollback_errors.append(
+                        f"{target} (legacy restore blocked by a new target)"
+                    )
+                else:
                     os.symlink(previous_link, target, target_is_directory=True)
             except OSError as rollback_exc:
                 rollback_errors.append(f"{target} (legacy restore): {rollback_exc}")
@@ -222,7 +288,11 @@ def main() -> int:
             print(f"ERROR: installation rolled back: {exc}", file=sys.stderr)
         return 4
 
-    print(f"OK: installed {len(created)} skill(s) for {args.client}; {len(plan) - len(created)} unchanged")
+    print(
+        f"OK: installed {len(created)} skill(s) for {args.client}; "
+        f"{len(migrated)} legacy link(s) migrated; "
+        f"{len(plan) - len(created)} unchanged"
+    )
     return 0
 
 

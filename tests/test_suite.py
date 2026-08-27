@@ -184,6 +184,26 @@ class SuiteTests(unittest.TestCase):
                 self.assertIn("Andrej Karpathy", text)
                 self.assertRegex(text, r"https://(gist\.)?github\.com/karpathy/")
 
+    def test_lightweight_learning_contract(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        autoimprove = (SKILLS / "nobrainer-autoimprove" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        wiki = (SKILLS / "nobrainer-wiki" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Continuous improvement beats delayed perfection", readme)
+        self.assertIn("A small task stays small", readme)
+        self.assertIn("Lightweight learning loop", agents)
+        self.assertIn("Learning close", ultra)
+        self.assertIn("One correction", ultra)
+        self.assertIn("regression scenario", autoimprove)
+        self.assertIn("Durable personalization without hidden memory", wiki)
+        self.assertIn("source, date, scope", wiki)
+
     def test_legacy_skills_are_not_discoverable(self) -> None:
         for name in LEGACY:
             with self.subTest(name=name):

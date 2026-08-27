@@ -28,10 +28,24 @@ GitHub Copilot. The clients get thin adapters; the operational truth stays in
 
 ![NoBrainer Tech Skills coverage map: understand, specify, orchestrate, execute, verify, and learn, with owner gates, evidence, and rollback](assets/nobrainer-skills-coverage.webp)
 
+**Continuous improvement beats delayed perfection.** Start with the smallest
+safe workflow, verify the result, keep only durable learning, and improve the
+measured bottleneck. A clear daily task stays in one session; specs, a wiki,
+extra sessions and evaluation loops appear only when they earn their cost.
+
 NoBrainer is the control plane around delivery: it decides what should happen,
 when work is ready, which session owns it, what evidence is required, and when
 the workflow must stop. Official Superpowers remains the external implementation
 methodology for planning, worktrees, TDD, debugging, review, and verification.
+
+The Karpathy-inspired learning loop stays explicit and inspectable:
+
+- `nobrainer-wiki` compounds sourced project knowledge, decisions and confirmed
+  user preferences across sessions;
+- `nobrainer-autoimprove` turns repeated corrections or measured gaps into a
+  bounded baseline/eval/change/keep-or-revert experiment;
+- `nobrainer-ultra` retrieves only relevant knowledge and adapts the workflow,
+  without silently rewriting instructions or building an opaque user profile.
 
 ## Start here
 
@@ -44,6 +58,7 @@ DRIFT_CHECK -> BUDDY -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT
 
 - `BUDDY` is a short requirements/decision gate, not a permanent chat mode.
 - `AUTOPILOT` executes the approved scope without asking between routine steps.
+- A small task stays small: no SDD, wiki, worker or improvement loop by default.
 - Visible sessions are added only when handoff, isolation, resume or real
   parallel benefit outweighs coordination cost.
 - Merge, deploy, publishing, spending, credentials, destructive actions and

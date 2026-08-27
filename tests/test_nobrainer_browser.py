@@ -19,8 +19,10 @@ class NoBrainerBrowserTests(unittest.TestCase):
         for required in (
             "nb-browser",
             "@playwright/cli@latest",
+            "playwright-cli attach --cdp=chrome",
             "playwright-cli attach --cdp=http://127.0.0.1:9222",
             "playwright-cli --help attach",
+            "playwright-cli detach",
             "playwright show-trace",
             "trace.zip",
             "existing",

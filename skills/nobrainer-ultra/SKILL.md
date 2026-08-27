@@ -23,6 +23,9 @@ and available skill/runtime capabilities. Compare them with the requested
 outcome. Classify drift as `CLEAN`, `RECONCILABLE`, `OWNER_DECISION`, or
 `BLOCKED`. Never overwrite unrelated work or trust stale titles/status.
 
+When a durable wiki exists, query only knowledge and confirmed owner preferences
+relevant to this outcome. Do not load the whole vault or infer a hidden profile.
+
 Read [references/routing.md](references/routing.md) before choosing artifacts or
 dependent skills.
 
@@ -90,6 +93,24 @@ Run fresh checks that prove acceptance in the target workflow. A worker report,
 exit code, queued message, or `FINISHED` label is only audit input. For delegated
 work, invoke `nobrainer-sessions` receive-audit and bind evidence to the exact
 session, checkout, commit, scope, and lease before advancing.
+
+### 7. Learning close
+
+Keep this closeout proportional; it does not create a new session or artifact by
+default. Classify new information after verification:
+
+- discard transient task state;
+- route an explicit durable preference, decision or verified fact to
+  `nobrainer-wiki-add` only when persistence is authorized and appropriately
+  classified;
+- route a repeatable skill, prompt or instruction gap to
+  `nobrainer-autoimprove` with the failing scenario and a measurable eval;
+- update project instructions only when a durable project rule is missing, with
+  a scoped diff and rollback.
+
+One correction may fix the immediate task, but it must not silently rewrite
+global behavior. Continuous improvement means small verified increments, not
+deferring acceptance or accumulating process.
 
 ## Final response
 

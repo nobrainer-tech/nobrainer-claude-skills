@@ -26,6 +26,20 @@ Do not store live execution state, leases, current hashes, transient blockers,
 credentials or secrets in the wiki. A spec defines a contract; a plan orders
 work; a wiki preserves reusable knowledge. Do not merge those roles.
 
+## Durable personalization without hidden memory
+
+The wiki may preserve an owner's explicit, reusable preferences, corrections,
+decisions and verified working patterns when the repository's confidentiality
+rules allow it. Each entry needs source, date, scope and certainty. Label an
+inference as an inference; do not turn one interaction into a permanent trait.
+
+At task start, retrieve only pages relevant to the current project and outcome.
+At close, capture only information likely to matter again. Keep transient task
+details out, let the owner correct or remove learned preferences, and never
+promote private personalization into a public repository. This makes knowledge
+compound without creating an opaque behavioral profile or an ever-growing
+context dump.
+
 ## Model
 
 Keep four concerns distinct while adapting their actual folder names to the

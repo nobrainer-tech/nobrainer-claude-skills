@@ -58,18 +58,20 @@ rather than keeping both active.
 Use attach when the owner needs the actual approved session, login or open tab:
 
 ```bash
+playwright-cli attach --cdp=chrome
 playwright-cli attach --cdp=http://127.0.0.1:9222
 # Example for a separately configured Edge debugging endpoint:
 playwright-cli attach --cdp=http://127.0.0.1:9333
 ```
 
-The `--cdp` value is the actual endpoint URL, not a browser name. CDP attach is
-Chromium-only. Confirm the exact browser, profile, debug endpoint and write
-scope before acting. The CLI also exposes extension attach, but that is not the
-default because it requires a browser extension. If attach is unavailable, say
-so; do not bypass a saved browser permission block, copy or mirror a profile,
-extract cookies, reuse credentials, or silently launch a look-alike
-authenticated session. A request to inspect does not authorize form
+The current CLI accepts a supported channel such as `chrome` or an actual CDP
+endpoint URL; verify the live `attach` help because this interface can change.
+CDP attach is Chromium-only. Confirm the exact browser, profile, endpoint and
+write scope before acting. The CLI also exposes extension attach, but that is
+not the default because it requires a browser extension. If attach is
+unavailable, say so; do not bypass a saved browser permission block, copy or
+mirror a profile, extract cookies, reuse credentials, or silently launch a
+look-alike authenticated session. A request to inspect does not authorize form
 submission, purchase, publication, message sending, deletion or account
 changes.
 
@@ -128,7 +130,8 @@ sufficient.
   the exact failed probe and one remediation.
 - If a trace cannot reproduce the issue, report `NOT_REPRODUCED`; do not invent
   a cause.
-- Detach/close only the CLI-owned session. Never close all user browser sessions.
+- For an attached external session use `playwright-cli detach`; never close it.
+  Close only a disposable session owned by this CLI run.
 - Report the exact CLI version, browser/session mode, pages or tests inspected,
   trace/report paths, observed result, side effects, uncertainty and cleanup.
 
