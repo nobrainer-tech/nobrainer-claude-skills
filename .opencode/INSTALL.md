@@ -21,8 +21,10 @@ it with the full SHA of the exact reviewed release. Record that SHA in the
 release notes; do not silently follow `main` or copy an older package pin.
 
 Restart OpenCode, list native skills, and confirm `nobrainer-ultra` is present.
-The adapter only registers the canonical `skills/` directory; it does not inject
-an always-on prompt or add alternate skill trees.
+The adapter registers the canonical `skills/` directory and prepends the small
+shared `adapters/bootstrap.md` context to the first user message once. It does
+not copy skill bodies into the prompt, add alternate skill trees, or inject on
+every step when the marker is already present.
 
 Install official Superpowers separately when you want its implementation
 methods. NoBrainer Tech Skills routes to it but does not vendor it.

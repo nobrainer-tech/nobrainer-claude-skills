@@ -17,6 +17,7 @@
     "verification"
   ],
   "skills": "./skills/",
+  "hooks": {},
   "interface": {
     "displayName": "NoBrainer Tech Skills",
     "shortDescription": "Fast, visible, evidence-gated agentic workflows",

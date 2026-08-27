@@ -23,15 +23,20 @@ python3 scripts/validate_skills.py --suite
 Unit tests pressure the routing and safety invariants that can be checked
 without an LLM: Ultra states, session identity and lease gates, SDD boundaries,
 trigger ownership, browser routing, adapter registration and installer races.
+Adapter tests execute every bootstrap mechanism that can run locally: the Claude
+and Cursor SessionStart JSON shapes, OpenCode injection/deduplication, and Pi
+discovery plus post-compaction re-injection. They also parse the portable Agent
+Plugin, Gemini and Kimi manifests, reject invented Devin/Hermes adapters and
+enforce the exact nine-skill inventory.
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
 GitHub Actions runs these deterministic layers on Linux and macOS. It checks
-Python plus deterministic adapter contracts, including OpenCode registration,
-and runs a checksum-pinned Gitleaks tree scan on Linux. CI does not claim a
-client UI or model followed a skill.
+Python, Node and shell syntax plus deterministic adapter contracts, and runs a
+checksum-pinned Gitleaks tree scan on Linux. CI does not claim a client UI or
+model followed a skill.
 
 ## 3. Forward behavior evaluation
 
@@ -43,7 +48,9 @@ digest, rollback and any model/harness substitutions.
 The current records are
 [`evals/core-suite-2026-08-27.md`](evals/core-suite-2026-08-27.md) and the
 setup/upgrade comparison in
-[`evals/setup-upgrade-2026-08-27.md`](evals/setup-upgrade-2026-08-27.md).
+[`evals/setup-upgrade-2026-08-27.md`](evals/setup-upgrade-2026-08-27.md), plus
+the Superpowers parity audit in
+[`evals/superpowers-parity-2026-08-28.md`](evals/superpowers-parity-2026-08-28.md).
 
 ## 4. Client runtime acceptance
 

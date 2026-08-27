@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+plugin_root="$(cd "${script_dir}/.." && pwd)"
+bootstrap_path="${plugin_root}/adapters/bootstrap.md"
+
+if [ ! -f "$bootstrap_path" ]; then
+  printf 'NoBrainer hook: missing adapters/bootstrap.md\n' >&2
+  exit 1
+fi
+
+escape_for_json() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  value="${value//$'\r'/\\r}"
+  value="${value//$'\t'/\\t}"
+  printf '%s' "$value"
+}
+
+session_context="$(escape_for_json "$(<"$bootstrap_path")")"
+
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{"additional_context":"%s"}\n' "$session_context"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$session_context"
+else
+  printf 'NoBrainer hook: unsupported SessionStart host\n' >&2
+  exit 1
+fi
