@@ -1,10 +1,10 @@
 # Core suite evaluation — 2026-08-27
 
-Status: `LOCAL_CANDIDATE / OWNER_MERGE_GATE`
+Status: `MERGED / DEFAULT_BRANCH_VERIFIED`
 
 This is a bounded `nobrainer-autoimprove` evaluation of the curated public
-suite. It supports a local merge decision only. It does not prove production,
-marketplace, cross-client UI or buyer usefulness.
+suite. It records the local merge decision and default-branch verification. It
+does not prove production, marketplace, cross-client UI or buyer usefulness.
 
 ## Frozen candidate
 
@@ -132,8 +132,12 @@ test token embedded in bytecode was not mistaken for repository content.
 - Two independent final-diff review rounds found four actionable installer
   defects in total; all are fixed with regression coverage. Final post-fix
   re-review: `PASS / no actionable findings`.
-- GitHub Actions on the pushed candidate: `PENDING`.
-- Owner-authorized merge and default-branch readback: `PENDING`.
+- GitHub Actions on the pull-request candidate and merged `main`: `PASS` on
+  Ubuntu and macOS ([merged run](https://github.com/nobrainer-tech/nobrainer-tech-skills/actions/runs/33124099706)).
+- Owner-authorized squash merge and default-branch readback: `PASS`; release
+  commit `341068b2754a6d691e9a424d2f47d1d2180f024b`, with tree
+  `510caf79f54d21beea42ad5f44028e941e066207` identical to the independently
+  reviewed candidate and exactly nine discoverable `SKILL.md` files.
 - No production, marketplace, authenticated buyer or cross-client UI run is
   implied by these local checks.
 
