@@ -68,6 +68,8 @@ VERSION_MANIFESTS = (
     ".claude-plugin/plugin.json",
     ".codex-plugin/plugin.json",
     ".cursor-plugin/plugin.json",
+    ".kimi-plugin/plugin.json",
+    "gemini-extension.json",
 )
 
 
@@ -255,9 +257,18 @@ class SuiteTests(unittest.TestCase):
 
     def test_multi_harness_adapters(self) -> None:
         required = (
+            "adapters/bootstrap.md",
             ".claude-plugin/plugin.json",
             ".codex-plugin/plugin.json",
             ".cursor-plugin/plugin.json",
+            ".kimi-plugin/plugin.json",
+            ".pi/extensions/nobrainer-tech-skills.js",
+            "GEMINI.md",
+            "gemini-extension.json",
+            "hooks/hooks.json",
+            "hooks/hooks-cursor.json",
+            "hooks/run-hook.cmd",
+            "hooks/session-start",
             ".opencode/INSTALL.md",
             ".github/copilot-instructions.md",
             "docs/INSTALL.md",
@@ -273,11 +284,16 @@ class SuiteTests(unittest.TestCase):
             ".codex-plugin/plugin.json",
             ".agents/plugins/marketplace.json",
             ".cursor-plugin/plugin.json",
+            ".kimi-plugin/plugin.json",
+            "gemini-extension.json",
             "package.json",
         )
         for relative in manifests:
             with self.subTest(manifest=relative):
                 json.loads((ROOT / relative).read_text(encoding="utf-8"))
+
+        self.assertFalse((ROOT / ".devin-plugin" / "plugin.json").exists())
+        self.assertFalse((ROOT / ".hermes-plugin" / "plugin.yaml").exists())
 
         result = subprocess.run(
             [
@@ -298,6 +314,18 @@ class SuiteTests(unittest.TestCase):
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
+    def test_compatibility_separates_repository_client_and_runtime_proof(self) -> None:
+        text = (ROOT / "docs" / "COMPATIBILITY.md").read_text(encoding="utf-8")
+        for level in (
+            "SOURCE_VALIDATED",
+            "REPOSITORY_CHECKED",
+            "CLIENT_LOADED",
+            "RUNTIME_VERIFIED",
+            "DISTRIBUTED",
+        ):
+            self.assertIn(level, text)
+        self.assertNotIn("ADAPTER_VALIDATED", text)
+
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("nobrainer-tech-skills", text)
@@ -305,24 +333,23 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("https://nobrainer.tech", text)
         self.assertIn("https://nobrainertech.gumroad.com", text)
         self.assertIn("agentic workflows", text.lower())
-        self.assertIn("assets/nobrainer-skills-coverage.webp", text)
+        self.assertIn("assets/nobrainer-skills-coverage-v2.png", text)
         self.assertIn("docs/COMPATIBILITY.md", text)
         self.assertIn("docs/TESTING.md", text)
 
     def test_coverage_graphic_is_readme_ready(self) -> None:
-        path = ROOT / "assets" / "nobrainer-skills-coverage.webp"
+        path = ROOT / "assets" / "nobrainer-skills-coverage-v2.png"
         data = path.read_bytes()
-        self.assertEqual(b"RIFF", data[:4])
-        self.assertEqual(b"WEBP", data[8:12])
-        frame = data.find(b"\x9d\x01\x2a")
-        self.assertGreaterEqual(frame, 0, "lossy WebP frame header is missing")
-        width = int.from_bytes(data[frame + 3 : frame + 5], "little") & 0x3FFF
-        height = int.from_bytes(data[frame + 5 : frame + 7], "little") & 0x3FFF
+        self.assertEqual(b"\x89PNG\r\n\x1a\n", data[:8])
+        self.assertEqual(b"IHDR", data[12:16])
+        width = int.from_bytes(data[16:20], "big")
+        height = int.from_bytes(data[20:24], "big")
         self.assertGreaterEqual(width, 1200)
         self.assertGreaterEqual(height, 600)
-        self.assertLessEqual(len(data), 300_000)
+        self.assertLessEqual(len(data), 2_000_000)
         self.assertGreater(width / height, 1.6)
         self.assertLess(width / height, 2.0)
+        self.assertFalse((ROOT / "assets" / "nobrainer-skills-coverage.webp").exists())
 
     def test_product_repository_surface(self) -> None:
         required = (
@@ -331,6 +358,7 @@ class SuiteTests(unittest.TestCase):
             "docs/COMPATIBILITY.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
+            "docs/evals/superpowers-parity-2026-08-28.md",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
             ".github/ISSUE_TEMPLATE/feature_request.md",
@@ -381,7 +409,7 @@ class SuiteTests(unittest.TestCase):
         codex = json.loads(
             (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
-        self.assertNotIn("hooks", codex)
+        self.assertEqual({}, codex["hooks"])
         self.assertEqual("./skills/", codex["skills"])
         interface = codex["interface"]
         self.assertEqual("./assets/nobrainer-tech-logo.svg", interface["composerIcon"])

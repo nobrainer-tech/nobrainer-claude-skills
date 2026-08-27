@@ -83,7 +83,10 @@ PUBLIC_TEXT_SUFFIXES = {
     ".yaml",
     ".yml",
 }
-PUBLIC_EXTENSIONLESS_FILES: set[Path] = set()
+PUBLIC_EXTENSIONLESS_FILES = {
+    ROOT / "hooks" / "run-hook.cmd",
+    ROOT / "hooks" / "session-start",
+}
 PUBLIC_ROOT_FILES = (
     ROOT / ".gitleaks.toml",
     ROOT / ".gitignore",
@@ -92,8 +95,10 @@ PUBLIC_ROOT_FILES = (
     ROOT / "AGENTS.md",
     ROOT / "CLAUDE.md",
     ROOT / "CONTRIBUTING.md",
+    ROOT / "GEMINI.md",
     ROOT / "LICENSE",
     ROOT / "SECURITY.md",
+    ROOT / "gemini-extension.json",
     ROOT / "plugin.json",
     ROOT / "package.json",
 )
@@ -105,7 +110,11 @@ PUBLIC_ROOT_DIRS = (
     ROOT / ".codex-plugin",
     ROOT / ".cursor-plugin",
     ROOT / ".github",
+    ROOT / ".kimi-plugin",
     ROOT / ".opencode",
+    ROOT / ".pi",
+    ROOT / "adapters",
+    ROOT / "hooks",
     ROOT / "scripts",
     ROOT / "tests",
 )
@@ -119,6 +128,8 @@ VERSION_PATHS = (
     ROOT / ".claude-plugin" / "plugin.json",
     ROOT / ".codex-plugin" / "plugin.json",
     ROOT / ".cursor-plugin" / "plugin.json",
+    ROOT / ".kimi-plugin" / "plugin.json",
+    ROOT / "gemini-extension.json",
 )
 
 
@@ -309,8 +320,11 @@ def validate(suite_only: bool) -> list[str]:
     codex_manifest = ROOT / ".codex-plugin" / "plugin.json"
     try:
         codex_data = json.loads(codex_manifest.read_text(encoding="utf-8"))
-        if "hooks" in codex_data:
-            errors.append(f"{codex_manifest.relative_to(ROOT)}: unsupported top-level hooks field")
+        if codex_data.get("hooks") != {}:
+            errors.append(
+                f"{codex_manifest.relative_to(ROOT)}: hooks must be an empty object "
+                "so Codex does not auto-discover Claude hook shapes"
+            )
         if codex_data.get("skills") != "./skills/":
             errors.append(f"{codex_manifest.relative_to(ROOT)}: skills path must be ./skills/")
     except (OSError, json.JSONDecodeError, TypeError) as exc:

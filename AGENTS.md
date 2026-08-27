@@ -1,17 +1,22 @@
 # Working in nobrainer-tech-skills
 
 This public repository is the canonical, client-neutral source for NoBrainer
-Agent Skills. Claude Code, Codex, Cursor, OpenCode and GitHub Copilot use the
-same `skills/` content through thin adapters. Do not maintain client-specific
-forks of a skill.
+Agent Skills. Supported harness adapters use the same `skills/` content; never
+maintain client-specific forks of a skill. Adapter wiring is not runtime proof;
+keep current evidence in `docs/COMPATIBILITY.md`.
 
 `CLAUDE.md` must remain a verbatim copy of this file.
 
 ## Repository map
 
 - `skills/<name>/SKILL.md` — active, discoverable skills.
-- `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.opencode/`,
-  `.github/` — thin client adapters, not alternate protocol sources.
+- `adapters/bootstrap.md` — small shared routing context, not a discoverable
+  skill and not a copy of the workflow protocol.
+- `hooks/`, `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`,
+  `.opencode/`, `.kimi-plugin/`, `.pi/`, `gemini-extension.json`, `GEMINI.md`
+  and `.github/` — thin client adapters, not alternate protocol sources.
+- `plugin.json` — portable Agent Plugins v1 metadata without a client-specific
+  bootstrap claim.
 - `scripts/validate_skills.py` — portable structure and suite validator.
 - `tests/` — deterministic and behavioral regression gates.
 - `assets/` — shared public brand assets.

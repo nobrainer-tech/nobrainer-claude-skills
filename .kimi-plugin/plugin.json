@@ -1,0 +1,28 @@
+{
+  "name": "nobrainer-tech-skills",
+  "version": "1.0.0",
+  "description": "Portable NoBrainer workflows for high-quality, evidence-gated agentic delivery.",
+  "author": {
+    "name": "NoBrainer Tech"
+  },
+  "homepage": "https://nobrainer.tech",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "agentic-workflows",
+    "multi-session",
+    "spec-driven-development",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "sessionStart": {
+    "skill": "nobrainer-ultra"
+  },
+  "skillInstructions": "Use Kimi Code's native Skill tool to load routed NoBrainer skills, AskUserQuestion for a real owner decision, and TodoList for bounded execution steps. Kimi Agent subagents are workers, not proof of visible sessions or exact cross-session transport. Use Agent only for independent work with a complete scope and acceptance contract. If the runtime cannot expose the exact session identity and report transport required by nobrainer-sessions, stay in the current MAIN session and report the limitation. Never invent a handoff, lease, delivery, or readback.",
+  "interface": {
+    "displayName": "NoBrainer Tech Skills",
+    "shortDescription": "Guarded, visible, evidence-gated agentic workflows",
+    "developerName": "NoBrainer Tech",
+    "websiteURL": "https://nobrainer.tech"
+  }
+}

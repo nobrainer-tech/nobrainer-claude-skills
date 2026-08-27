@@ -1,13 +1,26 @@
 {
   "name": "nobrainer-tech-skills",
   "version": "1.0.0",
-  "description": "Portable NoBrainer agent skills and a thin OpenCode registration adapter.",
+  "description": "Portable NoBrainer skills and lightweight runtime adapters for evidence-gated agentic delivery.",
   "type": "module",
   "main": ".opencode/plugins/nobrainer-tech-skills.js",
   "keywords": [
     "agent-skills",
     "agentic-workflows",
-    "opencode"
+    "codex",
+    "claude-code",
+    "cursor",
+    "gemini-cli",
+    "opencode",
+    "pi-package"
   ],
+  "pi": {
+    "extensions": [
+      "./.pi/extensions/nobrainer-tech-skills.js"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
   "license": "MIT"
 }
