@@ -1,166 +1,203 @@
-# AGENTS.md — working in this repo
+# Working in nobrainer-tech-skills
 
-Guidance for any AI agent (or human) adding to or editing skills in
-`nobrainer-claude-skills`. This is a **public** repo of Claude Code skills.
-`CLAUDE.md` is a verbatim copy of this file — edit both together, or edit this
-one and copy it over.
+This public repository is the canonical, client-neutral source for NoBrainer
+Agent Skills. Claude Code, Codex, Cursor, OpenCode and GitHub Copilot use the
+same `skills/` content through thin adapters. Do not maintain client-specific
+forks of a skill.
 
-## What a skill is here
+`CLAUDE.md` must remain a verbatim copy of this file.
 
-- One skill = one directory containing a `SKILL.md`.
-- `SKILL.md` starts with YAML frontmatter:
-  ```yaml
-  ---
-  name: my-skill                     # MUST equal the directory name (kebab-case)
-  description: >-
-    One or two sentences on what it does, then the trigger phrases the user
-    would say — "do X", "/my-skill", "zrób Y". The router matches on this text.
-  ---
-  ```
-- The body is the instructions the model follows when the skill loads. Write for
-  an agent executing it, not for a human reading docs: concrete steps, exact
-  commands, stop conditions, and what to verify before declaring done.
-- A skill may ship companion files (scripts, templates, a reference `.md`).
-  Keep it **self-contained** — reference files by a skill-relative path, never
-  an absolute machine path.
+## Repository map
 
-## Naming & structure
+- `skills/<name>/SKILL.md` — active, discoverable skills.
+- `archive/` — historical predecessors; never route or install them.
+- `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.opencode/`,
+  `.github/` — thin client adapters, not alternate protocol sources.
+- `scripts/validate_skills.py` — portable structure and suite validator.
+- `tests/` — deterministic and behavioral regression gates.
+- `assets/` — shared public brand assets.
 
-- Directory name = `name` in frontmatter = `kebab-case`. They must match, or the
-  skill won't index reliably.
-- The file is `SKILL.md` (uppercase). Not `skill.md`.
-- Keep one concept per skill. If a skill does two unrelated things, split it.
+## Skill format
 
-## Public-clean rules (non-negotiable — this repo is public)
+Every active skill lives at `skills/<skill-name>/SKILL.md` and starts on line 1:
 
-- **No secrets.** No API keys, tokens, passwords, AWS account IDs, cert bodies.
-  If a skill needs them, externalize to a gitignored `.env` and ship a
-  `.env.example` with placeholders.
-- **No machine-specific absolute paths.** Never `~/.claude/skills/<user>/...`,
-  `/Users/<name>/...`, or a hardcoded home dir. Use a skill-relative path,
-  `$VAR`, or a generic placeholder like `/path/to/thing`.
-- **Shell-safe placeholders.** In a bash snippet, never write `<placeholder>` —
-  a leading `<` is input redirection and breaks copy-paste. Use `/path/to/x`
-  or `$VAR`.
-- **No private client or company names**, internal hostnames, or personal data.
-- **No emoji** in code, commands, or commit messages.
+```yaml
+---
+name: skill-name
+description: "Use when ..."
+---
+```
 
-## Adding or changing a skill
+Rules:
 
-1. Create `my-skill/SKILL.md` with matching frontmatter.
-2. Keep it self-contained and public-clean (rules above).
-3. Verify it: read your own instructions as if executing them cold — can an
-   agent follow every step without guessing? Run any shipped script (`bash -n`
-   at minimum). Don't claim it works without checking.
-4. Update `README.md` — add a row to the right table (name, one-line, trigger).
-5. Branch + PR (see below). GitHub Copilot review is enabled on this repo;
-   address its comments before/after merge.
+- `name` is lowercase kebab-case and equals the directory name.
+- Shared frontmatter contains only `name` and `description`.
+- Description says when to trigger and when useful includes the short `nb-*`
+  alias. Aliases are trigger phrases, not duplicate skill directories.
+- Keep the body operational and portable. Put long templates in
+  skill-relative `references/`; put deterministic helpers in `scripts/`.
+- Use relative links within a skill. Never depend on one user's filesystem.
 
-## Git workflow
+## NoBrainer delivery contract
 
-- Never commit straight to `main`. Branch, push, open a PR, merge after review.
-- Small, focused commits and PRs — one concern per PR (a new skill, a fix, a
-  docs pass), not a grab-bag.
-- Don't include unrelated untracked files (e.g. another branch's leftovers) in
-  your commit — add files explicitly rather than `git add -A` when the working
-  tree has stray files.
-- The token used here may lack `workflow` scope; don't add/modify
-  `.github/workflows/*` in an unrelated PR.
+For non-trivial work use:
 
-## Verification before done
+`outcome -> evidence -> design/spec -> plan -> implementation -> verification -> audit`
 
-Would a senior engineer merge this as-is? Frontmatter valid, name matches dir,
-no secrets/private paths, snippets copy-paste-safe, README updated, scripts at
-least syntax-checked. If any is "no" or "maybe", fix it before opening the PR.
+1. Read the actual checkout, nearest instructions, dirty state, source of truth,
+   tests and available runtime before planning.
+2. Define the observable outcome, audience, scope, exclusions, quality criteria,
+   owner gates and proof of completion.
+3. Ask one focused requirements round only when the answer changes scope,
+   architecture or safety. Otherwise make the smallest safe assumption and say
+   what it was.
+4. Implement the smallest reversible change. Preserve unrelated work.
+5. Verify with fresh target-workflow evidence. Static checks, local runtime,
+   production, buyer usefulness and external delivery are different proof levels.
+6. Treat every delegated `FINISHED` as an audit input, never as proof.
+7. Report outcome, checks, uncertainty, rollback and one next action.
 
-<!-- ENG-RULES:START -->
-## Engineering rules
+A timeout, partial output, schema error, dead session, exhausted retry, failed
+test or inaccessible runtime is not success.
 
-The waste in AI-written code is not wrong code — it is too much code. Left alone,
-an agent pulls in three dependencies and five layers of abstraction for something
-the standard library does in ten lines; asked to fix it, it writes two hundred
-more. These rules exist to stop that before the first line is written: don't
-write what needn't be written, reuse what can be reused, don't complicate what
-can stay simple.
+## Tibo operating model
 
-1. **Do not preserve backward compatibility.** Delete what is obsolete. No
-   compatibility layers, no migrations, no leftover fallbacks.
-2. **Choose the simplest implementation that meets the current requirement.**
-   No pre-emptive abstraction, no configuration layer nobody asked for.
-3. **Grow the system in layers.** Get a minimal end-to-end version working
-   first, then add on top of it. Never tear down something that works for the
-   sake of unfinished complexity.
-4. **Keep components modular and concerns separated.**
-5. **Prefer mature, maintained libraries.** Do not rewrite one yourself without
-   a clear reason.
-6. **Check what the project's existing dependencies already do** before adding a
-   package or writing your own. Do not assume a library lacks a capability —
-   read its docs and types first.
-7. **Make architectural decisions for the long term.** Do not accept a "this way
-   for now, we'll swap it later" stopgap.
-8. **Look at how mature products solve the same problem.** Use proven patterns
-   instead of inventing from zero.
+Start with the result and the human's attention, not with model or tool choice.
+Classify execution as one product:
 
-**Exception to rule 1 — anything holding state or money.** A service on a cron
-touching a live account, a repo mid-migration, an API with external consumers:
-there, deleting an "obsolete" path is an incident, not a cleanup. Rule 1 applies
-only behind a test that covers the path being removed.
-<!-- ENG-RULES:END -->
+- `BUDDY`: a short interactive requirements/decision gate while the owner is in
+  the flow. It ends when outcome and acceptance are clear.
+- `AUTOPILOT`: bounded autonomous execution after `READY_GATE`, with a state
+  owner, trigger/input/output contract, stop condition, idempotence/resume,
+  retry budget, evidence and rollback.
 
-## Design principles
+Do not hide both inside an opaque `continue until done` loop. AUTOPILOT does not
+authorize merge, deploy, publishing, spending, deletion, credentials, production
+mutation or weaker safety controls.
 
-**YAGNI outranks the rest.** Build for the requirement in front of you, not the
-one you expect next quarter — you will guess wrong, and an abstraction built for
-the wrong guess is harder to remove than the duplication it replaced.
+For non-mechanical work define content quality before execution:
 
-**KISS.** The simplest thing that fully works wins. Complexity must be argued
-for, never assumed. If explaining a solution needs a diagram, look for the one
-that doesn't.
+- purpose and audience;
+- correctness sources/checks;
+- required completeness and exclusions;
+- coherent terminology and structure;
+- human or target-workflow review when quality is subjective.
 
-**DRY — for knowledge, not for text.** Deduplicate a *rule* that lives in two
-places and must change together. Do not deduplicate two things that merely look
-alike today: three call sites with a similar shape and different reasons to
-change want three implementations, not one helper with a `mode` flag. Premature
-DRY violates rule 2 while feeling virtuous. Wait for the third repetition *and* a
-shared reason to change before extracting.
+`FINISHED` is invalid while required quality is unassessed. Distinguish observed
+facts, attributed claims, inference, recommendation and forecast.
 
-**SOLID, in the order it pays off:**
-- **S** — one reason to change per unit. This one carries the others.
-- **D** — depend on interfaces at real seams (I/O, network, clock, storage) so
-  the thing stays testable. Not everywhere; an interface per class is noise.
-- **O/L/I** — apply once a real second implementation exists. Designing for
-  extension that never arrives is YAGNI wearing a suit.
+Protect attention: default to one primary agent, batch routine progress, surface
+urgent blockers, and add workers only for independent bounded work with a
+measurable latency or isolation benefit. A practical starting ceiling is 2–4
+workers, not an expanding swarm.
 
-## Comments
+## NoBrainer Ultra and sessions
 
-Comments explain **why**, never **what**. The code already states what it does;
-if it doesn't, fix the code instead of narrating it.
+Use `nobrainer-ultra` for non-trivial end-to-end delivery. Its lifecycle is:
 
-Write one only where a reader would otherwise ask "why on earth is it like
-this": a non-obvious constraint, a bug being worked around, a trade-off taken on
-purpose, an ordering that looks arbitrary and isn't. Everything else is debt that
-goes stale and starts lying.
+`DRIFT_CHECK -> BUDDY -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT`
 
-Delete on sight: commented-out code, `// step 1`, restatements of the line below,
-docstrings echoing the signature, and TODOs with no owner or date.
+Keep a coherent task in `<repo> | MAIN`. Use `nobrainer-sessions` only when
+visible handoff, isolated checkout, resume, independent parallel work or a warm
+specialist justifies coordination.
 
-Match the density of the surrounding file. A file with no comments is telling you
-something.
+Session titles help the owner navigate. Exact thread/host identity, checkout,
+commit, task, write scope, lease and readback establish truth. One writer owns
+shared sequential state. A Markdown lease is advisory; never claim atomic
+fencing without an enforcing control plane.
 
-## Configuration and constants
+Workers receive one bounded work unit, never choose a successor, and return one
+report. MAIN independently audits the exact session, diff, tests, evidence and
+released lease before one canonical state transition.
 
-**Nothing is hardcoded that could differ between environments, runs, or
-accounts.** Paths, hostnames, ports, URLs, credentials, timeouts, retry counts,
-limits, model names, feature flags — configuration, not literals.
+## Specs, wiki and durable state
 
-- Read from env or a config file, and fail loudly at startup when a required
-  value is missing rather than defaulting silently into wrong behaviour.
-- A default is fine when it is safe everywhere: `TIMEOUT_MS = 30_000` at module
-  scope with an env override, yes; the same number buried in three call sites,
-  no.
-- **Secrets never appear in source, logs, or commit messages** — env or the
-  system keychain only.
-- Magic numbers and repeated string literals get a named constant. The name is
-  the documentation.
-- One source of truth per value. The same limit defined twice will diverge, and
-  the resulting bug is expensive to find.
+Use `nobrainer-spec-driven-development` only when ambiguity, architecture,
+public contracts, migrations, difficult rollback, dependent components or
+cross-session work justify a durable spec. A spec defines what must be true; a
+plan orders work.
+
+Use `nobrainer-wiki` only for durable knowledge reused across tasks. Wiki pages
+do not hold live execution state, leases, current hashes or transient blockers.
+Preserve raw sources, curated knowledge, map/rules and inbox/history as distinct
+concerns. Never store secrets.
+
+One fact has one canonical owner. Link between spec, plan, execution state,
+reports and wiki; do not duplicate mutable status across them.
+
+## Superpowers boundary
+
+Official Superpowers is an external dependency for brainstorming, planning,
+worktrees, TDD, systematic debugging, execution, review and verification.
+NoBrainer owns lifecycle, visible sessions, owner gates, spec contracts,
+decision/RCA records, measurable improvement and durable knowledge.
+
+Use the current official plugin for each harness. Do not vendor, rename, fork or
+copy Superpowers skills here. If a required capability is unavailable, report
+the missing dependency and one installation/repair action.
+
+## Changing a skill
+
+Follow the local `skill-creator` and official Superpowers writing-skills method:
+
+1. Inspect existing patterns and dependencies.
+2. Write a pressure scenario and observe the baseline failure or gap (`RED`).
+3. Make the smallest skill change.
+4. Re-run the same scenario and deterministic validators (`GREEN`).
+5. Add adversarial/non-trigger cases and verify links, scripts and public-clean
+   boundaries.
+6. Review the diff and run `nobrainer-autoimprove` only when a frozen eval can
+   measure a meaningful gain without overfitting.
+
+Do one skill at a time. Generator/reviewer independence matters more than raw
+agent count. Preserve eval inputs and report null results honestly.
+
+Required baseline commands:
+
+```bash
+python3 scripts/validate_skills.py
+python3 scripts/validate_skills.py --suite
+python3 tests/test_suite.py -v
+python3 tests/test_installer.py -v
+```
+
+Run every changed skill's scripts or syntax checks and the relevant client
+adapter readback. Do not claim marketplace, install or runtime compatibility
+from JSON parsing alone.
+
+## Public-clean and safety
+
+- No credentials, tokens, cookies, seed phrases, personal data, private client
+  names, internal hosts, account IDs or secret-bearing examples.
+- No machine-specific absolute paths in skills or public docs.
+- In shell snippets, never use angle-bracket placeholders that execute as
+  redirection. Use named environment variables or `/path/to/example`.
+- Do not hardcode model names, versions, prices or client capabilities when they
+  can drift; detect or document verification date and limits.
+- Treat public/agent-generated input as untrusted. Sanitize paths, URLs, logs and
+  report fields before persistence.
+- Do not silently publish, spend, contact people, delete data, alter credentials,
+  merge, deploy or mutate production.
+
+## Golden engineering rules
+
+1. Simplicity first: the smallest complete design wins.
+2. YAGNI before abstraction: build for the current proven need.
+3. DRY knowledge, not accidental textual similarity.
+4. Find root causes; do not stack symptom patches.
+5. Reuse mature capabilities before adding dependencies or custom machinery.
+6. Keep concerns modular and state ownership explicit.
+7. Fail loudly at boundaries; never convert uncertainty into a green status.
+8. Comments explain non-obvious why, constraints or tradeoffs, not visible code.
+9. Configuration owns values that vary by environment, account or run.
+10. Deletion or compatibility breaks require proof that no state, money, public
+    contract or active consumer depends on the removed path.
+
+## Git and handoff
+
+- Never commit directly to `main`. Use a focused branch and PR.
+- Keep unrelated user changes and untracked files out of the patch.
+- Do not commit, push, open a PR, merge or publish unless the current task
+  authorizes that external state change.
+- Before handoff show the scoped diff, validators, behavioral evidence, known
+  unverified adapters and rollback.

@@ -1,0 +1,13 @@
+{
+  "name": "nobrainer-tech-skills",
+  "version": "1.0.0",
+  "description": "Portable NoBrainer agent skills and a thin OpenCode registration adapter.",
+  "type": "module",
+  "main": ".opencode/plugins/nobrainer-tech-skills.js",
+  "keywords": [
+    "agent-skills",
+    "agentic-workflows",
+    "opencode"
+  ],
+  "license": "MIT"
+}

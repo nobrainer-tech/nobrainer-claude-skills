@@ -1,8 +1,0 @@
-{
-  "ai-ethics-advisor": "AI ethics and responsible AI development specialist. Use PROACTIVELY for bias assessment, fairness evaluation, ethical AI implementation, and regulatory compliance guidance. Expert in AI safety and al",
-  "hackathon-ai-strategist": "Expert hackathon strategist and judge. Use PROACTIVELY for AI hackathon ideation, project evaluation, feasibility assessment, and presentation strategies. Specializes in winning concepts within time c",
-  "llm-architect": "Use when designing LLM systems for production, implementing fine-tuning or RAG architectures, optimizing inference serving infrastructure, or managing multi-model deployments. Specifically:\\\\n\\\\n<exam",
-  "llms-maintainer": "LLMs.txt roadmap file generator and maintainer. Use PROACTIVELY after build completion, content changes, or when implementing AEO (AI Engine Optimization). Scans site structure and updates AI crawler ",
-  "model-evaluator": "AI model evaluation and benchmarking specialist. Use PROACTIVELY for model selection, performance comparison, cost analysis, and evaluation metric design. Expert in LLM capabilities and limitations.",
-  "task-decomposition-expert": "Complex goal breakdown specialist. Use PROACTIVELY for multi-step projects requiring different capabilities. Masters workflow architecture, tool selection, and ChromaDB integration for optimal task or"
-}

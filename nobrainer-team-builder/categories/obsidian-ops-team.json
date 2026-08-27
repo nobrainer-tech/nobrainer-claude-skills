@@ -1,9 +1,0 @@
-{
-  "connection-agent": "Obsidian vault connection specialist. Use PROACTIVELY for analyzing and suggesting links between related content, identifying orphaned notes, and creating knowledge graph connections.",
-  "content-curator": "Obsidian content curation and quality specialist. Use PROACTIVELY for identifying outdated content, suggesting content improvements, consolidating similar notes, and maintaining content quality standa",
-  "metadata-agent": "Obsidian metadata management specialist. Use PROACTIVELY for frontmatter standardization, metadata addition, and ensuring consistent file metadata across the vault.",
-  "moc-agent": "Obsidian Map of Content specialist. Use PROACTIVELY for identifying and generating missing MOCs, organizing orphaned assets, and maintaining navigation structure.",
-  "review-agent": "Obsidian vault quality assurance specialist. Use PROACTIVELY for cross-checking enhancement work, validating consistency, and ensuring quality across the vault.",
-  "tag-agent": "Obsidian tag taxonomy specialist. Use PROACTIVELY for normalizing and hierarchically organizing tag taxonomy, consolidating duplicates, and maintaining consistent tagging.",
-  "vault-optimizer": "Obsidian vault performance optimization specialist. Use PROACTIVELY for analyzing vault performance, optimizing file sizes, managing large attachments, and improving search indexing."
-}
