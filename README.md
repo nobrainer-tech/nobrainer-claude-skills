@@ -22,11 +22,13 @@
   <a href="https://nobrainertech.gumroad.com">NoBrainer workflow blueprints and field guides</a>
 </p>
 
-One canonical set of Agent Skills for Claude Code, Codex, Cursor, OpenCode and
-GitHub Copilot. The clients get thin adapters; the operational truth stays in
-`skills/`.
+One canonical set of portable Agent Skills. Thin, tested adapters cover Claude
+Code, Codex, Cursor, OpenCode, Gemini CLI, Kimi Code and Pi. The root Agent
+Plugin manifest and portable folders are the honest fallback for Copilot, Devin,
+Hermes and other consumers: automatic bootstrap and runtime behavior are never
+claimed without a clean-session readback. Operational truth stays in `skills/`.
 
-![NoBrainer Tech Skills coverage map: understand, specify, orchestrate, execute, verify, and learn, with owner gates, evidence, and rollback](assets/nobrainer-skills-coverage.webp)
+![NoBrainer Tech Skills coverage map: Decide, SDD, Sessions, Browser, RCA, Review, Wiki and Autoimprove route through Ultra to a verified outcome, with owner gates, evidence and rollback](assets/nobrainer-skills-coverage-v2.png)
 
 **Continuous improvement beats delayed perfection.** Start with the smallest
 safe workflow, verify the result, keep only durable learning, and improve the
@@ -87,16 +89,22 @@ The rationale and retirement rules for every active skill are recorded in the
 
 ## Compatibility and proof
 
-| Client | Discovery path | Repository evidence | Clean-session runtime |
+| Client / harness | Discovery and bootstrap | Repository evidence | Clean-session runtime |
 |---|---|---|---|
-| Claude Code | `.claude-plugin/plugin.json` or personal skills | Manifest + conflict-safe local install | Not yet recorded |
-| Codex | `.codex-plugin/plugin.json` or personal skills | Manifest, skills path + local install | Not yet recorded for this public package |
-| Cursor | `.cursor-plugin/plugin.json` | Manifest and canonical skills path | Not yet recorded |
-| OpenCode | git adapter or personal skills | Config hook imported and registered in tests | Not yet recorded |
-| GitHub Copilot | native Agent Skills + repo instructions | Personal install + repository routing | Not yet recorded |
+| Claude Code | plugin skills + standard session hook | Manifest parsed; exact hook JSON tested | Not yet recorded |
+| Codex | `.codex-plugin` skills; native routing | Manifest + conflict-safe local install | Not yet recorded for this public package |
+| Cursor | plugin skills + Cursor session hook | Manifest and exact hook JSON tested | Not yet recorded |
+| OpenCode | config registration + first-user bootstrap | Import, idempotence and one-injection tests | Not yet recorded |
+| GitHub Copilot CLI | personal Agent Skills + repository instructions | Installer and instructions tested; no automatic bootstrap claim | Not yet recorded |
+| Gemini CLI | extension context include | Manifest and include target parsed | Not yet recorded |
+| Kimi Code | plugin skills + `nobrainer-ultra` session start | Manifest and tool-boundary contract tested | Not yet recorded |
+| Devin CLI | portable Agent Skills source only | Canonical inventory validated; no dedicated adapter | Not yet recorded |
+| Pi | package resources + lifecycle context extension | Discovery, dedupe and post-compaction tests | Not yet recorded |
+| Hermes Agent | root Agent Plugin + portable skills | Standard root manifest parsed; no automatic bootstrap claim | Not yet recorded |
 
-Portable source, adapter wiring, clean-session routing, and marketplace
-distribution are separate proof levels. See [Compatibility](docs/COMPATIBILITY.md)
+Portable source, repository adapter checks, client loading, clean-session
+behavior and marketplace distribution are separate proof levels. See
+[Compatibility](docs/COMPATIBILITY.md)
 for the acceptance transcript required to promote any client to runtime-verified,
 and [Installation](docs/INSTALL.md) for client-specific setup and readback.
 
@@ -107,11 +115,18 @@ uses the same approach as a well-structured plugin bundle:
 
 ```text
 skills/              canonical portable skills
+adapters/            one small shared bootstrap, not a tenth skill
+plugin.json           portable Agent Plugins v1 metadata
+hooks/               tested Claude and Cursor session hooks
 .claude-plugin/      Claude packaging
 .codex-plugin/       Codex packaging
 .cursor-plugin/      Cursor packaging
-.opencode/           OpenCode registration adapter
-.github/             Copilot repository instructions
+.opencode/           OpenCode registration and bootstrap adapter
+.kimi-plugin/        Kimi discovery and native-tool boundaries
+.pi/                 Pi discovery and compaction-aware bootstrap
+gemini-extension.json + GEMINI.md
+                     Gemini extension and owned context include
+.github/             repository instructions, contribution surfaces and CI
 ```
 
 Retired predecessors exist only in Git history, so plugin discovery and the
@@ -170,11 +185,12 @@ python3 scripts/install_skills.py --client codex
 python3 scripts/install_skills.py --client codex --apply
 ```
 
-The installer writes all nine curated skills, and nothing else, unless repeated
-`--skill NAME` flags request an exact subset. It writes nothing until `--apply`,
-refuses to overwrite existing targets and supports Claude, Codex, OpenCode,
-Copilot and the shared
-`~/.agents/skills` convention. Cursor uses the plugin manifest. Full commands,
+The portable installer writes all nine curated skills, and nothing else, unless
+repeated `--skill NAME` flags request an exact subset. It writes nothing until
+`--apply`, refuses to overwrite existing targets and supports Claude, Codex,
+OpenCode, Copilot and the shared `~/.agents/skills` convention. Other harnesses
+use a named adapter when one exists, otherwise the canonical folders or root
+Agent Plugin without a bootstrap claim. Full commands, proof boundaries,
 Superpowers setup, dynamic discovery and rollback are in
 [docs/INSTALL.md](docs/INSTALL.md).
 
@@ -184,6 +200,8 @@ The core contracts have frozen pressure scenarios and independent review in
 [`docs/evals/core-suite-2026-08-27.md`](docs/evals/core-suite-2026-08-27.md),
 plus a baseline/candidate setup comparison in
 [`docs/evals/setup-upgrade-2026-08-27.md`](docs/evals/setup-upgrade-2026-08-27.md).
+The adapter and product-surface parity audit against Superpowers v6.3.0 is in
+[`docs/evals/superpowers-parity-2026-08-28.md`](docs/evals/superpowers-parity-2026-08-28.md).
 These are local contract checks, not production or buyer-outcome proof.
 Deterministic repository checks:
 

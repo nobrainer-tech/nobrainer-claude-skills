@@ -16,5 +16,6 @@
     "multi-session",
     "sdd"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks-cursor.json"
 }

@@ -3,6 +3,12 @@
 NoBrainer Tech Skills keeps one canonical `skills/` directory. Install that
 same source for each client; do not maintain client-specific forks.
 
+This repository currently proves portable source and local repository contracts,
+not client loading, public marketplace distribution or clean-client runtime.
+Prefer an immutable reviewed commit. After installation, perform the readback in
+[`COMPATIBILITY.md`](COMPATIBILITY.md) before saying a harness is supported in
+your environment.
+
 ## Before installing
 
 1. Clone the repository.
@@ -35,9 +41,10 @@ For a local checkout:
 python3 scripts/install_skills.py --client claude --apply
 ```
 
-The repository also includes `.claude-plugin/plugin.json` and a development
-marketplace manifest for plugin packaging. Restart the client and confirm
-`nobrainer-ultra` is discoverable.
+The repository also includes `.claude-plugin/plugin.json`, a development
+marketplace manifest and `hooks/hooks.json`. A plugin install can add the small
+shared bootstrap at session start; a skills-only install cannot. Restart the
+client and confirm both `nobrainer-ultra` discovery and the first routing action.
 
 ## Codex
 
@@ -62,6 +69,8 @@ ln -s /path/to/nobrainer-tech-skills ~/.cursor/plugins/local/nobrainer-tech-skil
 ```
 
 Do not replace an existing target; remove or reconcile it explicitly first.
+The manifest also binds `hooks/hooks-cursor.json`, which injects the same small
+bootstrap using Cursor's own `additional_context` shape.
 
 ## OpenCode
 
@@ -73,7 +82,9 @@ python3 scripts/install_skills.py --client opencode --apply
 ```
 
 The git package adapter registers `skills/` through OpenCode's config hook and
-does not inject a permanent prompt.
+prepends the small shared bootstrap to the first user message once. It detects
+its marker on repeated transforms and never copies all skill bodies into the
+prompt.
 
 ## GitHub Copilot
 
@@ -87,6 +98,81 @@ python3 scripts/install_skills.py --client copilot --apply
 For work inside this repository, `.github/copilot-instructions.md` tells Copilot
 where the canonical skills and validators live. Confirm skill discovery in the
 actual Copilot surface you use.
+
+This repository does not claim an automatic Copilot startup hook. A personal
+skills install relies on native discovery and the instructions available in the
+active repository. Prove the exact Copilot surface before promoting support.
+
+## Gemini CLI
+
+The extension manifest points at the extension-owned `GEMINI.md`, which includes
+only `adapters/bootstrap.md`. A candidate Git install is:
+
+```bash
+gemini extensions install https://github.com/nobrainer-tech/nobrainer-tech-skills
+```
+
+Do not claim success from installation output alone. Start a clean session,
+confirm the extension context is loaded, and verify native discovery of
+`nobrainer-ultra` from the same checkout.
+
+## Kimi Code
+
+The Kimi manifest exposes `./skills/`, selects `nobrainer-ultra` at session start
+and maps only real Kimi tools. Install from the repository in the plugin manager
+or with its Git URL, then start a fresh session:
+
+```text
+/plugins install https://github.com/nobrainer-tech/nobrainer-tech-skills
+```
+
+Kimi `Agent` workers do not become visible NoBrainer sessions merely because
+they run in parallel. If exact session identity and report transport are absent,
+the workflow must remain in the current MAIN session.
+
+## Devin CLI
+
+There is deliberately no dedicated Devin manifest in this repository: the
+current plugin and startup contract has not been proved against an installed
+client. If the Devin version in use supports portable Agent Skills, point it at
+the canonical `skills/` folders using that version's official instructions, then
+run the clean-session acceptance. Until then, compatibility is source-only.
+
+## Pi
+
+The root package declares the canonical skills and a zero-dependency extension
+that injects the shared bootstrap at session start and once again after
+compaction when needed:
+
+```bash
+pi install git:github.com/nobrainer-tech/nobrainer-tech-skills
+```
+
+For a local checkout, use Pi's temporary package flag. Confirm resource
+discovery and the first action in a clean session; optional subagent packages do
+not substitute for NoBrainer's visible-session contract.
+
+## Hermes Agent
+
+The root `plugin.json` follows Agent Plugins v1, which current Hermes releases
+can install as a portable plugin:
+
+```bash
+hermes plugins install nobrainer-tech/nobrainer-tech-skills --enable
+```
+
+Hermes imports portable plugin skills under its own namespace and requires
+explicit skill selection. This repository does not add a native Hermes hook or
+automatic bootstrap. Restart after installation, inspect the imported skill
+names and run the clean-session acceptance before claiming runtime support.
+
+## Other Agent Skills or plugin hosts
+
+Antigravity, Factory Droid, Grok Build CLI and future hosts may be able to
+consume the canonical folders or root Agent Plugin manifest. Use the current
+client's official install path and record exact discovery, hook consumption and
+clean-session behavior. A shared file layout is not evidence that a host loads
+the Claude or Cursor bootstrap.
 
 ## Superpowers dependency
 
