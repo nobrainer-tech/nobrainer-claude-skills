@@ -11,7 +11,7 @@ explicit skills path instead.
 ```json
 {
   "plugin": [
-    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#f8d4f0b05359b5765e8c826b9ca5fd433aa3ebf8"
+    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#881bcafad8d1a7c2708b80186ef33400ac67f343"
   ]
 }
 ```
