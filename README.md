@@ -164,18 +164,19 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Release `v1.1.0` remains a release candidate until tag, archive and isolated
-install readback are recorded. The last immutable evidence in this branch is
-`v1.0.0`. To reproduce it:
+Release `v1.1.0` is published as a tagged GitHub source release. Tag-to-commit,
+CI, downloaded archive, file parity, tests and isolated thirteen-skill install
+readback are recorded in [the release evidence](docs/releases/v1.1.0.md). To
+reproduce the canonical source identity:
 
 ```bash
-git checkout --detach bf60c4c3a57440c6b87cd1b326cd41237b7225da
-test "$(git rev-parse HEAD)" = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
+git checkout --detach d6931a1006bf0180955d8437fd93174b6a512428
+test "$(git rev-parse HEAD)" = "d6931a1006bf0180955d8437fd93174b6a512428"
 python3 scripts/validate_skills.py --suite
 ```
 
-Do not use the v1.0 command as evidence for the current candidate; it is a
-rollback/readback anchor only.
+GitHub reports the release and tag as mutable, so security-sensitive consumers
+should pin that full commit SHA. `v1.0.0` remains the previous rollback anchor.
 
 ## One source, thin adapters
 

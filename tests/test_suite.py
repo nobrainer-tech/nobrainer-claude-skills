@@ -514,7 +514,6 @@ class SuiteTests(unittest.TestCase):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
 
     def test_v1_0_release_readback_remains_explicit(self) -> None:
-        readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
         compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
@@ -525,8 +524,6 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         version = "1.0.0"
         release_sha = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
-        self.assertIn("git checkout --detach", readme)
-        self.assertIn(release_sha, readme)
         self.assertIn(release_sha, release_notes)
         self.assertIn(f"## v{version}", release_notes)
         self.assertIn(
@@ -562,20 +559,51 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("codex", evidence["INSTALL_CLIENT"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
-    def test_current_release_candidate_surface(self) -> None:
+    def test_current_release_publication_surface(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        normalized_notes = " ".join(release_notes.split())
         current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
             "version"
         ]
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.1.0.md"
+        ).read_text(encoding="utf-8")
         section = release_notes.split("## v1.0.0", 1)[0]
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
+        release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
         self.assertEqual("1.1.0", current)
         self.assertIn(f"## v{current}", release_notes)
         self.assertEqual(list(CANONICAL), released_skills)
         self.assertEqual(ACTIVE, set(released_skills))
-        self.assertIn("release candidate", section.lower())
+        self.assertNotIn("release candidate", section.lower())
+        self.assertIn(
+            "This version is published as a tagged GitHub source release",
+            normalized_notes,
+        )
+        self.assertIn(release_sha, readme)
+        self.assertIn(release_sha, release_notes)
+        self.assertIn("docs/releases/v1.1.0.md", readme)
+
+        evidence_pairs = re.findall(
+            r"^([A-Z][A-Z0-9_]+): (.+)$", release_evidence, re.MULTILINE
+        )
+        evidence = dict(evidence_pairs)
+        self.assertEqual(len(evidence_pairs), len(evidence))
+        self.assertEqual("1.1.0", evidence["VERSION"])
+        self.assertEqual("v1.1.0", evidence["TAG"])
+        self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
+        self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
+        self.assertEqual("13", evidence["ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("70/70 PASS", evidence["ARCHIVE_TESTS"])
+        self.assertEqual("13/13 PASS", evidence["ARCHIVE_QUICK_VALIDATE"])
+        self.assertEqual("PASS", evidence["ARCHIVE_SECRET_SCAN"])
+        self.assertEqual("agents", evidence["INSTALL_CLIENT"])
+        self.assertEqual("copy", evidence["INSTALL_MODE"])
+        self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -611,6 +639,7 @@ class SuiteTests(unittest.TestCase):
             "SECURITY.md",
             "docs/COMPATIBILITY.md",
             "docs/releases/v1.0.0.md",
+            "docs/releases/v1.1.0.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
