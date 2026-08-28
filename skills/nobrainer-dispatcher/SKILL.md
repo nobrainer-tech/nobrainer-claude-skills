@@ -39,15 +39,21 @@ undefined, return to `nobrainer-ultra`; Dispatcher must not repair a vague plan
 by improvising worker prompts.
 
 Before assigning any worker, require a completed `nobrainer-team` capability
-and role stage. Before sending anything, invoke `nobrainer-sessions` and require
-fresh identity and checkout readback. A role name or conversation title is not
-a transport address.
+and role stage. Use one canonical cross-skill transition:
+
+`Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher DISPATCH`
+
+Sessions alone owns identity preflight and prompt transport. Dispatcher selects
+the batch before that call and records `READY -> SENT` only from Sessions'
+successful transport readback. A role name or conversation title is not a
+transport address.
 
 ## Modes
 
 - `SCHEDULE`: validate the dependency graph and propose one safe ready batch.
-- `DISPATCH`: bind that batch to exact sessions and send one bounded work unit
-  per session through `nobrainer-sessions`.
+- `DISPATCH`: consume Sessions' fresh identity, checkout, lease, active-turn and
+  transport readback for the selected batch, then commit one `READY -> SENT`
+  transition per delivered work unit. Sessions alone performs the send.
 - `RECONCILE`: consume independently audited reports, update scheduler state and
   choose one next batch, correction, stop or close action.
 - `RECOVER`: resume from the ledger and current evidence without repeating a
@@ -83,7 +89,7 @@ write this ledger.
 
 ## Compute the ready set
 
-For each pending task:
+For each `PENDING` task and, only in `RECOVER`, one eligible `BLOCKED` task:
 
 1. Verify every predecessor is `ACCEPTED`, not merely `FINISHED` or reported.
 2. Verify frozen inputs, plan fingerprint, owner gates and required capability.
@@ -94,6 +100,13 @@ For each pending task:
 5. Exclude tasks sharing a writer, mutable state, checkout, migration boundary or
    integration surface with another candidate.
 6. Exclude a repeated blocker unless new evidence or a changed condition exists.
+
+`RECOVER` may re-evaluate a `BLOCKED` task only when the plan fingerprint and
+task contract are still current, the attempt budget remains, and a cited new
+fact changes the blocker condition. Run every gate above again. If all pass,
+record `BLOCKED -> READY` and add the task to the ready set. Otherwise keep it
+`BLOCKED` with its prior fingerprint and evidence. Never strand recoverable work
+outside the ready-set algorithm or bypass the scheduler by sending it directly.
 
 Unknown dependency state is `BLOCKED`, not ready. Detect cycles and stop with the
 smallest cycle path; do not break a cycle by guessing an order.
@@ -117,11 +130,13 @@ integration dominates, run the work in MAIN.
 Record why every selected task is safe in parallel and why every deferred ready
 task waits. A `PARALLEL_GROUP` label alone is not proof.
 
-## Dispatch through Sessions
+## Complete dispatch through Sessions
 
-For each selected work unit, invoke `nobrainer-sessions` mode `delegate`. Before
-`READY -> SENT`, require fresh session, checkout, lease and active-turn readback;
-unknown transport state keeps the task `READY` and stops dispatch. Bind:
+For each selected work unit, Dispatcher emits the task contract below without
+sending it. Ultra or MAIN then invokes `nobrainer-sessions` mode `delegate`
+exactly once. Before Dispatcher records `READY -> SENT`, consume fresh session,
+checkout, lease, active-turn and transport readback from Sessions; unknown
+transport state keeps the task `READY` and stops dispatch. Bind:
 
 - exact `TASK_ID`, session and host IDs, checkout, branch/base/HEAD and lease;
 - one observable outcome, exclusions, allowed write scope and frozen inputs;
@@ -129,14 +144,15 @@ unknown transport state keeps the task `READY` and stops dispatch. Bind:
 - report receiver, retry budget, blocker behavior and explicit stop;
 - the rule that the worker cannot choose, dispatch or start a successor.
 
-Send at most one active work unit to one exact worker. Record `SENT` only after
-transport readback. If transport is unavailable, keep the task `READY` and either
+Sessions sends at most one active work unit to one exact worker. Dispatcher
+records `SENT` only after that transport readback; it never invokes a second
+transport pass. If transport is unavailable, keep the task `READY` and either
 execute it sequentially in MAIN or report the degraded mode; never fabricate a
 session or delivered prompt.
 
-After dispatch, wait or monitor at the declared cadence. Batch routine progress.
-Interrupt the owner only for safety, credentials, irreversible effects, changed
-frozen input, exhausted retry, lease conflict or a genuine decision.
+After dispatch, Sessions waits or monitors at the declared cadence. Batch routine
+progress. Interrupt the owner only for safety, credentials, irreversible effects,
+changed frozen input, exhausted retry, lease conflict or a genuine decision.
 
 ## Reconcile audited results
 

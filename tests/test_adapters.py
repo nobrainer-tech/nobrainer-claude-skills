@@ -16,6 +16,7 @@ CANONICAL_SKILLS = {
     "nobrainer-decide",
     "nobrainer-dispatcher",
     "nobrainer-research",
+    "nobrainer-writing",
     "nobrainer-rca",
     "nobrainer-review",
     "nobrainer-security",
@@ -31,14 +32,44 @@ class AdapterTests(unittest.TestCase):
     def test_shared_bootstrap_is_small_scoped_and_portable(self) -> None:
         path = ROOT / "adapters" / "bootstrap.md"
         text = path.read_text(encoding="utf-8")
+        normalized = " ".join(text.split())
         self.assertIn(BOOTSTRAP_MARKER, text)
         self.assertIn("nobrainer-ultra", text)
         self.assertIn("correction", text.lower())
         self.assertIn("simple", text.lower())
         self.assertIn("owner gate", text.lower())
-        self.assertLessEqual(len(text.split()), 130)
+        for contract in (
+            "problem, complication, ambiguity, difficulty or error",
+            "relevant wiki decisions and lessons",
+            "current internet research",
+            "actual repository/runtime evidence",
+            "RESEARCH_BLOCKED",
+            "choose no remedy",
+            "supersedes the old requirement",
+            "invalidates affected TODO and evidence",
+            "failed review returns to Build",
+            "invalidates stale proof",
+            "at most one sourced, authorized, non-secret project-local learning write",
+            "one exact single-store diff",
+            "No mode authorizes global instructions",
+        ):
+            self.assertIn(contract, normalized)
+        self.assertLessEqual(len(text.split()), 190)
         self.assertNotIn("/" + "Users" + "/", text)
         self.assertNotIn("continue until done", text.lower())
+
+    def test_all_problem_gate_entrypoints_fail_closed_without_web(self) -> None:
+        paths = (
+            ROOT / "adapters" / "bootstrap.md",
+            ROOT / "skills" / "nobrainer-ultra" / "references" / "setup.md",
+            ROOT / ".github" / "copilot-instructions.md",
+        )
+        for path in paths:
+            with self.subTest(path=path.relative_to(ROOT)):
+                normalized = " ".join(path.read_text(encoding="utf-8").split())
+                self.assertIn("RESEARCH_BLOCKED", normalized)
+                self.assertIn("choose no remedy", normalized)
+                self.assertIn("internet research", normalized)
 
     def test_session_start_hook_emits_one_platform_specific_context(self) -> None:
         hook = ROOT / "hooks" / "session-start"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import re
@@ -19,6 +20,7 @@ CANONICAL = {
     "nobrainer-team": "nb-team",
     "nobrainer-dispatcher": "nb-dispatcher",
     "nobrainer-research": "nb-research",
+    "nobrainer-writing": "nb-write",
     "nobrainer-build": "nb-build",
     "nobrainer-security": "nb-security",
     "nobrainer-sessions": "nb-sessions",
@@ -56,6 +58,7 @@ LEGACY = {
     "nb-multi",
     "nb-tidy",
     "nb-workflow",
+    "nb-write",
     "nobrainer-autopilot",
     "nobrainer-capture-lesson",
     "nobrainer-continuous-improvement",
@@ -66,6 +69,8 @@ LEGACY = {
     "nobrainer-starter",
     "nobrainer-skill-browser",
     "nobrainer-simplifier",
+    "nobrainer-style",
+    "nobrainer-human-like",
     "security-review",
     "session-handoff",
     "nobrainer-team-builder",
@@ -171,6 +176,7 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-spec-driven-development",
             "nobrainer-team",
             "nobrainer-research",
+            "nobrainer-writing",
             "nobrainer-build",
         ):
             self.assertIn(term, text)
@@ -242,6 +248,44 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertIn("Stop when the decision-relevant uncertainty is resolved", text)
 
+    def test_problem_gate_checks_targeted_wiki_then_current_research(self) -> None:
+        research = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        setup = (
+            SKILLS / "nobrainer-ultra" / "references" / "setup.md"
+        ).read_text(encoding="utf-8")
+        for text in (research, ultra, setup):
+            self.assertIn("PROBLEM_GATE", text)
+            self.assertIn("wiki", text.lower())
+            self.assertIn("internet", text.lower())
+        self.assertIn("Wiki is context, not current-state proof", research)
+
+    def test_writing_contract_is_high_signal_without_detector_gaming(self) -> None:
+        text = (SKILLS / "nobrainer-writing" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        research = (
+            SKILLS / "nobrainer-writing" / "references" / "research.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "DRAFT",
+            "COMPRESS",
+            "REWRITE",
+            "REVIEW",
+            "meaning ledger",
+            "VALUE_DENSITY",
+            "CAVEATS_AND_CONDITIONS_PRESERVED",
+            "nobrainer-research",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("Do not optimize for an AI detector", text)
+        self.assertIn("Ten approaches reviewed", research)
+        self.assertEqual(10, len(re.findall(r"^\| \d+ \|", research, re.M)))
+
     def test_security_contract_is_evidence_gated_and_read_only(self) -> None:
         text = (SKILLS / "nobrainer-security" / "SKILL.md").read_text(
             encoding="utf-8"
@@ -284,6 +328,7 @@ class SuiteTests(unittest.TestCase):
         text = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
             encoding="utf-8"
         )
+        normalized = " ".join(text.split())
         for term in (
             "SCHEDULE",
             "DISPATCH",
@@ -306,13 +351,56 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("must not repair a vague plan", text)
         self.assertIn("worker cannot choose, dispatch or start a successor", text)
         self.assertIn("Unknown dependency state is `BLOCKED`", text)
+        self.assertIn("one eligible `BLOCKED` task", text)
+        self.assertIn("record `BLOCKED -> READY`", text)
+        self.assertIn("plan fingerprint and task contract are still current", normalized)
         self.assertIn("transport identity may still be", text)
-        self.assertIn("unknown transport state keeps the task `READY`", text)
+        self.assertIn("unknown transport state keeps the task `READY`", normalized)
+        self.assertIn("Sessions alone performs the send", text)
         self.assertIn("RESULT: NOT_NEEDED", text)
 
-    def test_dispatcher_eval_preserves_probe_review_and_current_holdout(self) -> None:
+    def test_team_dispatcher_sessions_transition_has_one_transport_owner(self) -> None:
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        sessions = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        routing = (
+            SKILLS / "nobrainer-ultra" / "references" / "routing.md"
+        ).read_text(encoding="utf-8")
+        normalized_dispatcher = " ".join(dispatcher.split())
+        normalized_sessions = " ".join(sessions.split())
+        normalized_ultra = " ".join(ultra.split())
+        normalized_routing = " ".join(routing.split())
+        sequence = (
+            "Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher "
+            "DISPATCH"
+        )
+        self.assertIn(sequence, dispatcher)
+        self.assertIn(sequence, ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_routing)
+        self.assertIn("it never invokes a second transport pass", normalized_dispatcher)
+        self.assertIn("return `CORRECTION_REQUIRED`", sessions)
+        self.assertIn(
+            "do not choose, dispatch or execute the correction", normalized_sessions
+        )
+        self.assertIn("requires a fresh `RECEIVE_AUDIT`", normalized_sessions)
+
+    def test_dispatcher_eval_invalidates_bad_history_and_preserves_release_holdout(self) -> None:
         record = (
             ROOT / "docs" / "evals" / "dispatcher-routing-v1.2.0-2026-08-28.md"
+        ).read_text(encoding="utf-8")
+        run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-release-holdout-run.md"
         ).read_text(encoding="utf-8")
         development_judge = (
             ROOT
@@ -328,13 +416,36 @@ class SuiteTests(unittest.TestCase):
             / "artifacts"
             / "v1.2.0-dispatcher-post-review-holdout-judge.md"
         ).read_text(encoding="utf-8")
+        post_review_prompt = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-post-review-holdout-prompt.md"
+        ).read_text(encoding="utf-8")
+        release_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
         self.assertIn("DEVELOPMENT_PROBE: FAIL 3/4", record)
         self.assertIn("PRE_REVIEW_HOLDOUT: PASS 5/5", record)
         self.assertIn("INDEPENDENT_DIFF_REVIEW: NO_GO", record)
-        self.assertIn("POST_REVIEW_HOLDOUT: PASS 4/4", record)
+        self.assertIn("POST_REVIEW_HOLDOUT: INVALIDATED", record)
+        self.assertIn("undefined lease value `UNCLAIMED`", record)
+        self.assertIn("FULL_PACKAGE_REVIEW: NO_GO", record)
+        self.assertIn("RELEASE_HOLDOUT: PASS 5/5", record)
         self.assertIn("VERDICT: FAIL", development_judge)
         self.assertIn("VERDICT: PASS", post_review_judge)
+        self.assertIn("`UNCLAIMED`", post_review_prompt)
+        self.assertIn("VERDICT: PASS — 5/5 cases", release_judge)
         self.assertIn("CLIENT_RUNTIME: NOT_VERIFIED", record)
+        self.assertIn("BASELINE_COMMIT: d6931a1006bf0180955d8437fd93174b6a512428", run)
+        self.assertIn("COMPARATIVE_SCORE_CLAIM: NONE", run)
+        self.assertRegex(run, r"CANDIDATE_SESSION: [0-9a-f-]{36}")
+        self.assertRegex(run, r"JUDGE_SESSION: [0-9a-f-]{36}")
 
         def sha256(relative: str) -> str:
             return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
@@ -345,22 +456,157 @@ class SuiteTests(unittest.TestCase):
             sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
         )
         for label, relative in (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            ("DISPATCHER_SHA256", "skills/nobrainer-dispatcher/SKILL.md"),
+            ("SESSIONS_SHA256", "skills/nobrainer-sessions/SKILL.md"),
+            ("BOOTSTRAP_SHA256", "adapters/bootstrap.md"),
             (
                 "PROMPT_SHA256",
-                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-prompt.md",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-prompt.md",
             ),
             (
                 "OUTPUT_SHA256",
-                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-output.md",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-output.md",
             ),
             (
-                "JUDGE_SHA256",
-                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-judge.md",
+                "JUDGE_PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-judge-prompt.md",
+            ),
+            (
+                "JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-judge.md",
             ),
         ):
-            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
             self.assertIsNotNone(declared)
             self.assertEqual(sha256(relative), declared.group(1))
+
+        for label, raw_relative, normalized_relative in (
+            (
+                "RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-output.raw.b64",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-output.md",
+            ),
+            (
+                "RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-judge.raw.b64",
+                "docs/evals/artifacts/v1.2.0-routing-release-holdout-judge.md",
+            ),
+        ):
+            raw = base64.b64decode(
+                (ROOT / raw_relative).read_text(encoding="ascii").strip(),
+                validate=True,
+            )
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
+            self.assertEqual((ROOT / normalized_relative).read_bytes(), raw + b"\n")
+
+    def test_writing_eval_freezes_research_behavior_and_release_evidence(self) -> None:
+        record = (
+            ROOT / "docs" / "evals" / "writing-density-v1.2.0-2026-08-28.md"
+        ).read_text(encoding="utf-8")
+        run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-writing-release-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        release_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-writing-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        for status in (
+            "BASELINE_CAPABILITY: ABSENT",
+            "COMPARATIVE_SCORE_CLAIM: NONE",
+            "DEVELOPMENT_PROBE: PASS 5/5",
+            "FIRST_FINAL_HOLDOUT: PASS 5/5",
+            "INDEPENDENT_DIFF_REVIEW: NO_GO",
+            "RELEASE_HOLDOUT: PASS 5/5",
+            "CLIENT_RUNTIME: NOT_VERIFIED",
+        ):
+            self.assertIn(status, record)
+        self.assertIn("VERDICT: PASS — 5/5 cases", release_judge)
+        self.assertIn("BASELINE_COMMIT: d6931a1006bf0180955d8437fd93174b6a512428", run)
+        self.assertRegex(run, r"CANDIDATE_SESSION: [0-9a-f-]{36}")
+        self.assertRegex(run, r"JUDGE_SESSION: [0-9a-f-]{36}")
+
+        def sha256(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        for label, relative in (
+            ("SKILL_SHA256", "skills/nobrainer-writing/SKILL.md"),
+            (
+                "PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-prompt.md",
+            ),
+            (
+                "OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.md",
+            ),
+            (
+                "JUDGE_PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge-prompt.md",
+            ),
+            (
+                "JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.md",
+            ),
+        ):
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(sha256(relative), declared.group(1))
+
+        for label, raw_relative, normalized_relative in (
+            (
+                "RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.raw.b64",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.md",
+            ),
+            (
+                "RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.raw.b64",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.md",
+            ),
+        ):
+            raw = base64.b64decode(
+                (ROOT / raw_relative).read_text(encoding="ascii").strip(),
+                validate=True,
+            )
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
+            self.assertEqual((ROOT / normalized_relative).read_bytes(), raw + b"\n")
+
+        historical = (
+            (
+                "DEVELOPMENT_RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-development-probe-output.raw.b64",
+            ),
+            (
+                "DEVELOPMENT_RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-development-probe-judge.raw.b64",
+            ),
+            (
+                "FIRST_FINAL_RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-final-holdout-output.raw.b64",
+            ),
+            (
+                "FIRST_FINAL_RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-final-holdout-judge.raw.b64",
+            ),
+        )
+        for label, relative in historical:
+            raw = base64.b64decode(
+                (ROOT / relative).read_text(encoding="ascii").strip(), validate=True
+            )
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
 
     def test_active_product_has_no_external_workflow_branding(self) -> None:
         checked = [
@@ -469,6 +715,10 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-team": ("nobrainer-skill-browser",),
             "nobrainer-dispatcher": ("nb-dispatcher",),
             "nobrainer-build": ("engineering-standards", "nobrainer-simplifier"),
+            "nobrainer-writing": (
+                "nobrainer-style",
+                "nobrainer-human-like",
+            ),
             "nobrainer-security": ("security-review",),
             "nobrainer-sessions": ("nb-multi", "session-handoff"),
             "nobrainer-wiki": ("nb-add", "nb-get", "nb-tidy"),
@@ -661,7 +911,9 @@ class SuiteTests(unittest.TestCase):
         )
         release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
         expected_skills = [
-            name for name in CANONICAL if name != "nobrainer-dispatcher"
+            name
+            for name in CANONICAL
+            if name not in {"nobrainer-dispatcher", "nobrainer-writing"}
         ]
         self.assertIn("## v1.1.0", release_notes)
         self.assertEqual(expected_skills, released_skills)
@@ -747,6 +999,7 @@ class SuiteTests(unittest.TestCase):
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
             "docs/evals/dispatcher-routing-v1.2.0-2026-08-28.md",
+            "docs/evals/writing-density-v1.2.0-2026-08-28.md",
             "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",

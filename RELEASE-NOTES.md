@@ -2,12 +2,13 @@
 
 ## v1.2.0 — 2026-08-28 (release candidate)
 
-The candidate contains exactly fourteen portable skills:
+The candidate contains exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
 - `nobrainer-dispatcher`
 - `nobrainer-research`
+- `nobrainer-writing`
 - `nobrainer-build`
 - `nobrainer-security`
 - `nobrainer-sessions`
@@ -27,8 +28,14 @@ Highlights:
   Sessions, while one coherent task stays in MAIN.
 - Raw worker reports and `NEXT_ACTION` never release dependent work before an
   independent receive-audit.
+- Writing compresses messages, comments and documents without dropping facts,
+  caveats, voice or action, and retires detector-oriented humanizer behavior.
+- The problem gate checks targeted wiki context and current internet evidence
+  before choosing a remedy for an error, ambiguity or complication.
 - Installer mappings retire generic dispatcher aliases into one canonical
-  skill, and all adapters share the same fourteen-skill source tree.
+  skill, and all adapters share the same fifteen-skill source tree.
+- Copy installs are verified in private staging and published with atomic
+  no-replace semantics, so a concurrent foreign target is preserved.
 
 This section is a release-candidate contract, not a publication claim. Exact
 tag, commit, archive checksum, CI and isolated installer readback will be added

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import hashlib
 import os
 import shutil
 import stat
@@ -34,6 +35,7 @@ CURATED_SKILLS = frozenset(
         "nobrainer-rca",
         "nobrainer-review",
         "nobrainer-research",
+        "nobrainer-writing",
         "nobrainer-sessions",
         "nobrainer-spec-driven-development",
         "nobrainer-ultra",
@@ -70,12 +72,15 @@ LEGACY_TO_CANONICAL = {
     "nb-multi": "nobrainer-sessions",
     "nb-tidy": "nobrainer-wiki",
     "nb-workflow": "nobrainer-ultra",
+    "nb-write": "nobrainer-writing",
     "nobrainer-autopilot": "nobrainer-ultra",
     "nobrainer-browser": "nobrainer-browser",
     "nobrainer-capture-lesson": "nobrainer-autoimprove",
     "nobrainer-continuous-improvement": "nobrainer-autoimprove",
     "nobrainer-skill-browser": "nobrainer-team",
     "nobrainer-simplifier": "nobrainer-build",
+    "nobrainer-style": "nobrainer-writing",
+    "nobrainer-human-like": "nobrainer-writing",
     "nobrainer-starter": "nobrainer-ultra",
     "nobrainer-memory": "nobrainer-wiki",
     "nobrainer-memory-memsearch": "nobrainer-wiki",
@@ -97,6 +102,7 @@ UNMAPPED_LEGACY = frozenset({"nobrainer-fast-audit"})
 
 
 EntryFingerprint = tuple[int, int, int, str | None]
+TreeManifest = tuple[tuple[str, str, int, str], ...]
 
 
 def entry_fingerprint(target: Path) -> EntryFingerprint | None:
@@ -117,6 +123,74 @@ def register_created_entry(target: Path) -> tuple[Path, EntryFingerprint]:
     if fingerprint is None:
         raise RuntimeError(f"created target disappeared before ownership check: {target}")
     return target, fingerprint
+
+
+def tree_manifest(root: Path) -> TreeManifest:
+    """Fingerprint a tree without following links or accepting special files."""
+
+    entries: list[tuple[str, str, int, str]] = []
+    for current, directories, files in os.walk(root, topdown=True, followlinks=False):
+        current_path = Path(current)
+        traversable: list[str] = []
+        for name in sorted(directories):
+            path = current_path / name
+            relative = path.relative_to(root).as_posix()
+            metadata = path.lstat()
+            if stat.S_ISLNK(metadata.st_mode):
+                entries.append((relative, "symlink", 0, os.readlink(path)))
+            elif stat.S_ISDIR(metadata.st_mode):
+                entries.append(
+                    (relative, "directory", stat.S_IMODE(metadata.st_mode), "")
+                )
+                traversable.append(name)
+            else:
+                raise RuntimeError(f"unsupported source entry: {path}")
+        directories[:] = traversable
+
+        for name in sorted(files):
+            path = current_path / name
+            relative = path.relative_to(root).as_posix()
+            metadata = path.lstat()
+            if stat.S_ISLNK(metadata.st_mode):
+                entries.append((relative, "symlink", 0, os.readlink(path)))
+            elif stat.S_ISREG(metadata.st_mode):
+                digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                entries.append(
+                    (relative, "file", stat.S_IMODE(metadata.st_mode), digest)
+                )
+            else:
+                raise RuntimeError(f"unsupported source entry: {path}")
+    return tuple(sorted(entries))
+
+
+def stage_and_publish_copy(
+    source: Path, target: Path
+) -> tuple[EntryFingerprint, TreeManifest, Path]:
+    """Verify a private copy, then publish it with native no-replace rename."""
+
+    stage_parent = Path(
+        tempfile.mkdtemp(prefix=".nobrainer-install-", dir=target.parent)
+    )
+    staged = stage_parent / target.name
+    try:
+        source_before = tree_manifest(source)
+        shutil.copytree(source, staged, symlinks=True)
+        staged_manifest = tree_manifest(staged)
+        source_after = tree_manifest(source)
+        if source_before != source_after:
+            raise RuntimeError(f"source changed while copying: {source}")
+        if staged_manifest != source_before:
+            raise RuntimeError(f"staged copy verification failed: {source}")
+
+        expected = entry_fingerprint(staged)
+        if expected is None:
+            raise RuntimeError(f"staged copy disappeared before publish: {staged}")
+        atomic_rename_no_replace(staged, target)
+    except Exception as exc:
+        raise RuntimeError(
+            f"copy staging preserved for manual recovery at {stage_parent}: {exc}"
+        ) from exc
+    return expected, source_before, stage_parent
 
 
 def remove_created_entry(
@@ -499,6 +573,7 @@ def main() -> int:
     destination.mkdir(parents=True, exist_ok=True)
     created: list[tuple[Path, EntryFingerprint]] = []
     migrated: list[tuple[Path, Path, str, EntryFingerprint]] = []
+    copied_manifests: dict[Path, TreeManifest] = {}
     try:
         for legacy_name, _, target, state in alias_plan:
             if state != "legacy":
@@ -519,12 +594,22 @@ def main() -> int:
                 os.symlink(source, target, target_is_directory=True)
                 created.append(register_created_entry(target))
             else:
-                # Claim the target atomically before registering it as ours.
-                # If another process wins the race after preflight, mkdir
-                # raises and rollback must leave that foreign target alone.
-                target.mkdir()
-                created.append(register_created_entry(target))
-                shutil.copytree(source, target, dirs_exist_ok=True)
+                expected, manifest, stage_parent = stage_and_publish_copy(
+                    source, target
+                )
+                created.append((target, expected))
+                copied_manifests[target] = manifest
+                if entry_fingerprint(target) != expected:
+                    raise RuntimeError(
+                        f"published target changed before readback: {target}"
+                    )
+                try:
+                    stage_parent.rmdir()
+                except OSError as exc:
+                    raise RuntimeError(
+                        f"published copy is complete but private staging directory "
+                        f"could not be removed: {stage_parent}"
+                    ) from exc
 
         for _, source, target, _ in plan:
             if not (target / "SKILL.md").is_file():
@@ -534,6 +619,10 @@ def main() -> int:
                 and target.resolve(strict=True) != source.resolve(strict=True)
             ):
                 raise RuntimeError(f"symlink readback mismatch for {target}")
+            if args.mode == "copy" and tree_manifest(target) != copied_manifests.get(
+                target
+            ):
+                raise RuntimeError(f"copy readback mismatch for {target}")
     except Exception as exc:
         rollback_errors: list[str] = []
         for target, fingerprint in reversed(created):

@@ -46,6 +46,14 @@ placeholders with verified paths/commands and remove duplicate lines:
   critical-path parallelism.
 - Research current material unknowns from primary sources; mark blocked research
   and never manufacture certainty.
+- `PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
+  first query only related wiki decisions and lessons, then run a short current
+  internet research pass before choosing the remedy. Reconcile both with the
+  actual repository/runtime; wiki is context, not current-state proof. If current
+  internet research is unavailable, return `RESEARCH_BLOCKED` and choose no
+  remedy.
+- Route material user-facing prose through `nobrainer-writing`; keep a tiny
+  answer direct when it is already clear, specific and complete.
 - Route authentication, authorization, secrets, sensitive data, untrusted input
   and supply-chain boundaries through `nobrainer-security`.
 - Audit delegated results and verify the target workflow before completion.
@@ -73,7 +81,7 @@ Prefer the active client's native plugin or Agent Skills mechanism. For a local
 checkout, dry-run `scripts/install_skills.py`, inspect every target, then apply.
 Existing foreign targets are conflicts, never overwrite candidates.
 
-Install the complete curated fourteen-skill set unless the owner deliberately
+Install the complete curated fifteen-skill set unless the owner deliberately
 requests an exact subset. Restart the client, read back loaded skills and run the
 clean-session acceptance in `docs/COMPATIBILITY.md` when available. Files on
 disk and an installer exit code prove installation only, not routing.
@@ -85,7 +93,7 @@ skills directory.
 
 ## 4. Reconcile capabilities
 
-Use `nobrainer-team` to compare the fourteen curated skills, project-native tools
+Use `nobrainer-team` to compare the fifteen curated skills, project-native tools
 and active runtime. A missing specialist may be evaluated temporarily through
 the open skills ecosystem only after source/ref, instructions, scripts, license,
 permissions, network/credential behavior, trigger overlap and rollback are

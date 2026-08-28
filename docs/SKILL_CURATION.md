@@ -21,7 +21,7 @@ A permanent skill must pass every condition:
 
 Popularity, file size and prior existence are not admission criteria.
 
-## Active fourteen
+## Active fifteen
 
 | Skill | Distinct owner |
 |---|---|
@@ -29,6 +29,7 @@ Popularity, file size and prior existence are not admission criteria.
 | `nobrainer-team` | Minimal roles, installed capability inventory and safe temporary specialist discovery. |
 | `nobrainer-dispatcher` | Ready-set calculation, dependency-aware bounded batches, backpressure and audited result routing. |
 | `nobrainer-research` | Bounded current external research and source-quality/freshness control. |
+| `nobrainer-writing` | High-signal drafting, compression, voice and prose integrity across human-facing text artifacts. |
 | `nobrainer-build` | Implementation, engineering principles, anti-slop, test blast radius and simplification. |
 | `nobrainer-security` | Threat model, security review, supply-chain inspection and security release evidence. |
 | `nobrainer-sessions` | Exact visible session identity, transport, writer ownership, handoff, receive-audit and recovery. |
@@ -46,6 +47,8 @@ Do not create separate permanent skills for:
 
 - planning, autopilot, setup or correction capture: Ultra owns the lifecycle;
 - KISS, DRY, SOLID, YAGNI, simplification or test safety: Build owns them;
+- brand-specific voice facts belong in a project guide or wiki; Writing owns the
+  portable prose method and can consume an authentic supplied voice sample;
 - generic code review, bug finding or release ceremony: Review owns the close
   gate, while Security owns only material trust-boundary risk;
 - human continuation snapshots: Sessions mode `handoff` owns them;

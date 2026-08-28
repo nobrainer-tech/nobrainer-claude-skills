@@ -1,6 +1,6 @@
 ---
 name: nobrainer-research
-description: "Use when the owner says nb-research, asks to research or verify external information, or when a task depends on current, niche, uncertain, high-stakes, or source-attributed facts that cannot be established safely from the repository or provided materials."
+description: "Use when the owner says nb-research, asks to research or verify external information, when a task depends on current, niche, uncertain, high-stakes, or source-attributed facts, or when a problem, complication, ambiguity, difficulty, or error requires a targeted wiki check and current internet research before choosing the response."
 ---
 
 # NoBrainer Research
@@ -9,16 +9,35 @@ Resolve the smallest decision-relevant knowledge gap with current, attributable
 evidence. Research is a bounded input to delivery, not an excuse to delay action
 or collect an unreadable pile of links.
 
+## `PROBLEM_GATE`
+
+When the work encounters a problem, complication, ambiguity, difficulty or
+error, pause before choosing the response:
+
+1. Query only the relevant project or owner wiki pages for prior decisions,
+   constraints and lessons. Do not load the whole wiki.
+2. Run at least a `MICRO` internet research pass against current reliable
+   sources for the safest applicable response, even when local evidence already
+   establishes the symptom.
+3. Compare wiki context, external evidence and the actual repository/runtime.
+   Separate fact from inference, then choose the next action.
+
+Wiki is context, not current-state proof. Current repository and runtime
+readback remain authoritative for the present incident. If no relevant wiki is
+available, say so and continue to the internet pass. If required internet access
+is unavailable, return `RESEARCH_BLOCKED` and do not disguise memory as current
+verification.
+
 ## Decide whether research is needed
 
 Research when a material claim may have changed, is niche or uncertain, requires
 precise attribution, or affects health, law, finance, security, cost, publishing
 or an external integration. Also research when the owner explicitly asks.
 
-Do not browse when the answer is already established by current repository
-evidence, supplied primary material or a deterministic local check. If uncertainty
-does not change the implementation or decision, state the bounded assumption and
-continue.
+Outside `PROBLEM_GATE`, do not browse when the answer is already established by
+current repository evidence, supplied primary material or a deterministic local
+check. If uncertainty does not change the implementation or decision, state the
+bounded assumption and continue.
 
 ## Research contract
 
