@@ -7,7 +7,9 @@ description: "Use when the owner says nb-sessions, nb-multi, or session-handoff,
 
 Operate visible sessions as a small control plane. Human-readable titles make
 the workflow understandable; exact identity and readback make it trustworthy.
-This skill does not invent the project plan or replace implementation skills.
+This skill does not invent the project plan, select the ready batch or replace
+implementation skills. `nobrainer-dispatcher` owns scheduling when a queue has
+multiple delegated units.
 
 Describe the outcome, success criteria and verification, let one project-level
 session prepare bounded task prompts, and bring child results back for review.
@@ -51,7 +53,8 @@ submission is not delivery; record `SENT` only with transport readback.
 
 - `setup`: reconcile an existing registry, name MAIN, and create only the next
   justified session. Do not pre-create a swarm.
-- `delegate`: send one self-contained work unit to one exact session.
+- `delegate`: send one already-selected, self-contained work unit to one exact
+  session.
 - `RECEIVE_AUDIT`: independently verify one report before any state advance.
 - `recover`: resume from canonical state and evidence without repeating the
   same failed attempt.
@@ -101,15 +104,21 @@ effects. The lease gate passes only when readback proves `RELEASED`, or proves
 `NOT_HELD`/`UNSUPPORTED` for a workflow that explicitly uses one of those
 states; `NOT_RELEASED`, unknown ownership or a conflict blocks advancement.
 
-Choose exactly one result:
+Return exactly one audited result to `nobrainer-dispatcher`, or to
+`nobrainer-ultra` when no dispatcher is justified:
 
-- all gates pass: advance one canonical transition, then select at most one next
-  task or close the workflow;
-- isolated correctable defect: one bounded corrective attempt;
+- all gates pass: report the verified transition as eligible; do not select or
+  dispatch the next task;
+- isolated correctable defect: return `CORRECTION_REQUIRED` with the exact defect
+  and evidence; do not choose, dispatch or execute the correction. Dispatcher,
+  or Ultra when Dispatcher is not justified, selects the task's assigned repair
+  method (`nobrainer-build` for implementation). After the repair and any
+  required repeated review, run a fresh `RECEIVE_AUDIT` that binds the repaired
+  diff, tests and current review result;
 - missing or conflicting evidence, failed check, active turn, or lease conflict:
   preserve state and stop;
 - owner decision or irreversible action: ask for one explicit decision;
-- no remaining task: close, do not manufacture a successor.
+- no remaining task: report closure eligibility; do not manufacture a successor.
 
 Retries require new evidence or a changed condition. Preserve a stable blocker
 fingerprint, attempt number, recovery owner, retry budget, checkpoint, rollback,

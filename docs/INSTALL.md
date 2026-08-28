@@ -7,19 +7,27 @@ clean-session routing evidence.
 ## Safe default
 
 ```bash
-git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
-cd nobrainer-tech-skills
-git checkout --detach "$NB_REVIEWED_REF"
-python3 scripts/validate_skills.py --suite
-python3 scripts/install_skills.py --client codex
-python3 scripts/install_skills.py --client codex --apply
+(
+  set -u
+  : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
+  test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
+  case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
+  cd nobrainer-tech-skills || exit 3
+  git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
+  test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
+  python3 scripts/validate_skills.py --suite || exit 4
+  python3 scripts/install_skills.py --client codex || exit 4
+  python3 scripts/install_skills.py --client codex --apply || exit 4
+)
 ```
 
-Set `NB_REVIEWED_REF` to an exact release tag or full commit that you reviewed.
-Do not execute the snippet with an unset variable. The first installer command
-is a dry-run; inspect every source, target and conflict before adding `--apply`.
+Set `NB_REVIEWED_COMMIT` to the exact full commit SHA you reviewed. The guarded
+subshell rejects unset values, tags, branches and malformed hashes, and stops on
+every failed command. The first installer command is a dry-run; inspect every
+source, target and conflict before the guarded `--apply` command runs.
 
-The default installs exactly thirteen skills. Install an explicit subset by
+The default installs exactly fifteen skills. Install an explicit subset by
 repeating `--skill`:
 
 ```bash
@@ -59,9 +67,10 @@ name and preserves it under a reported `.nobrainer-migration-*` recovery path.
 The installer prints `BACKUP_PRESERVED`; it never deletes a quarantined claim,
 because portable path deletion cannot be bound atomically to a previously
 verified inode. Inspect client readback before manually removing that exact
-backup. A failed copy similarly moves its verified partial target to a reported
-`.nobrainer-rollback-*` path for manual recovery instead of risking deletion of
-a concurrent same-user replacement.
+backup. Copy mode builds and verifies the complete tree in a private
+`.nobrainer-install-*` staging directory, then publishes it with a native atomic
+no-replace rename. A failed staged copy remains at the reported private path for
+manual recovery; a concurrently created public target is never overwritten.
 
 If a target belongs to another repository, stop. Compare semantics, inbound
 references and runtime triggers before retiring it. A similar name is not proof
@@ -173,7 +182,7 @@ actually exposes and passes that integration.
 
 ## Dynamic specialists
 
-The thirteen curated skills are the stable base. When a concrete work unit still
+The fifteen curated skills are the stable base. When a concrete work unit still
 has a capability gap, `nobrainer-team` first inventories installed/project
 capabilities, then may evaluate one external skill temporarily. Source/ref,
 scripts, permissions, credentials, network behavior, trigger overlap and

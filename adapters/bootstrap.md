@@ -1,21 +1,28 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
-# NoBrainer workflow bootstrap
+# NoBrainer bootstrap
 
-For non-trivial work, load `nobrainer-ultra` before planning or writing. It asks
-one requirements round, creates the skill-routed TODO and executes routine
-approved work autonomously.
+For non-trivial work, load `nobrainer-ultra`: gather requirements once, route a
+TODO and execute work. Keep simple work direct. Add specs, wiki or sessions
+when useful. Team designs roles; Dispatcher schedules; Sessions alone owns
+identity, transport, lease and receive-audit.
 
-A simple one-step task stays direct: inspect, change, verify, report. Add a spec, wiki
-or session only for concrete value. Multiple sessions require independent work,
-isolation, handoff or valuable independent evidence.
+`PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
+query relevant wiki decisions and lessons, then run current internet
+research. Reconcile both with actual repository/runtime evidence. If research
+is unavailable, return `RESEARCH_BLOCKED` and choose no remedy.
 
-Autonomy never expands permission. Consequential actions remain behind the
-owner gate.
+Autonomy never expands permission. Consequential actions require an owner gate.
 
-On a changed decision, agent correction or failed review, invoke Ultra's hook:
-repair the result, invalidate affected TODO/evidence, then apply
-`LEARNING_WRITE_POLICY`. `AUTO_SCOPED` permits only sourced, project-local,
-non-secret lessons; `ASK` prepares an exact diff; `OFF` persists nothing.
+A changed owner decision supersedes the old requirement, stops affected
+not-started `READY` work, keeps dependants blocked, invalidates affected TODO
+and evidence, and requires a new plan fingerprint before readiness. A failed
+review returns to Build and invalidates stale proof. After repair, rerun tests
+and required review, then a fresh receive-audit before acceptance.
 
-If skill loading or session transport is unavailable, work in MAIN and report
-it. Never invent delivery, identity, evidence or success.
+After a correction, apply `LEARNING_WRITE_POLICY`: `AUTO_SCOPED` allows at most
+one sourced, authorized, non-secret project-local learning write; `ASK` prepares
+one exact single-store diff; `OFF` persists nothing. No mode authorizes global
+instructions, public disclosure, commits or publishing.
+
+If skill or transport is unavailable, use MAIN and report. Never invent
+success.

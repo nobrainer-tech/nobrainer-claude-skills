@@ -1,0 +1,4 @@
+interface:
+  display_name: "NoBrainer Writing"
+  short_description: "Draft and compress high-signal prose without losing meaning."
+  default_prompt: "Use $nobrainer-writing to produce concise, specific prose while preserving every material fact and constraint."

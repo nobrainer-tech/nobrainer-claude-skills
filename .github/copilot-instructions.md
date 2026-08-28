@@ -1,13 +1,19 @@
 # NoBrainer Tech Skills repository instructions for Copilot
 
-The thirteen canonical Agent Skills are under `skills/`; retired predecessors exist
+The fifteen canonical Agent Skills are under `skills/`; retired predecessors exist
 only in Git history. Read the relevant `skills/<name>/SKILL.md` before changing
 a skill.
 
 For a non-trivial delivery workflow start with `nobrainer-ultra`. Use
-`nobrainer-sessions` only when visible handoff, isolation, resume, or real
-parallel benefit justifies coordination. Worker reports require independent
-receive-audit before state advances.
+`nobrainer-team` for roles, `nobrainer-dispatcher` for an approved queue with
+multiple delegated units, and `nobrainer-sessions` for exact transport. Worker
+reports require independent receive-audit before state advances.
+
+Use `nobrainer-writing` for material user-facing prose. On a problem, ambiguity
+or error, check only relevant wiki context and then current internet research
+before choosing a remedy; repository/runtime readback proves present state. If
+current internet research is unavailable, return `RESEARCH_BLOCKED` and choose
+no remedy.
 
 Keep `SKILL.md` portable: line-1 YAML frontmatter with only `name` and
 `description`, directory/name match, relative companion links, no secrets,
