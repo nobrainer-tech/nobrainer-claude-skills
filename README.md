@@ -175,10 +175,11 @@ The commands install the exact Git ref you checked out. Before applying writes,
 confirm that checkout contains `skills/nobrainer-ultra/SKILL.md` and
 `scripts/validate_skills.py`.
 
-Clone the repository, validate it and dry-run the portable installer:
+After publication, clone the versioned `v1.0.0` source tag, validate it and
+dry-run the portable installer:
 
 ```bash
-git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
+git clone --branch v1.0.0 --depth 1 https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
@@ -193,6 +194,9 @@ use a named adapter when one exists, otherwise the canonical folders or root
 Agent Plugin without a bootstrap claim. Full commands, proof boundaries,
 Superpowers setup, dynamic discovery and rollback are in
 [docs/INSTALL.md](docs/INSTALL.md).
+
+See [release notes](RELEASE-NOTES.md) for the exact v1 scope, evidence and
+distribution limits.
 
 ## Quality gates
 
