@@ -10,7 +10,9 @@ trigger applies.
 |---|---|
 | lifecycle, brief requirements, full execution map and guarded autonomy | `nobrainer-ultra` |
 | minimal roles, capability discovery or open-skill evaluation | `nobrainer-team` |
+| ready-set calculation, dependency batches, bounded dispatch and backpressure | `nobrainer-dispatcher` |
 | current, niche, uncertain, high-stakes or attributed external facts | `nobrainer-research` |
+| high-signal user-facing prose, compression, voice or document structure | `nobrainer-writing` |
 | bounded implementation with KISS/DRY/SOLID/YAGNI and anti-slop gates | `nobrainer-build` |
 | threat model, security review, supply-chain audit or security release gate | `nobrainer-security` |
 | consequential choice among materially different options | `nobrainer-decide` |
@@ -66,12 +68,20 @@ one only when sourced decisions or operational knowledge will be reused across
 tasks and normal repository docs are insufficient. Runtime state, leases,
 transient blockers and current hashes do not belong there.
 
-### Sessions and team
+### Team, dispatcher and sessions
 
-Use `nobrainer-team` to decide roles/capabilities and `nobrainer-sessions` to
-operate exact visible sessions. Prefer multi-session work for independent
-critical-path units, isolation, handoff, resume or a reused specialist. Keep a
-tightly coupled edit in MAIN. Titles aid humans; IDs and readback prove identity.
+Use `nobrainer-team` to decide roles/capabilities, `nobrainer-dispatcher` to
+schedule an approved queue with multiple delegated units, and
+`nobrainer-sessions` to operate exact visible sessions. Prefer multi-session work
+for independent critical-path units, isolation, handoff, resume or a reused
+specialist. Keep a tightly coupled edit in MAIN. Titles aid humans; IDs and
+readback prove identity.
+
+For a scheduled queue the canonical transition is `Team -> Dispatcher SCHEDULE
+-> Sessions setup/delegate -> Dispatcher DISPATCH`. Sessions alone performs
+identity preflight and transport; Dispatcher records `READY -> SENT` from its
+readback. Reports return through `Sessions RECEIVE_AUDIT -> Dispatcher
+RECONCILE`. Do not duplicate the transport step inside Dispatcher.
 
 ## Attention contract
 

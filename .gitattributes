@@ -1,0 +1,7 @@
+# Frozen evaluation payloads preserve byte-exact model and rubric whitespace.
+.gitattributes text eol=lf
+docs/evals/artifacts/*-prompt.md -text -whitespace
+docs/evals/artifacts/*-output.md -text -whitespace
+docs/evals/artifacts/*-judge.md -text -whitespace
+docs/evals/artifacts/*-judge-rubric.md -text -whitespace
+docs/evals/artifacts/*.raw.b64 -text -whitespace

@@ -26,16 +26,21 @@ constraint or decision.
 2. Update the one canonical owner: spec, decision record, plan or project
    instruction. Mark the old value `SUPERSEDED`; do not preserve two active
    truths.
-3. Invalidate every dependent `EXECUTION_MAP` item and all evidence produced
+3. Remove every affected not-started row from the ready set, mark it `STOPPED`,
+   and keep its dependants `PENDING` or `BLOCKED`. Invalidate all evidence made
    under the old assumption. Set `REPLAN_REQUIRED` when the critical path,
    acceptance, permissions or architecture changes.
-4. Under `AUTO_SCOPED`, update the relevant project wiki page through
+4. If affected work is already `SENT`, `CLAIMED` or `RUNNING`, stop further
+   routing and use `nobrainer-sessions` to request and read back a controlled
+   stop; never infer that cancellation succeeded.
+5. Under `AUTO_SCOPED`, update the relevant project wiki page through
    `nobrainer-wiki` mode `ADD` when the decision is durable, sourced and
    correctly classified. Under `ASK`, prepare the exact diff; under `OFF`, keep
    it task-local. Replace or annotate stale knowledge instead of appending a
    contradiction.
-5. Resume AUTOPILOT from the earliest invalidated safe stage. Ask again only if
-   the new decision creates a real owner gate.
+6. Rebuild the affected path under a new plan fingerprint. Only then recompute
+   readiness from all gates and resume AUTOPILOT. Ask again only if the new
+   decision creates a real owner gate.
 
 ### `AGENT_ERROR_CORRECTED`
 
@@ -74,7 +79,9 @@ fails.
 2. Add one bounded correction stage owned by `nobrainer-build`.
 3. Run the regression and affected baseline checks, then return to
    `nobrainer-review` with fresh evidence.
-4. Do not reuse the invalidated review, test or release result.
+4. After the repeated review, run a fresh `RECEIVE_AUDIT` that binds the repaired
+   diff, current tests and review result before acceptance.
+5. Do not reuse the invalidated review, test or release result.
 
 ### `REPEATED_DEFECT`
 

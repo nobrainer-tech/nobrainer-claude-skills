@@ -1,0 +1,4 @@
+interface:
+  display_name: "NoBrainer Dispatcher"
+  short_description: "Schedules safe parallel work and audited handoffs"
+  default_prompt: "Use $nobrainer-dispatcher to schedule and dispatch the ready work units in this execution map."

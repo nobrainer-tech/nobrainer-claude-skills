@@ -17,7 +17,9 @@ not the same as a proven client integration. Record these levels separately:
 
 Never promote one level from evidence belonging to another.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.1.0`: release, tag-to-commit,
+The current `v1.2.0` repository state is a release candidate, not yet a
+distribution claim. The GitHub source channel is `DISTRIBUTED` for `v1.1.0`:
+release, tag-to-commit,
 CI, downloaded-archive file parity, secret scan and isolated installer readback
 of all thirteen skills are recorded in
 [the release evidence](releases/v1.1.0.md). GitHub reports this release as
@@ -56,7 +58,7 @@ discovery/bootstrap proof before promotion.
 
 ## Adapter contract
 
-All adapters point at the same thirteen directories. They may expose discovery and
+All adapters point at the same fifteen directories. They may expose discovery and
 one small `NOBRAINER_BOOTSTRAP_V1` routing context, but they must not copy or
 rewrite skill bodies.
 

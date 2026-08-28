@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
+import os
 import re
 import subprocess
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 
 from scripts import install_skills, validate_skills
@@ -13,21 +17,25 @@ from scripts import install_skills, validate_skills
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 
-CANONICAL = {
-    "nobrainer-ultra": "nb-ultra",
-    "nobrainer-team": "nb-team",
-    "nobrainer-research": "nb-research",
-    "nobrainer-build": "nb-build",
-    "nobrainer-security": "nb-security",
-    "nobrainer-sessions": "nb-sessions",
-    "nobrainer-spec-driven-development": "nb-sdd",
-    "nobrainer-wiki": "nb-wiki",
-    "nobrainer-browser": "nb-browser",
-    "nobrainer-autoimprove": "nb-autoimprove",
-    "nobrainer-decide": "nb-decide",
-    "nobrainer-rca": "nb-rca",
-    "nobrainer-review": "nb-review",
-}
+CANONICAL_ITEMS = (
+    ("nobrainer-ultra", "nb-ultra"),
+    ("nobrainer-team", "nb-team"),
+    ("nobrainer-dispatcher", "nb-dispatcher"),
+    ("nobrainer-research", "nb-research"),
+    ("nobrainer-writing", "nb-write"),
+    ("nobrainer-build", "nb-build"),
+    ("nobrainer-security", "nb-security"),
+    ("nobrainer-sessions", "nb-sessions"),
+    ("nobrainer-spec-driven-development", "nb-sdd"),
+    ("nobrainer-wiki", "nb-wiki"),
+    ("nobrainer-browser", "nb-browser"),
+    ("nobrainer-autoimprove", "nb-autoimprove"),
+    ("nobrainer-decide", "nb-decide"),
+    ("nobrainer-rca", "nb-rca"),
+    ("nobrainer-review", "nb-review"),
+)
+CANONICAL = dict(CANONICAL_ITEMS)
+CANONICAL_ORDER = tuple(name for name, _ in CANONICAL_ITEMS)
 
 LEGACY = {
     "add-gitleaks",
@@ -41,6 +49,7 @@ LEGACY = {
     "deep-bugs-finder",
     "deep-code-review",
     "deep-decide",
+    "dispatching-parallel-agents",
     "deep-rca",
     "engineering-standards",
     "karpathy-auto-improver",
@@ -48,10 +57,12 @@ LEGACY = {
     "llm-wiki",
     "nb-add",
     "nb-flow",
+    "nb-dispatcher",
     "nb-get",
     "nb-multi",
     "nb-tidy",
     "nb-workflow",
+    "nb-write",
     "nobrainer-autopilot",
     "nobrainer-capture-lesson",
     "nobrainer-continuous-improvement",
@@ -62,6 +73,8 @@ LEGACY = {
     "nobrainer-starter",
     "nobrainer-skill-browser",
     "nobrainer-simplifier",
+    "nobrainer-style",
+    "nobrainer-human-like",
     "security-review",
     "session-handoff",
     "nobrainer-team-builder",
@@ -86,6 +99,32 @@ VERSION_MANIFESTS = (
     ".kimi-plugin/plugin.json",
     "gemini-extension.json",
 )
+
+
+def markdown_heading_spans(text: str, heading: str) -> list[tuple[int, int]]:
+    """Return exact unfenced headings; reject raw-HTML block candidates."""
+
+    spans: list[tuple[int, int]] = []
+    fence: tuple[str, int] | None = None
+    offset = 0
+    for raw_line in text.splitlines(keepends=True):
+        line = raw_line.rstrip("\r\n")
+        opener = re.match(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$", line)
+        if opener and opener.group(1).startswith("`") and "`" in opener.group(2):
+            opener = None
+        if fence is None and re.match(r"^[ ]{0,3}<", line):
+            raise ValueError("raw HTML blocks are not supported in release notes")
+        if fence is None and opener:
+            marker = opener.group(1)
+            fence = (marker[0], len(marker))
+        elif fence is not None:
+            marker, minimum = fence
+            if re.fullmatch(rf"[ ]{{0,3}}{re.escape(marker)}{{{minimum},}}[ \t]*", line):
+                fence = None
+        elif line == heading:
+            spans.append((offset, offset + len(line)))
+        offset += len(raw_line)
+    return spans
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -163,9 +202,11 @@ class SuiteTests(unittest.TestCase):
             "AUTOPILOT",
             "RECEIVE_AUDIT",
             "nobrainer-sessions",
+            "nobrainer-dispatcher",
             "nobrainer-spec-driven-development",
             "nobrainer-team",
             "nobrainer-research",
+            "nobrainer-writing",
             "nobrainer-build",
         ):
             self.assertIn(term, text)
@@ -178,6 +219,7 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("Every executable row must display its literal `METHOD`", text)
         self.assertIn("target 5-12 rows", text)
         self.assertIn("stable locally testable fact", text)
+        self.assertIn("affected not-started `READY` rows to `STOPPED`", text)
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
@@ -237,6 +279,44 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertIn("Stop when the decision-relevant uncertainty is resolved", text)
 
+    def test_problem_gate_checks_targeted_wiki_then_current_research(self) -> None:
+        research = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        setup = (
+            SKILLS / "nobrainer-ultra" / "references" / "setup.md"
+        ).read_text(encoding="utf-8")
+        for text in (research, ultra, setup):
+            self.assertIn("PROBLEM_GATE", text)
+            self.assertIn("wiki", text.lower())
+            self.assertIn("internet", text.lower())
+        self.assertIn("Wiki is context, not current-state proof", research)
+
+    def test_writing_contract_is_high_signal_without_detector_gaming(self) -> None:
+        text = (SKILLS / "nobrainer-writing" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        research = (
+            SKILLS / "nobrainer-writing" / "references" / "research.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "DRAFT",
+            "COMPRESS",
+            "REWRITE",
+            "REVIEW",
+            "meaning ledger",
+            "VALUE_DENSITY",
+            "CAVEATS_AND_CONDITIONS_PRESERVED",
+            "nobrainer-research",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("Do not optimize for an AI detector", text)
+        self.assertIn("Ten approaches reviewed", research)
+        self.assertEqual(10, len(re.findall(r"^\| \d+ \|", research, re.M)))
+
     def test_security_contract_is_evidence_gated_and_read_only(self) -> None:
         text = (SKILLS / "nobrainer-security" / "SKILL.md").read_text(
             encoding="utf-8"
@@ -264,6 +344,7 @@ class SuiteTests(unittest.TestCase):
             "CAPABILITY_GAP",
             "npx skills find",
             "npx skills use",
+            "nobrainer-dispatcher",
             "nobrainer-sessions",
             "MAIN",
             "2-4",
@@ -273,6 +354,976 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("METHOD", reference)
         self.assertIn("WRITE_SCOPE", reference)
         self.assertIn("ACCEPTANCE", reference)
+
+    def test_dispatcher_contract_schedules_without_stealing_other_owners(self) -> None:
+        text = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        normalized = " ".join(text.split())
+        for term in (
+            "SCHEDULE",
+            "DISPATCH",
+            "RECONCILE",
+            "RECOVER",
+            "READY",
+            "PENDING",
+            "SENT",
+            "PLAN_REF_AND_FINGERPRINT",
+            "ATTENTION_BUDGET",
+            "BLOCKER_FINGERPRINT",
+            "PARALLEL_SAFETY",
+            "nobrainer-team",
+            "nobrainer-sessions",
+            "RECEIVE_AUDIT",
+            "NEXT_ACTION",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("A single coherent work unit stays in MAIN", text)
+        self.assertIn("must not repair a vague plan", text)
+        self.assertIn("worker cannot choose, dispatch or start a successor", text)
+        self.assertIn("Unknown dependency state is `BLOCKED`", text)
+        self.assertIn("one eligible `BLOCKED` task", text)
+        self.assertIn("record `BLOCKED -> READY`", text)
+        self.assertIn("plan fingerprint and task contract are still current", normalized)
+        self.assertIn("transport identity may still be", text)
+        self.assertIn("unknown transport state keeps the task `READY`", normalized)
+        self.assertIn("Sessions alone performs the send", text)
+        self.assertIn(
+            "rerun affected tests and any required failed review, then run a "
+            "fresh `RECEIVE_AUDIT`",
+            normalized,
+        )
+        self.assertIn("none substitutes for another", normalized)
+        self.assertIn(
+            "affected not-started `READY` rows to `STOPPED`", normalized
+        )
+        self.assertIn("new fingerprint", normalized)
+        self.assertIn("RESULT: NOT_NEEDED", text)
+
+    def test_team_dispatcher_sessions_transition_has_one_transport_owner(self) -> None:
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        sessions = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        routing = (
+            SKILLS / "nobrainer-ultra" / "references" / "routing.md"
+        ).read_text(encoding="utf-8")
+        normalized_dispatcher = " ".join(dispatcher.split())
+        normalized_sessions = " ".join(sessions.split())
+        normalized_ultra = " ".join(ultra.split())
+        normalized_routing = " ".join(routing.split())
+        sequence = (
+            "Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher "
+            "DISPATCH"
+        )
+        self.assertIn(sequence, dispatcher)
+        self.assertIn(sequence, ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_routing)
+        self.assertIn("it never invokes a second transport pass", normalized_dispatcher)
+        self.assertIn("return `CORRECTION_REQUIRED`", sessions)
+        self.assertIn(
+            "do not choose, dispatch or execute the correction", normalized_sessions
+        )
+        self.assertIn(
+            "after the repair and any required repeated review, run a fresh "
+            "`receive_audit`",
+            normalized_sessions.lower(),
+        )
+        self.assertIn(
+            "repeat the review with fresh proof, then run a fresh `RECEIVE_AUDIT`",
+            normalized_ultra,
+        )
+        hooks = (
+            SKILLS
+            / "nobrainer-ultra"
+            / "references"
+            / "correction-hooks.md"
+        ).read_text(encoding="utf-8")
+        normalized_hooks = " ".join(hooks.split())
+        self.assertIn("mark it `STOPPED`", normalized_hooks)
+        self.assertIn("keep its dependants `PENDING` or `BLOCKED`", normalized_hooks)
+        self.assertIn("new plan fingerprint", normalized_hooks)
+        self.assertIn("never infer that cancellation succeeded", normalized_hooks)
+        self.assertIn(
+            "after the repeated review, run a fresh `receive_audit`",
+            normalized_hooks.lower(),
+        )
+
+    def test_dispatcher_eval_preserves_failed_history_and_current_holdout(self) -> None:
+        record = (
+            ROOT / "docs" / "evals" / "dispatcher-routing-v1.2.0-2026-08-28.md"
+        ).read_text(encoding="utf-8")
+        historical_run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-release-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        historical_final_run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-final-verified-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        current_probe_run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-current-release-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        exact_run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-exact-release-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        development_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-development-probe-judge.md"
+        ).read_text(encoding="utf-8")
+        post_review_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-post-review-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        post_review_prompt = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-post-review-holdout-prompt.md"
+        ).read_text(encoding="utf-8")
+        release_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        historical_final_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-final-verified-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        current_probe_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-current-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        exact_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-routing-exact-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("DEVELOPMENT_PROBE: FAIL 3/4", record)
+        self.assertIn("PRE_REVIEW_HOLDOUT: PASS 5/5", record)
+        self.assertIn("INDEPENDENT_DIFF_REVIEW: NO_GO", record)
+        self.assertIn("POST_REVIEW_HOLDOUT: INVALIDATED", record)
+        self.assertIn("undefined lease value `UNCLAIMED`", record)
+        self.assertIn("FULL_PACKAGE_REVIEW: NO_GO", record)
+        self.assertIn(
+            "HISTORICAL_RELEASE_HOLDOUT: PASS 5/5; "
+            "INVALIDATED_BY_LATER_CONTRACT_EDITS",
+            record,
+        )
+        self.assertIn("FINAL_VERIFIED_HOLDOUT: FAIL 4/5", record)
+        self.assertIn("FINAL_HOLDOUT_JUDGE_ERROR", record)
+        self.assertIn(
+            "FINAL_HOLDOUT_BINDING: historical after "
+            "semantics-preserving bootstrap compression",
+            record,
+        )
+        self.assertIn("CURRENT_RELEASE_HARNESS_PROBE: FAIL 4/5", record)
+        self.assertIn(
+            "CURRENT_RELEASE_HARNESS_FINDING: candidate excerpt omitted "
+            "the explicit no-blind-retry rule",
+            record,
+        )
+        self.assertIn("EXACT_RELEASE_HOLDOUT: PASS 5/5", record)
+        self.assertIn(
+            "EXACT_RELEASE_BINDING: historical after later trigger-scope "
+            "contract edits",
+            record,
+        )
+        self.assertIn("TRIGGER_SCOPE_PROBE: FAIL 3/5", record)
+        self.assertIn("TRIGGER_FINAL_HOLDOUT: PASS 5/5", record)
+        self.assertIn(
+            "TRIGGER_FINAL_BINDING: current Ultra, Team, Dispatcher and "
+            "Sessions hashes verified",
+            record,
+        )
+        self.assertIn(
+            "INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_SPLIT_COMPLETE",
+            record,
+        )
+        self.assertIn("FINAL_REVIEW_COVERAGE:", record)
+        self.assertIn("FINAL_CONTRACTS_REVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_ARTIFACTS_REVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_PROVENANCE_REREVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_TEST_REREVIEW_RESULT: CLEAN", record)
+        self.assertIn(
+            "FULL_REVIEW_DIFF_SHA256: "
+            "d2c989148341a379cf6a9eee3a81898dcc024f0a5ea474f4d746eb7eac64d45c",
+            record,
+        )
+        self.assertIn(
+            "FOCUSED_REREVIEW_PACKET_SHA256: "
+            "845cbe47e7cce845a7a96b26989ac20ee6c815f5a7d918217a0111c039717fc4",
+            record,
+        )
+        self.assertIn("FOCUSED_REREVIEW_RESULT: CLEAN", record)
+        self.assertIn("VERDICT: FAIL", development_judge)
+        self.assertIn("VERDICT: PASS", post_review_judge)
+        self.assertIn("`UNCLAIMED`", post_review_prompt)
+        self.assertIn("VERDICT: PASS — 5/5 cases", release_judge)
+        historical_final_case_lines = [
+            line
+            for line in historical_final_judge.splitlines()
+            if re.match(r"^[A-E]: (PASS|FAIL)\b", line)
+        ]
+        self.assertEqual(
+            sum(": PASS" in line for line in historical_final_case_lines), 4
+        )
+        self.assertEqual(
+            sum(": FAIL" in line for line in historical_final_case_lines), 1
+        )
+        self.assertIn("HARD_FAILURES: NONE", historical_final_judge)
+        self.assertIn("VERDICT: FAIL — 1/5 cases", historical_final_judge)
+        self.assertIn("RESULT: FAIL 4/5", historical_final_run)
+        self.assertIn("RELEASE_EVIDENCE: NO", historical_final_run)
+
+        current_probe_case_lines = [
+            line
+            for line in current_probe_judge.splitlines()
+            if re.match(r"^[A-E]: (PASS|FAIL)\b", line)
+        ]
+        self.assertEqual(
+            sum(": PASS" in line for line in current_probe_case_lines), 4
+        )
+        self.assertEqual(
+            sum(": FAIL" in line for line in current_probe_case_lines), 1
+        )
+        self.assertIn("VERDICT: FAIL — 4/5 cases", current_probe_judge)
+        self.assertIn("RESULT: FAIL 4/5", current_probe_run)
+        self.assertIn("RELEASE_EVIDENCE: NO", current_probe_run)
+
+        exact_case_lines = [
+            line
+            for line in exact_judge.splitlines()
+            if re.match(r"^[A-E]: (PASS|FAIL)\b", line)
+        ]
+        self.assertEqual(sum(": PASS" in line for line in exact_case_lines), 5)
+        self.assertEqual(sum(": FAIL" in line for line in exact_case_lines), 0)
+        self.assertIn("HARD_FAILURES: NONE", exact_judge)
+        self.assertIn("MATERIAL_FINDINGS: NONE", exact_judge)
+        self.assertIn("VERDICT: PASS — 5/5 cases", exact_judge)
+        self.assertIn("RESULT: PASS 5/5", exact_run)
+        self.assertIn("RELEASE_EVIDENCE: YES", exact_run)
+        self.assertIn("CLIENT_RUNTIME: NOT_VERIFIED", record)
+        self.assertIn(
+            "BASELINE_COMMIT: d6931a1006bf0180955d8437fd93174b6a512428",
+            historical_run,
+        )
+        self.assertIn("COMPARATIVE_SCORE_CLAIM: NONE", exact_run)
+        self.assertRegex(exact_run, r"CANDIDATE_SESSION: [0-9a-f-]{36}")
+        self.assertRegex(exact_run, r"JUDGE_SESSION: [0-9a-f-]{36}")
+
+        def sha256(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        declared_skill = re.search(r"^SKILL_SHA256: ([0-9a-f]{64})$", record, re.M)
+        self.assertIsNotNone(declared_skill)
+        self.assertEqual(
+            sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
+        )
+        current_bootstrap = re.search(
+            r"^CURRENT_BOOTSTRAP_SHA256: ([0-9a-f]{64})$", record, re.M
+        )
+        self.assertIsNotNone(current_bootstrap)
+        self.assertEqual(
+            sha256("adapters/bootstrap.md"), current_bootstrap.group(1)
+        )
+        for label in (
+            "ULTRA_SHA256",
+            "CORRECTION_HOOKS_SHA256",
+            "DISPATCHER_SHA256",
+            "SESSIONS_SHA256",
+            "BOOTSTRAP_SHA256",
+        ):
+            self.assertRegex(
+                historical_final_run, rf"(?m)^{label}: [0-9a-f]{{64}}$"
+            )
+        frozen_bootstrap = re.search(
+            r"^BOOTSTRAP_SHA256: ([0-9a-f]{64})$", historical_final_run, re.M
+        )
+        self.assertIsNotNone(frozen_bootstrap)
+        self.assertNotEqual(current_bootstrap.group(1), frozen_bootstrap.group(1))
+
+        for run in (current_probe_run, exact_run):
+            for label, relative in (
+                ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+                (
+                    "CORRECTION_HOOKS_SHA256",
+                    "skills/nobrainer-ultra/references/correction-hooks.md",
+                ),
+                ("DISPATCHER_SHA256", "skills/nobrainer-dispatcher/SKILL.md"),
+                ("SESSIONS_SHA256", "skills/nobrainer-sessions/SKILL.md"),
+                ("BOOTSTRAP_SHA256", "adapters/bootstrap.md"),
+            ):
+                declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+                self.assertIsNotNone(declared)
+
+        def assert_packet_integrity(run: str, stem: str) -> None:
+            base = f"docs/evals/artifacts/{stem}"
+            for label, suffix in (
+                ("PROMPT_SHA256", "-prompt.md"),
+                ("OUTPUT_SHA256", "-output.md"),
+                ("JUDGE_RUBRIC_SHA256", "-judge-rubric.md"),
+                ("JUDGE_PROMPT_SHA256", "-judge-prompt.md"),
+                ("JUDGE_OUTPUT_SHA256", "-judge.md"),
+            ):
+                declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+                self.assertIsNotNone(declared)
+                self.assertEqual(sha256(base + suffix), declared.group(1))
+
+            for label, raw_suffix, normalized_suffix in (
+                ("RAW_OUTPUT_SHA256", "-output.raw.b64", "-output.md"),
+                (
+                    "RAW_JUDGE_OUTPUT_SHA256",
+                    "-judge.raw.b64",
+                    "-judge.md",
+                ),
+            ):
+                raw = base64.b64decode(
+                    (ROOT / (base + raw_suffix))
+                    .read_text(encoding="ascii")
+                    .strip(),
+                    validate=True,
+                )
+                declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+                self.assertIsNotNone(declared)
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
+                self.assertEqual(
+                    (ROOT / (base + normalized_suffix)).read_bytes(), raw + b"\n"
+                )
+
+        assert_packet_integrity(
+            historical_final_run, "v1.2.0-routing-final-verified-holdout"
+        )
+        assert_packet_integrity(
+            current_probe_run, "v1.2.0-routing-current-release-holdout"
+        )
+        assert_packet_integrity(
+            exact_run, "v1.2.0-routing-exact-release-holdout"
+        )
+
+        exact_base = "docs/evals/artifacts/v1.2.0-routing-exact-release-holdout"
+        exact_prompt = (ROOT / f"{exact_base}-prompt.md").read_text(
+            encoding="utf-8"
+        )
+        exact_output = (ROOT / f"{exact_base}-output.md").read_bytes()
+        exact_rubric = (ROOT / f"{exact_base}-judge-rubric.md").read_bytes()
+        exact_judge_prompt = (ROOT / f"{exact_base}-judge-prompt.md").read_bytes()
+        embedded_output = exact_judge_prompt.split(
+            b"## Candidate output\n\n", 1
+        )[1]
+        self.assertEqual(exact_output, embedded_output)
+        rubric_payload = b"Hard failures are:" + exact_rubric.split(
+            b"Hard failures are:", 1
+        )[1]
+        embedded_rubric = (
+            exact_judge_prompt.split(b"## Frozen rubric\n\n", 1)[1]
+            .split(b"\n\n## Candidate output", 1)[0]
+            + b"\n"
+        )
+        self.assertEqual(rubric_payload, embedded_rubric)
+
+        routing_sources = (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            (
+                "CORRECTION_HOOKS_SHA256",
+                "skills/nobrainer-ultra/references/correction-hooks.md",
+            ),
+            ("DISPATCHER_SHA256", "skills/nobrainer-dispatcher/SKILL.md"),
+            ("SESSIONS_SHA256", "skills/nobrainer-sessions/SKILL.md"),
+            ("BOOTSTRAP_SHA256", "adapters/bootstrap.md"),
+        )
+        for label, relative in routing_sources:
+            prompt_declared = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", exact_prompt, re.M
+            )
+            run_declared = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", exact_run, re.M
+            )
+            self.assertIsNotNone(prompt_declared)
+            self.assertIsNotNone(run_declared)
+            self.assertEqual(prompt_declared.group(1), run_declared.group(1))
+
+        routing_artifact_paths = (
+            f"{exact_base}-prompt.md",
+            f"{exact_base}-output.md",
+            f"{exact_base}-output.raw.b64",
+            f"{exact_base}-judge-rubric.md",
+            f"{exact_base}-judge-prompt.md",
+            f"{exact_base}-judge.md",
+            f"{exact_base}-judge.raw.b64",
+        )
+        binding = hashlib.sha256()
+        for label, relative in routing_sources:
+            frozen = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", exact_run, re.M
+            )
+            self.assertIsNotNone(frozen)
+            binding.update(relative.encode("utf-8"))
+            binding.update(b"\0")
+            binding.update(bytes.fromhex(frozen.group(1)))
+        for relative in routing_artifact_paths:
+            binding.update(relative.encode("utf-8"))
+            binding.update(b"\0")
+            binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
+        declared_binding = re.search(
+            r"^SOURCE_AND_ARTIFACT_SET_SHA256: ([0-9a-f]{64})$", exact_run, re.M
+        )
+        self.assertIsNotNone(declared_binding)
+        self.assertEqual(binding.hexdigest(), declared_binding.group(1))
+
+    def test_dispatcher_trigger_eval_preserves_failure_and_binds_final_holdout(
+        self,
+    ) -> None:
+        base = ROOT / "docs" / "evals" / "artifacts"
+        failed_stem = "v1.2.0-dispatcher-trigger-scope"
+        final_stem = "v1.2.0-dispatcher-trigger-final-holdout"
+        failed_run = (base / f"{failed_stem}-run.md").read_text(encoding="utf-8")
+        failed_judge = (base / f"{failed_stem}-judge.md").read_text(
+            encoding="utf-8"
+        )
+        final_run = (base / f"{final_stem}-run.md").read_text(encoding="utf-8")
+        final_judge = (base / f"{final_stem}-judge.md").read_text(
+            encoding="utf-8"
+        )
+
+        def parse_judge_block(text: str) -> tuple[list[str], list[str]]:
+            lines = text.splitlines()
+            self.assertEqual(8, len(lines), lines)
+            statuses: list[str] = []
+            for index, label in enumerate("ABCDE"):
+                match = re.fullmatch(rf"{label}: (PASS|FAIL) — .+", lines[index])
+                self.assertIsNotNone(match, lines[index])
+                statuses.append(match.group(1))
+            self.assertRegex(lines[5], r"^HARD_FAILURES: .+$")
+            self.assertRegex(lines[6], r"^MATERIAL_FINDINGS: .+$")
+            self.assertRegex(lines[7], r"^VERDICT: (PASS|FAIL) — [0-5]/5 cases$")
+            return statuses, lines
+
+        failed_statuses, failed_lines = parse_judge_block(failed_judge)
+        self.assertEqual(["FAIL", "PASS", "PASS", "PASS", "FAIL"], failed_statuses)
+        self.assertEqual("HARD_FAILURES: NONE", failed_lines[5])
+        self.assertEqual("VERDICT: FAIL — 3/5 cases", failed_lines[7])
+
+        final_statuses, final_lines = parse_judge_block(final_judge)
+        self.assertEqual(["PASS"] * 5, final_statuses)
+        self.assertEqual("HARD_FAILURES: NONE", final_lines[5])
+        self.assertEqual("MATERIAL_FINDINGS: NONE", final_lines[6])
+        self.assertEqual("VERDICT: PASS — 5/5 cases", final_lines[7])
+
+        def parse_run_fields(text: str) -> dict[str, str]:
+            for separator in ("\r", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+                self.assertNotIn(separator, text)
+            fields: dict[str, str] = {}
+            in_text_block = False
+            text_blocks = 0
+            for line in text.split("\n"):
+                if line == "```text":
+                    self.assertFalse(in_text_block)
+                    in_text_block = True
+                    text_blocks += 1
+                    continue
+                if in_text_block and line == "```":
+                    in_text_block = False
+                    continue
+                if not in_text_block:
+                    continue
+                match = re.fullmatch(r"([A-Z][A-Z0-9_]*): (.+)", line)
+                self.assertIsNotNone(match, line)
+                label, value = match.groups()
+                self.assertNotIn(label, fields, label)
+                fields[label] = value
+            self.assertFalse(in_text_block)
+            self.assertEqual(3, text_blocks)
+            return fields
+
+        failed_order = (
+            "RESULT",
+            "HARD_FAILURES",
+            "RELEASE_EVIDENCE",
+            "FOLLOW_UP_REQUIRED",
+            "DATE_UTC",
+            "OS",
+            "HARNESS",
+            "CANDIDATE_MODEL",
+            "CANDIDATE_REASONING",
+            "CANDIDATE_SANDBOX",
+            "CANDIDATE_SESSION",
+            "CANDIDATE_WRAPPER_STARTED_UTC",
+            "CANDIDATE_FINISHED_UTC",
+            "CANDIDATE_EXIT",
+            "CANDIDATE_TOKENS_REPORTED",
+            "JUDGE_MODEL",
+            "JUDGE_REASONING",
+            "JUDGE_SANDBOX",
+            "JUDGE_SESSION",
+            "JUDGE_WRAPPER_STARTED_UTC",
+            "JUDGE_FINISHED_UTC",
+            "JUDGE_EXIT",
+            "JUDGE_TOKENS_REPORTED",
+            "ULTRA_SHA256",
+            "TEAM_SHA256",
+            "DISPATCHER_SHA256",
+            "SESSIONS_SHA256",
+            "PROMPT_SHA256",
+            "OUTPUT_SHA256",
+            "RAW_OUTPUT_SHA256",
+            "JUDGE_RUBRIC_SHA256",
+            "JUDGE_PROMPT_SHA256",
+            "JUDGE_OUTPUT_SHA256",
+            "RAW_JUDGE_OUTPUT_SHA256",
+            "ARTIFACT_SET_SHA256",
+            "RUN_CANONICALIZATION",
+            "PROVENANCE_BOUNDARY",
+            "CANDIDATE_NORMALIZATION",
+            "JUDGE_NORMALIZATION",
+        )
+        final_order = (
+            "BASELINE_RELEASE",
+            "BASELINE_COMMIT",
+            "COMPARATIVE_SCORE_CLAIM",
+            "RESULT",
+            "HARD_FAILURES",
+            "MATERIAL_FINDINGS",
+            "RELEASE_EVIDENCE",
+            "DATE_UTC",
+            "OS",
+            "HARNESS",
+            "CANDIDATE_MODEL",
+            "CANDIDATE_REASONING",
+            "CANDIDATE_SANDBOX",
+            "CANDIDATE_SESSION",
+            "CANDIDATE_FINISHED_UTC",
+            "CANDIDATE_EXIT",
+            "CANDIDATE_TOKENS_REPORTED",
+            "JUDGE_MODEL",
+            "JUDGE_REASONING",
+            "JUDGE_SANDBOX",
+            "JUDGE_SESSION",
+            "JUDGE_FINISHED_UTC",
+            "JUDGE_EXIT",
+            "JUDGE_TOKENS_REPORTED",
+            "ULTRA_SHA256",
+            "TEAM_SHA256",
+            "DISPATCHER_SHA256",
+            "SESSIONS_SHA256",
+            "PROMPT_SHA256",
+            "OUTPUT_SHA256",
+            "RAW_OUTPUT_SHA256",
+            "JUDGE_RUBRIC_SHA256",
+            "JUDGE_PROMPT_SHA256",
+            "JUDGE_OUTPUT_SHA256",
+            "RAW_JUDGE_OUTPUT_SHA256",
+            "SOURCE_AND_ARTIFACT_SET_SHA256",
+            "RUN_CANONICALIZATION",
+            "PROVENANCE_BOUNDARY",
+            "CANDIDATE_NORMALIZATION",
+            "JUDGE_NORMALIZATION",
+        )
+        failed_fields = parse_run_fields(failed_run)
+        final_fields = parse_run_fields(final_run)
+        self.assertEqual(failed_order, tuple(failed_fields))
+        self.assertEqual(final_order, tuple(final_fields))
+        for fields in (failed_fields, final_fields):
+            for label, value in fields.items():
+                if label.endswith("SHA256"):
+                    self.assertRegex(value, r"^[0-9a-f]{64}$", label)
+        self.assertRegex(final_fields["BASELINE_COMMIT"], r"^[0-9a-f]{40}$")
+        with self.assertRaises(AssertionError):
+            parse_run_fields(
+                "```text\nRESULT: PASS 5/5\nRESULT:garbage\n```\n"
+            )
+        with self.assertRaises(AssertionError):
+            parse_run_fields("```text\nRESULT:\n```\n")
+        with self.assertRaises(AssertionError):
+            parse_run_fields("```text\nRESULT : forged\n```\n")
+
+        self.assertEqual("FAIL 3/5", failed_fields["RESULT"])
+        self.assertEqual("NONE", failed_fields["HARD_FAILURES"])
+        self.assertEqual("NO", failed_fields["RELEASE_EVIDENCE"])
+        self.assertEqual("PASS 5/5", final_fields["RESULT"])
+        self.assertEqual("NONE", final_fields["HARD_FAILURES"])
+        self.assertEqual("NONE", final_fields["MATERIAL_FINDINGS"])
+        self.assertEqual("YES", final_fields["RELEASE_EVIDENCE"])
+        for fields in (failed_fields, final_fields):
+            self.assertEqual(
+                "added one terminal LF for repository text convention",
+                fields["CANDIDATE_NORMALIZATION"],
+            )
+            self.assertEqual(
+                "added one terminal LF for repository text convention",
+                fields["JUDGE_NORMALIZATION"],
+            )
+
+        def assert_canonical_uuid_field(fields: dict[str, str], label: str) -> None:
+            value = fields[label]
+            self.assertRegex(
+                value,
+                r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-"
+                r"[0-9a-f]{4}-[0-9a-f]{12}$",
+            )
+            self.assertEqual(value, str(uuid.UUID(value)))
+
+        for fields in (failed_fields, final_fields):
+            assert_canonical_uuid_field(fields, "CANDIDATE_SESSION")
+            assert_canonical_uuid_field(fields, "JUDGE_SESSION")
+
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        team = (SKILLS / "nobrainer-team" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Dispatcher owns that scheduler inspection", dispatcher)
+        self.assertIn("MAIN remains\nthe owner of the work unit", dispatcher)
+        self.assertIn("do not use to elicit requirements", team)
+        self.assertIn("must not design roles from a vague goal", team)
+
+        def digest(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        def assert_packet(stem: str, fields: dict[str, str]) -> None:
+            prefix = f"docs/evals/artifacts/{stem}"
+            for label, suffix in (
+                ("PROMPT_SHA256", "-prompt.md"),
+                ("OUTPUT_SHA256", "-output.md"),
+                ("JUDGE_RUBRIC_SHA256", "-judge-rubric.md"),
+                ("JUDGE_PROMPT_SHA256", "-judge-prompt.md"),
+                ("JUDGE_OUTPUT_SHA256", "-judge.md"),
+            ):
+                self.assertRegex(fields[label], r"^[0-9a-f]{64}$")
+                self.assertEqual(digest(prefix + suffix), fields[label])
+
+            for label, raw_suffix, normalized_suffix in (
+                ("RAW_OUTPUT_SHA256", "-output.raw.b64", "-output.md"),
+                (
+                    "RAW_JUDGE_OUTPUT_SHA256",
+                    "-judge.raw.b64",
+                    "-judge.md",
+                ),
+            ):
+                raw = base64.b64decode(
+                    (ROOT / (prefix + raw_suffix))
+                    .read_text(encoding="ascii")
+                    .strip(),
+                    validate=True,
+                )
+                self.assertRegex(fields[label], r"^[0-9a-f]{64}$")
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), fields[label])
+                self.assertEqual(
+                    (ROOT / (prefix + normalized_suffix)).read_bytes(), raw + b"\n"
+                )
+
+        assert_packet(failed_stem, failed_fields)
+        assert_packet(final_stem, final_fields)
+
+        source_paths = (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            ("TEAM_SHA256", "skills/nobrainer-team/SKILL.md"),
+            ("DISPATCHER_SHA256", "skills/nobrainer-dispatcher/SKILL.md"),
+            ("SESSIONS_SHA256", "skills/nobrainer-sessions/SKILL.md"),
+        )
+        for stem, fields in (
+            (failed_stem, failed_fields),
+            (final_stem, final_fields),
+        ):
+            prompt = (base / f"{stem}-prompt.md").read_text(encoding="utf-8")
+            for label, _ in source_paths:
+                declared = re.findall(
+                    rf"^{label}: ([0-9a-f]{{64}})$", prompt, re.MULTILINE
+                )
+                self.assertEqual([fields[label]], declared)
+
+        historical_current_matches = {
+            label: failed_fields[label] == digest(relative)
+            for label, relative in source_paths
+        }
+        self.assertEqual(
+            {
+                "ULTRA_SHA256": True,
+                "TEAM_SHA256": False,
+                "DISPATCHER_SHA256": False,
+                "SESSIONS_SHA256": True,
+            },
+            historical_current_matches,
+        )
+
+        final_prompt = (base / f"{final_stem}-prompt.md").read_text(
+            encoding="utf-8"
+        )
+        for label, relative in source_paths:
+            prompt_declared = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", final_prompt, re.M
+            )
+            self.assertIsNotNone(prompt_declared)
+            self.assertEqual(digest(relative), prompt_declared.group(1))
+            self.assertEqual(prompt_declared.group(1), final_fields[label])
+
+        final_output = (base / f"{final_stem}-output.md").read_bytes()
+        final_rubric = (base / f"{final_stem}-judge-rubric.md").read_bytes()
+        final_judge_prompt = (base / f"{final_stem}-judge-prompt.md").read_bytes()
+        embedded = final_judge_prompt.split(b"## Frozen rubric\n\n", 1)[1]
+        embedded_rubric, embedded_output = embedded.split(
+            b"\n## Candidate output\n\n", 1
+        )
+        self.assertEqual(final_rubric, embedded_rubric)
+        self.assertEqual(final_output, embedded_output)
+
+        failed_binding_paths = (
+            f"docs/evals/artifacts/{failed_stem}-prompt.md",
+            f"docs/evals/artifacts/{failed_stem}-output.md",
+            f"docs/evals/artifacts/{failed_stem}-output.raw.b64",
+            f"docs/evals/artifacts/{failed_stem}-judge-rubric.md",
+            f"docs/evals/artifacts/{failed_stem}-judge-prompt.md",
+            f"docs/evals/artifacts/{failed_stem}-judge.md",
+            f"docs/evals/artifacts/{failed_stem}-judge.raw.b64",
+            f"docs/evals/artifacts/{failed_stem}-run.md",
+        )
+        final_binding_paths = tuple(relative for _, relative in source_paths) + (
+            f"docs/evals/artifacts/{final_stem}-prompt.md",
+            f"docs/evals/artifacts/{final_stem}-output.md",
+            f"docs/evals/artifacts/{final_stem}-output.raw.b64",
+            f"docs/evals/artifacts/{final_stem}-judge-rubric.md",
+            f"docs/evals/artifacts/{final_stem}-judge-prompt.md",
+            f"docs/evals/artifacts/{final_stem}-judge.md",
+            f"docs/evals/artifacts/{final_stem}-judge.raw.b64",
+            f"docs/evals/artifacts/{final_stem}-run.md",
+        )
+
+        def binding_digest(paths: tuple[str, ...], field: str) -> str:
+            binding = hashlib.sha256()
+            for relative in paths:
+                data = (ROOT / relative).read_bytes()
+                if relative == paths[-1]:
+                    decoded = data.decode("utf-8")
+                    for separator in (
+                        "\r",
+                        "\v",
+                        "\f",
+                        "\x1c",
+                        "\x1d",
+                        "\x1e",
+                        "\x85",
+                        "\u2028",
+                        "\u2029",
+                    ):
+                        self.assertNotIn(separator, decoded)
+                    self.assertTrue(data.endswith(b"\n"))
+                    self.assertFalse(data.endswith(b"\n\n"))
+                    pattern = rf"(?m)^{field}: [0-9a-f]{{64}}$".encode("ascii")
+                    replacement = f"{field}: <SELF>".encode("ascii")
+                    data, count = re.subn(pattern, replacement, data)
+                    self.assertEqual(1, count)
+                binding.update(relative.encode("utf-8"))
+                binding.update(b"\0")
+                binding.update(hashlib.sha256(data).digest())
+            return binding.hexdigest()
+
+        failed_digest = failed_fields["ARTIFACT_SET_SHA256"]
+        final_digest = final_fields["SOURCE_AND_ARTIFACT_SET_SHA256"]
+        self.assertRegex(failed_digest, r"^[0-9a-f]{64}$")
+        self.assertRegex(final_digest, r"^[0-9a-f]{64}$")
+        provenance = (
+            "authenticity requires the reviewed Git commit; this digest proves "
+            "packet consistency"
+        )
+        self.assertEqual(provenance, failed_fields["PROVENANCE_BOUNDARY"])
+        self.assertEqual(provenance, final_fields["PROVENANCE_BOUNDARY"])
+        self.assertEqual(
+            "for repo-relative path docs/evals/artifacts/"
+            f"{failed_stem}-run.md, read its reviewed Git-blob bytes; require valid "
+            "UTF-8, LF-only line endings and exactly one terminal LF; replace exactly "
+            "once only the 64-lowercase-hex value of ARTIFACT_SET_SHA256 with <SELF>; "
+            "hash every other byte unchanged",
+            failed_fields["RUN_CANONICALIZATION"],
+        )
+        self.assertEqual(
+            "for repo-relative path docs/evals/artifacts/"
+            f"{final_stem}-run.md, read its reviewed Git-blob bytes; require valid "
+            "UTF-8, LF-only line endings and exactly one terminal LF; replace exactly "
+            "once only the 64-lowercase-hex value of "
+            "SOURCE_AND_ARTIFACT_SET_SHA256 with <SELF>; hash every other byte unchanged",
+            final_fields["RUN_CANONICALIZATION"],
+        )
+        self.assertEqual(
+            binding_digest(failed_binding_paths, "ARTIFACT_SET_SHA256"),
+            failed_digest,
+        )
+        self.assertEqual(
+            binding_digest(
+                final_binding_paths, "SOURCE_AND_ARTIFACT_SET_SHA256"
+            ),
+            final_digest,
+        )
+
+    def test_writing_eval_freezes_research_behavior_and_release_evidence(self) -> None:
+        record = (
+            ROOT / "docs" / "evals" / "writing-density-v1.2.0-2026-08-28.md"
+        ).read_text(encoding="utf-8")
+        run = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-writing-release-holdout-run.md"
+        ).read_text(encoding="utf-8")
+        release_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-writing-release-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        for status in (
+            "BASELINE_CAPABILITY: ABSENT",
+            "COMPARATIVE_SCORE_CLAIM: NONE",
+            "DEVELOPMENT_PROBE: PASS 5/5",
+            "FIRST_FINAL_HOLDOUT: PASS 5/5",
+            "INDEPENDENT_DIFF_REVIEW: NO_GO",
+            "RELEASE_HOLDOUT: PASS 5/5",
+            "CLIENT_RUNTIME: NOT_VERIFIED",
+        ):
+            self.assertIn(status, record)
+        self.assertIn("VERDICT: PASS — 5/5 cases", release_judge)
+        self.assertIn("BASELINE_COMMIT: d6931a1006bf0180955d8437fd93174b6a512428", run)
+        self.assertRegex(run, r"CANDIDATE_SESSION: [0-9a-f-]{36}")
+        self.assertRegex(run, r"JUDGE_SESSION: [0-9a-f-]{36}")
+
+        def sha256(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        for label, relative in (
+            ("SKILL_SHA256", "skills/nobrainer-writing/SKILL.md"),
+            (
+                "PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-prompt.md",
+            ),
+            (
+                "OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.md",
+            ),
+            (
+                "JUDGE_PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge-prompt.md",
+            ),
+            (
+                "JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.md",
+            ),
+        ):
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(sha256(relative), declared.group(1))
+
+        for label, raw_relative, normalized_relative in (
+            (
+                "RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.raw.b64",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.md",
+            ),
+            (
+                "RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.raw.b64",
+                "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.md",
+            ),
+        ):
+            raw = base64.b64decode(
+                (ROOT / raw_relative).read_text(encoding="ascii").strip(),
+                validate=True,
+            )
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
+            self.assertEqual((ROOT / normalized_relative).read_bytes(), raw + b"\n")
+
+        writing_binding_paths = (
+            "skills/nobrainer-writing/SKILL.md",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-prompt.md",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.md",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-output.raw.b64",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge-prompt.md",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.md",
+            "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge.raw.b64",
+        )
+        binding = hashlib.sha256()
+        for relative in writing_binding_paths:
+            binding.update(relative.encode("utf-8"))
+            binding.update(b"\0")
+            binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
+        declared_binding = re.search(
+            r"^SOURCE_AND_ARTIFACT_SET_SHA256: ([0-9a-f]{64})$", run, re.M
+        )
+        self.assertIsNotNone(declared_binding)
+        self.assertEqual(binding.hexdigest(), declared_binding.group(1))
+
+        judge_prompt = (
+            ROOT
+            / "docs/evals/artifacts/v1.2.0-writing-release-holdout-judge-prompt.md"
+        ).read_text(encoding="utf-8")
+        for relative in writing_binding_paths[:3]:
+            self.assertIn(f"`{relative}`", judge_prompt)
+
+        historical = (
+            (
+                "DEVELOPMENT_RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-development-probe-output.raw.b64",
+            ),
+            (
+                "DEVELOPMENT_RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-development-probe-judge.raw.b64",
+            ),
+            (
+                "FIRST_FINAL_RAW_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-final-holdout-output.raw.b64",
+            ),
+            (
+                "FIRST_FINAL_RAW_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-writing-final-holdout-judge.raw.b64",
+            ),
+        )
+        for label, relative in historical:
+            raw = base64.b64decode(
+                (ROOT / relative).read_text(encoding="ascii").strip(), validate=True
+            )
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), declared.group(1))
 
     def test_active_product_has_no_external_workflow_branding(self) -> None:
         checked = [
@@ -379,7 +1430,12 @@ class SuiteTests(unittest.TestCase):
         expected = {
             "nobrainer-ultra": ("nb-flow", "nb-workflow"),
             "nobrainer-team": ("nobrainer-skill-browser",),
+            "nobrainer-dispatcher": ("nb-dispatcher",),
             "nobrainer-build": ("engineering-standards", "nobrainer-simplifier"),
+            "nobrainer-writing": (
+                "nobrainer-style",
+                "nobrainer-human-like",
+            ),
             "nobrainer-security": ("security-review",),
             "nobrainer-sessions": ("nb-multi", "session-handoff"),
             "nobrainer-wiki": ("nb-add", "nb-get", "nb-tidy"),
@@ -513,6 +1569,29 @@ class SuiteTests(unittest.TestCase):
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
 
+    def test_release_heading_parser_requires_one_unfenced_exact_line(self) -> None:
+        heading = "## v1.1.0 — 2026-08-28"
+        sample = (
+            f"inline {heading}\n"
+            "## v1.1.0-rc\n"
+            f"```md\n{heading}\n```\n"
+            f"~~~text\n{heading}\n~~~~\n"
+            f"{heading}\n"
+        )
+        spans = markdown_heading_spans(sample, heading)
+        self.assertEqual(1, len(spans))
+        start, end = spans[0]
+        self.assertEqual(heading, sample[start:end])
+        self.assertEqual(
+            [], markdown_heading_spans(f"```md\n{heading}\n```\n", heading)
+        )
+        self.assertEqual(
+            1,
+            len(markdown_heading_spans(f"``` `\n{heading}\n", heading)),
+        )
+        with self.assertRaisesRegex(ValueError, "raw HTML"):
+            markdown_heading_spans(f"<div>\n{heading}\n</div>\n", heading)
+
     def test_v1_0_release_readback_remains_explicit(self) -> None:
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
@@ -559,25 +1638,35 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("codex", evidence["INSTALL_CLIENT"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
-    def test_current_release_publication_surface(self) -> None:
+    def test_v1_1_release_readback_remains_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
-        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
-            "version"
-        ]
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.1.0.md"
         ).read_text(encoding="utf-8")
-        section = release_notes.split("## v1.0.0", 1)[0]
+        v1_1_spans = markdown_heading_spans(
+            release_notes, "## v1.1.0 — 2026-08-28"
+        )
+        v1_0_spans = markdown_heading_spans(
+            release_notes, "## v1.0.0 — 2026-08-28"
+        )
+        self.assertEqual(1, len(v1_1_spans))
+        self.assertEqual(1, len(v1_0_spans))
+        _, v1_1_end = v1_1_spans[0]
+        v1_0_start, _ = v1_0_spans[0]
+        self.assertLess(v1_1_end, v1_0_start)
+        section = release_notes[v1_1_end:v1_0_start]
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
         release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
-        self.assertEqual("1.1.0", current)
-        self.assertIn(f"## v{current}", release_notes)
-        self.assertEqual(list(CANONICAL), released_skills)
-        self.assertEqual(ACTIVE, set(released_skills))
+        expected_skills = [
+            name
+            for name in CANONICAL_ORDER
+            if name not in {"nobrainer-dispatcher", "nobrainer-writing"}
+        ]
+        self.assertEqual(expected_skills, released_skills)
         self.assertNotIn("release candidate", section.lower())
         self.assertIn(
             "This version is published as a tagged GitHub source release",
@@ -605,6 +1694,33 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("copy", evidence["INSTALL_MODE"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
+    def test_current_release_candidate_surface(self) -> None:
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
+            "version"
+        ]
+        current_spans = markdown_heading_spans(
+            release_notes,
+            f"## v{current} — 2026-08-28 (release candidate)",
+        )
+        v1_1_spans = markdown_heading_spans(
+            release_notes, "## v1.1.0 — 2026-08-28"
+        )
+        self.assertEqual(1, len(current_spans))
+        self.assertEqual(1, len(v1_1_spans))
+        _, current_end = current_spans[0]
+        v1_1_start, _ = v1_1_spans[0]
+        self.assertLess(current_end, v1_1_start)
+        section = release_notes[current_end:v1_1_start]
+        candidate_skills = re.findall(
+            r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+        )
+        self.assertEqual("1.2.0", current)
+        self.assertEqual(list(CANONICAL_ORDER), candidate_skills)
+        self.assertEqual(ACTIVE, set(candidate_skills))
+        self.assertIn("release-candidate contract", section.lower())
+        self.assertIn("not a publication claim", section.lower())
+
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("nobrainer-tech-skills", text)
@@ -616,6 +1732,49 @@ class SuiteTests(unittest.TestCase):
         self.assertNotIn("nobrainer-skills-coverage-v2.png", text)
         self.assertIn("docs/COMPATIBILITY.md", text)
         self.assertIn("docs/TESTING.md", text)
+
+    def test_install_snippets_require_one_literal_reviewed_commit(self) -> None:
+        documents = (
+            (ROOT / "README.md", "## Install safely"),
+            (ROOT / "docs" / "INSTALL.md", "## Safe default"),
+        )
+        for path, heading in documents:
+            with self.subTest(path=path.relative_to(ROOT)):
+                section = path.read_text(encoding="utf-8").split(heading, 1)[1]
+                match = re.search(r"```bash\n(.*?)```", section, re.DOTALL)
+                self.assertIsNotNone(match)
+                snippet = match.group(1)
+                self.assertIn("NB_REVIEWED_COMMIT", snippet)
+                self.assertNotIn("NB_REVIEWED_REF", snippet)
+                self.assertIn('${#NB_REVIEWED_COMMIT}', snippet)
+                self.assertIn('*[!0-9a-f]*', snippet)
+                self.assertIn(
+                    'test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT"',
+                    snippet,
+                )
+                self.assertIn("git clone --no-checkout", snippet)
+                self.assertGreaterEqual(snippet.count("|| exit"), 8)
+
+                for value in (None, "v1.2.0", "g" * 40, "a" * 39):
+                    with self.subTest(value=value):
+                        environment = dict(os.environ)
+                        if value is None:
+                            environment.pop("NB_REVIEWED_COMMIT", None)
+                        else:
+                            environment["NB_REVIEWED_COMMIT"] = value
+                        with tempfile.TemporaryDirectory() as temp:
+                            result = subprocess.run(
+                                ["bash", "-c", snippet],
+                                cwd=temp,
+                                env=environment,
+                                text=True,
+                                capture_output=True,
+                                check=False,
+                            )
+                            self.assertNotEqual(0, result.returncode)
+                            self.assertFalse(
+                                (Path(temp) / "nobrainer-tech-skills").exists()
+                            )
 
     def test_coverage_graphic_is_readme_ready(self) -> None:
         path = ROOT / "assets" / "nobrainer-workflow.svg"
@@ -634,6 +1793,7 @@ class SuiteTests(unittest.TestCase):
 
     def test_product_repository_surface(self) -> None:
         required = (
+            ".gitattributes",
             "CONTRIBUTING.md",
             "RELEASE-NOTES.md",
             "SECURITY.md",
@@ -643,6 +1803,8 @@ class SuiteTests(unittest.TestCase):
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
+            "docs/evals/dispatcher-routing-v1.2.0-2026-08-28.md",
+            "docs/evals/writing-density-v1.2.0-2026-08-28.md",
             "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -756,6 +1918,111 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_frozen_eval_payloads_do_not_impersonate_repository_links(self) -> None:
+        artifact_dir = ROOT / "docs" / "evals" / "artifacts"
+        prompt = artifact_dir / "v1.2.0-routing-final-verified-holdout-prompt.md"
+        run = artifact_dir / "v1.2.0-routing-final-verified-holdout-run.md"
+        record = ROOT / "docs" / "evals" / "dispatcher-routing-v1.2.0-2026-08-28.md"
+        self.assertFalse(validate_skills.should_validate_relative_links(prompt))
+        self.assertTrue(validate_skills.should_validate_relative_links(run))
+        self.assertTrue(validate_skills.should_validate_relative_links(record))
+        self.assertTrue(
+            validate_skills.relative_link_errors(prompt, "[literal](missing.md)")
+        )
+
+        attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertNotIn("docs/evals/artifacts/** -whitespace", attributes)
+        for line in attributes.splitlines():
+            if line.startswith("docs/evals/artifacts/"):
+                self.assertTrue(line.endswith("-text -whitespace"), line)
+        checked = subprocess.run(
+            [
+                "git",
+                "check-attr",
+                "text",
+                "whitespace",
+                "--",
+                str(prompt),
+                str(run),
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout
+        self.assertIn(f"{prompt}: text: unset", checked)
+        self.assertIn(f"{prompt}: whitespace: unset", checked)
+        self.assertIn(f"{run}: text: unspecified", checked)
+        self.assertIn(f"{run}: whitespace: unspecified", checked)
+
+    def test_frozen_eval_payloads_are_byte_stable_under_autocrlf(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            payloads = {
+                "docs/evals/artifacts/example-prompt.md": (
+                    b"prompt CRLF with spaces  \r\nprompt LF\nprompt CRLF\r\n"
+                ),
+                "docs/evals/artifacts/example-output.md": (
+                    b"output LF with spaces  \noutput CRLF\r\noutput LF\n"
+                ),
+                "docs/evals/artifacts/example-judge.md": (
+                    b"judge CRLF\r\njudge LF with spaces  \njudge CRLF\r\n"
+                ),
+                "docs/evals/artifacts/example-judge-rubric.md": (
+                    b"rubric LF\nrubric CRLF with spaces  \r\nrubric LF\n"
+                ),
+                "docs/evals/artifacts/example.raw.b64": (
+                    b"cHJvbXB0DQo=\r\nb3V0cHV0Cg==\n"
+                ),
+            }
+            for relative, original in payloads.items():
+                payload = repo / relative
+                payload.parent.mkdir(parents=True, exist_ok=True)
+                payload.write_bytes(original)
+            (repo / ".gitattributes").write_bytes(
+                (ROOT / ".gitattributes").read_bytes()
+            )
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "core.autocrlf=true",
+                    "add",
+                    ".gitattributes",
+                    *payloads,
+                ],
+                cwd=repo,
+                check=True,
+            )
+            for relative, original in payloads.items():
+                with self.subTest(relative=relative, phase="index"):
+                    stored = subprocess.run(
+                        ["git", "show", f":{relative}"],
+                        cwd=repo,
+                        capture_output=True,
+                        check=True,
+                    ).stdout
+                    self.assertEqual(original, stored)
+                    (repo / relative).unlink()
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "core.autocrlf=true",
+                    "-c",
+                    "core.eol=crlf",
+                    "checkout",
+                    "--",
+                    *payloads,
+                ],
+                cwd=repo,
+                check=True,
+            )
+            for relative, original in payloads.items():
+                with self.subTest(relative=relative, phase="checkout"):
+                    self.assertEqual(original, (repo / relative).read_bytes())
 
     def test_public_text_scan_ignores_unknown_extensionless_binary(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

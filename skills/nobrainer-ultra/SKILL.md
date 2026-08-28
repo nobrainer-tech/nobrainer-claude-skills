@@ -38,6 +38,14 @@ external fact is current, niche, uncertain, high-stakes or source-attributed,
 invoke `nobrainer-research` with the smallest sufficient rigor. Do not load a
 whole vault or browse merely to look thorough.
 
+`PROBLEM_GATE`: whenever execution encounters a problem, complication,
+ambiguity, difficulty or error, pause before selecting a remedy. Invoke
+`nobrainer-wiki` mode `GET` for only related decisions and lessons, then invoke
+`nobrainer-research` for a current internet check. Reconcile both with the actual
+repository/runtime; wiki is context, not current-state proof. If no wiki exists,
+record that and continue to research. If internet research is required but
+unavailable, stop at `RESEARCH_BLOCKED` instead of choosing from stale memory.
+
 ### 2. `BUDDY`
 
 BUDDY is the first and only ordinary clarification stage. Establish:
@@ -111,21 +119,31 @@ Keep the map compact without hiding work:
   acceptance plus the execution map is already a sufficient durable contract.
 
 Use the routing reference to assign at least these concerns when applicable:
-research, decision, specification, team design, session transport, diagnosis,
-implementation, security, browser evidence, independent review, verification
-and durable learning.
+research, writing, decision, specification, team design, session transport,
+diagnosis, implementation, security, browser evidence, independent review,
+verification and durable learning.
 
 Invoke `nobrainer-team` when the map contains a real capability gap, two or more
 independent units on the critical path, a valuable isolation boundary or an
-independent review whose risk reduction exceeds coordination cost. Then invoke
-`nobrainer-sessions` for exact visible session creation, reuse and handoff. A
-coherent edit stays in MAIN; a clearly parallel plan should not be serialized
-without a reason.
+independent review whose risk reduction exceeds coordination cost. Invoke
+`nobrainer-dispatcher` when the approved map has multiple delegated work units,
+a parallel group, dependency-aware batches or retries that need one scheduler.
+It chooses only already-defined ready work; it does not invent tasks. Invoke
+`nobrainer-sessions` for exact visible session creation, reuse, transport and
+receive-audit. A coherent edit stays in MAIN; a clearly parallel plan should not
+be serialized without a reason.
 
-Any map that assigns a worker must contain a preceding `nobrainer-team` stage
-that proves the minimum roster and capability sources, followed by a
-`nobrainer-sessions` stage for actual identity and transport. Worker names alone
-do not satisfy this gate.
+Any map that assigns a worker must first contain a `nobrainer-team` stage proving
+the minimum roster and capability sources. For a scheduled queue, use exactly:
+
+`Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher DISPATCH`
+
+Dispatcher selects already-defined work, Sessions alone performs identity
+preflight and transport, and Dispatcher commits `READY -> SENT` only from that
+readback. After the worker reports, Sessions performs `RECEIVE_AUDIT` and
+Dispatcher `RECONCILE` chooses the next scheduler transition. Do not add a second
+Sessions preflight or transport stage. Without a justified dispatcher, Team may
+lead directly to Sessions. Worker names alone do not satisfy this gate.
 
 Default title is `<repo> | MAIN`; workers use `<repo> | <TASK_ID> <ROLE>`. Names
 help navigation, while exact thread/host, checkout, task, scope and readback
@@ -165,6 +183,10 @@ purpose, audience, correctness sources, required completeness, coherent
 structure/terminology and the target-human or target-workflow review. Polished
 prose without usefulness evidence is not acceptance.
 
+Route material user-facing prose through `nobrainer-writing` when drafting,
+compression, voice or document structure is part of acceptance. Do not add a
+Writing stage for a tiny answer that is already clear, specific and complete.
+
 ### 5. `AUTOPILOT`
 
 Execute the approved map without routine check-ins. Activate one safe stage or
@@ -190,8 +212,9 @@ delivery and user usefulness are different evidence levels.
 
 For delegated work, invoke `nobrainer-sessions` receive-audit. Bind the report to
 the exact session, host, checkout, commit, work unit, diff, evidence and released
-lease before advancing. A worker's `FINISHED`, exit code or `NEXT_ACTION` is
-unverified input, not routing authority.
+lease before advancing. If Dispatcher owns the queue, return the audited result
+to its `RECONCILE` mode before releasing dependencies. A worker's `FINISHED`,
+exit code or `NEXT_ACTION` is unverified input, not routing authority.
 
 Invoke `nobrainer-review` for the final closeout, adversarial bug hunt or release
 gate justified by the map. Fixes route back through `nobrainer-build` and
@@ -217,13 +240,16 @@ the requested result.
 Correction happens immediately, not only at the final learning close:
 
 - `OWNER_DECISION_CHANGED`: update the canonical requirement/decision, mark the
-  old value superseded, invalidate dependent TODO items and evidence, then
-  rebuild the affected execution path;
+  old value superseded, move affected not-started `READY` rows to `STOPPED`,
+  keep dependants `PENDING` or `BLOCKED`, invalidate their evidence, then
+  rebuild under a new plan fingerprint before recomputing readiness;
 - `AGENT_ERROR_CORRECTED`: fix the current result, classify a minimal prevention
   candidate, persist it only as `LEARNING_WRITE_POLICY` permits, and route
   repeatable behavior gaps to `nobrainer-autoimprove`;
 - `REVIEW_FAILED`: keep the stage open, route the verified finding back to
-  `nobrainer-build`, rerun affected tests and repeat the review with fresh proof;
+  `nobrainer-build`, rerun affected tests, repeat the review with fresh proof,
+  then run a fresh `RECEIVE_AUDIT` that binds all current evidence before
+  acceptance;
 - `REPEATED_DEFECT`: stop blind retries and route to `nobrainer-rca` with the
   prior fingerprint and evidence.
 

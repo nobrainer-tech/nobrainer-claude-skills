@@ -1,13 +1,15 @@
 ---
 name: nobrainer-team
-description: "Use when the owner says nb-team or nobrainer-skill-browser, asks to build a specialist agent team, or a non-trivial execution map needs installed-capability inventory, role selection, safe skills.sh lookup, or parallel workers without flooding the project with permanent skills or sessions."
+description: "Use when the owner says nb-team or nobrainer-skill-browser, or after nobrainer-ultra has produced an approved non-trivial execution map that needs installed-capability inventory, minimum role selection, safe skills.sh lookup, or justified parallel workers; do not use to elicit requirements, invent the execution map, schedule work, or create sessions."
 ---
 
 # NoBrainer Team
 
 Compose the smallest capable team for a concrete execution map. This skill owns
-capability selection and role design. `nobrainer-sessions` owns actual visible
-session identity, transport, checkout isolation, leases and receive-audit.
+capability selection and role design. `nobrainer-dispatcher` owns readiness,
+batch ordering and backpressure after the map is approved. `nobrainer-sessions`
+owns actual visible session identity, transport, checkout isolation, leases and
+receive-audit.
 
 Read [references/team-plan.md](references/team-plan.md) before persisting a team
 plan or delegating work.
@@ -17,6 +19,10 @@ plan or delegating work.
 Require an outcome, acceptance evidence and bounded work units. If they do not
 exist, return to `nobrainer-ultra` or the approved specification. Do not invent a
 team around vague titles such as architect, coder and tester.
+
+Even an explicit Team invocation is a discovery trigger, not permission to skip
+Ultra's intake and map boundary. Team may report the missing prerequisite and
+return control to Ultra, but it must not design roles from a vague goal.
 
 For every work unit identify the method and capability actually needed. Inspect
 only metadata/frontmatter from installed skills first; load a full skill only
@@ -96,12 +102,16 @@ For each role record:
 
 Separate phases from concurrency groups. Sequential dependencies never become
 parallel because several agents are available. MAIN keeps the complete execution
-map and activates only the current safe group.
+map. When several delegated units, dependency batches or retries exist,
+`nobrainer-dispatcher` activates only the current safe group; Team does not
+schedule it.
 
-After the plan passes, invoke `nobrainer-sessions` to create or reuse exact
-visible sessions when transport and isolation are available. If they are not,
-run the same bounded roles sequentially in MAIN and report the limitation; do
-not invent session IDs or delivery.
+After the plan passes, invoke `nobrainer-dispatcher` when more than one delegated
+unit or controlled batch needs scheduling, then invoke `nobrainer-sessions` to
+create or reuse exact visible sessions when transport and isolation are
+available. A single bounded delegate may go directly from Team to Sessions. If
+transport is unavailable, run the same bounded roles sequentially in MAIN and
+report the limitation; do not invent session IDs or delivery.
 
 ## Close and learn
 
