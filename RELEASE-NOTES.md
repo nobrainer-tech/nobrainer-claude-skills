@@ -1,8 +1,8 @@
 # NoBrainer Tech Skills release notes
 
-## v1.2.1 — 2026-08-28 (release candidate)
+## v1.2.1 — 2026-08-28
 
-This patch candidate contains exactly fifteen portable skills:
+This patch release contains exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -25,10 +25,12 @@ real `git check-attr` behavior in an isolated temporary repository, so a source
 archive without the repository's `.git` directory receives the same strict
 check instead of failing before validation.
 
-This section is a release-candidate contract, not a publication claim. Exact
-tag, commit, archive checksum, CI, archive-native tests and isolated installer
-readback will be added only after the reviewed PR is merged and the GitHub
-release exists.
+This version is published as a tagged GitHub source release at commit
+`1949dd99c962662f7c275d3e57288bd0a8cd184a`. Tag identity, CI, downloaded
+archive parity and checksum, 88/88 archive-native tests, secret scan and an
+isolated fifteen-skill copy-install readback are recorded in
+[the v1.2.1 evidence](docs/releases/v1.2.1.md). This is not a claim of client
+marketplace publication, native loading or clean-session runtime behavior.
 
 ## v1.2.0 — 2026-08-28
 
@@ -71,10 +73,9 @@ This version was published as a tagged GitHub source release at commit
 `afd0bffa3f287493a4f646b9ceaafb82273e46b0`. Its repository CI, source parity,
 secret scan, skill validation and isolated installer readback passed, but the
 downloaded archive exposed one environment-dependent test that assumed the
-presence of `.git`. It is therefore published but not fully accepted. The
-planned remediation is the unverified `v1.2.1` patch candidate; it does not
-supersede `v1.2.0` until its own release acceptance passes. The complete
-boundary is recorded in [the v1.2.0 evidence](docs/releases/v1.2.0.md).
+presence of `.git`. It is therefore published but not fully accepted and is
+superseded by the accepted `v1.2.1` release. The complete boundary is recorded
+in [the v1.2.0 evidence](docs/releases/v1.2.0.md).
 
 ## v1.1.0 — 2026-08-28
 

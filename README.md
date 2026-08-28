@@ -179,21 +179,24 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version `v1.2.1` is a release candidate until its tag, CI, downloaded archive
-and isolated fifteen-skill install are read back. `v1.2.0` was published, but
-its archive-native test suite exposed one test that incorrectly required a
-`.git` directory; its exact boundary is recorded in
-[the v1.2.0 evidence](docs/releases/v1.2.0.md). The latest fully accepted source
-release remains [`v1.1.0`](docs/releases/v1.1.0.md). To reproduce that release:
+Version [`v1.2.1`](docs/releases/v1.2.1.md) is the latest fully accepted GitHub
+source release. It passed exact tag-to-commit readback, merged-main CI, archive
+parity, 88/88 tests without `.git`, a fresh secret scan and an isolated
+fifteen-skill copy installation. To reproduce the reviewed source:
 
 ```bash
-git checkout --detach d6931a1006bf0180955d8437fd93174b6a512428
-test "$(git rev-parse HEAD)" = "d6931a1006bf0180955d8437fd93174b6a512428"
+git checkout --detach 1949dd99c962662f7c275d3e57288bd0a8cd184a
+test "$(git rev-parse HEAD)" = "1949dd99c962662f7c275d3e57288bd0a8cd184a"
 python3 scripts/validate_skills.py --suite
+python3 -m unittest discover -s tests -q
 ```
 
-GitHub reports the release and tag as mutable, so security-sensitive consumers
-should pin that full commit SHA. `v1.0.0` remains the previous rollback anchor.
+`v1.2.0` remains published but failed archive acceptance; its exact boundary is
+[recorded separately](docs/releases/v1.2.0.md). GitHub reports the `v1.2.1`
+release object as non-immutable and tag protection was not independently
+verified, so security-sensitive consumers should pin the full commit SHA.
+[`v1.1.0`](docs/releases/v1.1.0.md) remains the accepted rollback anchor at full
+commit `d6931a1006bf0180955d8437fd93174b6a512428`.
 
 ## One source, thin adapters
 
