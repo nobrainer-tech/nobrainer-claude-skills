@@ -316,6 +316,9 @@ class SuiteTests(unittest.TestCase):
 
     def test_compatibility_separates_repository_client_and_runtime_proof(self) -> None:
         text = (ROOT / "docs" / "COMPATIBILITY.md").read_text(encoding="utf-8")
+        pull_request_template = (
+            ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md"
+        ).read_text(encoding="utf-8")
         for level in (
             "SOURCE_VALIDATED",
             "REPOSITORY_CHECKED",
@@ -324,7 +327,36 @@ class SuiteTests(unittest.TestCase):
             "DISTRIBUTED",
         ):
             self.assertIn(level, text)
-        self.assertNotIn("ADAPTER_VALIDATED", text)
+            self.assertIn(level, pull_request_template)
+        for surface in (text, pull_request_template):
+            self.assertNotIn("ADAPTER_VALIDATED", surface)
+
+    def test_v1_release_surface_is_prepared_and_explicit(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        normalized_notes = " ".join(release_notes.split())
+        version = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
+            "version"
+        ]
+        released_skills = re.findall(
+            r"^- `(nobrainer-[a-z0-9-]+)`$", release_notes, re.MULTILINE
+        )
+        self.assertEqual("1.0.0", version)
+        self.assertIn(f"--branch v{version}", readme)
+        self.assertIn(f"## v{version}", release_notes)
+        self.assertEqual(9, len(released_skills))
+        self.assertEqual(len(released_skills), len(set(released_skills)))
+        self.assertEqual(list(CANONICAL), released_skills)
+        self.assertEqual(ACTIVE, set(released_skills))
+        self.assertIn("tagged GitHub source release", release_notes)
+        self.assertIn(
+            "At the release-preparation stage this file does not claim publication",
+            normalized_notes,
+        )
+        self.assertIn(
+            "This is not a claim of publication in npm or any client marketplace",
+            normalized_notes,
+        )
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -354,6 +386,7 @@ class SuiteTests(unittest.TestCase):
     def test_product_repository_surface(self) -> None:
         required = (
             "CONTRIBUTING.md",
+            "RELEASE-NOTES.md",
             "SECURITY.md",
             "docs/COMPATIBILITY.md",
             "docs/TESTING.md",
