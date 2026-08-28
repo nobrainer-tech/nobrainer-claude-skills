@@ -17,17 +17,17 @@ not the same as a proven client integration. Record these levels separately:
 
 Never promote one level from evidence belonging to another.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.0.0`: release, tag-to-commit,
-CI, downloaded-archive and isolated installer readback are recorded in
-[the release evidence](releases/v1.0.0.md). GitHub reports this release as
+The GitHub source channel is `DISTRIBUTED` for `v1.1.0`: release, tag-to-commit,
+CI, downloaded-archive file parity, secret scan and isolated installer readback
+of all thirteen skills are recorded in
+[the release evidence](releases/v1.1.0.md). GitHub reports this release as
 mutable, so security-sensitive consumers should pin the full commit SHA. This
 does not prove that a client marketplace accepted, loaded or ran the package;
 the per-client rows remain `NOT_PUBLISHED` until that exact channel has an
 installation readback.
 
-`v1.1.0` is a release candidate until its tag, archive, CI and isolated
-installer readback are recorded. Candidate repository checks do not change the
-published status of `v1.0.0`.
+`v1.0.0` remains a separately verified nine-skill rollback anchor with its own
+[publication readback](releases/v1.0.0.md).
 
 ## Current evidence
 

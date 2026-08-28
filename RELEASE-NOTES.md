@@ -1,8 +1,8 @@
 # NoBrainer Tech Skills release notes
 
-## v1.1.0 — 2026-08-28 (release candidate)
+## v1.1.0 — 2026-08-28
 
-The candidate contains exactly thirteen portable skills:
+The release contains exactly thirteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -35,9 +35,12 @@ Highlights:
   pathname after fingerprinting; exact recovery claims are preserved and
   reported for post-readback manual cleanup.
 
-This section is a release-candidate contract, not a publication claim. Exact
-tag, commit, archive checksum, CI and isolated installer readback will be added
-after the reviewed PR is merged and the GitHub release exists.
+This version is published as a tagged GitHub source release at commit
+`d6931a1006bf0180955d8437fd93174b6a512428`. Tag identity, archive SHA-256, file
+parity, CI, tests, secret scan and isolated installer readback are recorded in
+[the v1.1.0 evidence](docs/releases/v1.1.0.md). This is not a claim of
+publication in npm or any client marketplace, nor of native client loading or
+runtime behavior.
 
 ## v1.0.0 — 2026-08-28
 
