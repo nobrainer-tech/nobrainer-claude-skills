@@ -92,6 +92,7 @@ PUBLIC_ROOT_FILES = (
     ROOT / ".gitignore",
     ROOT / ".pre-commit-config.yaml",
     ROOT / "README.md",
+    ROOT / "RELEASE-NOTES.md",
     ROOT / "AGENTS.md",
     ROOT / "CLAUDE.md",
     ROOT / "CONTRIBUTING.md",
