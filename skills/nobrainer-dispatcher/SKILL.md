@@ -163,19 +163,26 @@ side effects and released lease. Then choose exactly one transition:
 - audited success: mark the task `ACCEPTED`, release its dependants and compute
   one next ready batch;
 - isolated correctable defect: mark `CORRECTION_REQUIRED`, route one bounded
-  fix through the task's assigned method (`nobrainer-build` for implementation),
-  then require fresh tests and audit;
+  fix through the task's assigned method (`nobrainer-build` for implementation)
+  and invalidate affected proof. After the repair, rerun affected tests and any
+  required failed review, then run a fresh `RECEIVE_AUDIT` that binds the
+  repaired diff, tests and review before marking the task `ACCEPTED`;
 - observed unexplained failure or repeated fingerprint: invoke `nobrainer-rca`
   and stop blind retries;
-- changed plan/input, write collision, active lease or missing evidence: preserve
-  state and stop without releasing successors;
+- changed plan/input: move affected not-started `READY` rows to `STOPPED`, keep
+  dependants `PENDING` or `BLOCKED`, invalidate the old plan/evidence and return
+  to Ultra for a new fingerprint. If work is already sent or running, stop new
+  routing and let Sessions request and verify a controlled stop;
+- write collision, active lease or missing evidence: preserve state and stop
+  without releasing successors;
 - owner gate: request one exact decision;
 - no remaining non-accepted task: return control to Ultra for final review,
   delivery and learning.
 
 `NEXT_ACTION` from a worker is a recommendation, never scheduler authority. A
 failed review invalidates affected evidence and routes back to implementation;
-it cannot be relabelled as accepted.
+it cannot be relabelled as accepted. Tests, repeated review and receive-audit
+are distinct gates; none substitutes for another.
 
 ## Recovery and closeout
 

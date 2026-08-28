@@ -240,13 +240,16 @@ the requested result.
 Correction happens immediately, not only at the final learning close:
 
 - `OWNER_DECISION_CHANGED`: update the canonical requirement/decision, mark the
-  old value superseded, invalidate dependent TODO items and evidence, then
-  rebuild the affected execution path;
+  old value superseded, move affected not-started `READY` rows to `STOPPED`,
+  keep dependants `PENDING` or `BLOCKED`, invalidate their evidence, then
+  rebuild under a new plan fingerprint before recomputing readiness;
 - `AGENT_ERROR_CORRECTED`: fix the current result, classify a minimal prevention
   candidate, persist it only as `LEARNING_WRITE_POLICY` permits, and route
   repeatable behavior gaps to `nobrainer-autoimprove`;
 - `REVIEW_FAILED`: keep the stage open, route the verified finding back to
-  `nobrainer-build`, rerun affected tests and repeat the review with fresh proof;
+  `nobrainer-build`, rerun affected tests, repeat the review with fresh proof,
+  then run a fresh `RECEIVE_AUDIT` that binds all current evidence before
+  acceptance;
 - `REPEATED_DEFECT`: stop blind retries and route to `nobrainer-rca` with the
   prior fingerprint and evidence.
 
