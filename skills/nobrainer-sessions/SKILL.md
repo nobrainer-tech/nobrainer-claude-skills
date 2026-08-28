@@ -109,7 +109,11 @@ Return exactly one audited result to `nobrainer-dispatcher`, or to
 
 - all gates pass: report the verified transition as eligible; do not select or
   dispatch the next task;
-- isolated correctable defect: one bounded corrective attempt;
+- isolated correctable defect: return `CORRECTION_REQUIRED` with the exact defect
+  and evidence; do not choose, dispatch or execute the correction. Dispatcher,
+  or Ultra when Dispatcher is not justified, selects the task's assigned repair
+  method (`nobrainer-build` for implementation) and requires a fresh
+  `RECEIVE_AUDIT` after the repair;
 - missing or conflicting evidence, failed check, active turn, or lease conflict:
   preserve state and stop;
 - owner decision or irreversible action: ask for one explicit decision;

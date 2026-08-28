@@ -38,6 +38,14 @@ external fact is current, niche, uncertain, high-stakes or source-attributed,
 invoke `nobrainer-research` with the smallest sufficient rigor. Do not load a
 whole vault or browse merely to look thorough.
 
+`PROBLEM_GATE`: whenever execution encounters a problem, complication,
+ambiguity, difficulty or error, pause before selecting a remedy. Invoke
+`nobrainer-wiki` mode `GET` for only related decisions and lessons, then invoke
+`nobrainer-research` for a current internet check. Reconcile both with the actual
+repository/runtime; wiki is context, not current-state proof. If no wiki exists,
+record that and continue to research. If internet research is required but
+unavailable, stop at `RESEARCH_BLOCKED` instead of choosing from stale memory.
+
 ### 2. `BUDDY`
 
 BUDDY is the first and only ordinary clarification stage. Establish:
@@ -111,9 +119,9 @@ Keep the map compact without hiding work:
   acceptance plus the execution map is already a sufficient durable contract.
 
 Use the routing reference to assign at least these concerns when applicable:
-research, decision, specification, team design, session transport, diagnosis,
-implementation, security, browser evidence, independent review, verification
-and durable learning.
+research, writing, decision, specification, team design, session transport,
+diagnosis, implementation, security, browser evidence, independent review,
+verification and durable learning.
 
 Invoke `nobrainer-team` when the map contains a real capability gap, two or more
 independent units on the critical path, a valuable isolation boundary or an
@@ -125,11 +133,17 @@ It chooses only already-defined ready work; it does not invent tasks. Invoke
 receive-audit. A coherent edit stays in MAIN; a clearly parallel plan should not
 be serialized without a reason.
 
-Any map that assigns a worker must contain a preceding `nobrainer-team` stage
-that proves the minimum roster and capability sources, followed by a
-`nobrainer-sessions` stage for actual identity and transport. When more than one
-delegated unit or dispatch batch exists, place `nobrainer-dispatcher` between
-team design and session transport. Worker names alone do not satisfy this gate.
+Any map that assigns a worker must first contain a `nobrainer-team` stage proving
+the minimum roster and capability sources. For a scheduled queue, use exactly:
+
+`Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher DISPATCH`
+
+Dispatcher selects already-defined work, Sessions alone performs identity
+preflight and transport, and Dispatcher commits `READY -> SENT` only from that
+readback. After the worker reports, Sessions performs `RECEIVE_AUDIT` and
+Dispatcher `RECONCILE` chooses the next scheduler transition. Do not add a second
+Sessions preflight or transport stage. Without a justified dispatcher, Team may
+lead directly to Sessions. Worker names alone do not satisfy this gate.
 
 Default title is `<repo> | MAIN`; workers use `<repo> | <TASK_ID> <ROLE>`. Names
 help navigation, while exact thread/host, checkout, task, scope and readback
@@ -168,6 +182,10 @@ For content, product or workflow deliverables, also freeze `CONTENT_QUALITY`:
 purpose, audience, correctness sources, required completeness, coherent
 structure/terminology and the target-human or target-workflow review. Polished
 prose without usefulness evidence is not acceptance.
+
+Route material user-facing prose through `nobrainer-writing` when drafting,
+compression, voice or document structure is part of acceptance. Do not add a
+Writing stage for a tiny answer that is already clear, specific and complete.
 
 ### 5. `AUTOPILOT`
 

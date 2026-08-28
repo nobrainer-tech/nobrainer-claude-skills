@@ -28,7 +28,7 @@ Adapter tests execute every bootstrap mechanism that can run locally: the Claude
 and Cursor SessionStart JSON shapes, OpenCode injection/deduplication, and Pi
 discovery plus post-compaction re-injection. They also parse the portable Agent
 Plugin, Gemini and Kimi manifests, reject invented Devin/Hermes adapters and
-enforce the exact fourteen-skill inventory, correction hooks and workflow
+enforce the exact fifteen-skill inventory, correction hooks and workflow
 diagram contract.
 
 ```bash
@@ -47,8 +47,10 @@ an independent judge. Keep development cases separate from final holdout cases;
 do not tune against a failed holdout. Record accepted findings, null results,
 digest, rollback and any model/harness substitutions.
 
-The current changed-control record is
-[`evals/dispatcher-routing-v1.2.0-2026-08-28.md`](evals/dispatcher-routing-v1.2.0-2026-08-28.md).
+The current changed-control records are
+[`evals/dispatcher-routing-v1.2.0-2026-08-28.md`](evals/dispatcher-routing-v1.2.0-2026-08-28.md)
+and
+[`evals/writing-density-v1.2.0-2026-08-28.md`](evals/writing-density-v1.2.0-2026-08-28.md).
 The broader v1.1 routing baseline remains in
 [`evals/core-routing-v1.1.0-2026-08-28.md`](evals/core-routing-v1.1.0-2026-08-28.md).
 Do not mix scores across changed inventories, prompts or rubrics.

@@ -19,7 +19,7 @@ Set `NB_REVIEWED_REF` to an exact release tag or full commit that you reviewed.
 Do not execute the snippet with an unset variable. The first installer command
 is a dry-run; inspect every source, target and conflict before adding `--apply`.
 
-The default installs exactly fourteen skills. Install an explicit subset by
+The default installs exactly fifteen skills. Install an explicit subset by
 repeating `--skill`:
 
 ```bash
@@ -59,9 +59,10 @@ name and preserves it under a reported `.nobrainer-migration-*` recovery path.
 The installer prints `BACKUP_PRESERVED`; it never deletes a quarantined claim,
 because portable path deletion cannot be bound atomically to a previously
 verified inode. Inspect client readback before manually removing that exact
-backup. A failed copy similarly moves its verified partial target to a reported
-`.nobrainer-rollback-*` path for manual recovery instead of risking deletion of
-a concurrent same-user replacement.
+backup. Copy mode builds and verifies the complete tree in a private
+`.nobrainer-install-*` staging directory, then publishes it with a native atomic
+no-replace rename. A failed staged copy remains at the reported private path for
+manual recovery; a concurrently created public target is never overwritten.
 
 If a target belongs to another repository, stop. Compare semantics, inbound
 references and runtime triggers before retiring it. A similar name is not proof
@@ -173,7 +174,7 @@ actually exposes and passes that integration.
 
 ## Dynamic specialists
 
-The fourteen curated skills are the stable base. When a concrete work unit still
+The fifteen curated skills are the stable base. When a concrete work unit still
 has a capability gap, `nobrainer-team` first inventories installed/project
 capabilities, then may evaluate one external skill temporarily. Source/ref,
 scripts, permissions, credentials, network behavior, trigger overlap and

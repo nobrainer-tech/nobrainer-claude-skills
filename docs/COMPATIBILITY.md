@@ -58,7 +58,7 @@ discovery/bootstrap proof before promotion.
 
 ## Adapter contract
 
-All adapters point at the same fourteen directories. They may expose discovery and
+All adapters point at the same fifteen directories. They may expose discovery and
 one small `NOBRAINER_BOOTSTRAP_V1` routing context, but they must not copy or
 rewrite skill bodies.
 

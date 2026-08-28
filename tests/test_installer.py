@@ -755,10 +755,11 @@ class InstallerTests(unittest.TestCase):
                 source: Path,
                 partial: Path,
                 *,
-                dirs_exist_ok: bool = False,
+                symlinks: bool = False,
             ) -> None:
-                self.assertTrue(dirs_exist_ok)
-                self.assertTrue(partial.is_dir())
+                self.assertTrue(symlinks)
+                self.assertFalse(partial.exists())
+                partial.mkdir()
                 (partial / "partial.txt").write_text("incomplete\n", encoding="utf-8")
                 raise OSError("simulated interrupted copy")
 
@@ -785,14 +786,14 @@ class InstallerTests(unittest.TestCase):
 
             self.assertEqual(4, result)
             self.assertFalse(target.exists(), "partial copy must be rolled back")
-            recovery_dirs = list(destination.glob(".nobrainer-rollback-*"))
+            recovery_dirs = list(destination.glob(".nobrainer-install-*"))
             self.assertEqual(1, len(recovery_dirs))
             preserved = recovery_dirs[0] / target.name
             self.assertEqual(
                 "incomplete\n",
                 (preserved / "partial.txt").read_text(encoding="utf-8"),
             )
-            self.assertIn("manual recovery", stderr.getvalue())
+            self.assertIn("copy staging preserved", stderr.getvalue())
 
     def test_copy_rollback_preserves_post_create_replacement(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -812,16 +813,12 @@ class InstallerTests(unittest.TestCase):
                 "owned by another process\n", encoding="utf-8"
             )
 
-            def replace_owned_target_then_fail(
-                source: Path,
-                partial: Path,
-                *,
-                dirs_exist_ok: bool = False,
-            ) -> None:
-                self.assertTrue(dirs_exist_ok)
-                shutil.rmtree(partial)
-                partial.symlink_to(foreign, target_is_directory=True)
-                raise OSError("simulated failure after replacement")
+            real_publish = module.atomic_rename_no_replace
+
+            def publish_then_replace(staged: Path, published: Path) -> None:
+                real_publish(staged, published)
+                shutil.rmtree(published)
+                published.symlink_to(foreign, target_is_directory=True)
 
             argv = [
                 str(INSTALLER),
@@ -839,7 +836,9 @@ class InstallerTests(unittest.TestCase):
             with (
                 mock.patch.object(sys, "argv", argv),
                 mock.patch.object(
-                    shutil, "copytree", side_effect=replace_owned_target_then_fail
+                    module,
+                    "atomic_rename_no_replace",
+                    side_effect=publish_then_replace,
                 ),
                 redirect_stdout(io.StringIO()),
                 redirect_stderr(stderr),
@@ -852,6 +851,61 @@ class InstallerTests(unittest.TestCase):
                 (target / "foreign.txt").read_text(encoding="utf-8"),
             )
             self.assertIn("ownership changed after creation", stderr.getvalue())
+
+    def test_copy_publish_race_never_overwrites_foreign_child(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_copy_publish_race_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            target = destination / "nobrainer-ultra"
+            marker = target / "foreign.txt"
+            real_publish = module.atomic_rename_no_replace
+
+            def create_foreign_target_then_publish(
+                staged: Path, published: Path
+            ) -> None:
+                published.mkdir()
+                marker.write_text("owned by another process\n", encoding="utf-8")
+                real_publish(staged, published)
+
+            argv = [
+                str(INSTALLER),
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "nobrainer-ultra",
+                "--mode",
+                "copy",
+                "--apply",
+            ]
+            stderr = io.StringIO()
+            with (
+                mock.patch.object(sys, "argv", argv),
+                mock.patch.object(
+                    module,
+                    "atomic_rename_no_replace",
+                    side_effect=create_foreign_target_then_publish,
+                ),
+                redirect_stdout(io.StringIO()),
+                redirect_stderr(stderr),
+            ):
+                result = module.main()
+
+            self.assertEqual(4, result)
+            self.assertEqual(
+                "owned by another process\n", marker.read_text(encoding="utf-8")
+            )
+            self.assertFalse((target / "SKILL.md").exists())
+            self.assertEqual(1, len(list(destination.glob(".nobrainer-install-*"))))
+            self.assertIn("copy staging preserved", stderr.getvalue())
 
     def test_rollback_claim_restores_replacement_after_validation(self) -> None:
         spec = importlib.util.spec_from_file_location(
@@ -990,6 +1044,7 @@ class InstallerTests(unittest.TestCase):
                     "nobrainer-decide",
                     "nobrainer-dispatcher",
                     "nobrainer-research",
+                    "nobrainer-writing",
                     "nobrainer-rca",
                     "nobrainer-review",
                     "nobrainer-security",
@@ -1001,7 +1056,7 @@ class InstallerTests(unittest.TestCase):
                 },
                 installed,
             )
-            self.assertEqual(14, len(installed))
+            self.assertEqual(15, len(installed))
 
     def test_inventory_drift_blocks_default_and_explicit_install(self) -> None:
         spec = importlib.util.spec_from_file_location(

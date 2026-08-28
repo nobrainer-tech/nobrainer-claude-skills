@@ -93,6 +93,9 @@ For non-mechanical work define content quality before execution:
 
 `FINISHED` is invalid while required quality is unassessed. Distinguish observed
 facts, attributed claims, inference, recommendation and forecast.
+Route material user-facing prose, comments and documentation through
+`nobrainer-writing`; keep a tiny answer direct when it is already clear,
+specific and complete.
 
 Protect attention: default to one primary agent, batch routine progress, surface
 urgent blockers, and add workers only for independent bounded work with a
@@ -183,7 +186,7 @@ the active task. None grants global-instruction, commit, push or publish rights.
 
 ## Skill portfolio and discovery
 
-The active directory is the complete fourteen-skill product. Every active directory
+The active directory is the complete fifteen-skill product. Every active directory
 uses the `nobrainer-` prefix and must own a recurring cross-project boundary;
 stack-, account-, client- and task-specific helpers stay out. Do not promote a
 skill because it is popular or already exists. The active decisions and
@@ -206,6 +209,12 @@ primary sources, record access/publication dates, distinguish fact from
 inference and stop when the decision-relevant uncertainty is resolved. If
 required research is unavailable, report `RESEARCH_BLOCKED`; never manufacture
 certainty or browse just to look thorough.
+
+`PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
+before choosing the response query only related wiki decisions and lessons,
+then run a short current internet research pass. Reconcile both with the actual
+repository/runtime. Wiki is context, not current-state proof; missing internet
+access is `RESEARCH_BLOCKED`, not permission to present memory as verification.
 
 ## Security boundary
 

@@ -65,7 +65,7 @@ SESSION_MODE: MAIN | MULTI_SESSION
 Autopilot can run in one MAIN session. A multi-session plan is not automatically
 autonomous. This keeps the workflow understandable and avoids agent theatre.
 
-## Fourteen skills, distinct ownership
+## Fifteen skills, distinct ownership
 
 Aliases are trigger phrases, not duplicate directories. Each skill owns one
 recurring boundary:
@@ -76,6 +76,7 @@ recurring boundary:
 | [`nobrainer-team`](skills/nobrainer-team/) | `nb-team` | Minimal capability roster, installed-skill inventory and safe temporary specialist discovery |
 | [`nobrainer-dispatcher`](skills/nobrainer-dispatcher/) | `nb-dispatcher` | Dependency-aware ready-set scheduling, bounded dispatch, backpressure and audited result routing |
 | [`nobrainer-research`](skills/nobrainer-research/) | `nb-research` | Bounded current research from primary sources with facts separated from inference |
+| [`nobrainer-writing`](skills/nobrainer-writing/) | `nb-write` | High-signal drafting, compression and editing that preserve meaning, evidence, voice and action |
 | [`nobrainer-build`](skills/nobrainer-build/) | `nb-build` | Smallest verified implementation using calibrated KISS, DRY, SOLID, YAGNI and anti-slop gates |
 | [`nobrainer-security`](skills/nobrainer-security/) | `nb-security` | Threat models, security review, supply-chain audit and high-risk release evidence |
 | [`nobrainer-sessions`](skills/nobrainer-sessions/) | `nb-sessions` | Named visible sessions, exact identity, isolated writers, audited handoff, lease and recovery |
@@ -88,7 +89,7 @@ recurring boundary:
 | [`nobrainer-review`](skills/nobrainer-review/) | `nb-review` | Acceptance trace, adversarial bug hunt and release close gate without speculative findings |
 
 The [curation audit](docs/SKILL_CURATION.md) records why each skill exists and
-what belongs in another skill instead of becoming a fifteenth trigger.
+what belongs in another skill instead of becoming a sixteenth trigger.
 
 ## Correct once, improve permanently
 
@@ -154,20 +155,26 @@ and [Testing](docs/TESTING.md) for acceptance evidence.
 Clone a reviewed ref, validate it, preview exact targets, then apply:
 
 ```bash
+test -n "${NB_REVIEWED_REF:-}"
 git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
+git checkout --detach "$NB_REVIEWED_REF"
+test "$(git rev-parse HEAD)" = "$(git rev-parse "$NB_REVIEWED_REF^{commit}")"
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
 python3 scripts/install_skills.py --client codex --apply
 ```
 
-The installer defaults to all fourteen canonical skills, supports an exact
+Set `NB_REVIEWED_REF` to the exact release tag or full commit you reviewed; the
+snippet intentionally stops when it is unset or does not resolve to that commit.
+
+The installer defaults to all fifteen canonical skills, supports an exact
 subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
 Version `v1.2.0` is a release candidate until its tag, CI, downloaded archive
-and isolated fourteen-skill install are read back. The latest published source
+and isolated fifteen-skill install are read back. The latest published source
 release remains [`v1.1.0`](docs/releases/v1.1.0.md). To reproduce that release:
 
 ```bash
