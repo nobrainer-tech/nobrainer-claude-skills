@@ -17,11 +17,13 @@ not the same as a proven client integration. Record these levels separately:
 
 Never promote one level from evidence belonging to another.
 
-Release target: a GitHub `v1.0.0` source tag. Until release and tag-to-commit
-readback are complete, this repository does not claim that target is published.
-A later GitHub source release will not prove that a client marketplace accepted,
-loaded or ran the package, so the per-client distribution rows remain
-`NOT_PUBLISHED` until that exact channel has an installation readback.
+The GitHub source channel is `DISTRIBUTED` for `v1.0.0`: release, tag-to-commit,
+CI, downloaded-archive and isolated installer readback are recorded in
+[the release evidence](releases/v1.0.0.md). GitHub reports this release as
+mutable, so security-sensitive consumers should pin the full commit SHA. This
+does not prove that a client marketplace accepted, loaded or ran the package;
+the per-client rows remain `NOT_PUBLISHED` until that exact channel has an
+installation readback.
 
 ## Current evidence
 
