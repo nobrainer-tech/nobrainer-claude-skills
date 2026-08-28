@@ -112,8 +112,9 @@ Return exactly one audited result to `nobrainer-dispatcher`, or to
 - isolated correctable defect: return `CORRECTION_REQUIRED` with the exact defect
   and evidence; do not choose, dispatch or execute the correction. Dispatcher,
   or Ultra when Dispatcher is not justified, selects the task's assigned repair
-  method (`nobrainer-build` for implementation) and requires a fresh
-  `RECEIVE_AUDIT` after the repair;
+  method (`nobrainer-build` for implementation). After the repair and any
+  required repeated review, run a fresh `RECEIVE_AUDIT` that binds the repaired
+  diff, tests and current review result;
 - missing or conflicting evidence, failed check, active turn, or lease conflict:
   preserve state and stop;
 - owner decision or irreversible action: ask for one explicit decision;

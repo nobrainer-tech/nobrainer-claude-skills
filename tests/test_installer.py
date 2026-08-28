@@ -852,6 +852,64 @@ class InstallerTests(unittest.TestCase):
             )
             self.assertIn("ownership changed after creation", stderr.getvalue())
 
+    def test_symlink_publish_binds_identity_before_concurrent_replacement(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_symlink_publish_race_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            target = destination / "nobrainer-ultra"
+            foreign = Path(temp) / "foreign-skill"
+            foreign.mkdir()
+            (foreign / "foreign.txt").write_text(
+                "owned by another process\n", encoding="utf-8"
+            )
+            real_publish = module.atomic_rename_no_replace
+
+            def publish_then_replace(staged: Path, published: Path) -> None:
+                real_publish(staged, published)
+                if staged.parent.name.startswith(".nobrainer-install-"):
+                    published.unlink()
+                    published.symlink_to(foreign, target_is_directory=True)
+
+            argv = [
+                str(INSTALLER),
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "nobrainer-ultra",
+                "--apply",
+            ]
+            stderr = io.StringIO()
+            with (
+                mock.patch.object(sys, "argv", argv),
+                mock.patch.object(
+                    module,
+                    "atomic_rename_no_replace",
+                    side_effect=publish_then_replace,
+                ),
+                redirect_stdout(io.StringIO()),
+                redirect_stderr(stderr),
+            ):
+                result = module.main()
+
+            self.assertEqual(4, result)
+            self.assertTrue(target.is_symlink())
+            self.assertTrue(target.samefile(foreign))
+            self.assertEqual(
+                "owned by another process\n",
+                (target / "foreign.txt").read_text(encoding="utf-8"),
+            )
+            self.assertEqual([], list(destination.glob(".nobrainer-rollback-*")))
+            self.assertIn("ownership changed after creation", stderr.getvalue())
+
     def test_copy_publish_race_never_overwrites_foreign_child(self) -> None:
         spec = importlib.util.spec_from_file_location(
             "skill_installer_copy_publish_race_test", INSTALLER
@@ -949,6 +1007,50 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(
                 "owned by another process\n",
                 (target / "foreign.txt").read_text(encoding="utf-8"),
+            )
+            self.assertEqual([], list(destination.glob(".nobrainer-rollback-*")))
+
+    def test_copy_rollback_restores_child_added_during_claim(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_copy_child_race_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            target = destination / "nobrainer-ultra"
+            target.mkdir(parents=True)
+            (target / "SKILL.md").write_text("original\n", encoding="utf-8")
+            expected = module.entry_fingerprint(target)
+            expected_manifest = module.tree_manifest(target)
+            self.assertIsNotNone(expected)
+            marker = target / "concurrent.txt"
+            real_rename = module.Path.rename
+            changed = False
+
+            def add_child_then_claim(path: Path, claim: Path):
+                nonlocal changed
+                if path == target and not changed:
+                    changed = True
+                    marker.write_text("owned by another process\n", encoding="utf-8")
+                return real_rename(path, claim)
+
+            with mock.patch.object(
+                module.Path, "rename", new=add_child_then_claim
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError, "content changed while claimed; target restored"
+                ):
+                    module.remove_created_entry(
+                        target, expected, expected_manifest
+                    )
+
+            self.assertTrue(target.is_dir())
+            self.assertEqual(
+                "owned by another process\n", marker.read_text(encoding="utf-8")
             )
             self.assertEqual([], list(destination.glob(".nobrainer-rollback-*")))
 

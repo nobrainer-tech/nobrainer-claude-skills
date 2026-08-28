@@ -7,17 +7,25 @@ clean-session routing evidence.
 ## Safe default
 
 ```bash
-git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
-cd nobrainer-tech-skills
-git checkout --detach "$NB_REVIEWED_REF"
-python3 scripts/validate_skills.py --suite
-python3 scripts/install_skills.py --client codex
-python3 scripts/install_skills.py --client codex --apply
+(
+  set -u
+  : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
+  test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
+  case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
+  cd nobrainer-tech-skills || exit 3
+  git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
+  test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
+  python3 scripts/validate_skills.py --suite || exit 4
+  python3 scripts/install_skills.py --client codex || exit 4
+  python3 scripts/install_skills.py --client codex --apply || exit 4
+)
 ```
 
-Set `NB_REVIEWED_REF` to an exact release tag or full commit that you reviewed.
-Do not execute the snippet with an unset variable. The first installer command
-is a dry-run; inspect every source, target and conflict before adding `--apply`.
+Set `NB_REVIEWED_COMMIT` to the exact full commit SHA you reviewed. The guarded
+subshell rejects unset values, tags, branches and malformed hashes, and stops on
+every failed command. The first installer command is a dry-run; inspect every
+source, target and conflict before the guarded `--apply` command runs.
 
 The default installs exactly fifteen skills. Install an explicit subset by
 repeating `--skill`:

@@ -155,18 +155,24 @@ and [Testing](docs/TESTING.md) for acceptance evidence.
 Clone a reviewed ref, validate it, preview exact targets, then apply:
 
 ```bash
-test -n "${NB_REVIEWED_REF:-}"
-git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
-cd nobrainer-tech-skills
-git checkout --detach "$NB_REVIEWED_REF"
-test "$(git rev-parse HEAD)" = "$(git rev-parse "$NB_REVIEWED_REF^{commit}")"
-python3 scripts/validate_skills.py --suite
-python3 scripts/install_skills.py --client codex
-python3 scripts/install_skills.py --client codex --apply
+(
+  set -u
+  : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
+  test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
+  case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
+  cd nobrainer-tech-skills || exit 3
+  git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
+  test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
+  python3 scripts/validate_skills.py --suite || exit 4
+  python3 scripts/install_skills.py --client codex || exit 4
+  python3 scripts/install_skills.py --client codex --apply || exit 4
+)
 ```
 
-Set `NB_REVIEWED_REF` to the exact release tag or full commit you reviewed; the
-snippet intentionally stops when it is unset or does not resolve to that commit.
+Set `NB_REVIEWED_COMMIT` to the exact full commit SHA you reviewed. Tags and
+branches are rejected because they can move; every failed gate stops before the
+next command.
 
 The installer defaults to all fifteen canonical skills, supports an exact
 subset, refuses foreign targets and can use links or copies. Restart the client

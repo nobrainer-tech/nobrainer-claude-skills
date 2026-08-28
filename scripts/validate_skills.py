@@ -117,6 +117,7 @@ PUBLIC_EXTENSIONLESS_FILES = {
     ROOT / "hooks" / "session-start",
 }
 PUBLIC_ROOT_FILES = (
+    ROOT / ".gitattributes",
     ROOT / ".gitleaks.toml",
     ROOT / ".gitignore",
     ROOT / ".pre-commit-config.yaml",
@@ -160,6 +161,12 @@ VERSION_PATHS = (
     ROOT / ".cursor-plugin" / "plugin.json",
     ROOT / ".kimi-plugin" / "plugin.json",
     ROOT / "gemini-extension.json",
+)
+FROZEN_EVAL_PAYLOAD_SUFFIXES = (
+    "-prompt.md",
+    "-output.md",
+    "-judge.md",
+    "-judge-rubric.md",
 )
 
 
@@ -232,6 +239,15 @@ def relative_link_errors(path: Path, text: str) -> list[str]:
         if not (path.parent / target).resolve().exists():
             errors.append(f"{path.relative_to(ROOT)}: broken relative link {target}")
     return errors
+
+
+def should_validate_relative_links(path: Path) -> bool:
+    """Skip literal Markdown copied into immutable model-evaluation payloads."""
+    artifact_dir = ROOT / "docs" / "evals" / "artifacts"
+    return not (
+        path.parent == artifact_dir
+        and path.name.endswith(FROZEN_EVAL_PAYLOAD_SUFFIXES)
+    )
 
 
 def public_scan_text(path: Path, text: str) -> str:
@@ -326,6 +342,7 @@ def validate(suite_only: bool) -> list[str]:
         if (
             path.suffix.lower() == ".md"
             and path.name != "SKILL.md"
+            and should_validate_relative_links(path)
         ):
             errors.extend(relative_link_errors(path, text))
 
