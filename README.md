@@ -179,8 +179,11 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version `v1.2.0` is a release candidate until its tag, CI, downloaded archive
-and isolated fifteen-skill install are read back. The latest published source
+Version `v1.2.1` is a release candidate until its tag, CI, downloaded archive
+and isolated fifteen-skill install are read back. `v1.2.0` was published, but
+its archive-native test suite exposed one test that incorrectly required a
+`.git` directory; its exact boundary is recorded in
+[the v1.2.0 evidence](docs/releases/v1.2.0.md). The latest fully accepted source
 release remains [`v1.1.0`](docs/releases/v1.1.0.md). To reproduce that release:
 
 ```bash

@@ -1,8 +1,38 @@
 # NoBrainer Tech Skills release notes
 
-## v1.2.0 — 2026-08-28 (release candidate)
+## v1.2.1 — 2026-08-28 (release candidate)
 
-The candidate contains exactly fifteen portable skills:
+This patch candidate contains exactly fifteen portable skills:
+
+- `nobrainer-ultra`
+- `nobrainer-team`
+- `nobrainer-dispatcher`
+- `nobrainer-research`
+- `nobrainer-writing`
+- `nobrainer-build`
+- `nobrainer-security`
+- `nobrainer-sessions`
+- `nobrainer-spec-driven-development`
+- `nobrainer-wiki`
+- `nobrainer-browser`
+- `nobrainer-autoimprove`
+- `nobrainer-decide`
+- `nobrainer-rca`
+- `nobrainer-review`
+
+The patch makes the frozen-payload attributes test portable. It now verifies
+real `git check-attr` behavior in an isolated temporary repository, so a source
+archive without the repository's `.git` directory receives the same strict
+check instead of failing before validation.
+
+This section is a release-candidate contract, not a publication claim. Exact
+tag, commit, archive checksum, CI, archive-native tests and isolated installer
+readback will be added only after the reviewed PR is merged and the GitHub
+release exists.
+
+## v1.2.0 — 2026-08-28
+
+The release contains exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -37,9 +67,14 @@ Highlights:
 - Copy installs are verified in private staging and published with atomic
   no-replace semantics, so a concurrent foreign target is preserved.
 
-This section is a release-candidate contract, not a publication claim. Exact
-tag, commit, archive checksum, CI and isolated installer readback will be added
-after the reviewed PR is merged and the GitHub release exists.
+This version was published as a tagged GitHub source release at commit
+`afd0bffa3f287493a4f646b9ceaafb82273e46b0`. Its repository CI, source parity,
+secret scan, skill validation and isolated installer readback passed, but the
+downloaded archive exposed one environment-dependent test that assumed the
+presence of `.git`. It is therefore published but not fully accepted. The
+planned remediation is the unverified `v1.2.1` patch candidate; it does not
+supersede `v1.2.0` until its own release acceptance passes. The complete
+boundary is recorded in [the v1.2.0 evidence](docs/releases/v1.2.0.md).
 
 ## v1.1.0 — 2026-08-28
 
