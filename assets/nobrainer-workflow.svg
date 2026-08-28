@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">NoBrainer Ultra delivery workflow</title>
-  <desc id="desc">One owner request passes through a single clarification gate, a skill-routed execution map, autonomous specialist work, build, review, verification, delivery and learning. Failed review returns to build. Corrections update the canonical plan and durable knowledge.</desc>
+  <desc id="desc">One owner request passes through a single clarification gate, a skill-routed execution map, dependency-aware dispatch, autonomous specialist work, build, review, verification, delivery and learning. Failed review returns to build. Corrections update the canonical plan and durable knowledge.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#071317"/>
@@ -34,6 +34,7 @@
       .flow-dashed{fill:none;stroke:#d69c57;stroke-width:2.5;stroke-dasharray:8 8;marker-end:url(#arrow)}
       .chip{fill:#0c1c21;stroke:#31525a;stroke-width:1.5}
       .chip-text{font-size:14px;font-weight:700;fill:#bed0d4}
+      .chip-text-small{font-size:11.5px;font-weight:750;letter-spacing:.15px;fill:#bed0d4}
     </style>
   </defs>
 
@@ -79,10 +80,10 @@
     <text x="1207" y="282" class="chip-text">RESEARCH</text>
     <rect x="1335" y="260" width="151" height="34" rx="17" class="chip"/>
     <text x="1371" y="282" class="chip-text">DECIDE</text>
-    <rect x="1186" y="304" width="137" height="34" rx="17" class="chip"/>
-    <text x="1228" y="326" class="chip-text">SDD</text>
-    <rect x="1335" y="304" width="151" height="34" rx="17" class="chip"/>
-    <text x="1354" y="326" class="chip-text">TEAM + SESSIONS</text>
+    <rect x="1186" y="304" width="90" height="34" rx="17" class="chip"/>
+    <text x="1211" y="326" class="chip-text">SDD</text>
+    <rect x="1288" y="304" width="198" height="34" rx="17" class="chip"/>
+    <text x="1300" y="326" class="chip-text-small">TEAM → DISPATCHER → SESSIONS</text>
   </g>
 
   <g filter="url(#soft-shadow)">

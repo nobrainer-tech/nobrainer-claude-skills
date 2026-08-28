@@ -117,15 +117,19 @@ and durable learning.
 
 Invoke `nobrainer-team` when the map contains a real capability gap, two or more
 independent units on the critical path, a valuable isolation boundary or an
-independent review whose risk reduction exceeds coordination cost. Then invoke
-`nobrainer-sessions` for exact visible session creation, reuse and handoff. A
-coherent edit stays in MAIN; a clearly parallel plan should not be serialized
-without a reason.
+independent review whose risk reduction exceeds coordination cost. Invoke
+`nobrainer-dispatcher` when the approved map has multiple delegated work units,
+a parallel group, dependency-aware batches or retries that need one scheduler.
+It chooses only already-defined ready work; it does not invent tasks. Invoke
+`nobrainer-sessions` for exact visible session creation, reuse, transport and
+receive-audit. A coherent edit stays in MAIN; a clearly parallel plan should not
+be serialized without a reason.
 
 Any map that assigns a worker must contain a preceding `nobrainer-team` stage
 that proves the minimum roster and capability sources, followed by a
-`nobrainer-sessions` stage for actual identity and transport. Worker names alone
-do not satisfy this gate.
+`nobrainer-sessions` stage for actual identity and transport. When more than one
+delegated unit or dispatch batch exists, place `nobrainer-dispatcher` between
+team design and session transport. Worker names alone do not satisfy this gate.
 
 Default title is `<repo> | MAIN`; workers use `<repo> | <TASK_ID> <ROLE>`. Names
 help navigation, while exact thread/host, checkout, task, scope and readback
@@ -190,8 +194,9 @@ delivery and user usefulness are different evidence levels.
 
 For delegated work, invoke `nobrainer-sessions` receive-audit. Bind the report to
 the exact session, host, checkout, commit, work unit, diff, evidence and released
-lease before advancing. A worker's `FINISHED`, exit code or `NEXT_ACTION` is
-unverified input, not routing authority.
+lease before advancing. If Dispatcher owns the queue, return the audited result
+to its `RECONCILE` mode before releasing dependencies. A worker's `FINISHED`,
+exit code or `NEXT_ACTION` is unverified input, not routing authority.
 
 Invoke `nobrainer-review` for the final closeout, adversarial bug hunt or release
 gate justified by the map. Fixes route back through `nobrainer-build` and

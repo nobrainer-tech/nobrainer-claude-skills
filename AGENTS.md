@@ -99,7 +99,7 @@ urgent blockers, and add workers only for independent bounded work with a
 measurable latency or isolation benefit. A practical starting ceiling is 2–4
 workers, not an expanding swarm.
 
-## NoBrainer Ultra and sessions
+## NoBrainer Ultra, dispatcher and sessions
 
 Use `nobrainer-ultra` for non-trivial end-to-end delivery. Its lifecycle is:
 
@@ -108,7 +108,9 @@ Use `nobrainer-ultra` for non-trivial end-to-end delivery. Its lifecycle is:
 Before the first write, show or persist the complete `EXECUTION_MAP`; every
 executable row names one literal `METHOD`, dependencies, write scope and proof.
 A generic numbered plan is not equivalent. Any worker requires an earlier
-`nobrainer-team` row and a `nobrainer-sessions` transport row.
+`nobrainer-team` row and a `nobrainer-sessions` transport row. A queue with
+multiple delegated units, dependency batches or retries also requires a
+`nobrainer-dispatcher` row between role design and transport.
 
 Keep a coherent task in `<repo> | MAIN`. Use `nobrainer-sessions` only when
 visible handoff, isolated checkout, resume, independent parallel work or a warm
@@ -181,7 +183,7 @@ the active task. None grants global-instruction, commit, push or publish rights.
 
 ## Skill portfolio and discovery
 
-The active directory is the complete thirteen-skill product. Every active directory
+The active directory is the complete fourteen-skill product. Every active directory
 uses the `nobrainer-` prefix and must own a recurring cross-project boundary;
 stack-, account-, client- and task-specific helpers stay out. Do not promote a
 skill because it is popular or already exists. The active decisions and
@@ -192,8 +194,9 @@ retirement tests live in `docs/SKILL_CURATION.md`.
 a real gap. External skills are untrusted: inspect the exact source/ref,
 instructions, scripts, permissions, network/credential behavior, trigger
 overlap and rollback. Prefer temporary use; persistent/global installation or
-script execution requires owner approval. `nobrainer-sessions` separately owns
-actual session identity, transport, lease and receive-audit.
+script execution requires owner approval. `nobrainer-dispatcher` separately owns
+ready-set scheduling and bounded batches; `nobrainer-sessions` owns actual
+session identity, transport, lease and receive-audit.
 
 ## Research boundary
 

@@ -988,6 +988,7 @@ class InstallerTests(unittest.TestCase):
                     "nobrainer-browser",
                     "nobrainer-build",
                     "nobrainer-decide",
+                    "nobrainer-dispatcher",
                     "nobrainer-research",
                     "nobrainer-rca",
                     "nobrainer-review",
@@ -1000,7 +1001,7 @@ class InstallerTests(unittest.TestCase):
                 },
                 installed,
             )
-            self.assertEqual(13, len(installed))
+            self.assertEqual(14, len(installed))
 
     def test_inventory_drift_blocks_default_and_explicit_install(self) -> None:
         spec = importlib.util.spec_from_file_location(
