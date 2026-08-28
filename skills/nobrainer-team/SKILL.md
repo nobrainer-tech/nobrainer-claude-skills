@@ -1,6 +1,6 @@
 ---
 name: nobrainer-team
-description: "Use when the owner says nb-team or nobrainer-skill-browser, asks to build a specialist agent team, or a non-trivial execution map needs installed-capability inventory, role selection, safe skills.sh lookup, or parallel workers without flooding the project with permanent skills or sessions."
+description: "Use when the owner says nb-team or nobrainer-skill-browser, or after nobrainer-ultra has produced an approved non-trivial execution map that needs installed-capability inventory, minimum role selection, safe skills.sh lookup, or justified parallel workers; do not use to elicit requirements, invent the execution map, schedule work, or create sessions."
 ---
 
 # NoBrainer Team
@@ -19,6 +19,10 @@ plan or delegating work.
 Require an outcome, acceptance evidence and bounded work units. If they do not
 exist, return to `nobrainer-ultra` or the approved specification. Do not invent a
 team around vague titles such as architect, coder and tester.
+
+Even an explicit Team invocation is a discovery trigger, not permission to skip
+Ultra's intake and map boundary. Team may report the missing prerequisite and
+return control to Ultra, but it must not design roles from a vague goal.
 
 For every work unit identify the method and capability actually needed. Inspect
 only metadata/frontmatter from installed skills first; load a full skill only
