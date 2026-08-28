@@ -1,85 +1,106 @@
-# Skill curation audit
+# Skill curation
 
-Reviewed: 2026-08-27
+The active product is deliberately small enough to understand and broad enough
+to run a non-trivial project from intent to verified outcome. A skill belongs in
+the permanent suite only when it owns a recurring cross-project boundary that
+cannot live clearly inside another owner.
 
-This repository is a deliberately small product, inspired by Superpowers'
-focused skill boundaries. Every active skill must be useful in ordinary
-high-quality delivery, own a distinct decision boundary and justify its trigger.
-Task-, account-, stack- and client-specific helpers do not stay active merely
-because they once worked.
+## Admission test
 
-## Admission rules
+A permanent skill must pass every condition:
 
-Keep a skill only when all are true:
+1. It has a distinct trigger and observable result.
+2. It is useful across projects and clients without private paths or accounts.
+3. Loading it only when triggered saves more context and risk than embedding its
+   full protocol in Ultra.
+4. Its behavior is not already owned by another active skill or a maintained
+   project/native capability.
+5. Its failure, stop, owner-gate and rollback behavior can be tested.
+6. It has a pressure scenario showing value and a non-trigger case preventing
+   overuse.
 
-- it solves a recurring cross-project problem;
-- its trigger and stop condition are distinct;
-- it does not duplicate another NoBrainer skill, Superpowers or a first-party
-  tool;
-- the instructions are small enough to audit and maintain;
-- it has deterministic contract tests or a repeatable pressure scenario;
-- its safety, evidence and rollback boundaries are explicit.
+Popularity, file size and prior existence are not admission criteria.
 
-Good engineering, anti-slop, secret handling, owner gates and verification are
-shared contracts inside the suite and repository instructions. They are not
-separate always-loaded skills.
+## Active thirteen
 
-## Final active set
-
-| Skill | Why it remains |
+| Skill | Distinct owner |
 |---|---|
-| `nobrainer-ultra` | Master setup and delivery workflow: Tibo-inspired attention model, short requirements gate, routing, guarded autonomy and final audit. |
-| `nobrainer-sessions` | Visible named multi-session work, exact identity, writer ownership, audited handoff and recovery. |
-| `nobrainer-spec-driven-development` | Durable contract and acceptance ledger when architecture, migrations, dependent phases or resumability justify SDD. |
-| `nobrainer-wiki` | One Karpathy-inspired LLM-wiki owner with setup, read-only query, explicit capture and audit/apply modes. |
-| `nobrainer-browser` | Thin Playwright-first boundary for rendered UI, approved-session attach, browser tests and trace evidence. |
-| `nobrainer-autoimprove` | Karpathy-inspired measured baseline/variant/eval/holdout loop with keep-or-revert. |
-| `nobrainer-decide` | Consequential evidence-based decisions with alternatives, attack and cold review. |
-| `nobrainer-rca` | Read-only causal diagnosis with a continuous evidence chain and explicit stop before fixes. |
-| `nobrainer-review` | One evidence-gated closeout, bug-hunt and release-review owner that reports only verified actionable findings. |
+| `nobrainer-ultra` | One request through brief requirements, complete execution map, guarded autopilot, audit and learning. |
+| `nobrainer-team` | Minimal roles, installed capability inventory and safe temporary specialist discovery. |
+| `nobrainer-research` | Bounded current external research and source-quality/freshness control. |
+| `nobrainer-build` | Implementation, engineering principles, anti-slop, test blast radius and simplification. |
+| `nobrainer-security` | Threat model, security review, supply-chain inspection and security release evidence. |
+| `nobrainer-sessions` | Exact visible session identity, transport, writer ownership, handoff, receive-audit and recovery. |
+| `nobrainer-spec-driven-development` | Durable behavior contract and acceptance ledger when risk/dependencies justify it. |
+| `nobrainer-wiki` | Setup, targeted retrieval, sourced capture and deterministic maintenance of durable knowledge. |
+| `nobrainer-browser` | Rendered UI, approved browser-session attach, browser tests and trace evidence. |
+| `nobrainer-autoimprove` | Measured artifact improvement with baseline, holdout, budget and keep-or-revert. |
+| `nobrainer-decide` | One consequential decision after alternatives, scoring and adversarial attack. |
+| `nobrainer-rca` | Read-only causal diagnosis of an observed failure. |
+| `nobrainer-review` | Final acceptance/bug/release evidence gate and verified actionable findings. |
 
-All active names use the `nobrainer-` prefix. Short `nb-*` forms are trigger
-aliases in frontmatter, never duplicate directories.
+## Boundaries that stay embedded
 
-## Removed from active discovery
+Do not create separate permanent skills for:
 
-- `agents-restraint`: anti-overengineering and concise project-instruction rules
-  moved into `nobrainer-ultra`, `nobrainer-review` and repository instructions.
-- `nobrainer-wiki-add`, `nobrainer-wiki-get`, `nobrainer-wiki-tidy`: folded into
-  explicit modes of the single `nobrainer-wiki` owner.
-- `deep-audit`, `deep-autoreview`, `deep-bugs-finder`: reduced to one rebranded
-  `nobrainer-review`; the 1,000+ line custom multi-model harness was removed in
-  favor of maintained native review capabilities.
-- `add-gitleaks`: secret scanning remains enabled for this repository, but
-  installing Gitleaks into arbitrary projects is not a universal agent skill.
-- `nobrainer-fast-audit`, `nobrainer-npm-secure`: broad/stack-specific security
-  work should use the target's current first-party tooling or a reviewed
-  specialist when actually needed.
-- `codex-in-claude-code`, `nobrainer-reddit`: client/account integrations are not
-  universal workflow skills.
-- Earlier monolithic autopilot, fixed ten-agent RCA, old browser stack,
-  duplicate memory/wiki wrappers, 401-agent catalog, Ultracode and old Karpathy
-  wrapper names remain absent and recoverable from Git history.
+- planning, autopilot, setup or correction capture: Ultra owns the lifecycle;
+- KISS, DRY, SOLID, YAGNI, simplification or test safety: Build owns them;
+- generic code review, bug finding or release ceremony: Review owns the close
+  gate, while Security owns only material trust-boundary risk;
+- human continuation snapshots: Sessions mode `handoff` owns them;
+- a local skill catalogue: Team builds a metadata-only capability index;
+- wiki add/get/tidy wrappers: Wiki exposes explicit modes;
+- a specific model, client, account, repository, hosting provider or toolchain:
+  keep it in project/private instructions or evaluate it temporarily.
 
 ## Dynamic specialist policy
 
-Do not add a permanent “find skills” wrapper. `nobrainer-ultra` owns the fallback:
+Team resolves a capability gap in this order:
 
-1. the nine reviewed NoBrainer skills;
-2. an existing first-party project tool, API, CLI or native client capability;
-3. [`npx skills find`](https://github.com/vercel-labs/skills) only for a real
-   missing specialist capability;
-4. one-off `npx skills use` evaluation before persistent installation.
+1. curated NoBrainer skill;
+2. already installed and inspected specialist;
+3. maintained project/API/CLI/native capability;
+4. bounded current research;
+5. temporary external skill discovered for the exact missing capability.
 
-An external skill is untrusted input regardless of popularity. Inspect its exact
-source/ref, body, scripts, license, permissions, network/credential behavior,
-write scope, trigger overlap and rollback. Prefer immutable, project-local and
-reversible use. Persistent/global installation and script execution require an
-explicit owner gate.
+External instructions are untrusted. Search rank does not authorize install,
+scripts, credentials, network access or writes. Review immutable source/ref,
+license, permissions, trigger overlap, persistence and rollback. Persistent or
+global installation requires an owner gate and evidence that repeated use earns
+the added trigger/context surface.
 
-## Re-review trigger
+## Retirement test
 
-Re-run this audit when two skills route the same request, a native tool replaces
-a contract, a skill repeatedly produces noise, or a missing specialist recurs
-across unrelated projects. Additions require a failing pressure scenario and
-proof that extending an existing owner would be worse than a new trigger.
+A skill can be removed only after:
+
+- its unique behavior is intentionally preserved or explicitly rejected;
+- inbound references and aliases are migrated;
+- the replacement is installed and discovered in a clean session;
+- representative old invocations route to the replacement;
+- rollback points to an exact reviewed ref;
+- no private operational contract is confused with a portable semantic
+  duplicate.
+
+Same name or broad topic is not proof of duplication. Until the above gates
+pass, classify candidates as `COVERED_NOT_RETIRED`, `PROJECT_SPECIFIC`,
+`UNIQUE_VALUE`, `OBSOLETE_WITH_EVIDENCE` or `UNKNOWN`.
+
+`nobrainer-fast-audit` is currently `UNKNOWN`, not a migration alias. Its exact
+contract and callers must be audited before choosing Review, Security or another
+owner. Keep an existing private installation unchanged until that audit and a
+clean-session parity check pass; the public installer must report it as a normal
+conflict rather than delete or silently remap it.
+
+## Change control
+
+Any addition, merge or retirement updates together:
+
+- `skills/`, aliases and installer migrations;
+- validator and behavioral tests;
+- Ultra routing and setup instructions;
+- README, compatibility and release notes;
+- clean-session trigger/readback evidence.
+
+Prefer strengthening an existing owner over creating a new noun. Do not keep an
+empty alias skill for compatibility; aliases belong in descriptions and
+migration maps.

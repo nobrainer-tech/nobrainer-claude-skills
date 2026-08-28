@@ -68,7 +68,7 @@ For non-trivial work use:
 A timeout, partial output, schema error, dead session, exhausted retry, failed
 test or inaccessible runtime is not success.
 
-## Tibo operating model
+## Attention-first operating model
 
 Start with the result and the human's attention, not with model or tool choice.
 Classify execution as one product:
@@ -103,7 +103,12 @@ workers, not an expanding swarm.
 
 Use `nobrainer-ultra` for non-trivial end-to-end delivery. Its lifecycle is:
 
-`DRIFT_CHECK -> BUDDY -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT`
+`DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`
+
+Before the first write, show or persist the complete `EXECUTION_MAP`; every
+executable row names one literal `METHOD`, dependencies, write scope and proof.
+A generic numbered plan is not equivalent. Any worker requires an earlier
+`nobrainer-team` row and a `nobrainer-sessions` transport row.
 
 Keep a coherent task in `<repo> | MAIN`. Use `nobrainer-sessions` only when
 visible handoff, isolated checkout, resume, independent parallel work or a warm
@@ -156,32 +161,57 @@ when a targeted query is enough, or silently self-modify global instructions.
 Personalization must remain inspectable, correctable and bounded by the same
 public/private and secret boundaries as its source.
 
-## Superpowers boundary
+Use the correction hooks from `nobrainer-ultra` immediately when:
 
-Official Superpowers is an external dependency for brainstorming, planning,
-worktrees, TDD, systematic debugging, execution, implementation review methods
-and verification.
-NoBrainer owns lifecycle, visible sessions, owner gates, spec contracts,
-decision/RCA records, measurable improvement and durable knowledge.
+- the owner changes a decision: update its canonical owner, mark the old value
+  superseded, invalidate dependent TODO/evidence and re-plan the affected path;
+- the owner corrects an agent error: fix the active result, classify one minimal
+  prevention candidate, persist it to one canonical project-local store only as
+  `LEARNING_WRITE_POLICY` permits, and create a regression scenario when the
+  behavior can recur;
+- review fails: return the verified finding to `nobrainer-build`, rerun affected
+  verification and review again with fresh evidence.
 
-Use the current official plugin for each harness. Do not vendor, rename, fork or
-copy Superpowers skills here. If a required capability is unavailable, report
-the missing dependency and one installation/repair action.
+Promote only durable, sourced, authorized and non-secret knowledge to the wiki.
+Do not copy the same mutable fact into plan, instructions and wiki; keep one
+canonical owner and link the local consequence.
+Honor the project's `LEARNING_WRITE_POLICY`: `AUTO_SCOPED` may update only
+project-local governed stores; `ASK` prepares a diff; `OFF` keeps learning in
+the active task. None grants global-instruction, commit, push or publish rights.
 
 ## Skill portfolio and discovery
 
-The active directory is the complete nine-skill product. Every active directory
+The active directory is the complete thirteen-skill product. Every active directory
 uses the `nobrainer-` prefix and must own a recurring cross-project boundary;
 stack-, account-, client- and task-specific helpers stay out. Do not promote a
 skill because it is popular or already exists. The active decisions and
 retirement tests live in `docs/SKILL_CURATION.md`.
 
-Do not add an always-installed wrapper for community discovery. Ultra may use
-the official `skills` CLI only after the curated suite and first-party
-capabilities leave a real gap. External skills are untrusted: inspect the exact
-source/ref, instructions, scripts, permissions, network/credential behavior,
-trigger overlap and rollback. Persistent/global installation or script execution
-requires owner approval.
+`nobrainer-team` owns capability and role design. It may use the current
+`skills` CLI only after the curated suite and project-native capabilities leave
+a real gap. External skills are untrusted: inspect the exact source/ref,
+instructions, scripts, permissions, network/credential behavior, trigger
+overlap and rollback. Prefer temporary use; persistent/global installation or
+script execution requires owner approval. `nobrainer-sessions` separately owns
+actual session identity, transport, lease and receive-audit.
+
+## Research boundary
+
+Use `nobrainer-research` for material current, niche, uncertain, high-stakes or
+source-attributed facts. Choose the smallest sufficient depth, prefer current
+primary sources, record access/publication dates, distinguish fact from
+inference and stop when the decision-relevant uncertainty is resolved. If
+required research is unavailable, report `RESEARCH_BLOCKED`; never manufacture
+certainty or browse just to look thorough.
+
+## Security boundary
+
+Route material authentication, authorization, secrets, sensitive data,
+untrusted input, dependency/installer or production trust boundaries through
+`nobrainer-security`. Default to read-only, freeze the exact scope, trace a
+reachable attacker-controlled path and run a false-positive pass. Live testing,
+credentials, scanning, control changes and remediation require their normal
+authority; accepted fixes return through Build and fresh security/review proof.
 
 ## Browser evidence boundary
 
@@ -199,11 +229,11 @@ consequential browser action remain explicit scope or owner gates.
 
 ## Changing a skill
 
-Follow the local `skill-creator` and official Superpowers writing-skills method:
+Follow the local `skill-creator` and this repository's pressure-test method:
 
 1. Inspect existing patterns and dependencies.
 2. Write a pressure scenario and observe the baseline failure or gap (`RED`).
-3. Make the smallest skill change.
+3. Make the smallest skill change through `nobrainer-build` principles.
 4. Re-run the same scenario and deterministic validators (`GREEN`).
 5. Add adversarial/non-trigger cases and verify links, scripts and public-clean
    boundaries.
@@ -243,12 +273,13 @@ from JSON parsing alone. Use the proof levels and clean-session protocol in
 
 ## Golden engineering rules
 
-1. Simplicity first: the smallest complete design wins.
+1. KISS: the smallest complete design wins.
 2. YAGNI before abstraction: build for the current proven need.
 3. DRY knowledge, not accidental textual similarity.
 4. Find root causes; do not stack symptom patches.
 5. Reuse mature capabilities before adding dependencies or custom machinery.
-6. Keep concerns modular and state ownership explicit.
+6. SOLID where applicable: keep responsibilities cohesive and dependency/state
+   ownership explicit without object-oriented ceremony.
 7. Fail loudly at boundaries; never convert uncertainty into a green status.
 8. Comments explain non-obvious why, constraints or tradeoffs, not visible code.
 9. Configuration owns values that vary by environment, account or run.

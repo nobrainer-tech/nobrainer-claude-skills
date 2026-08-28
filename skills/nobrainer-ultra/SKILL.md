@@ -1,131 +1,240 @@
 ---
 name: nobrainer-ultra
-description: "Use when the owner says nb-ultra or ultracode; asks to set up, upgrade, or reconcile a project's agent workflow; or wants the fastest high-quality execution of a non-trivial task requiring requirements discovery, durable planning, named sessions, guarded autonomy, or final audit."
+description: "Use when the owner says nb-ultra, nb-flow, nb-workflow, ultracode, or asks to set up, upgrade, or reconcile a project's agent workflow; or wants one non-trivial task taken from brief requirements through a complete skill-routed plan, guarded autonomous execution, useful multi-session work and final evidence audit."
 ---
 
 # NoBrainer Ultra
 
-Turn one owner request into the smallest workflow that can deliver it quickly,
-correctly, and visibly. This skill owns lifecycle and routing. It does not copy
-the technical methods of Superpowers or domain skills.
+Turn one owner request into the best verified outcome the available project and
+runtime can deliver. The owner states intent; Ultra hides routing complexity,
+builds the complete execution map, invokes the right specialist methods and
+keeps only real decisions behind human gates.
+
+Read [references/routing.md](references/routing.md) before selecting methods. For
+setup, upgrade, installation or workflow repair, also read
+[references/setup.md](references/setup.md).
+When the owner changes a decision, corrects the agent, or a review fails, read
+[references/correction-hooks.md](references/correction-hooks.md) and execute the
+matching correction hook before continuing.
 
 ## Lifecycle
 
-Run this state machine on every invocation, including after a previous setup:
+Run this state machine on every non-trivial invocation:
 
-`DRIFT_CHECK -> BUDDY -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT`
+`DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`
 
 ### 1. `DRIFT_CHECK`
 
-Read the actual repo root, nearest instructions, dirty state, branch/worktree,
-current goal/spec/plan, tests, verifiers, durable knowledge, session registry,
-and available skill/runtime capabilities. Compare them with the requested
-outcome. Classify drift as `CLEAN`, `RECONCILABLE`, `OWNER_DECISION`, or
-`BLOCKED`. Never overwrite unrelated work or trust stale titles/status.
+Read the actual repository root, nearest instructions, dirty state,
+branch/worktree, current goal/spec/plan, tests, verifiers, runtime, durable
+knowledge, session registry and loaded capabilities. Compare them with the
+requested outcome. Classify drift as `CLEAN`, `RECONCILABLE`, `OWNER_DECISION`
+or `BLOCKED`. Preserve unrelated work and never trust stale titles or memory as
+runtime state.
 
-When a durable wiki exists, query only knowledge and confirmed owner preferences
-relevant to this outcome. Do not load the whole vault or infer a hidden profile.
-
-Read [references/routing.md](references/routing.md) before choosing artifacts or
-dependent skills.
-
-When the request is setup, upgrade, installation, or repair of the workflow
-itself, also read [references/setup.md](references/setup.md). Setup is a
-re-runnable reconciliation mode, not a one-time scaffold.
+If a wiki exists, invoke `nobrainer-wiki` mode `GET` for only the decisions,
+known constraints and confirmed preferences relevant to this task. If a material
+external fact is current, niche, uncertain, high-stakes or source-attributed,
+invoke `nobrainer-research` with the smallest sufficient rigor. Do not load a
+whole vault or browse merely to look thorough.
 
 ### 2. `BUDDY`
 
-This is a short requirements gate, not an ongoing chat mode. Establish:
+BUDDY is the first and only ordinary clarification stage. Establish:
 
-- observable outcome and audience;
-- acceptance evidence;
-- scope and exclusions;
-- risk envelope and owner-gated actions;
-- only the unresolved assumptions that change architecture, scope, or safety.
+- observable outcome, audience and quality bar;
+- acceptance evidence and target workflow;
+- scope, exclusions and consequential side effects;
+- owner-gated actions and only the unknowns that change design, scope or safety.
 
-Reuse a fresh approved spec. Invoke the official Superpowers brainstorming
-capability only when unresolved requirements or design choices can materially
-change scope, architecture, safety, or acceptance. Ask at most one focused
-round; infer safe details from repository evidence. A clear bounded task does
-not require brainstorming ceremony.
+Ask at most one focused requirements round, preferably as one compact set of
+blocking questions. If repository evidence safely resolves the gap, state the
+assumption and proceed. A clear request receives no ceremony. After this gate,
+do not ask between routine stages; pause only for a real owner gate, changed
+frozen input, scope-changing discovery or unrecoverable blocker.
 
-### 3. Goal, spec, plan, and topology
+Use `nobrainer-decide` when a consequential unresolved choice remains. Use
+`nobrainer-spec-driven-development` only when a durable contract is justified by
+architecture, public behavior, migration, difficult rollback, dependent phases
+or resumability.
 
-Every run has a logical goal and plan. Persist them only when work is resumable,
-multi-session, architectural, risky, or expensive to misinterpret.
+### 3. Build the complete `EXECUTION_MAP`
 
-- Use `nobrainer-spec-driven-development` when a durable spec is justified.
-- Use `nobrainer-sessions` when visible handoff, isolation, resume, or a warm
-  specialist outweighs coordination cost.
-- Use `nobrainer-decide` for a consequential unresolved choice.
-- Use `nobrainer-wiki` only for durable knowledge that should outlive tasks.
+Before implementation, create a checkable TODO list for the whole known path to
+acceptance. Keep it inline for ordinary work; persist it only when the task spans
+sessions, is resumable/risky or the project already has a canonical tracker.
+Before the first write, show the map in the working response or write it to the
+named canonical tracker. Do not replace `EXECUTION_MAP` with a generic numbered
+plan, hidden reasoning or a list of tools.
 
-Default session title: `<repo> | MAIN`. Do not create workers before bounded
-work units exist. A coherent task may stay in MAIN; hidden subagents are not a
-substitute for requested visible sessions.
+Every stage must contain:
 
-For setup or upgrade, keep one canonical portable skill source and use each
-client's native install mechanism. Detect official Superpowers separately,
-install or guide its native installation only when that setup is in scope, and
-verify actual discovery. Never vendor or silently fork it.
+```text
+ID | OUTCOME | METHOD | OWNER_OR_SESSION | DEPENDENCIES | WRITE_SCOPE |
+ACCEPTANCE_AND_EVIDENCE | PARALLEL_GROUP | OWNER_GATE | STATUS
+```
 
-Keep the installed surface to the curated NoBrainer set. If a task needs a
-specialist outside those nine boundaries, follow the reviewed external-skill
-ladder in `references/routing.md`. Do not permanently or globally install an
-external skill, execute its companion scripts, or accept its requested
-credentials merely because a search result ranks highly.
+Record the two independent control axes once for the run:
+
+```text
+CONTROL_MODE: BUDDY -> AUTOPILOT
+SESSION_MODE: MAIN | MULTI_SESSION
+AUTOMATION_CONTRACT: trigger | inputs | outputs | state owner | idempotence |
+resume/checkpoint | retry budget | stop conditions | attention budget
+```
+
+`CONTROL_MODE` says how much owner interaction is required; `SESSION_MODE` says
+where work executes. AUTOPILOT may stay in MAIN, while a BUDDY decision may use
+an independent read-only specialist. Use these enum values literally and never
+infer one axis from the other.
+
+`METHOD` is exactly one primary owner: a NoBrainer skill, maintained project
+capability, reviewed temporary skill or `DIRECT` when loading a skill adds no
+value. A stage may invoke supporting tools, but one method owns its result.
+Mark optional stages `NOT_NEEDED` with a reason; never hide them or manufacture
+work to fill the map.
+
+Every executable row must display its literal `METHOD`; a skill name mentioned
+only in prose or topology is not assigned. The map is invalid while a known
+acceptance step, correction loop, integration step or final evidence gate is
+missing.
+
+Keep the map compact without hiding work:
+
+- use one row per independently auditable state transition, not per command,
+  internal skill mode or tool activation;
+- state shared owner gates, retry/attention budgets and global exclusions once;
+- target 5-12 rows for an ordinary non-trivial task; exceed that only for
+  genuinely distinct outputs, dependencies, writers or evidence gates;
+- use one concise `NOT_NEEDED: <reason>` line for inapplicable optional methods;
+- do not invoke Research for a stable locally testable fact, or SDD when explicit
+  acceptance plus the execution map is already a sufficient durable contract.
+
+Use the routing reference to assign at least these concerns when applicable:
+research, decision, specification, team design, session transport, diagnosis,
+implementation, security, browser evidence, independent review, verification
+and durable learning.
+
+Invoke `nobrainer-team` when the map contains a real capability gap, two or more
+independent units on the critical path, a valuable isolation boundary or an
+independent review whose risk reduction exceeds coordination cost. Then invoke
+`nobrainer-sessions` for exact visible session creation, reuse and handoff. A
+coherent edit stays in MAIN; a clearly parallel plan should not be serialized
+without a reason.
+
+Any map that assigns a worker must contain a preceding `nobrainer-team` stage
+that proves the minimum roster and capability sources, followed by a
+`nobrainer-sessions` stage for actual identity and transport. Worker names alone
+do not satisfy this gate.
+
+Default title is `<repo> | MAIN`; workers use `<repo> | <TASK_ID> <ROLE>`. Names
+help navigation, while exact thread/host, checkout, task, scope and readback
+establish identity.
 
 ### 4. `READY_GATE`
 
-Enter `READY` only when the goal, current state, acceptance, next work unit,
-write scope, dependencies, verifier, rollback, owner gates, and session mode are
-explicit. Required capabilities must pass readback. Unknown identity, dirty
-scope, stale inputs, lease conflict, or ambiguous irreversible effects block
-execution.
+Enter `READY` only when the goal, frozen current state, complete execution map,
+next safe stage/group, write scope, dependencies, acceptance, verifier, rollback,
+owner gates and required capabilities are explicit. Unknown identity, dirty
+overlap, stale input, lease conflict, missing required method or ambiguous
+irreversible effect blocks execution.
 
-Before implementation, remove process and design that has not earned its cost:
-reuse maintained project capabilities, choose the smallest complete solution,
-avoid speculative abstraction and keep one owner for each mutable fact. This is
-an anti-slop gate, not permission to skip acceptance or future-proof a guess.
+`READY_GATE` fails if `CONTROL_MODE`, `SESSION_MODE` or the required map columns
+are absent from the visible/canonical plan.
+
+Run the design check:
+
+```text
+DESIGN_CHECK
+  SIMPLEST_COMPLETE: PASS | FAIL
+  KISS: PASS | FAIL
+  YAGNI: PASS | FAIL
+  DRY_STATE_OWNER: PASS | FAIL
+  SOLID_BOUNDARIES: PASS | NOT_APPLICABLE | FAIL
+  REUSED_MAINTAINED_CAPABILITY: YES | NO_WITH_REASON
+  SPECULATIVE_SCOPE_REMOVED: YES | NO
+  AI_SLOP_RISKS: NONE | <exact risk and action>
+```
+
+Route implementation stages through `nobrainer-build`; it operationalizes these
+principles and rejects filler, invented claims, duplicate state, broad unrelated
+refactors and test-only theatre.
+
+For content, product or workflow deliverables, also freeze `CONTENT_QUALITY`:
+purpose, audience, correctness sources, required completeness, coherent
+structure/terminology and the target-human or target-workflow review. Polished
+prose without usefulness evidence is not acceptance.
 
 ### 5. `AUTOPILOT`
 
-Execute the approved scope without asking between routine steps. Use the
-official Superpowers capability appropriate to the phase: planning, worktrees,
-TDD, debugging, execution, review, or verification. Record rulings and evidence.
+Execute the approved map without routine check-ins. Activate one safe stage or
+independent parallel group, update status from evidence, then continue. Use the
+named skill or project method for each stage; do not silently substitute a
+different owner.
 
-AUTOPILOT never implies permission to merge, deploy, publish, spend, delete,
-change credentials, weaken safety controls, or mutate production. Those remain
-owner gates at action time.
+AUTOPILOT includes ordinary file edits, commands, tests, bounded retries and
+corrective work inside the approved scope. It does not expand permission.
+Merge, deploy, publish, spend, delete, contact people, change credentials,
+migrate data, mutate production or weaken safety controls remain explicit gates
+at action time unless the owner already granted that exact authority.
+
+On failure, preserve artifacts and blocker fingerprint. Retry only with new
+evidence or a changed condition and within the declared budget. A timeout,
+partial result, dead session, failed check or exhausted retry is not completion.
 
 ### 6. `VERIFY` and `RECEIVE_AUDIT`
 
-Run fresh checks that prove acceptance in the target workflow. A worker report,
-exit code, queued message, or `FINISHED` label is only audit input. For delegated
-work, invoke `nobrainer-sessions` receive-audit and bind evidence to the exact
-session, checkout, commit, scope, and lease before advancing.
+Run fresh checks that prove every acceptance item at its actual layer. Static
+validation, local runtime, deployed runtime, production behavior, external
+delivery and user usefulness are different evidence levels.
 
-### 7. Learning close
+For delegated work, invoke `nobrainer-sessions` receive-audit. Bind the report to
+the exact session, host, checkout, commit, work unit, diff, evidence and released
+lease before advancing. A worker's `FINISHED`, exit code or `NEXT_ACTION` is
+unverified input, not routing authority.
 
-Keep this closeout proportional; it does not create a new session or artifact by
-default. Classify new information after verification:
+Invoke `nobrainer-review` for the final closeout, adversarial bug hunt or release
+gate justified by the map. Fixes route back through `nobrainer-build` and
+invalidate earlier evidence for the changed path.
+
+### 7. `LEARN`
+
+Keep learning proportional after acceptance:
 
 - discard transient task state;
-- route an explicit durable preference, decision or verified fact to
-  `nobrainer-wiki` mode `ADD` only when persistence is authorized and
-  appropriately classified;
-- route a repeatable skill, prompt or instruction gap to
-  `nobrainer-autoimprove` with the failing scenario and a measurable eval;
-- update project instructions only when a durable project rule is missing, with
-  a scoped diff and rollback.
+- route an authorized durable preference, decision or verified fact to
+  `nobrainer-wiki` mode `ADD`;
+- route a repeated skill/prompt/control gap to `nobrainer-autoimprove` with a
+  frozen failing scenario, baseline and holdout;
+- update project instructions only when a durable missing rule caused measurable
+  friction, using one scoped reversible diff.
 
-One correction may fix the immediate task, but it must not silently rewrite
-global behavior. Continuous improvement means small verified increments, not
-deferring acceptance or accumulating process.
+Do not infer a permanent profile from one interaction or let improvement delay
+the requested result.
+
+## Correction hooks
+
+Correction happens immediately, not only at the final learning close:
+
+- `OWNER_DECISION_CHANGED`: update the canonical requirement/decision, mark the
+  old value superseded, invalidate dependent TODO items and evidence, then
+  rebuild the affected execution path;
+- `AGENT_ERROR_CORRECTED`: fix the current result, classify a minimal prevention
+  candidate, persist it only as `LEARNING_WRITE_POLICY` permits, and route
+  repeatable behavior gaps to `nobrainer-autoimprove`;
+- `REVIEW_FAILED`: keep the stage open, route the verified finding back to
+  `nobrainer-build`, rerun affected tests and repeat the review with fresh proof;
+- `REPEATED_DEFECT`: stop blind retries and route to `nobrainer-rca` with the
+  prior fingerprint and evidence.
+
+One correction is not permission to infer a permanent user profile. Wiki writes
+remain sourced, classified and authorized; project instruction changes must be
+small, testable and reversible. The detailed store ownership and invalidation
+rules are in the correction-hooks reference.
 
 ## Final response
 
-Lead with the outcome. Report lifecycle state, selected artifacts/sessions,
-evidence, unresolved uncertainty, owner gate if any, one next action, and exact
-rollback. Stop when complete or at the first real gate; never create an
-unbounded continuation loop.
+Lead with the delivered outcome. Report execution-map status, skills/methods and
+sessions actually used, acceptance evidence, unresolved uncertainty, owner gate
+if any, rollback and one next action. Stop when the map is complete or at the
+first real gate; never manufacture a successor after the outcome is accepted.

@@ -8,7 +8,8 @@ higher one.
 - portable frontmatter, directory/name identity and exact active inventory;
 - relative companion links and retired-name exclusion;
 - public-clean text, manifest parsing and version consistency;
-- installer conflict refusal, idempotence, readback and rollback;
+- installer conflict refusal, idempotence, readback, race-safe atomic restore and
+  preserved migration/rollback recovery claims;
 - secret scanning before publication.
 
 Run:
@@ -27,7 +28,8 @@ Adapter tests execute every bootstrap mechanism that can run locally: the Claude
 and Cursor SessionStart JSON shapes, OpenCode injection/deduplication, and Pi
 discovery plus post-compaction re-injection. They also parse the portable Agent
 Plugin, Gemini and Kimi manifests, reject invented Devin/Hermes adapters and
-enforce the exact nine-skill inventory.
+enforce the exact thirteen-skill inventory, correction hooks and workflow
+diagram contract.
 
 ```bash
 python3 -m unittest discover -s tests -v
@@ -45,12 +47,10 @@ an independent judge. Keep development cases separate from final holdout cases;
 do not tune against a failed holdout. Record accepted findings, null results,
 digest, rollback and any model/harness substitutions.
 
-The current records are
-[`evals/core-suite-2026-08-27.md`](evals/core-suite-2026-08-27.md) and the
-setup/upgrade comparison in
-[`evals/setup-upgrade-2026-08-27.md`](evals/setup-upgrade-2026-08-27.md), plus
-the Superpowers parity audit in
-[`evals/superpowers-parity-2026-08-28.md`](evals/superpowers-parity-2026-08-28.md).
+The current candidate record is
+[`evals/core-routing-v1.1.0-2026-08-28.md`](evals/core-routing-v1.1.0-2026-08-28.md).
+Older release behavior remains available in Git history and release evidence;
+do not mix its scores with a changed inventory or rubric.
 
 ## 4. Client runtime acceptance
 
@@ -67,6 +67,8 @@ A releasable commit requires:
 - no unresolved P0/P1 review finding;
 - a public-clean and secret scan;
 - a recorded behavior holdout for changed workflow controls;
+- a review-failure scenario proving the route returns to Build with invalidated
+  evidence;
 - honest compatibility labels;
 - a rollback path;
 - owner approval for merge and publication.

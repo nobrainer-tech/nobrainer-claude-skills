@@ -15,6 +15,10 @@ SKILLS = ROOT / "skills"
 
 CANONICAL = {
     "nobrainer-ultra": "nb-ultra",
+    "nobrainer-team": "nb-team",
+    "nobrainer-research": "nb-research",
+    "nobrainer-build": "nb-build",
+    "nobrainer-security": "nb-security",
     "nobrainer-sessions": "nb-sessions",
     "nobrainer-spec-driven-development": "nb-sdd",
     "nobrainer-wiki": "nb-wiki",
@@ -30,25 +34,36 @@ LEGACY = {
     "agent-browser",
     "agents-restraint",
     "codex-in-claude-code",
+    "code-autoresearch",
     "deep-audit",
     "deep-autoreview",
+    "deep-autoresearch",
     "deep-bugs-finder",
+    "deep-code-review",
     "deep-decide",
     "deep-rca",
+    "engineering-standards",
     "karpathy-auto-improver",
     "karpathy-llm-wiki",
     "llm-wiki",
     "nb-add",
+    "nb-flow",
     "nb-get",
+    "nb-multi",
     "nb-tidy",
+    "nb-workflow",
     "nobrainer-autopilot",
+    "nobrainer-capture-lesson",
     "nobrainer-continuous-improvement",
     "nobrainer-memory",
     "nobrainer-memory-memsearch",
-    "nobrainer-fast-audit",
     "nobrainer-npm-secure",
     "nobrainer-reddit",
     "nobrainer-starter",
+    "nobrainer-skill-browser",
+    "nobrainer-simplifier",
+    "security-review",
+    "session-handoff",
     "nobrainer-team-builder",
     "nobrainer-ultracode-workflow",
     "nobrainer-wiki-add",
@@ -143,19 +158,31 @@ class SuiteTests(unittest.TestCase):
         for term in (
             "DRIFT_CHECK",
             "BUDDY",
+            "EXECUTION_MAP",
             "READY_GATE",
             "AUTOPILOT",
             "RECEIVE_AUDIT",
             "nobrainer-sessions",
             "nobrainer-spec-driven-development",
-            "Superpowers",
+            "nobrainer-team",
+            "nobrainer-research",
+            "nobrainer-build",
         ):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
+        self.assertIn("one focused requirements round", text.lower())
+        self.assertIn("without routine check-ins", text.lower())
+        self.assertIn("Use these enum values literally", text)
+        self.assertIn("Any map that assigns a worker", text)
+        self.assertIn("Do not replace `EXECUTION_MAP` with a generic numbered", text)
+        self.assertIn("Every executable row must display its literal `METHOD`", text)
+        self.assertIn("target 5-12 rows", text)
+        self.assertIn("stable locally testable fact", text)
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
-        self.assertIn("nobrainer-browser", routing)
+        for name in CANONICAL:
+            self.assertIn(name, routing)
 
     def test_ultra_setup_upgrade_contract(self) -> None:
         skill = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
@@ -168,11 +195,101 @@ class SuiteTests(unittest.TestCase):
             "CURRENT",
             "DRIFTED",
             "OWNER_GATE",
-            "official Superpowers",
+            "nobrainer-team",
+            "`ASK` prepares an exact diff",
+            "`OFF` persists",
             "RUNTIME_CHECKS",
             "ROLLBACK",
         ):
             self.assertIn(term, setup)
+        self.assertNotIn("fix the result and record one reusable prevention rule", setup)
+
+    def test_build_contract_is_anti_slop_and_calibrated(self) -> None:
+        text = (SKILLS / "nobrainer-build" / "SKILL.md").read_text(encoding="utf-8")
+        for term in (
+            "KISS",
+            "DRY",
+            "SOLID",
+            "YAGNI",
+            "Anti-slop gate",
+            "failing proof",
+            "acceptance trace",
+            "nobrainer-review",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("incidental similarity", text)
+        self.assertIn("not a mandate for object-oriented ceremony", text)
+
+    def test_research_contract_is_bounded_and_current(self) -> None:
+        text = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "MICRO",
+            "STANDARD",
+            "DEEP",
+            "primary sources",
+            "RESEARCH_BLOCKED",
+            "FACT",
+            "INFERENCE",
+            "nobrainer-wiki",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("Stop when the decision-relevant uncertainty is resolved", text)
+
+    def test_security_contract_is_evidence_gated_and_read_only(self) -> None:
+        text = (SKILLS / "nobrainer-security" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "THREAT_MODEL",
+            "SECURITY_REVIEW",
+            "SUPPLY_CHAIN",
+            "READ_ONLY",
+            "trust boundary",
+            "false-positive",
+            "nobrainer-build",
+            "nobrainer-research",
+            "RESEARCH_BLOCKED",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("Do not test a live target", text)
+
+    def test_team_contract_builds_minimum_capability_roster(self) -> None:
+        text = (SKILLS / "nobrainer-team" / "SKILL.md").read_text(encoding="utf-8")
+        reference = (
+            SKILLS / "nobrainer-team" / "references" / "team-plan.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "CAPABILITY_GAP",
+            "npx skills find",
+            "npx skills use",
+            "nobrainer-sessions",
+            "MAIN",
+            "2-4",
+            "untrusted",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("METHOD", reference)
+        self.assertIn("WRITE_SCOPE", reference)
+        self.assertIn("ACCEPTANCE", reference)
+
+    def test_active_product_has_no_external_workflow_branding(self) -> None:
+        checked = [
+            ROOT / "README.md",
+            ROOT / "AGENTS.md",
+            ROOT / "CLAUDE.md",
+            ROOT / "CONTRIBUTING.md",
+            ROOT / "RELEASE-NOTES.md",
+            ROOT / "docs" / "INSTALL.md",
+            ROOT / "docs" / "SKILL_CURATION.md",
+            *[path for name in CANONICAL for path in (SKILLS / name).rglob("*.md")],
+        ]
+        for path in checked:
+            with self.subTest(path=path):
+                text = path.read_text(encoding="utf-8").lower()
+                for brand in validate_skills.EXTERNAL_WORKFLOW_BRANDS:
+                    self.assertNotIn(brand, text)
 
     def test_sessions_fail_closed_contract(self) -> None:
         text = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(encoding="utf-8")
@@ -184,7 +301,6 @@ class SuiteTests(unittest.TestCase):
             "LEASE",
             "FENCING_EPOCH",
             "RECEIVE_AUDIT",
-            "2091905058933792771",
         ):
             self.assertIn(term, text)
 
@@ -218,16 +334,70 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("Continuous improvement beats delayed perfection", readme)
         self.assertIn("A small task stays small", readme)
         self.assertIn("Lightweight learning loop", agents)
-        self.assertIn("Learning close", ultra)
-        self.assertIn("One correction", ultra)
+        self.assertIn("Correction hooks", ultra)
+        self.assertIn("OWNER_DECISION_CHANGED", ultra)
+        self.assertIn("AGENT_ERROR_CORRECTED", ultra)
+        self.assertIn("REVIEW_FAILED", ultra)
+        self.assertIn("invalidate", ultra.lower())
         self.assertIn("regression scenario", autoimprove)
+        self.assertIn("`AUTO_SCOPED`", autoimprove)
+        self.assertIn("`ASK`", autoimprove)
+        self.assertIn("`OFF`", autoimprove)
+        self.assertIn("do not create a durable diff", autoimprove)
         self.assertIn("Durable personalization without hidden memory", wiki)
         self.assertIn("source, date, scope", wiki)
+
+        hooks = (
+            SKILLS / "nobrainer-ultra" / "references" / "correction-hooks.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "SUPERSEDE",
+            "tasks/lessons.md",
+            "AGENTS.md",
+            "nobrainer-wiki",
+            "secret",
+            "REPLAN_REQUIRED",
+            "LEARNING_WRITE_POLICY",
+            "AUTO_SCOPED",
+        ):
+            self.assertIn(term, hooks)
+        self.assertIn("one canonical owner", hooks)
+        self.assertIn("under `ASK`, prepare the exact single-store diff", hooks)
+        self.assertIn("under `OFF`, keep the prevention candidate", hooks)
+        self.assertIn("do not\n     create or modify `tasks/lessons.md`", hooks)
+
+        self.assertIn("`AUTO_SCOPED` may persist", readme)
+        self.assertIn("`ASK` prepares one exact diff", readme)
+        self.assertIn("`OFF` keeps it\n  task-local without a durable diff", readme)
 
     def test_legacy_skills_are_not_discoverable(self) -> None:
         for name in LEGACY:
             with self.subTest(name=name):
                 self.assertFalse((SKILLS / name / "SKILL.md").exists())
+
+    def test_retiable_private_invocations_route_without_alias_directories(self) -> None:
+        expected = {
+            "nobrainer-ultra": ("nb-flow", "nb-workflow"),
+            "nobrainer-team": ("nobrainer-skill-browser",),
+            "nobrainer-build": ("engineering-standards", "nobrainer-simplifier"),
+            "nobrainer-security": ("security-review",),
+            "nobrainer-sessions": ("nb-multi", "session-handoff"),
+            "nobrainer-wiki": ("nb-add", "nb-get", "nb-tidy"),
+            "nobrainer-autoimprove": (
+                "deep-autoresearch",
+                "code-autoresearch",
+                "nobrainer-capture-lesson",
+            ),
+            "nobrainer-decide": ("deep-decide",),
+            "nobrainer-rca": ("deep-rca",),
+            "nobrainer-review": ("deep-audit", "deep-code-review"),
+        }
+        for name, triggers in expected.items():
+            description = parse_frontmatter(SKILLS / name / "SKILL.md")[
+                "description"
+            ]
+            for trigger in triggers:
+                self.assertIn(trigger, description, f"{name}: missing {trigger}")
 
     def test_installer_migrates_every_retired_name(self) -> None:
         self.assertEqual(ACTIVE, set(install_skills.CURATED_SKILLS))
@@ -240,9 +410,21 @@ class SuiteTests(unittest.TestCase):
             ACTIVE,
         )
 
+    def test_unknown_private_audit_skill_has_no_unsafe_migration(self) -> None:
+        name = "nobrainer-fast-audit"
+        curation = (ROOT / "docs" / "SKILL_CURATION.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn(name, install_skills.LEGACY_TO_CANONICAL)
+        self.assertIn(name, install_skills.UNMAPPED_LEGACY)
+        self.assertIn(f"`{name}` is currently `UNKNOWN`", curation)
+        self.assertIn("clean-session parity check", curation)
+
     def test_public_clean_suite(self) -> None:
         forbidden = (
             "/Users/",
+            "/opt/homebrew/",
+            "/private/tmp/",
             "nobrainer-tech@",
             "--dangerously-skip-permissions",
             "CLAUDE-CODE-FABLE",
@@ -331,7 +513,7 @@ class SuiteTests(unittest.TestCase):
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
 
-    def test_v1_release_surface_and_readback_are_explicit(self) -> None:
+    def test_v1_0_release_readback_remains_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
@@ -341,22 +523,12 @@ class SuiteTests(unittest.TestCase):
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.0.0.md"
         ).read_text(encoding="utf-8")
-        version = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
-            "version"
-        ]
-        released_skills = re.findall(
-            r"^- `(nobrainer-[a-z0-9-]+)`$", release_notes, re.MULTILINE
-        )
-        self.assertEqual("1.0.0", version)
+        version = "1.0.0"
         release_sha = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
         self.assertIn("git checkout --detach", readme)
         self.assertIn(release_sha, readme)
         self.assertIn(release_sha, release_notes)
         self.assertIn(f"## v{version}", release_notes)
-        self.assertEqual(9, len(released_skills))
-        self.assertEqual(len(released_skills), len(set(released_skills)))
-        self.assertEqual(list(CANONICAL), released_skills)
-        self.assertEqual(ACTIVE, set(released_skills))
         self.assertIn(
             "This version is published as a tagged GitHub source release",
             normalized_notes,
@@ -385,10 +557,25 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(f"{evidence['TAG']}.tar.gz", evidence["TARBALL_FILENAME"])
         self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
-        self.assertEqual(str(len(CANONICAL)), evidence["ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("9", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("57/57 PASS", evidence["ARCHIVE_TESTS"])
         self.assertEqual("codex", evidence["INSTALL_CLIENT"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
+
+    def test_current_release_candidate_surface(self) -> None:
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
+            "version"
+        ]
+        section = release_notes.split("## v1.0.0", 1)[0]
+        released_skills = re.findall(
+            r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+        )
+        self.assertEqual("1.1.0", current)
+        self.assertIn(f"## v{current}", release_notes)
+        self.assertEqual(list(CANONICAL), released_skills)
+        self.assertEqual(ACTIVE, set(released_skills))
+        self.assertIn("release candidate", section.lower())
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -397,22 +584,24 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("https://nobrainer.tech", text)
         self.assertIn("https://nobrainertech.gumroad.com", text)
         self.assertIn("agentic workflows", text.lower())
-        self.assertIn("assets/nobrainer-skills-coverage-v2.png", text)
+        self.assertIn("assets/nobrainer-workflow.svg", text)
+        self.assertNotIn("nobrainer-skills-coverage-v2.png", text)
         self.assertIn("docs/COMPATIBILITY.md", text)
         self.assertIn("docs/TESTING.md", text)
 
     def test_coverage_graphic_is_readme_ready(self) -> None:
-        path = ROOT / "assets" / "nobrainer-skills-coverage-v2.png"
-        data = path.read_bytes()
-        self.assertEqual(b"\x89PNG\r\n\x1a\n", data[:8])
-        self.assertEqual(b"IHDR", data[12:16])
-        width = int.from_bytes(data[16:20], "big")
-        height = int.from_bytes(data[20:24], "big")
-        self.assertGreaterEqual(width, 1200)
-        self.assertGreaterEqual(height, 600)
-        self.assertLessEqual(len(data), 2_000_000)
-        self.assertGreater(width / height, 1.6)
-        self.assertLess(width / height, 2.0)
+        path = ROOT / "assets" / "nobrainer-workflow.svg"
+        text = path.read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("<svg"))
+        self.assertIn('viewBox="0 0 1600 900"', text)
+        self.assertIn("BUDDY", text)
+        self.assertIn("EXECUTION MAP", text)
+        self.assertIn("BUILD", text)
+        self.assertIn("REVIEW", text)
+        self.assertIn("LEARN", text)
+        self.assertIn("review-fix-loop", text)
+        self.assertLessEqual(len(text.encode("utf-8")), 200_000)
+        self.assertFalse((ROOT / "assets" / "nobrainer-skills-coverage-v2.png").exists())
         self.assertFalse((ROOT / "assets" / "nobrainer-skills-coverage.webp").exists())
 
     def test_product_repository_surface(self) -> None:
@@ -424,7 +613,8 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.0.0.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
-            "docs/evals/superpowers-parity-2026-08-28.md",
+            "docs/evals/core-routing-v1.1.0-2026-08-28.md",
+            "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
             ".github/ISSUE_TEMPLATE/feature_request.md",
@@ -500,8 +690,7 @@ class SuiteTests(unittest.TestCase):
         ):
             self.assertIn(term, text)
         self.assertIn("filter out speculative AI noise", text)
-        self.assertIn("Ordinary implementation-time", text)
-        self.assertIn("official Superpowers", text)
+        self.assertIn("nobrainer-build", text)
         self.assertNotIn("asks for a code or change review", text)
         self.assertNotIn("continue until dry", text.lower())
 

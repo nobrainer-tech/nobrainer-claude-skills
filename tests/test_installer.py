@@ -447,56 +447,39 @@ class InstallerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temp:
             destination = Path(temp) / "skills"
-            destination.mkdir()
+            claim_parent = destination / ".nobrainer-migration-test"
+            claim_parent.mkdir(parents=True)
             target = destination / "karpathy-auto-improver"
+            claim = claim_parent / target.name
             claimed_legacy = ROOT / "karpathy-auto-improver"
             concurrent_foreign = Path(temp) / "concurrent-foreign"
-            target.symlink_to(claimed_legacy, target_is_directory=True)
-            metadata = target.lstat()
-            mismatched_snapshot = (
-                metadata.st_dev,
-                metadata.st_ino,
-                metadata.st_mode,
-                "different-link-text",
-            )
-            real_symlink = os.symlink
+            claim.symlink_to(claimed_legacy, target_is_directory=True)
+            expected = module.entry_fingerprint(claim)
+            self.assertIsNotNone(expected)
+            real_atomic_rename = module.atomic_rename_no_replace
 
             def install_concurrent_target_then_restore(
-                source: Path | str,
-                link: Path | str,
-                target_is_directory: bool = False,
+                source: Path,
+                destination: Path,
             ) -> None:
-                real_symlink(
+                destination.symlink_to(
                     concurrent_foreign,
-                    link,
                     target_is_directory=True,
                 )
-                real_symlink(
-                    source,
-                    link,
-                    target_is_directory=target_is_directory,
-                )
+                real_atomic_rename(source, destination)
 
             with (
                 mock.patch.object(
                     module,
-                    "legacy_link_snapshot",
-                    return_value=mismatched_snapshot,
-                ),
-                mock.patch.object(
-                    module.os,
-                    "symlink",
+                    "atomic_rename_no_replace",
                     side_effect=install_concurrent_target_then_restore,
                 ),
             ):
                 with self.assertRaisesRegex(RuntimeError, "restore blocked"):
-                    module.claim_legacy_link(target, "karpathy-auto-improver")
+                    module.restore_claim(target, claim, expected)
 
             self.assertTrue(target.is_symlink())
             self.assertEqual(concurrent_foreign, target.readlink())
-            claim_dirs = list(destination.glob(".nobrainer-migration-*"))
-            self.assertEqual(1, len(claim_dirs))
-            claim = claim_dirs[0] / target.name
             self.assertTrue(claim.is_symlink())
             self.assertEqual(claimed_legacy, claim.readlink())
 
@@ -667,6 +650,96 @@ class InstallerTests(unittest.TestCase):
                 (target / "concurrent.txt").read_text(encoding="utf-8"),
             )
 
+    def test_restore_moves_symlink_claim_without_duplicate_cleanup(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_atomic_restore_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            claim_parent = destination / ".nobrainer-migration-test"
+            claim_parent.mkdir(parents=True)
+            claim = claim_parent / "legacy"
+            target = destination / "legacy"
+            original = os.path.relpath(ROOT / "karpathy-auto-improver", destination)
+            claim.symlink_to(original, target_is_directory=True)
+            expected = module.entry_fingerprint(claim)
+            self.assertIsNotNone(expected)
+
+            with (
+                mock.patch.object(
+                    module.os,
+                    "symlink",
+                    side_effect=AssertionError("restore must move, not recreate"),
+                ),
+                mock.patch.object(
+                    module.shutil,
+                    "rmtree",
+                    side_effect=AssertionError("restore must not delete a claim"),
+                ),
+            ):
+                module.restore_claim(target, claim, expected)
+
+            self.assertTrue(target.is_symlink())
+            self.assertEqual(Path(original), target.readlink())
+            self.assertFalse(claim.exists())
+            self.assertFalse(claim.is_symlink())
+            self.assertFalse(claim_parent.exists())
+
+    def test_successful_migration_preserves_verified_recovery_backup(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_migration_backup_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            destination.mkdir()
+            legacy = destination / "karpathy-auto-improver"
+            original = ROOT / "karpathy-auto-improver"
+            legacy.symlink_to(original, target_is_directory=True)
+
+            argv = [
+                str(INSTALLER),
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "nobrainer-autoimprove",
+                "--migrate-legacy",
+                "--apply",
+            ]
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                mock.patch.object(sys, "argv", argv),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                result = module.main()
+
+            canonical = destination / "nobrainer-autoimprove"
+            self.assertEqual(0, result)
+            self.assertEqual(
+                (ROOT / "skills" / "nobrainer-autoimprove").resolve(),
+                canonical.resolve(),
+            )
+            claim_dirs = list(destination.glob(".nobrainer-migration-*"))
+            self.assertEqual(1, len(claim_dirs))
+            preserved = claim_dirs[0] / legacy.name
+            self.assertTrue(preserved.is_symlink())
+            self.assertEqual(original, preserved.readlink())
+            self.assertIn("BACKUP_PRESERVED", stdout.getvalue())
+            self.assertEqual("", stderr.getvalue())
+
     def test_interrupted_copy_removes_partial_target(self) -> None:
         spec = importlib.util.spec_from_file_location("skill_installer_under_test", INSTALLER)
         self.assertIsNotNone(spec)
@@ -701,16 +774,152 @@ class InstallerTests(unittest.TestCase):
                 "copy",
                 "--apply",
             ]
+            stderr = io.StringIO()
             with (
                 mock.patch.object(sys, "argv", argv),
                 mock.patch.object(shutil, "copytree", side_effect=interrupted_copy),
                 redirect_stdout(io.StringIO()),
-                redirect_stderr(io.StringIO()),
+                redirect_stderr(stderr),
             ):
                 result = module.main()
 
             self.assertEqual(4, result)
             self.assertFalse(target.exists(), "partial copy must be rolled back")
+            recovery_dirs = list(destination.glob(".nobrainer-rollback-*"))
+            self.assertEqual(1, len(recovery_dirs))
+            preserved = recovery_dirs[0] / target.name
+            self.assertEqual(
+                "incomplete\n",
+                (preserved / "partial.txt").read_text(encoding="utf-8"),
+            )
+            self.assertIn("manual recovery", stderr.getvalue())
+
+    def test_copy_rollback_preserves_post_create_replacement(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_post_create_race_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            target = destination / "nobrainer-ultra"
+            foreign = Path(temp) / "foreign-skill"
+            foreign.mkdir()
+            (foreign / "foreign.txt").write_text(
+                "owned by another process\n", encoding="utf-8"
+            )
+
+            def replace_owned_target_then_fail(
+                source: Path,
+                partial: Path,
+                *,
+                dirs_exist_ok: bool = False,
+            ) -> None:
+                self.assertTrue(dirs_exist_ok)
+                shutil.rmtree(partial)
+                partial.symlink_to(foreign, target_is_directory=True)
+                raise OSError("simulated failure after replacement")
+
+            argv = [
+                str(INSTALLER),
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "nobrainer-ultra",
+                "--mode",
+                "copy",
+                "--apply",
+            ]
+            stderr = io.StringIO()
+            with (
+                mock.patch.object(sys, "argv", argv),
+                mock.patch.object(
+                    shutil, "copytree", side_effect=replace_owned_target_then_fail
+                ),
+                redirect_stdout(io.StringIO()),
+                redirect_stderr(stderr),
+            ):
+                result = module.main()
+
+            self.assertEqual(4, result)
+            self.assertEqual(
+                "owned by another process\n",
+                (target / "foreign.txt").read_text(encoding="utf-8"),
+            )
+            self.assertIn("ownership changed after creation", stderr.getvalue())
+
+    def test_rollback_claim_restores_replacement_after_validation(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "skill_installer_rollback_claim_race_test", INSTALLER
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            target = destination / "nobrainer-ultra"
+            target.mkdir(parents=True)
+            expected = module.entry_fingerprint(target)
+            self.assertIsNotNone(expected)
+            foreign = Path(temp) / "foreign-skill"
+            foreign.mkdir()
+            (foreign / "foreign.txt").write_text(
+                "owned by another process\n", encoding="utf-8"
+            )
+            real_rename = module.Path.rename
+            replaced = False
+
+            def replace_between_check_and_claim(path: Path, claim: Path):
+                nonlocal replaced
+                if path == target and not replaced:
+                    replaced = True
+                    shutil.rmtree(path)
+                    path.symlink_to(foreign, target_is_directory=True)
+                return real_rename(path, claim)
+
+            with mock.patch.object(
+                module.Path, "rename", new=replace_between_check_and_claim
+            ):
+                with self.assertRaisesRegex(RuntimeError, "foreign target restored"):
+                    module.remove_created_entry(target, expected)
+
+            self.assertTrue(target.is_symlink())
+            self.assertEqual(foreign.resolve(), target.resolve())
+            self.assertEqual(
+                "owned by another process\n",
+                (target / "foreign.txt").read_text(encoding="utf-8"),
+            )
+            self.assertEqual([], list(destination.glob(".nobrainer-rollback-*")))
+
+    def test_unmapped_private_skill_is_reported_and_preserved(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            destination = Path(temp) / "skills"
+            unknown = destination / "nobrainer-fast-audit"
+            unknown.mkdir(parents=True)
+            marker = unknown / "keep.txt"
+            marker.write_text("private contract\n", encoding="utf-8")
+
+            result = self.run_installer(
+                "--client",
+                "codex",
+                "--dest",
+                str(destination),
+                "--skill",
+                "nobrainer-ultra",
+                "--apply",
+            )
+
+            self.assertEqual(3, result.returncode)
+            self.assertIn("UNMAPPED_CONFLICT: nobrainer-fast-audit", result.stdout)
+            self.assertEqual("private contract\n", marker.read_text(encoding="utf-8"))
+            self.assertFalse((destination / "nobrainer-ultra").exists())
 
     def test_copy_ownership_race_preserves_foreign_target(self) -> None:
         spec = importlib.util.spec_from_file_location("skill_installer_race_test", INSTALLER)
@@ -777,17 +986,21 @@ class InstallerTests(unittest.TestCase):
                 {
                     "nobrainer-autoimprove",
                     "nobrainer-browser",
+                    "nobrainer-build",
                     "nobrainer-decide",
+                    "nobrainer-research",
                     "nobrainer-rca",
                     "nobrainer-review",
+                    "nobrainer-security",
                     "nobrainer-sessions",
                     "nobrainer-spec-driven-development",
+                    "nobrainer-team",
                     "nobrainer-ultra",
                     "nobrainer-wiki",
                 },
                 installed,
             )
-            self.assertEqual(9, len(installed))
+            self.assertEqual(13, len(installed))
 
     def test_inventory_drift_blocks_default_and_explicit_install(self) -> None:
         spec = importlib.util.spec_from_file_location(

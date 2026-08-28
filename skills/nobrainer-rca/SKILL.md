@@ -1,15 +1,15 @@
 ---
 name: nobrainer-rca
-description: "Use when the owner says nb-rca or asks what caused a specific observed incident, regression, test failure, outage, wrong value, or unexpected system behavior and wants an evidence-bound diagnosis before any fix."
+description: "Use when the owner says nb-rca or deep-rca, or asks what caused a specific observed incident, regression, test failure, outage, wrong value, or unexpected system behavior and wants an evidence-bound diagnosis before any fix."
 ---
 
 # NoBrainer Root Cause Analysis
 
 Explain a specific observed failure with a continuous evidence chain. Diagnose
-before proposing or implementing a fix. Use official Superpowers systematic
-debugging for the underlying trace, reproduction and hypothesis-testing method;
-this skill adds incident framing, adaptive independent investigation, evidence
-reconciliation and a durable RCA verdict.
+before proposing or implementing a fix. Use the project's maintained debugging
+and tracing capabilities for reproduction and hypothesis tests; this skill owns
+incident framing, adaptive independent investigation, evidence reconciliation
+and a durable RCA verdict.
 
 Do not use for broad code auditing, risk review, or choosing among already-known
 solutions. Those are different tasks.
@@ -158,4 +158,5 @@ reference. Preserve sensitive details outside the public report.
 End after diagnosis and fix contract. Do not silently change code, configuration,
 data, production, credentials, monitoring, or retry policy. If the owner asks to
 fix after accepting the RCA, start a separate bounded implementation with a
-failing regression test and Superpowers verification-before-completion.
+failing regression test through `nobrainer-build`, then return for fresh
+verification and review.

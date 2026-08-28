@@ -12,11 +12,15 @@ BOOTSTRAP_MARKER = "NOBRAINER_BOOTSTRAP_V1"
 CANONICAL_SKILLS = {
     "nobrainer-autoimprove",
     "nobrainer-browser",
+    "nobrainer-build",
     "nobrainer-decide",
+    "nobrainer-research",
     "nobrainer-rca",
     "nobrainer-review",
+    "nobrainer-security",
     "nobrainer-sessions",
     "nobrainer-spec-driven-development",
+    "nobrainer-team",
     "nobrainer-ultra",
     "nobrainer-wiki",
 }
@@ -28,6 +32,7 @@ class AdapterTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn(BOOTSTRAP_MARKER, text)
         self.assertIn("nobrainer-ultra", text)
+        self.assertIn("correction", text.lower())
         self.assertIn("simple", text.lower())
         self.assertIn("owner gate", text.lower())
         self.assertLessEqual(len(text.split()), 130)
@@ -115,7 +120,7 @@ if (count !== 1 || !combined.includes('nobrainer-ultra') || !combined.endsWith('
         kimi = json.loads((ROOT / ".kimi-plugin" / "plugin.json").read_text())
         for manifest in (portable, gemini, kimi):
             self.assertEqual("nobrainer-tech-skills", manifest["name"])
-            self.assertEqual("1.0.0", manifest["version"])
+            self.assertEqual("1.1.0", manifest["version"])
         self.assertEqual(
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
             portable["$schema"],

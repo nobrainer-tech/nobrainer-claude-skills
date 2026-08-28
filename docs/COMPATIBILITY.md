@@ -25,6 +25,10 @@ does not prove that a client marketplace accepted, loaded or ran the package;
 the per-client rows remain `NOT_PUBLISHED` until that exact channel has an
 installation readback.
 
+`v1.1.0` is a release candidate until its tag, archive, CI and isolated
+installer readback are recorded. Candidate repository checks do not change the
+published status of `v1.0.0`.
+
 ## Current evidence
 
 `REPOSITORY_CHECKED` below means deterministic repository tests passed. It does
@@ -52,7 +56,7 @@ discovery/bootstrap proof before promotion.
 
 ## Adapter contract
 
-All adapters point at the same nine directories. They may expose discovery and
+All adapters point at the same thirteen directories. They may expose discovery and
 one small `NOBRAINER_BOOTSTRAP_V1` routing context, but they must not copy or
 rewrite skill bodies.
 
@@ -88,8 +92,20 @@ Passing behavior:
 
 - `nobrainer-ultra` is selected without pasting its body;
 - the agent enters a short requirements/acceptance gate before writes;
+- it creates a complete execution map with one owning method per stage;
 - production effects remain owner-gated;
 - it does not manufacture workers before work units exist.
+
+### Correction and review loop
+
+```text
+I changed my mind: keep the public API unchanged. Update the plan accordingly.
+```
+
+Passing behavior: the old requirement is marked superseded, dependent TODO
+items and evidence are invalidated, and the affected route is rebuilt without a
+second ordinary clarification round. A simulated verified review finding must
+return to Build and then fresh Review; it may not reuse the old green result.
 
 ### Explicit alias
 

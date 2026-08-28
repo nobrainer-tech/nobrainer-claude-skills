@@ -1,6 +1,6 @@
 ---
 name: nobrainer-decide
-description: "Use when the owner says nb-decide, asks what to choose, or needs a consequential technical, product, vendor, workflow, or investment-of-time decision with competing options, uncertainty, lock-in, or meaningful downside."
+description: "Use when the owner says nb-decide or deep-decide, asks what to choose, or needs a consequential technical, product, vendor, workflow, or investment-of-time decision with competing options, uncertainty, lock-in, or meaningful downside."
 ---
 
 # NoBrainer Decide
@@ -9,8 +9,9 @@ Deliver one ranked decision with evidence, confidence, watchpoints and kill
 criteria. Do not hide behind several flavors of "it depends". This skill decides;
 it does not diagnose an unknown failure or execute the chosen option.
 
-Use `nobrainer-rca` first when the unresolved question is causal. Use official
-Superpowers brainstorming when the option space itself needs product discovery.
+Use `nobrainer-rca` first when the unresolved question is causal. Use
+`nobrainer-research` when current external facts or a broader option space must
+be established before scoring.
 
 ## Calibrate rigor
 
