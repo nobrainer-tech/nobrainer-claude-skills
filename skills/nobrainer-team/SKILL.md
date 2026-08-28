@@ -6,8 +6,10 @@ description: "Use when the owner says nb-team or nobrainer-skill-browser, asks t
 # NoBrainer Team
 
 Compose the smallest capable team for a concrete execution map. This skill owns
-capability selection and role design. `nobrainer-sessions` owns actual visible
-session identity, transport, checkout isolation, leases and receive-audit.
+capability selection and role design. `nobrainer-dispatcher` owns readiness,
+batch ordering and backpressure after the map is approved. `nobrainer-sessions`
+owns actual visible session identity, transport, checkout isolation, leases and
+receive-audit.
 
 Read [references/team-plan.md](references/team-plan.md) before persisting a team
 plan or delegating work.
@@ -96,12 +98,16 @@ For each role record:
 
 Separate phases from concurrency groups. Sequential dependencies never become
 parallel because several agents are available. MAIN keeps the complete execution
-map and activates only the current safe group.
+map. When several delegated units, dependency batches or retries exist,
+`nobrainer-dispatcher` activates only the current safe group; Team does not
+schedule it.
 
-After the plan passes, invoke `nobrainer-sessions` to create or reuse exact
-visible sessions when transport and isolation are available. If they are not,
-run the same bounded roles sequentially in MAIN and report the limitation; do
-not invent session IDs or delivery.
+After the plan passes, invoke `nobrainer-dispatcher` when more than one delegated
+unit or controlled batch needs scheduling, then invoke `nobrainer-sessions` to
+create or reuse exact visible sessions when transport and isolation are
+available. A single bounded delegate may go directly from Team to Sessions. If
+transport is unavailable, run the same bounded roles sequentially in MAIN and
+report the limitation; do not invent session IDs or delivery.
 
 ## Close and learn
 

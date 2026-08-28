@@ -46,9 +46,10 @@ DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT
 - `EXECUTION_MAP` is the complete TODO: every stage has one owning skill or
   capability, dependencies, write scope, evidence, session and owner gate.
 - `AUTOPILOT` continues through routine approved work without repeated check-ins.
-- `nobrainer-team` selects the minimum useful capabilities; `nobrainer-sessions`
-  creates or reuses exact visible sessions only when parallelism, isolation,
-  handoff or independent evidence earns the coordination cost.
+- `nobrainer-team` selects the minimum useful capabilities;
+  `nobrainer-dispatcher` schedules only approved ready work in bounded batches;
+  `nobrainer-sessions` creates or reuses exact visible sessions only when
+  parallelism, isolation, handoff or independent evidence earns the cost.
 - Failed review returns to `nobrainer-build`; changed code invalidates old proof.
 - Merge, deploy, publishing, spending, credentials, destructive operations and
   production mutation remain owner gates unless exact authority is already
@@ -64,7 +65,7 @@ SESSION_MODE: MAIN | MULTI_SESSION
 Autopilot can run in one MAIN session. A multi-session plan is not automatically
 autonomous. This keeps the workflow understandable and avoids agent theatre.
 
-## Thirteen skills, distinct ownership
+## Fourteen skills, distinct ownership
 
 Aliases are trigger phrases, not duplicate directories. Each skill owns one
 recurring boundary:
@@ -73,6 +74,7 @@ recurring boundary:
 |---|---|---|
 | [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-ultra` | End-to-end setup and delivery: one requirements gate, complete execution map, autopilot, audit and learning |
 | [`nobrainer-team`](skills/nobrainer-team/) | `nb-team` | Minimal capability roster, installed-skill inventory and safe temporary specialist discovery |
+| [`nobrainer-dispatcher`](skills/nobrainer-dispatcher/) | `nb-dispatcher` | Dependency-aware ready-set scheduling, bounded dispatch, backpressure and audited result routing |
 | [`nobrainer-research`](skills/nobrainer-research/) | `nb-research` | Bounded current research from primary sources with facts separated from inference |
 | [`nobrainer-build`](skills/nobrainer-build/) | `nb-build` | Smallest verified implementation using calibrated KISS, DRY, SOLID, YAGNI and anti-slop gates |
 | [`nobrainer-security`](skills/nobrainer-security/) | `nb-security` | Threat models, security review, supply-chain audit and high-risk release evidence |
@@ -86,7 +88,7 @@ recurring boundary:
 | [`nobrainer-review`](skills/nobrainer-review/) | `nb-review` | Acceptance trace, adversarial bug hunt and release close gate without speculative findings |
 
 The [curation audit](docs/SKILL_CURATION.md) records why each skill exists and
-what belongs in another skill instead of becoming a fourteenth trigger.
+what belongs in another skill instead of becoming a fifteenth trigger.
 
 ## Correct once, improve permanently
 
@@ -159,15 +161,14 @@ python3 scripts/install_skills.py --client codex
 python3 scripts/install_skills.py --client codex --apply
 ```
 
-The installer defaults to all thirteen canonical skills, supports an exact
+The installer defaults to all fourteen canonical skills, supports an exact
 subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Release `v1.1.0` is published as a tagged GitHub source release. Tag-to-commit,
-CI, downloaded archive, file parity, tests and isolated thirteen-skill install
-readback are recorded in [the release evidence](docs/releases/v1.1.0.md). To
-reproduce the canonical source identity:
+Version `v1.2.0` is a release candidate until its tag, CI, downloaded archive
+and isolated fourteen-skill install are read back. The latest published source
+release remains [`v1.1.0`](docs/releases/v1.1.0.md). To reproduce that release:
 
 ```bash
 git checkout --detach d6931a1006bf0180955d8437fd93174b6a512428

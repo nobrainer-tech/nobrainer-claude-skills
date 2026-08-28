@@ -19,7 +19,7 @@ Set `NB_REVIEWED_REF` to an exact release tag or full commit that you reviewed.
 Do not execute the snippet with an unset variable. The first installer command
 is a dry-run; inspect every source, target and conflict before adding `--apply`.
 
-The default installs exactly thirteen skills. Install an explicit subset by
+The default installs exactly fourteen skills. Install an explicit subset by
 repeating `--skill`:
 
 ```bash
@@ -173,7 +173,7 @@ actually exposes and passes that integration.
 
 ## Dynamic specialists
 
-The thirteen curated skills are the stable base. When a concrete work unit still
+The fourteen curated skills are the stable base. When a concrete work unit still
 has a capability gap, `nobrainer-team` first inventories installed/project
 capabilities, then may evaluate one external skill temporarily. Source/ref,
 scripts, permissions, credentials, network behavior, trigger overlap and

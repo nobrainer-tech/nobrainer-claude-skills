@@ -21,12 +21,13 @@ A permanent skill must pass every condition:
 
 Popularity, file size and prior existence are not admission criteria.
 
-## Active thirteen
+## Active fourteen
 
 | Skill | Distinct owner |
 |---|---|
 | `nobrainer-ultra` | One request through brief requirements, complete execution map, guarded autopilot, audit and learning. |
 | `nobrainer-team` | Minimal roles, installed capability inventory and safe temporary specialist discovery. |
+| `nobrainer-dispatcher` | Ready-set calculation, dependency-aware bounded batches, backpressure and audited result routing. |
 | `nobrainer-research` | Bounded current external research and source-quality/freshness control. |
 | `nobrainer-build` | Implementation, engineering principles, anti-slop, test blast radius and simplification. |
 | `nobrainer-security` | Threat model, security review, supply-chain inspection and security release evidence. |

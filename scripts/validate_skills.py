@@ -18,6 +18,7 @@ LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|#|mailto:)([^)]+)\)")
 SUITE = {
     "nobrainer-ultra": "nb-ultra",
     "nobrainer-team": "nb-team",
+    "nobrainer-dispatcher": "nb-dispatcher",
     "nobrainer-research": "nb-research",
     "nobrainer-build": "nb-build",
     "nobrainer-security": "nb-security",
@@ -43,6 +44,7 @@ LEGACY = {
     "deep-bugs-finder",
     "deep-code-review",
     "deep-decide",
+    "dispatching-parallel-agents",
     "deep-rca",
     "engineering-standards",
     "karpathy-auto-improver",
@@ -50,6 +52,7 @@ LEGACY = {
     "llm-wiki",
     "nb-add",
     "nb-flow",
+    "nb-dispatcher",
     "nb-get",
     "nb-multi",
     "nb-tidy",

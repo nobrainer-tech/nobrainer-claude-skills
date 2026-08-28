@@ -1,5 +1,39 @@
 # NoBrainer Tech Skills release notes
 
+## v1.2.0 — 2026-08-28 (release candidate)
+
+The candidate contains exactly fourteen portable skills:
+
+- `nobrainer-ultra`
+- `nobrainer-team`
+- `nobrainer-dispatcher`
+- `nobrainer-research`
+- `nobrainer-build`
+- `nobrainer-security`
+- `nobrainer-sessions`
+- `nobrainer-spec-driven-development`
+- `nobrainer-wiki`
+- `nobrainer-browser`
+- `nobrainer-autoimprove`
+- `nobrainer-decide`
+- `nobrainer-rca`
+- `nobrainer-review`
+
+Highlights:
+
+- Dispatcher owns dependency readiness, bounded batch selection, backpressure
+  and audited result routing without duplicating Team or Sessions.
+- Ultra routes multiple delegated work units through Team, Dispatcher and
+  Sessions, while one coherent task stays in MAIN.
+- Raw worker reports and `NEXT_ACTION` never release dependent work before an
+  independent receive-audit.
+- Installer mappings retire generic dispatcher aliases into one canonical
+  skill, and all adapters share the same fourteen-skill source tree.
+
+This section is a release-candidate contract, not a publication claim. Exact
+tag, commit, archive checksum, CI and isolated installer readback will be added
+after the reviewed PR is merged and the GitHub release exists.
+
 ## v1.1.0 — 2026-08-28
 
 The release contains exactly thirteen portable skills:

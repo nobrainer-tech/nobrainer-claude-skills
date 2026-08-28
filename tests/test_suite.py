@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -16,6 +17,7 @@ SKILLS = ROOT / "skills"
 CANONICAL = {
     "nobrainer-ultra": "nb-ultra",
     "nobrainer-team": "nb-team",
+    "nobrainer-dispatcher": "nb-dispatcher",
     "nobrainer-research": "nb-research",
     "nobrainer-build": "nb-build",
     "nobrainer-security": "nb-security",
@@ -41,6 +43,7 @@ LEGACY = {
     "deep-bugs-finder",
     "deep-code-review",
     "deep-decide",
+    "dispatching-parallel-agents",
     "deep-rca",
     "engineering-standards",
     "karpathy-auto-improver",
@@ -48,6 +51,7 @@ LEGACY = {
     "llm-wiki",
     "nb-add",
     "nb-flow",
+    "nb-dispatcher",
     "nb-get",
     "nb-multi",
     "nb-tidy",
@@ -163,6 +167,7 @@ class SuiteTests(unittest.TestCase):
             "AUTOPILOT",
             "RECEIVE_AUDIT",
             "nobrainer-sessions",
+            "nobrainer-dispatcher",
             "nobrainer-spec-driven-development",
             "nobrainer-team",
             "nobrainer-research",
@@ -264,6 +269,7 @@ class SuiteTests(unittest.TestCase):
             "CAPABILITY_GAP",
             "npx skills find",
             "npx skills use",
+            "nobrainer-dispatcher",
             "nobrainer-sessions",
             "MAIN",
             "2-4",
@@ -273,6 +279,88 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("METHOD", reference)
         self.assertIn("WRITE_SCOPE", reference)
         self.assertIn("ACCEPTANCE", reference)
+
+    def test_dispatcher_contract_schedules_without_stealing_other_owners(self) -> None:
+        text = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        for term in (
+            "SCHEDULE",
+            "DISPATCH",
+            "RECONCILE",
+            "RECOVER",
+            "READY",
+            "PENDING",
+            "SENT",
+            "PLAN_REF_AND_FINGERPRINT",
+            "ATTENTION_BUDGET",
+            "BLOCKER_FINGERPRINT",
+            "PARALLEL_SAFETY",
+            "nobrainer-team",
+            "nobrainer-sessions",
+            "RECEIVE_AUDIT",
+            "NEXT_ACTION",
+        ):
+            self.assertIn(term, text)
+        self.assertIn("A single coherent work unit stays in MAIN", text)
+        self.assertIn("must not repair a vague plan", text)
+        self.assertIn("worker cannot choose, dispatch or start a successor", text)
+        self.assertIn("Unknown dependency state is `BLOCKED`", text)
+        self.assertIn("transport identity may still be", text)
+        self.assertIn("unknown transport state keeps the task `READY`", text)
+        self.assertIn("RESULT: NOT_NEEDED", text)
+
+    def test_dispatcher_eval_preserves_probe_review_and_current_holdout(self) -> None:
+        record = (
+            ROOT / "docs" / "evals" / "dispatcher-routing-v1.2.0-2026-08-28.md"
+        ).read_text(encoding="utf-8")
+        development_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-development-probe-judge.md"
+        ).read_text(encoding="utf-8")
+        post_review_judge = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.2.0-dispatcher-post-review-holdout-judge.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("DEVELOPMENT_PROBE: FAIL 3/4", record)
+        self.assertIn("PRE_REVIEW_HOLDOUT: PASS 5/5", record)
+        self.assertIn("INDEPENDENT_DIFF_REVIEW: NO_GO", record)
+        self.assertIn("POST_REVIEW_HOLDOUT: PASS 4/4", record)
+        self.assertIn("VERDICT: FAIL", development_judge)
+        self.assertIn("VERDICT: PASS", post_review_judge)
+        self.assertIn("CLIENT_RUNTIME: NOT_VERIFIED", record)
+
+        def sha256(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        declared_skill = re.search(r"^SKILL_SHA256: ([0-9a-f]{64})$", record, re.M)
+        self.assertIsNotNone(declared_skill)
+        self.assertEqual(
+            sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
+        )
+        for label, relative in (
+            (
+                "PROMPT_SHA256",
+                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-prompt.md",
+            ),
+            (
+                "OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-output.md",
+            ),
+            (
+                "JUDGE_SHA256",
+                "docs/evals/artifacts/v1.2.0-dispatcher-post-review-holdout-judge.md",
+            ),
+        ):
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
+            self.assertIsNotNone(declared)
+            self.assertEqual(sha256(relative), declared.group(1))
 
     def test_active_product_has_no_external_workflow_branding(self) -> None:
         checked = [
@@ -379,6 +467,7 @@ class SuiteTests(unittest.TestCase):
         expected = {
             "nobrainer-ultra": ("nb-flow", "nb-workflow"),
             "nobrainer-team": ("nobrainer-skill-browser",),
+            "nobrainer-dispatcher": ("nb-dispatcher",),
             "nobrainer-build": ("engineering-standards", "nobrainer-simplifier"),
             "nobrainer-security": ("security-review",),
             "nobrainer-sessions": ("nb-multi", "session-handoff"),
@@ -559,25 +648,23 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("codex", evidence["INSTALL_CLIENT"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
-    def test_current_release_publication_surface(self) -> None:
+    def test_v1_1_release_readback_remains_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
-        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
-            "version"
-        ]
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.1.0.md"
         ).read_text(encoding="utf-8")
-        section = release_notes.split("## v1.0.0", 1)[0]
+        section = release_notes.split("## v1.1.0", 1)[1].split("## v1.0.0", 1)[0]
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
         release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
-        self.assertEqual("1.1.0", current)
-        self.assertIn(f"## v{current}", release_notes)
-        self.assertEqual(list(CANONICAL), released_skills)
-        self.assertEqual(ACTIVE, set(released_skills))
+        expected_skills = [
+            name for name in CANONICAL if name != "nobrainer-dispatcher"
+        ]
+        self.assertIn("## v1.1.0", release_notes)
+        self.assertEqual(expected_skills, released_skills)
         self.assertNotIn("release candidate", section.lower())
         self.assertIn(
             "This version is published as a tagged GitHub source release",
@@ -604,6 +691,22 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("agents", evidence["INSTALL_CLIENT"])
         self.assertEqual("copy", evidence["INSTALL_MODE"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
+
+    def test_current_release_candidate_surface(self) -> None:
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
+            "version"
+        ]
+        section = release_notes.split("## v1.1.0", 1)[0]
+        candidate_skills = re.findall(
+            r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+        )
+        self.assertEqual("1.2.0", current)
+        self.assertIn(f"## v{current}", release_notes)
+        self.assertEqual(list(CANONICAL), candidate_skills)
+        self.assertEqual(ACTIVE, set(candidate_skills))
+        self.assertIn("release candidate", section.lower())
+        self.assertIn("not a publication claim", section.lower())
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -643,6 +746,7 @@ class SuiteTests(unittest.TestCase):
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
+            "docs/evals/dispatcher-routing-v1.2.0-2026-08-28.md",
             "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
