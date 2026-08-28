@@ -331,10 +331,16 @@ class SuiteTests(unittest.TestCase):
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
 
-    def test_v1_release_surface_is_prepared_and_explicit(self) -> None:
+    def test_v1_release_surface_and_readback_are_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
+        compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
+            encoding="utf-8"
+        )
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.0.0.md"
+        ).read_text(encoding="utf-8")
         version = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
             "version"
         ]
@@ -342,21 +348,47 @@ class SuiteTests(unittest.TestCase):
             r"^- `(nobrainer-[a-z0-9-]+)`$", release_notes, re.MULTILINE
         )
         self.assertEqual("1.0.0", version)
-        self.assertIn(f"--branch v{version}", readme)
+        release_sha = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
+        self.assertIn("git checkout --detach", readme)
+        self.assertIn(release_sha, readme)
+        self.assertIn(release_sha, release_notes)
         self.assertIn(f"## v{version}", release_notes)
         self.assertEqual(9, len(released_skills))
         self.assertEqual(len(released_skills), len(set(released_skills)))
         self.assertEqual(list(CANONICAL), released_skills)
         self.assertEqual(ACTIVE, set(released_skills))
-        self.assertIn("tagged GitHub source release", release_notes)
         self.assertIn(
-            "At the release-preparation stage this file does not claim publication",
+            "This version is published as a tagged GitHub source release",
             normalized_notes,
         )
+        self.assertIn("docs/releases/v1.0.0.md", release_notes)
+        self.assertIn("GitHub source channel is `DISTRIBUTED`", compatibility)
+        self.assertIn("isolated installer readback", compatibility)
+        self.assertNotIn("does not claim publication", release_notes)
         self.assertIn(
             "This is not a claim of publication in npm or any client marketplace",
             normalized_notes,
         )
+        evidence_pairs = re.findall(
+            r"^([A-Z][A-Z0-9_]+): (.+)$", release_evidence, re.MULTILINE
+        )
+        evidence = dict(evidence_pairs)
+        self.assertEqual(len(evidence_pairs), len(evidence))
+        self.assertEqual(f"v{version}", evidence["TAG"])
+        self.assertEqual(version, evidence["VERSION"])
+        self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        self.assertRegex(evidence["COMMIT_SHA"], r"^[0-9a-f]{40}$")
+        self.assertRegex(evidence["TREE_SHA"], r"^[0-9a-f]{40}$")
+        self.assertRegex(evidence["TARBALL_SHA256"], r"^[0-9a-f]{64}$")
+        self.assertTrue(evidence["RELEASE_URL"].endswith(f"/tag/{evidence['TAG']}"))
+        self.assertTrue(evidence["TARBALL_URL"].endswith(f"/{evidence['TAG']}"))
+        self.assertEqual(f"{evidence['TAG']}.tar.gz", evidence["TARBALL_FILENAME"])
+        self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
+        self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
+        self.assertEqual(str(len(CANONICAL)), evidence["ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("57/57 PASS", evidence["ARCHIVE_TESTS"])
+        self.assertEqual("codex", evidence["INSTALL_CLIENT"])
+        self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -389,6 +421,7 @@ class SuiteTests(unittest.TestCase):
             "RELEASE-NOTES.md",
             "SECURITY.md",
             "docs/COMPATIBILITY.md",
+            "docs/releases/v1.0.0.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/superpowers-parity-2026-08-28.md",
