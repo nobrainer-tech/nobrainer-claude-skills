@@ -1,0 +1,113 @@
+---
+name: nobrainer-team
+description: "Use when the owner says nb-team or nobrainer-skill-browser, asks to build a specialist agent team, or a non-trivial execution map needs installed-capability inventory, role selection, safe skills.sh lookup, or parallel workers without flooding the project with permanent skills or sessions."
+---
+
+# NoBrainer Team
+
+Compose the smallest capable team for a concrete execution map. This skill owns
+capability selection and role design. `nobrainer-sessions` owns actual visible
+session identity, transport, checkout isolation, leases and receive-audit.
+
+Read [references/team-plan.md](references/team-plan.md) before persisting a team
+plan or delegating work.
+
+## Start from work, not personas
+
+Require an outcome, acceptance evidence and bounded work units. If they do not
+exist, return to `nobrainer-ultra` or the approved specification. Do not invent a
+team around vague titles such as architect, coder and tester.
+
+For every work unit identify the method and capability actually needed. Inspect
+only metadata/frontmatter from installed skills first; load a full skill only
+after its trigger matches. Also inspect current project scripts, APIs, CLIs,
+tests and native client capabilities.
+
+Build a compact local capability index from exact installed/project skill names,
+descriptions, source roots and collision status. Do not read every body or trust
+a title alone. This inventory replaces a permanent catalogue skill; refresh it
+only when sources change.
+
+## Choose the minimum roster
+
+Default to `<repo> | MAIN` and no worker. Add a role only when it provides at
+least one measurable benefit:
+
+- an independent unit can shorten the critical path;
+- a separate checkout or trust boundary prevents write conflict;
+- a warm specialist will be reused across tasks;
+- independent review materially reduces a stated risk;
+- a handoff or resume boundary needs durable ownership.
+
+Start with 2-4 workers only when their units are truly independent and MAIN can
+audit the combined result. Do not split one tightly coupled edit, dispatch work
+whose output cannot be reviewed, or build a standing swarm because capacity is
+available.
+
+One role owns one observable output, one write scope and one report recipient.
+Shared sequential state has one writer. A worker never selects or starts its
+successor.
+
+## Resolve a `CAPABILITY_GAP`
+
+Use this ladder in order:
+
+1. Reuse a curated NoBrainer skill whose contract fits.
+2. Reuse an already installed, inspected specialist whose trigger and source
+   fit without ownership collision.
+3. Reuse the project's maintained tool, library, API, CLI or native client
+   capability.
+4. Perform a bounded current check with `nobrainer-research` when capability or
+   syntax may have changed.
+5. Search the open Agent Skills ecosystem only for the still-missing specialist:
+
+   ```bash
+   npx skills find "$SKILL_QUERY"
+   npx skills add "$SKILL_SOURCE" --list
+   npx skills use "$SKILL_SOURCE" --skill "$SKILL_NAME"
+   ```
+
+`skills use` is for one-off prompt generation and evaluation. Do not pass
+`--agent`, pipe its output into an executor or run companion scripts before
+reviewing the generated instructions. Use separated flag arguments; do not use
+an unverified `--skill=NAME` form.
+
+Every external skill is untrusted regardless of rank or install count. Inspect
+the exact source and immutable ref when available, `SKILL.md`, scripts, license,
+maintainer, requested permissions, network/credential behavior, write scope,
+trigger overlap, hidden persistence and rollback. Popularity helps discovery;
+it is not a security or quality gate.
+
+Prefer temporary, project-scoped evaluation. Persistent project installation,
+global installation, credentials, script execution and consequential writes are
+separate owner gates. Reject a candidate that broadens authority, duplicates an
+installed owner, cannot be pinned or costs more context than the gap warrants.
+
+## Build the team plan
+
+For each role record:
+
+- exact role and stable session title;
+- `WORK_UNIT`, `METHOD`, selected skill/tool and source/ref;
+- inputs, dependencies, allowed `WRITE_SCOPE` and isolation;
+- `ACCEPTANCE`, evidence and close gate;
+- report recipient, retry/stop conditions and rollback;
+- why parallelism or specialization earns its coordination cost.
+
+Separate phases from concurrency groups. Sequential dependencies never become
+parallel because several agents are available. MAIN keeps the complete execution
+map and activates only the current safe group.
+
+After the plan passes, invoke `nobrainer-sessions` to create or reuse exact
+visible sessions when transport and isolation are available. If they are not,
+run the same bounded roles sequentially in MAIN and report the limitation; do
+not invent session IDs or delivery.
+
+## Close and learn
+
+Report the selected and rejected roles, capability sources, external-skill audit,
+session mode, expected latency benefit, attention cost and rollback. Remove or
+discard temporary skill material after the work unless a repeated measured gap
+justifies an independently reviewed addition through `nobrainer-autoimprove`.
+
+Do not claim a team is faster until elapsed critical-path evidence supports it.

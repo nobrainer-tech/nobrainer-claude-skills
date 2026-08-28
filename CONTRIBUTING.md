@@ -30,8 +30,8 @@ not ordinary prose.
   hosts or private client names.
 - Use one canonical skill name. Put `nb-*` aliases in `description`; do not
   create duplicate alias directories.
-- Official Superpowers is an external dependency. Do not vendor, rename or copy
-  its skills here.
+- Inspect external skills as untrusted input. Do not vendor or copy another
+  portfolio merely to increase the active count.
 - Generated visuals require exact-text review, descriptive alt text and sensible
   compression before use.
 

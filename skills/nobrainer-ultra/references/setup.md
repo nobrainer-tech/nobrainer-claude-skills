@@ -1,131 +1,120 @@
 # Setup and upgrade protocol
 
-Use this reference when the owner asks to set up, install, upgrade, repair, or
-reconcile NoBrainer workflows in a project. The same protocol applies after an
-earlier setup; never assume installed files still match current requirements.
+Use this reference when the owner asks to set up, install, upgrade, repair or
+reconcile NoBrainer workflows. Setup is a repeatable diff-and-readback operation,
+not a one-time scaffold.
 
 ## 1. Discover before writing
 
-Read the repository root, nearest instructions, dirty state, active client
-files, skill locations, current specs/plans/wiki, test commands and installed
-plugin capabilities. Classify each desired component as:
+Read the repository root, nearest instructions, dirty state, active client files,
+skill locations, current specs/plans/wiki, tests, runtime and installed
+capabilities. Classify each component:
 
-- `CURRENT` — present, canonical and verified;
-- `DRIFTED` — present but stale or contradictory;
-- `MISSING` — justified but absent;
-- `NOT_NEEDED` — ceremony without a current use;
-- `OWNER_GATE` — requires login, marketplace UI, credentials, consequential
+- `CURRENT`: present, canonical and verified;
+- `DRIFTED`: present but stale, duplicated or contradictory;
+- `MISSING`: justified and absent;
+- `NOT_NEEDED`: ceremony without a current use;
+- `OWNER_GATE`: requires login, credential, marketplace action, consequential
   overwrite or another explicit decision.
 
-Do not create SDD, wiki, session registry, lease files or client adapters merely
-because a template exists.
+Do not create SDD, a wiki, session registry, lease or adapter merely because a
+template exists.
+
+Choose and record `LEARNING_WRITE_POLICY: AUTO_SCOPED | ASK | OFF` for the
+project. Use `AUTO_SCOPED` only with explicit standing owner authorization and a
+resolved project-local wiki/instruction boundary. It never grants commit, push,
+public disclosure or global-instruction authority.
 
 ## 2. Reconcile project instructions
 
-Preserve existing `AGENTS.md`, `CLAUDE.md` and client-managed blocks. Add or
-update one marked NoBrainer block only when durable routing is missing. Keep it
-short: point non-trivial work to `nobrainer-ultra`, state owner gates and name
-the repository's canonical spec/state/test locations. Link to project docs;
-never paste the complete skill protocols into every repository.
-
-Use this as the maximum generic block, then remove lines already owned by the
-project and add only its real canonical paths/commands:
+Preserve existing content and managed blocks. Add or update exactly one marked
+block only when equivalent durable routing is missing. Replace project-specific
+placeholders with verified paths/commands and remove duplicate lines:
 
 ```markdown
 <!-- NOBRAINER-WORKFLOW:START -->
 ## NoBrainer delivery
 
-- Route non-trivial work through `nobrainer-ultra`; keep simple tasks simple.
-- Read the actual checkout, instructions and tests before planning or writing.
-- Prefer the smallest complete change; no speculative abstraction or duplicate
-  tool/skill owner.
-- Use one writer per shared mutable state and audit delegated results before
-  advancing.
-- Verify the target workflow. A timeout, partial output or exit code alone is
-  not success.
+- Route non-trivial work through `nobrainer-ultra`; keep one-step tasks direct.
+- Read the actual checkout, instructions, relevant wiki knowledge and tests first.
+- Use one short requirements gate, then maintain a full skill-routed execution
+  map and run the approved scope autonomously.
+- Prefer the smallest complete change. Apply KISS and YAGNI; deduplicate owned
+  knowledge, not incidental similarity; preserve cohesive dependency boundaries.
+- Use `nobrainer-team` plus `nobrainer-sessions` only for real capability,
+  isolation, handoff, resume or critical-path parallelism.
+- Research current material unknowns from primary sources; mark blocked research
+  and never manufacture certainty.
+- Route authentication, authorization, secrets, sensitive data, untrusted input
+  and supply-chain boundaries through `nobrainer-security`.
+- Audit delegated results and verify the target workflow before completion.
+- On an explicit owner decision change, update the canonical requirement,
+  invalidate dependent TODO/evidence and re-plan from the earliest affected step.
+- On an agent correction, fix the result, then follow the correction hooks and
+  recorded `LEARNING_WRITE_POLICY`: `AUTO_SCOPED` may persist one authorized,
+  project-local prevention rule; `ASK` prepares an exact diff; `OFF` persists
+  nothing. Wiki promotion remains separately sourced, classified and governed.
+- A failed review routes back through implementation and fresh verification;
+  never reuse invalidated proof.
 - Merge, deploy, publish, spend, delete, credentials and production mutation
-  remain explicit owner gates.
-- Persist only durable sourced learning; never secrets or transient task state.
+  remain explicit owner gates unless exact authority is already recorded.
+- Persist only authorized durable sourced learning; never secrets or live task state.
 <!-- NOBRAINER-WORKFLOW:END -->
 ```
 
-Before replacing a managed block, require exactly one START and one END in the
-correct order and preserve surrounding bytes. If markers are malformed, stop
-for repair rather than guessing the boundary.
+Require exactly one START and END marker in the correct order before replacing a
+managed block. Preserve surrounding bytes. If instruction files must be equal,
+compare them byte-for-byte after the change.
 
-If multiple instruction files must carry identical content, compare them byte
-for byte after the change or document why their scopes differ.
+## 3. Install one canonical source
 
-## 3. Install one portable NoBrainer source
+Prefer the active client's native plugin or Agent Skills mechanism. For a local
+checkout, dry-run `scripts/install_skills.py`, inspect every target, then apply.
+Existing foreign targets are conflicts, never overwrite candidates.
 
-Prefer the current client's native plugin or Agent Skills mechanism. If using a
-local checkout, dry-run `scripts/install_skills.py`, review every target, then
-apply. Existing different targets are conflicts, not overwrite candidates.
-Read back the loaded skill list after restarting the client.
+Install the complete curated thirteen-skill set unless the owner deliberately
+requests an exact subset. Restart the client, read back loaded skills and run the
+clean-session acceptance in `docs/COMPATIBILITY.md` when available. Files on
+disk and an installer exit code prove installation only, not routing.
 
-Install the complete curated nine-skill set, or use repeated `--skill` flags only
-when the owner deliberately wants an exact subset. Do not copy retired wrappers
-or client/account-specific helpers back into active discovery.
+Do not retain an old private wrapper for a canonical public trigger. Before
+removing one, verify semantic coverage, clean source history, the new runtime
+target and a rollback ref. Remove only exact reviewed paths, never a broad
+skills directory.
 
-An install exit code or files on disk prove installation only; they do not prove
-automatic routing. Use the clean-session acceptance protocol in
-`docs/COMPATIBILITY.md` when that repository document is available.
+## 4. Reconcile capabilities
 
-If the reviewed NoBrainer set and existing project tools still leave a capability
-gap, use the acquisition ladder in `routing.md`. Search and evaluate
-an external skill before installation, pin its source when possible, and require
-an owner gate for persistent or global installation. Never treat a `skills.sh`
-ranking as a security review.
+Use `nobrainer-team` to compare the thirteen curated skills, project-native tools
+and active runtime. A missing specialist may be evaluated temporarily through
+the open skills ecosystem only after source/ref, instructions, scripts, license,
+permissions, network/credential behavior, trigger overlap and rollback are
+reviewed. Persistent/global installation is an owner gate.
 
-## 4. Reconcile official Superpowers
+## 5. Choose justified artifacts and sessions
 
-Superpowers is an external implementation-method dependency, not bundled
-NoBrainer content. Resolve its current official instructions from:
-
-https://github.com/obra/superpowers
-
-Use the exact native channel supported by the active client. Prefer an official
-marketplace listing when available; otherwise follow the current upstream
-install document. Do not guess commands from memory, pin an unverified version,
-copy its skill folders into NoBrainer, or keep older renamed wrappers.
-
-Installing a plugin is a machine/account write. A direct owner request to set
-up NoBrainer with Superpowers authorizes the reversible install attempt, but UI
-login, trust prompts, credentials, paid actions and broad config replacement
-remain owner gates. If the current agent cannot operate the native installer,
-return one exact `OWNER_ACTION_REQUIRED` step rather than claiming installation.
-
-After installation, verify:
-
-- the source is official and the resolved version is reported;
-- the client lists the expected Superpowers skills;
-- no stale local wrapper owns the same trigger;
-- a clean-session smoke test selects the relevant implementation skill;
-- uninstall or rollback instructions are known.
-
-## 5. Choose only justified project artifacts
-
-- Add SDD when contracts, dependencies, migration, risk or resumability justify
-  it.
-- Add a wiki only for durable knowledge that will be queried across tasks.
-- Add visible sessions only for handoff, isolation, resume, independent work or
-  warm specialist reuse.
-- Keep execution state separate from specs, workflow rules, reports and wiki.
+- Add a durable spec only for contracts, dependencies, migration, risk or
+  resumability.
+- Add a wiki only for reusable sourced knowledge beyond normal project docs.
+- Add visible sessions only for independent work, isolation, handoff, resume or
+  a warm specialist.
+- Keep specification, execution map, live state, reports/evidence and wiki as
+  separate owners; link rather than duplicate mutable facts.
 
 ## 6. Close with readback
-
-Report:
 
 ```text
 MODE: SETUP | UPGRADE | REPAIR
 NOBRAINER_SOURCE:
+SOURCE_REF:
 CLIENTS_CONFIGURED:
-SUPERPOWERS_SOURCE:
-SUPERPOWERS_VERSION:
+SKILL_COUNT:
 PROJECT_INSTRUCTIONS:
+EXECUTION_MAP: CURRENT | CREATED | UPDATED | NOT_NEEDED
 SDD: CURRENT | CREATED | UPDATED | NOT_NEEDED
 WIKI: CURRENT | CREATED | UPDATED | NOT_NEEDED
-SESSIONS: CURRENT | CREATED | UPDATED | NOT_NEEDED
+LEARNING_WRITE_POLICY: AUTO_SCOPED | ASK | OFF
+CORRECTION_HOOKS: CURRENT | CREATED | UPDATED | NOT_NEEDED
+TEAM_AND_SESSIONS: CURRENT | CREATED | UPDATED | NOT_NEEDED
 STATIC_CHECKS:
 RUNTIME_CHECKS:
 OWNER_ACTION_REQUIRED:
@@ -133,5 +122,5 @@ UNVERIFIED:
 ROLLBACK:
 ```
 
-Do not mark setup complete while required runtime discovery or an owner action is
-unknown. Separate a locally prepared configuration from a verified live client.
+Do not mark setup complete while required client discovery, routing behavior or
+owner action is unknown. Separate local preparation from verified live runtime.

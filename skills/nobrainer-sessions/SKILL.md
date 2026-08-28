@@ -1,6 +1,6 @@
 ---
 name: nobrainer-sessions
-description: "Use when the owner says nb-sessions or asks for visible, named, reusable multi-session work with exact identity, isolated write scopes, audited handoffs, recovery, or controlled parallelism; do not use for a coherent one-session task."
+description: "Use when the owner says nb-sessions, nb-multi, or session-handoff, or asks for visible named reusable multi-session work with exact identity, isolated write scopes, audited handoffs, recovery, or controlled parallelism; do not use for a coherent one-session task."
 ---
 
 # NoBrainer Sessions
@@ -9,12 +9,10 @@ Operate visible sessions as a small control plane. Human-readable titles make
 the workflow understandable; exact identity and readback make it trustworthy.
 This skill does not invent the project plan or replace implementation skills.
 
-The parent-session pattern is inspired in part by Avthar's
-[Orchestrator Rule](https://x.com/avthar/status/2091905058933792771): describe
-the outcome, success criteria and verification, let one project-level session
-prepare bounded task prompts, and bring child results back for review. This
-skill adds exact identity, write ownership, stop gates and independent
-receive-audit; the social post is a design source, not a safety specification.
+Describe the outcome, success criteria and verification, let one project-level
+session prepare bounded task prompts, and bring child results back for review.
+Exact identity, write ownership, stop gates and independent receive-audit are
+required; a convenient parent-child topology is not itself a safety contract.
 
 Read [references/protocol.md](references/protocol.md) before setup, dispatch, or
 RECEIVE_AUDIT.
@@ -57,6 +55,10 @@ submission is not delivery; record `SENT` only with transport readback.
 - `RECEIVE_AUDIT`: independently verify one report before any state advance.
 - `recover`: resume from canonical state and evidence without repeating the
   same failed attempt.
+- `handoff`: create a compact owner-requested continuation snapshot for a fresh
+  MAIN session, including live state, exact unfinished work, evidence and the
+  first safe action; do not pretend that writing the snapshot created or
+  delivered a session.
 
 ## Writer and lease contract
 

@@ -1,6 +1,6 @@
 ---
 name: nobrainer-wiki
-description: "Use when the owner says nb-wiki, asks to create or query an LLM wiki, save durable knowledge, or safely audit and maintain a Markdown knowledge base across projects or sessions; do not use for transient task state."
+description: "Use when the owner says nb-wiki, nb-add, nb-get, nb-tidy, or llm-wiki; asks to create or query a wiki, save durable knowledge, or safely audit and maintain a Markdown knowledge base across projects or sessions; do not use for transient task state."
 ---
 
 # NoBrainer Wiki
@@ -93,8 +93,9 @@ the answer, commits or pushes.
 
 ## `ADD` — durable capture or promotion
 
-1. Confirm the owner requested persistence and resolve one writer for the target
-   files.
+1. Confirm the owner requested persistence or that the project's explicit
+   `LEARNING_WRITE_POLICY: AUTO_SCOPED` covers this durable event, then resolve
+   one writer for the target files.
 2. Read the complete allowed input; record provenance, date, classification and
    capture method. Keep verbatim source separate from synthesis.
 3. Extract only reusable facts, decisions, definitions, evidence and procedures.
@@ -110,6 +111,13 @@ the answer, commits or pushes.
 A mixed sensitive source requires an explicit sanitization list and destination
 approval. Do not mass-rewrite, resolve owner decisions, commit, push or publish
 unless those actions were separately authorized.
+
+For video or recorded-session knowledge, preserve the complete available
+timestamped transcript or caption stream as the raw source before synthesis.
+Keep source capture separate from curated knowledge, cite timestamp ranges, and
+use articles or summaries only as secondary cross-checks. If the complete
+stream is unavailable, mark the capture partial rather than reconstructing
+missing speech from surrounding context.
 
 ## `TIDY_AUDIT` and `TIDY_APPLY`
 

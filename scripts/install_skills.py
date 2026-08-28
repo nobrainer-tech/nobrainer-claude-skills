@@ -27,54 +27,70 @@ CURATED_SKILLS = frozenset(
     {
         "nobrainer-autoimprove",
         "nobrainer-browser",
+        "nobrainer-build",
+        "nobrainer-security",
         "nobrainer-decide",
         "nobrainer-rca",
         "nobrainer-review",
+        "nobrainer-research",
         "nobrainer-sessions",
         "nobrainer-spec-driven-development",
         "nobrainer-ultra",
         "nobrainer-wiki",
+        "nobrainer-team",
     }
 )
 
-# Names retired from the previous public layouts. A legacy symlink is
-# migratable only when its name and target both match this table and this
-# checkout; unknown targets remain conflicts and are never touched.
+# Reviewed predecessor names and migration candidates. A legacy symlink is
+# migratable only when its name and target both match this table and this exact
+# checkout; foreign/private targets remain conflicts and are never touched.
 LEGACY_TO_CANONICAL = {
     "add-gitleaks": "nobrainer-review",
     "agent-browser": "nobrainer-browser",
     "agents-restraint": "nobrainer-ultra",
     "codex-in-claude-code": "nobrainer-ultra",
+    "code-autoresearch": "nobrainer-autoimprove",
     "deep-audit": "nobrainer-review",
     "deep-autoreview": "nobrainer-review",
+    "deep-autoresearch": "nobrainer-autoimprove",
     "deep-bugs-finder": "nobrainer-review",
+    "deep-code-review": "nobrainer-review",
     "deep-decide": "nobrainer-decide",
     "deep-rca": "nobrainer-rca",
+    "engineering-standards": "nobrainer-build",
     "karpathy-auto-improver": "nobrainer-autoimprove",
     "karpathy-llm-wiki": "nobrainer-wiki",
     "llm-wiki": "nobrainer-wiki",
     "nb-add": "nobrainer-wiki",
+    "nb-flow": "nobrainer-ultra",
     "nb-get": "nobrainer-wiki",
+    "nb-multi": "nobrainer-sessions",
     "nb-tidy": "nobrainer-wiki",
+    "nb-workflow": "nobrainer-ultra",
     "nobrainer-autopilot": "nobrainer-ultra",
     "nobrainer-browser": "nobrainer-browser",
+    "nobrainer-capture-lesson": "nobrainer-autoimprove",
     "nobrainer-continuous-improvement": "nobrainer-autoimprove",
+    "nobrainer-skill-browser": "nobrainer-team",
+    "nobrainer-simplifier": "nobrainer-build",
     "nobrainer-starter": "nobrainer-ultra",
-    "nobrainer-fast-audit": "nobrainer-review",
     "nobrainer-memory": "nobrainer-wiki",
     "nobrainer-memory-memsearch": "nobrainer-wiki",
-    "nobrainer-npm-secure": "nobrainer-review",
+    "nobrainer-npm-secure": "nobrainer-security",
     "nobrainer-reddit": "nobrainer-ultra",
-    "nobrainer-team-builder": "nobrainer-sessions",
+    "nobrainer-team-builder": "nobrainer-team",
     "nobrainer-ultracode-workflow": "nobrainer-ultra",
     "nobrainer-wiki-add": "nobrainer-wiki",
     "nobrainer-wiki-get": "nobrainer-wiki",
     "nobrainer-wiki-tidy": "nobrainer-wiki",
     "playwright-cli": "nobrainer-browser",
+    "security-review": "nobrainer-security",
+    "session-handoff": "nobrainer-sessions",
     "wiki-add": "nobrainer-wiki",
     "wiki-get": "nobrainer-wiki",
     "wiki-tidy": "nobrainer-wiki",
 }
+UNMAPPED_LEGACY = frozenset({"nobrainer-fast-audit"})
 
 
 EntryFingerprint = tuple[int, int, int, str | None]
@@ -89,6 +105,59 @@ def entry_fingerprint(target: Path) -> EntryFingerprint | None:
     except OSError:
         return None
     return metadata.st_dev, metadata.st_ino, metadata.st_mode, linked
+
+
+def register_created_entry(target: Path) -> tuple[Path, EntryFingerprint]:
+    """Capture the exact directory entry created by this installer."""
+
+    fingerprint = entry_fingerprint(target)
+    if fingerprint is None:
+        raise RuntimeError(f"created target disappeared before ownership check: {target}")
+    return target, fingerprint
+
+
+def remove_created_entry(
+    target: Path, expected: EntryFingerprint
+) -> None:
+    """Move a created entry out of the public target and preserve it for recovery."""
+
+    if entry_fingerprint(target) is None:
+        return
+
+    claim_dir = Path(
+        tempfile.mkdtemp(prefix=".nobrainer-rollback-", dir=target.parent)
+    )
+    claim = claim_dir / target.name
+    try:
+        target.rename(claim)
+    except OSError as exc:
+        try:
+            claim_dir.rmdir()
+        except OSError:
+            pass
+        if entry_fingerprint(target) is None:
+            return
+        raise RuntimeError(f"created target could not be claimed: {target}") from exc
+
+    claimed = entry_fingerprint(claim)
+    if claimed != expected:
+        try:
+            restore_claim(target, claim)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"ownership changed after creation; foreign replacement preserved "
+                f"at {claim}; {exc}"
+            ) from exc
+        raise RuntimeError(
+            f"ownership changed after creation; foreign target restored at {target}"
+        )
+
+    # There is no portable compare-and-delete primitive for a pathname. Keep the
+    # verified private claim instead of risking deletion of a same-user
+    # replacement between the last fingerprint and unlink/rmtree.
+    raise RuntimeError(
+        f"verified rollback claim preserved for manual recovery at {claim}"
+    )
 
 
 def is_exact_legacy_link(target: Path, legacy_name: str) -> bool:
@@ -147,7 +216,9 @@ def legacy_name_for(target: Path, canonical: Path) -> str | None:
     return None
 
 
-def claim_legacy_link(target: Path, legacy_name: str) -> Path:
+def claim_legacy_link(
+    target: Path, legacy_name: str
+) -> tuple[Path, EntryFingerprint]:
     """Atomically move a candidate aside, then verify ownership before deletion."""
 
     expected = legacy_link_snapshot(target, legacy_name)
@@ -169,7 +240,7 @@ def claim_legacy_link(target: Path, legacy_name: str) -> Path:
     # Compare the moved directory entry itself. Re-resolving a relative link
     # from claim.parent would change its base and reject a valid legacy link.
     if claimed == expected:
-        return claim
+        return claim, expected
 
     try:
         restore_claim(target, claim)
@@ -223,22 +294,22 @@ def atomic_rename_no_replace(source: Path, target: Path) -> None:
         raise OSError(error_number, os.strerror(error_number), str(target))
 
 
-def restore_claim(target: Path, claim: Path) -> None:
+def restore_claim(
+    target: Path,
+    claim: Path,
+    expected: EntryFingerprint | None = None,
+) -> None:
     """Restore a claimed entry atomically without replacing a new target."""
 
     fingerprint = entry_fingerprint(claim)
     if fingerprint is None:
         raise RuntimeError(f"missing or unreadable claim preserved at {claim}")
+    if expected is not None and fingerprint != expected:
+        raise RuntimeError(f"claim ownership changed; replacement preserved at {claim}")
     try:
-        if stat.S_ISLNK(fingerprint[2]):
-            previous_link = fingerprint[3]
-            if previous_link is None:
-                raise RuntimeError(f"unreadable symlink claim preserved at {claim}")
-            # os.symlink is an atomic create and fails with EEXIST if another
-            # process installed a replacement.
-            os.symlink(previous_link, target, target_is_directory=True)
-        else:
-            atomic_rename_no_replace(claim, target)
+        # Move the entry back instead of recreating and deleting a duplicate.
+        # This preserves relative symlink text and has no deletion race.
+        atomic_rename_no_replace(claim, target)
     except OSError as exc:
         raise RuntimeError(
             f"replacement preserved at {claim}; restore blocked by {target}"
@@ -246,13 +317,10 @@ def restore_claim(target: Path, claim: Path) -> None:
     except RuntimeError as exc:
         raise RuntimeError(f"replacement preserved at {claim}; {exc}") from exc
 
-    if stat.S_ISLNK(fingerprint[2]):
-        try:
-            claim.unlink()
-        except OSError as exc:
-            raise RuntimeError(
-                f"replacement restored at {target}; duplicate claim remains at {claim}"
-            ) from exc
+    if entry_fingerprint(target) != fingerprint:
+        raise RuntimeError(
+            f"restored entry changed concurrently; inspect preserved target {target}"
+        )
     try:
         claim.parent.rmdir()
     except OSError as exc:
@@ -359,6 +427,13 @@ def main() -> int:
         if state == "conflict" or not args.migrate_legacy:
             conflicts.append(target)
 
+    unmapped_plan: list[Path] = []
+    for legacy_name in sorted(UNMAPPED_LEGACY):
+        target = destination / legacy_name
+        if target.exists() or target.is_symlink():
+            unmapped_plan.append(target)
+            conflicts.append(target)
+
     for name, source, target, state in plan:
         action = (
             "KEEP"
@@ -383,9 +458,18 @@ def main() -> int:
         )
         print(f"{action}: {legacy_name} -> {canonical_name}: {target}")
 
+    for target in unmapped_plan:
+        print(
+            "UNMAPPED_CONFLICT: "
+            f"{target.name}: preserve and audit before selecting a canonical owner: "
+            f"{target}"
+        )
+
     if conflicts:
-        has_unknown_conflict = any(state == "conflict" for _, _, _, state in plan) or any(
-            state == "conflict" for _, _, _, state in alias_plan
+        has_unknown_conflict = (
+            bool(unmapped_plan)
+            or any(state == "conflict" for _, _, _, state in plan)
+            or any(state == "conflict" for _, _, _, state in alias_plan)
         )
         has_migratable_legacy = any(
             state == "legacy" for _, _, _, state in plan
@@ -410,14 +494,14 @@ def main() -> int:
         return 0
 
     destination.mkdir(parents=True, exist_ok=True)
-    created: list[Path] = []
-    migrated: list[tuple[Path, Path, str]] = []
+    created: list[tuple[Path, EntryFingerprint]] = []
+    migrated: list[tuple[Path, Path, str, EntryFingerprint]] = []
     try:
         for legacy_name, _, target, state in alias_plan:
             if state != "legacy":
                 continue
-            claim = claim_legacy_link(target, legacy_name)
-            migrated.append((target, claim, legacy_name))
+            claim, expected = claim_legacy_link(target, legacy_name)
+            migrated.append((target, claim, legacy_name, expected))
 
         for _, source, target, state in plan:
             if state == "current":
@@ -426,17 +510,17 @@ def main() -> int:
                 legacy_name = legacy_name_for(target, source)
                 if legacy_name is None:
                     raise RuntimeError(f"legacy target changed after preflight: {target}")
-                claim = claim_legacy_link(target, legacy_name)
-                migrated.append((target, claim, legacy_name))
+                claim, expected = claim_legacy_link(target, legacy_name)
+                migrated.append((target, claim, legacy_name, expected))
             if args.mode == "symlink":
                 os.symlink(source, target, target_is_directory=True)
-                created.append(target)
+                created.append(register_created_entry(target))
             else:
                 # Claim the target atomically before registering it as ours.
                 # If another process wins the race after preflight, mkdir
                 # raises and rollback must leave that foreign target alone.
                 target.mkdir()
-                created.append(target)
+                created.append(register_created_entry(target))
                 shutil.copytree(source, target, dirs_exist_ok=True)
 
         for _, source, target, _ in plan:
@@ -449,17 +533,14 @@ def main() -> int:
                 raise RuntimeError(f"symlink readback mismatch for {target}")
     except Exception as exc:
         rollback_errors: list[str] = []
-        for target in reversed(created):
+        for target, fingerprint in reversed(created):
             try:
-                if target.is_symlink() or target.is_file():
-                    target.unlink()
-                elif target.is_dir():
-                    shutil.rmtree(target)
-            except OSError as rollback_exc:
+                remove_created_entry(target, fingerprint)
+            except (OSError, RuntimeError) as rollback_exc:
                 rollback_errors.append(f"{target}: {rollback_exc}")
-        for target, claim, _ in reversed(migrated):
+        for target, claim, _, expected in reversed(migrated):
             try:
-                restore_claim(target, claim)
+                restore_claim(target, claim, expected)
             except (OSError, RuntimeError) as rollback_exc:
                 rollback_errors.append(
                     f"{target} (legacy preserved at {claim}): {rollback_exc}"
@@ -474,24 +555,24 @@ def main() -> int:
             print(f"ERROR: installation rolled back: {exc}", file=sys.stderr)
         return 4
 
-    cleanup_errors: list[str] = []
-    for _, claim, _ in migrated:
-        try:
-            claim.unlink()
-            claim.parent.rmdir()
-        except OSError as cleanup_exc:
-            cleanup_errors.append(f"{claim}: {cleanup_exc}")
-    if cleanup_errors:
+    changed_backups: list[str] = []
+    for _, claim, _, expected in migrated:
+        if entry_fingerprint(claim) == expected:
+            print(f"BACKUP_PRESERVED: migrated legacy link: {claim}")
+        else:
+            changed_backups.append(str(claim))
+    if changed_backups:
         print(
-            "WARNING: install succeeded, but legacy migration backups remain: "
-            + "; ".join(cleanup_errors),
+            "WARNING: install succeeded, but migration backup ownership changed; "
+            "entries were preserved without deletion: " + "; ".join(changed_backups),
             file=sys.stderr,
         )
 
     print(
         f"OK: installed {len(created)} skill(s) for {args.client}; "
         f"{len(migrated)} legacy link(s) migrated; "
-        f"{len(plan) - len(created)} unchanged"
+        f"{len(plan) - len(created)} unchanged; "
+        f"{len(migrated)} recovery backup(s) preserved"
     )
     return 0
 
