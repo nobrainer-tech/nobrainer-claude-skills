@@ -17,16 +17,19 @@ not the same as a proven client integration. Record these levels separately:
 
 Never promote one level from evidence belonging to another.
 
-The current `v1.2.0` repository state is a release candidate, not yet a
-distribution claim. The GitHub source channel is `DISTRIBUTED` for `v1.1.0`:
-release, tag-to-commit,
+The current `v1.2.1` repository state is a release candidate, not yet a
+distribution claim. `v1.2.0` is available through GitHub, but its downloaded
+archive failed one environment-dependent unit test that assumed `.git` was
+present, so it is published without full acceptance; see
+[the exact readback](releases/v1.2.0.md). The GitHub source channel is `DISTRIBUTED`
+for `v1.1.0`, the latest fully accepted release: tag-to-commit,
 CI, downloaded-archive file parity, secret scan and isolated installer readback
 of all thirteen skills are recorded in
-[the release evidence](releases/v1.1.0.md). GitHub reports this release as
-mutable, so security-sensitive consumers should pin the full commit SHA. This
-does not prove that a client marketplace accepted, loaded or ran the package;
-the per-client rows remain `NOT_PUBLISHED` until that exact channel has an
-installation readback.
+[the release evidence](releases/v1.1.0.md). GitHub reports these releases as
+mutable, so security-sensitive consumers should pin a reviewed full commit SHA.
+None of this proves that a client marketplace accepted, loaded or ran the
+package; the per-client rows remain `NOT_PUBLISHED` until that exact channel has
+an installation readback.
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
@@ -51,8 +54,8 @@ not mean the external client's parser accepted or loaded the package.
 | Antigravity and other plugin hosts | `SOURCE_VALIDATED` | no host-specific contract | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | Generic Agent Skills consumers | `SOURCE_VALIDATED` | canonical folders only | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 
-The table describes this repository candidate, not private installations on a
-maintainer's machine. There is deliberately no blanket “works everywhere”
+The table describes the current repository candidate, not private installations
+on a maintainer's machine. There is deliberately no blanket “works everywhere”
 badge: an unknown harness gets portable skill folders, then needs its own
 discovery/bootstrap proof before promotion.
 

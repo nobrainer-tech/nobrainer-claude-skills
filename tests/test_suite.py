@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -1694,6 +1695,65 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("copy", evidence["INSTALL_MODE"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
 
+    def test_v1_2_0_readback_records_archive_acceptance_failure(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.2.0.md"
+        ).read_text(encoding="utf-8")
+        v1_2_0_spans = markdown_heading_spans(
+            release_notes, "## v1.2.0 — 2026-08-28"
+        )
+        v1_1_spans = markdown_heading_spans(
+            release_notes, "## v1.1.0 — 2026-08-28"
+        )
+        self.assertEqual(1, len(v1_2_0_spans))
+        self.assertEqual(1, len(v1_1_spans))
+        _, v1_2_0_end = v1_2_0_spans[0]
+        v1_1_start, _ = v1_1_spans[0]
+        self.assertLess(v1_2_0_end, v1_1_start)
+        section = release_notes[v1_2_0_end:v1_1_start]
+        released_skills = re.findall(
+            r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+        )
+        self.assertEqual(list(CANONICAL_ORDER), released_skills)
+        self.assertIn("published but not fully accepted", section)
+        self.assertIn("docs/releases/v1.2.0.md", readme)
+
+        evidence_pairs = re.findall(
+            r"^([A-Z][A-Z0-9_]+): (.+)$", release_evidence, re.MULTILINE
+        )
+        evidence = dict(evidence_pairs)
+        self.assertEqual(len(evidence_pairs), len(evidence))
+        self.assertEqual("1.2.0", evidence["VERSION"])
+        self.assertEqual("v1.2.0", evidence["TAG"])
+        self.assertEqual(
+            "afd0bffa3f287493a4f646b9ceaafb82273e46b0",
+            evidence["COMMIT_SHA"],
+        )
+        self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
+        self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("86", evidence["REPOSITORY_TESTS_PASSED"])
+        self.assertEqual("0", evidence["REPOSITORY_TESTS_FAILED"])
+        self.assertEqual("86", evidence["REPOSITORY_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["REPOSITORY_TESTS_STATUS"])
+        self.assertEqual("85", evidence["ARCHIVE_TESTS_PASSED"])
+        self.assertEqual("1", evidence["ARCHIVE_TESTS_FAILED"])
+        self.assertEqual("86", evidence["ARCHIVE_TESTS_TOTAL"])
+        self.assertEqual("FAIL", evidence["ARCHIVE_TESTS_STATUS"])
+        self.assertEqual("PASS", evidence["ARCHIVE_SOURCE_SECRET_SCAN"])
+        self.assertEqual("FAIL", evidence["ACCEPTANCE"])
+        self.assertEqual("v1.2.1", evidence["PLANNED_REMEDIATION"])
+        self.assertEqual(
+            "UNVERIFIED_RELEASE_CANDIDATE",
+            evidence["PLANNED_REMEDIATION_STATUS"],
+        )
+        self.assertEqual("NOT_VERIFIED", evidence["TAG_PROTECTION_STATUS"])
+        self.assertEqual(
+            "d6931a1006bf0180955d8437fd93174b6a512428",
+            evidence["ROLLBACK_COMMIT_SHA"],
+        )
+
     def test_current_release_candidate_surface(self) -> None:
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
@@ -1703,19 +1763,19 @@ class SuiteTests(unittest.TestCase):
             release_notes,
             f"## v{current} — 2026-08-28 (release candidate)",
         )
-        v1_1_spans = markdown_heading_spans(
-            release_notes, "## v1.1.0 — 2026-08-28"
+        v1_2_0_spans = markdown_heading_spans(
+            release_notes, "## v1.2.0 — 2026-08-28"
         )
         self.assertEqual(1, len(current_spans))
-        self.assertEqual(1, len(v1_1_spans))
+        self.assertEqual(1, len(v1_2_0_spans))
         _, current_end = current_spans[0]
-        v1_1_start, _ = v1_1_spans[0]
-        self.assertLess(current_end, v1_1_start)
-        section = release_notes[current_end:v1_1_start]
+        v1_2_0_start, _ = v1_2_0_spans[0]
+        self.assertLess(current_end, v1_2_0_start)
+        section = release_notes[current_end:v1_2_0_start]
         candidate_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
-        self.assertEqual("1.2.0", current)
+        self.assertEqual("1.2.1", current)
         self.assertEqual(list(CANONICAL_ORDER), candidate_skills)
         self.assertEqual(ACTIVE, set(candidate_skills))
         self.assertIn("release-candidate contract", section.lower())
@@ -1919,6 +1979,45 @@ class SuiteTests(unittest.TestCase):
         )
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
+    @unittest.skipIf(
+        os.environ.get("NOBRAINER_ARCHIVE_ACCEPTANCE_CHILD") == "1",
+        "avoid recursively spawning the archive acceptance suite",
+    )
+    def test_full_acceptance_suite_passes_without_git_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            archive = Path(directory) / "source"
+            shutil.copytree(
+                ROOT,
+                archive,
+                symlinks=True,
+                ignore=shutil.ignore_patterns(".git", "__pycache__", "*.pyc"),
+            )
+            self.assertFalse((archive / ".git").exists())
+            environment = os.environ.copy()
+            environment["NOBRAINER_ARCHIVE_ACCEPTANCE_CHILD"] = "1"
+            validator = subprocess.run(
+                ["python3", "scripts/validate_skills.py", "--suite"],
+                cwd=archive,
+                env=environment,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(
+                0,
+                validator.returncode,
+                validator.stdout + validator.stderr,
+            )
+            suite = subprocess.run(
+                ["python3", "-m", "unittest", "discover", "-s", "tests", "-q"],
+                cwd=archive,
+                env=environment,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, suite.returncode, suite.stdout + suite.stderr)
+
     def test_frozen_eval_payloads_do_not_impersonate_repository_links(self) -> None:
         artifact_dir = ROOT / "docs" / "evals" / "artifacts"
         prompt = artifact_dir / "v1.2.0-routing-final-verified-holdout-prompt.md"
@@ -1936,25 +2035,45 @@ class SuiteTests(unittest.TestCase):
         for line in attributes.splitlines():
             if line.startswith("docs/evals/artifacts/"):
                 self.assertTrue(line.endswith("-text -whitespace"), line)
-        checked = subprocess.run(
-            [
-                "git",
-                "check-attr",
-                "text",
-                "whitespace",
-                "--",
-                str(prompt),
-                str(run),
-            ],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            check=True,
-        ).stdout
-        self.assertIn(f"{prompt}: text: unset", checked)
-        self.assertIn(f"{prompt}: whitespace: unset", checked)
-        self.assertIn(f"{run}: text: unspecified", checked)
-        self.assertIn(f"{run}: whitespace: unspecified", checked)
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            prompt_probe = prompt.relative_to(ROOT)
+            run_probe = run.relative_to(ROOT)
+            for relative in (prompt_probe, run_probe):
+                destination = repo / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes((ROOT / relative).read_bytes())
+            copied_attributes = 0
+            for source in ROOT.rglob(".gitattributes"):
+                relative = source.relative_to(ROOT)
+                if ".git" in relative.parts:
+                    continue
+                destination = repo / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(source.read_bytes())
+                copied_attributes += 1
+            self.assertGreaterEqual(copied_attributes, 1)
+            self.assertEqual(attributes, (repo / ".gitattributes").read_text())
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            checked = subprocess.run(
+                [
+                    "git",
+                    "check-attr",
+                    "text",
+                    "whitespace",
+                    "--",
+                    str(prompt_probe),
+                    str(run_probe),
+                ],
+                cwd=repo,
+                text=True,
+                capture_output=True,
+                check=True,
+            ).stdout
+        self.assertIn(f"{prompt_probe}: text: unset", checked)
+        self.assertIn(f"{prompt_probe}: whitespace: unset", checked)
+        self.assertIn(f"{run_probe}: text: unspecified", checked)
+        self.assertIn(f"{run_probe}: whitespace: unspecified", checked)
 
     def test_frozen_eval_payloads_are_byte_stable_under_autocrlf(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
