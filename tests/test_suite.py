@@ -128,6 +128,33 @@ def markdown_heading_spans(text: str, heading: str) -> list[tuple[int, int]]:
     return spans
 
 
+def parse_release_evidence(text: str) -> dict[str, str]:
+    lines = text.splitlines()
+    fence_pattern = re.compile(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$")
+    fences = [
+        (index, line)
+        for index, line in enumerate(lines)
+        if fence_pattern.fullmatch(line)
+    ]
+    if len(fences) != 2:
+        raise AssertionError(f"expected exactly one fenced evidence block, got {len(fences)} delimiters")
+    (start, opener), (end, closer) = fences
+    if opener != "```text" or closer != "```" or start >= end:
+        raise AssertionError("release evidence must use one exact closed ```text block")
+    evidence: dict[str, str] = {}
+    for line in lines[start + 1 : end]:
+        if not line.strip():
+            continue
+        match = re.fullmatch(r"([A-Z][A-Z0-9_]+): (.+)", line)
+        if match is None:
+            raise AssertionError(f"malformed release evidence line: {line!r}")
+        key, value = match.groups()
+        if key in evidence:
+            raise AssertionError(f"duplicate release evidence key: {key}")
+        evidence[key] = value
+    return evidence
+
+
 def parse_frontmatter(path: Path) -> dict[str, str]:
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -1593,6 +1620,25 @@ class SuiteTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "raw HTML"):
             markdown_heading_spans(f"<div>\n{heading}\n</div>\n", heading)
 
+    def test_release_evidence_parser_requires_one_exact_closed_block(self) -> None:
+        valid = "# Evidence\n\n```text\nVERSION: 1.2.1\nSTATUS: PASS\n```\n"
+        self.assertEqual(
+            {"VERSION": "1.2.1", "STATUS": "PASS"},
+            parse_release_evidence(valid),
+        )
+        invalid_documents = (
+            "```text\nVERSION: 1.2.1\n",
+            "```\n```text\nVERSION: 1.2.1\n```\n",
+            valid + "```text\n",
+            "```text\nVERSION: 1.2.1\n```text\n```\n",
+            "```text\nVERSION: 1.2.1\n```\n~~~\n",
+            "```text\nmalformed\n```\n",
+        )
+        for document in invalid_documents:
+            with self.subTest(document=document):
+                with self.assertRaises(AssertionError):
+                    parse_release_evidence(document)
+
     def test_v1_0_release_readback_remains_explicit(self) -> None:
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
@@ -1676,6 +1722,13 @@ class SuiteTests(unittest.TestCase):
         self.assertIn(release_sha, readme)
         self.assertIn(release_sha, release_notes)
         self.assertIn("docs/releases/v1.1.0.md", readme)
+        rollback_paragraphs = [
+            paragraph
+            for paragraph in readme.split("\n\n")
+            if "[`v1.1.0`](docs/releases/v1.1.0.md)" in paragraph
+        ]
+        self.assertEqual(1, len(rollback_paragraphs))
+        self.assertIn(f"commit `{release_sha}`", rollback_paragraphs[0])
 
         evidence_pairs = re.findall(
             r"^([A-Z][A-Z0-9_]+): (.+)$", release_evidence, re.MULTILINE
@@ -1720,11 +1773,45 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("published but not fully accepted", section)
         self.assertIn("docs/releases/v1.2.0.md", readme)
 
-        evidence_pairs = re.findall(
-            r"^([A-Z][A-Z0-9_]+): (.+)$", release_evidence, re.MULTILINE
+        evidence = parse_release_evidence(release_evidence)
+        self.assertEqual(
+            {
+                "VERSION",
+                "TAG",
+                "COMMIT_SHA",
+                "TREE_SHA",
+                "RELEASE_URL",
+                "TARBALL_URL",
+                "TARBALL_FILENAME",
+                "TARBALL_SHA256",
+                "PR_CI_RUN",
+                "MAIN_CI_RUN",
+                "GITHUB_RELEASE_IMMUTABLE",
+                "TAG_PROTECTION_STATUS",
+                "ARCHIVE_FILE_MATCH",
+                "ARCHIVE_SKILL_COUNT",
+                "REPOSITORY_TESTS_PASSED",
+                "REPOSITORY_TESTS_FAILED",
+                "REPOSITORY_TESTS_TOTAL",
+                "REPOSITORY_TESTS_STATUS",
+                "ARCHIVE_TESTS_PASSED",
+                "ARCHIVE_TESTS_FAILED",
+                "ARCHIVE_TESTS_TOTAL",
+                "ARCHIVE_TESTS_STATUS",
+                "ARCHIVE_TEST_FAILURE",
+                "ARCHIVE_QUICK_VALIDATE",
+                "ARCHIVE_SOURCE_SECRET_SCAN",
+                "INSTALL_READBACK",
+                "ACCEPTANCE",
+                "PLANNED_REMEDIATION",
+                "PLANNED_REMEDIATION_STATUS_AT_READBACK",
+                "SUPERSEDED_BY",
+                "SUPERSEDING_RELEASE_ACCEPTANCE",
+                "ROLLBACK_COMMIT_SHA",
+                "ROLLBACK_TARBALL_SHA256",
+            },
+            set(evidence),
         )
-        evidence = dict(evidence_pairs)
-        self.assertEqual(len(evidence_pairs), len(evidence))
         self.assertEqual("1.2.0", evidence["VERSION"])
         self.assertEqual("v1.2.0", evidence["TAG"])
         self.assertEqual(
@@ -1746,22 +1833,51 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("v1.2.1", evidence["PLANNED_REMEDIATION"])
         self.assertEqual(
             "UNVERIFIED_RELEASE_CANDIDATE",
-            evidence["PLANNED_REMEDIATION_STATUS"],
+            evidence["PLANNED_REMEDIATION_STATUS_AT_READBACK"],
         )
+        self.assertEqual("v1.2.1", evidence["SUPERSEDED_BY"])
+        self.assertEqual("PASS", evidence["SUPERSEDING_RELEASE_ACCEPTANCE"])
         self.assertEqual("NOT_VERIFIED", evidence["TAG_PROTECTION_STATUS"])
         self.assertEqual(
             "d6931a1006bf0180955d8437fd93174b6a512428",
             evidence["ROLLBACK_COMMIT_SHA"],
         )
+        expected_rollback_tarball = (
+            "5d344b25178ce79b261b8be1da5865d57dfbc7b0e1b5c2b22dd397c71bcdc768"
+        )
+        self.assertEqual(
+            expected_rollback_tarball,
+            evidence["ROLLBACK_TARBALL_SHA256"],
+        )
+        rollback_text = (
+            ROOT / "docs" / "releases" / "v1.1.0.md"
+        ).read_text(encoding="utf-8")
+        rollback_pairs = re.findall(
+            r"^([A-Z][A-Z0-9_]+): (.+)$", rollback_text, re.MULTILINE
+        )
+        rollback_evidence = dict(rollback_pairs)
+        self.assertEqual(len(rollback_pairs), len(rollback_evidence))
+        self.assertEqual(
+            evidence["ROLLBACK_COMMIT_SHA"],
+            rollback_evidence["COMMIT_SHA"],
+        )
+        self.assertEqual(
+            evidence["ROLLBACK_TARBALL_SHA256"],
+            rollback_evidence["TARBALL_SHA256"],
+        )
 
-    def test_current_release_candidate_surface(self) -> None:
+    def test_v1_2_1_release_readback_remains_explicit(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.2.1.md"
+        ).read_text(encoding="utf-8")
         current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
             "version"
         ]
         current_spans = markdown_heading_spans(
             release_notes,
-            f"## v{current} — 2026-08-28 (release candidate)",
+            f"## v{current} — 2026-08-28",
         )
         v1_2_0_spans = markdown_heading_spans(
             release_notes, "## v1.2.0 — 2026-08-28"
@@ -1772,14 +1888,77 @@ class SuiteTests(unittest.TestCase):
         v1_2_0_start, _ = v1_2_0_spans[0]
         self.assertLess(current_end, v1_2_0_start)
         section = release_notes[current_end:v1_2_0_start]
-        candidate_skills = re.findall(
+        released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
         self.assertEqual("1.2.1", current)
-        self.assertEqual(list(CANONICAL_ORDER), candidate_skills)
-        self.assertEqual(ACTIVE, set(candidate_skills))
-        self.assertIn("release-candidate contract", section.lower())
-        self.assertIn("not a publication claim", section.lower())
+        self.assertEqual(list(CANONICAL_ORDER), released_skills)
+        self.assertEqual(ACTIVE, set(released_skills))
+        normalized_section = " ".join(re.findall(r"[a-z0-9]+", section.lower()))
+        self.assertNotIn("release candidate", normalized_section)
+        self.assertNotIn("not a publication claim", normalized_section)
+        self.assertIn(
+            "This version is published as a tagged GitHub source release",
+            section,
+        )
+        self.assertIn(
+            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            readme,
+        )
+        self.assertIn("docs/releases/v1.2.1.md", readme)
+
+        evidence = parse_release_evidence(release_evidence)
+        self.assertEqual(
+            {
+                "VERSION",
+                "TAG",
+                "COMMIT_SHA",
+                "TREE_SHA",
+                "RELEASE_URL",
+                "TARBALL_URL",
+                "TARBALL_FILENAME",
+                "TARBALL_SHA256",
+                "PR_CI_RUN",
+                "MAIN_CI_RUN",
+                "GITHUB_RELEASE_IMMUTABLE",
+                "TAG_PROTECTION_STATUS",
+                "ARCHIVE_FILE_MATCH",
+                "ARCHIVE_SKILL_COUNT",
+                "ARCHIVE_TESTS_PASSED",
+                "ARCHIVE_TESTS_FAILED",
+                "ARCHIVE_TESTS_TOTAL",
+                "ARCHIVE_TESTS_STATUS",
+                "ARCHIVE_QUICK_VALIDATE",
+                "ARCHIVE_SECRET_SCAN",
+                "INSTALL_CLIENT",
+                "INSTALL_MODE",
+                "INSTALL_SKILL_COUNT",
+                "INSTALL_FILE_MATCH",
+                "INSTALL_QUICK_VALIDATE",
+                "INSTALL_READBACK",
+                "ACCEPTANCE",
+            },
+            set(evidence),
+        )
+        self.assertEqual("1.2.1", evidence["VERSION"])
+        self.assertEqual("v1.2.1", evidence["TAG"])
+        self.assertEqual(
+            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            evidence["COMMIT_SHA"],
+        )
+        self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
+        self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("88", evidence["ARCHIVE_TESTS_PASSED"])
+        self.assertEqual("0", evidence["ARCHIVE_TESTS_FAILED"])
+        self.assertEqual("88", evidence["ARCHIVE_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["ARCHIVE_TESTS_STATUS"])
+        self.assertEqual("PASS", evidence["ARCHIVE_SECRET_SCAN"])
+        self.assertEqual("agents", evidence["INSTALL_CLIENT"])
+        self.assertEqual("copy", evidence["INSTALL_MODE"])
+        self.assertEqual("15", evidence["INSTALL_SKILL_COUNT"])
+        self.assertEqual("PASS", evidence["INSTALL_FILE_MATCH"])
+        self.assertEqual("PASS", evidence["INSTALL_READBACK"])
+        self.assertEqual("PASS", evidence["ACCEPTANCE"])
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
