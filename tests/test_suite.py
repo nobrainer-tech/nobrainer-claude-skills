@@ -8,6 +8,7 @@ import re
 import subprocess
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 
 from scripts import install_skills, validate_skills
@@ -98,6 +99,32 @@ VERSION_MANIFESTS = (
     ".kimi-plugin/plugin.json",
     "gemini-extension.json",
 )
+
+
+def markdown_heading_spans(text: str, heading: str) -> list[tuple[int, int]]:
+    """Return exact unfenced headings; reject raw-HTML block candidates."""
+
+    spans: list[tuple[int, int]] = []
+    fence: tuple[str, int] | None = None
+    offset = 0
+    for raw_line in text.splitlines(keepends=True):
+        line = raw_line.rstrip("\r\n")
+        opener = re.match(r"^[ ]{0,3}(`{3,}|~{3,})(.*)$", line)
+        if opener and opener.group(1).startswith("`") and "`" in opener.group(2):
+            opener = None
+        if fence is None and re.match(r"^[ ]{0,3}<", line):
+            raise ValueError("raw HTML blocks are not supported in release notes")
+        if fence is None and opener:
+            marker = opener.group(1)
+            fence = (marker[0], len(marker))
+        elif fence is not None:
+            marker, minimum = fence
+            if re.fullmatch(rf"[ ]{{0,3}}{re.escape(marker)}{{{minimum},}}[ \t]*", line):
+                fence = None
+        elif line == heading:
+            spans.append((offset, offset + len(line)))
+        offset += len(raw_line)
+    return spans
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:
@@ -535,14 +562,26 @@ class SuiteTests(unittest.TestCase):
         )
         self.assertIn("EXACT_RELEASE_HOLDOUT: PASS 5/5", record)
         self.assertIn(
-            "EXACT_RELEASE_BINDING: current source and 190-word bootstrap "
-            "hashes verified",
+            "EXACT_RELEASE_BINDING: historical after later trigger-scope "
+            "contract edits",
+            record,
+        )
+        self.assertIn("TRIGGER_SCOPE_PROBE: FAIL 3/5", record)
+        self.assertIn("TRIGGER_FINAL_HOLDOUT: PASS 5/5", record)
+        self.assertIn(
+            "TRIGGER_FINAL_BINDING: current Ultra, Team, Dispatcher and "
+            "Sessions hashes verified",
             record,
         )
         self.assertIn(
-            "INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_BY_BOUND_REVIEW_CHAIN",
+            "INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_SPLIT_COMPLETE",
             record,
         )
+        self.assertIn("FINAL_REVIEW_COVERAGE:", record)
+        self.assertIn("FINAL_CONTRACTS_REVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_ARTIFACTS_REVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_PROVENANCE_REREVIEW_RESULT: CLEAN", record)
+        self.assertIn("FINAL_TEST_REREVIEW_RESULT: CLEAN", record)
         self.assertIn(
             "FULL_REVIEW_DIFF_SHA256: "
             "d2c989148341a379cf6a9eee3a81898dcc024f0a5ea474f4d746eb7eac64d45c",
@@ -654,7 +693,6 @@ class SuiteTests(unittest.TestCase):
             ):
                 declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
                 self.assertIsNotNone(declared)
-                self.assertEqual(sha256(relative), declared.group(1))
 
         def assert_packet_integrity(run: str, stem: str) -> None:
             base = f"docs/evals/artifacts/{stem}"
@@ -704,26 +742,20 @@ class SuiteTests(unittest.TestCase):
         exact_prompt = (ROOT / f"{exact_base}-prompt.md").read_text(
             encoding="utf-8"
         )
-        exact_output = (ROOT / f"{exact_base}-output.md").read_text(
-            encoding="utf-8"
-        )
-        exact_rubric = (ROOT / f"{exact_base}-judge-rubric.md").read_text(
-            encoding="utf-8"
-        )
-        exact_judge_prompt = (ROOT / f"{exact_base}-judge-prompt.md").read_text(
-            encoding="utf-8"
-        )
+        exact_output = (ROOT / f"{exact_base}-output.md").read_bytes()
+        exact_rubric = (ROOT / f"{exact_base}-judge-rubric.md").read_bytes()
+        exact_judge_prompt = (ROOT / f"{exact_base}-judge-prompt.md").read_bytes()
         embedded_output = exact_judge_prompt.split(
-            "## Candidate output\n\n", 1
+            b"## Candidate output\n\n", 1
         )[1]
         self.assertEqual(exact_output, embedded_output)
-        rubric_payload = "Hard failures are:" + exact_rubric.split(
-            "Hard failures are:", 1
+        rubric_payload = b"Hard failures are:" + exact_rubric.split(
+            b"Hard failures are:", 1
         )[1]
         embedded_rubric = (
-            exact_judge_prompt.split("## Frozen rubric\n\n", 1)[1]
-            .split("\n\n## Candidate output", 1)[0]
-            + "\n"
+            exact_judge_prompt.split(b"## Frozen rubric\n\n", 1)[1]
+            .split(b"\n\n## Candidate output", 1)[0]
+            + b"\n"
         )
         self.assertEqual(rubric_payload, embedded_rubric)
 
@@ -746,10 +778,9 @@ class SuiteTests(unittest.TestCase):
             )
             self.assertIsNotNone(prompt_declared)
             self.assertIsNotNone(run_declared)
-            self.assertEqual(sha256(relative), prompt_declared.group(1))
             self.assertEqual(prompt_declared.group(1), run_declared.group(1))
 
-        routing_binding_paths = tuple(relative for _, relative in routing_sources) + (
+        routing_artifact_paths = (
             f"{exact_base}-prompt.md",
             f"{exact_base}-output.md",
             f"{exact_base}-output.raw.b64",
@@ -759,7 +790,15 @@ class SuiteTests(unittest.TestCase):
             f"{exact_base}-judge.raw.b64",
         )
         binding = hashlib.sha256()
-        for relative in routing_binding_paths:
+        for label, relative in routing_sources:
+            frozen = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", exact_run, re.M
+            )
+            self.assertIsNotNone(frozen)
+            binding.update(relative.encode("utf-8"))
+            binding.update(b"\0")
+            binding.update(bytes.fromhex(frozen.group(1)))
+        for relative in routing_artifact_paths:
             binding.update(relative.encode("utf-8"))
             binding.update(b"\0")
             binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
@@ -768,6 +807,390 @@ class SuiteTests(unittest.TestCase):
         )
         self.assertIsNotNone(declared_binding)
         self.assertEqual(binding.hexdigest(), declared_binding.group(1))
+
+    def test_dispatcher_trigger_eval_preserves_failure_and_binds_final_holdout(
+        self,
+    ) -> None:
+        base = ROOT / "docs" / "evals" / "artifacts"
+        failed_stem = "v1.2.0-dispatcher-trigger-scope"
+        final_stem = "v1.2.0-dispatcher-trigger-final-holdout"
+        failed_run = (base / f"{failed_stem}-run.md").read_text(encoding="utf-8")
+        failed_judge = (base / f"{failed_stem}-judge.md").read_text(
+            encoding="utf-8"
+        )
+        final_run = (base / f"{final_stem}-run.md").read_text(encoding="utf-8")
+        final_judge = (base / f"{final_stem}-judge.md").read_text(
+            encoding="utf-8"
+        )
+
+        def parse_judge_block(text: str) -> tuple[list[str], list[str]]:
+            lines = text.splitlines()
+            self.assertEqual(8, len(lines), lines)
+            statuses: list[str] = []
+            for index, label in enumerate("ABCDE"):
+                match = re.fullmatch(rf"{label}: (PASS|FAIL) — .+", lines[index])
+                self.assertIsNotNone(match, lines[index])
+                statuses.append(match.group(1))
+            self.assertRegex(lines[5], r"^HARD_FAILURES: .+$")
+            self.assertRegex(lines[6], r"^MATERIAL_FINDINGS: .+$")
+            self.assertRegex(lines[7], r"^VERDICT: (PASS|FAIL) — [0-5]/5 cases$")
+            return statuses, lines
+
+        failed_statuses, failed_lines = parse_judge_block(failed_judge)
+        self.assertEqual(["FAIL", "PASS", "PASS", "PASS", "FAIL"], failed_statuses)
+        self.assertEqual("HARD_FAILURES: NONE", failed_lines[5])
+        self.assertEqual("VERDICT: FAIL — 3/5 cases", failed_lines[7])
+
+        final_statuses, final_lines = parse_judge_block(final_judge)
+        self.assertEqual(["PASS"] * 5, final_statuses)
+        self.assertEqual("HARD_FAILURES: NONE", final_lines[5])
+        self.assertEqual("MATERIAL_FINDINGS: NONE", final_lines[6])
+        self.assertEqual("VERDICT: PASS — 5/5 cases", final_lines[7])
+
+        def parse_run_fields(text: str) -> dict[str, str]:
+            for separator in ("\r", "\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029"):
+                self.assertNotIn(separator, text)
+            fields: dict[str, str] = {}
+            in_text_block = False
+            text_blocks = 0
+            for line in text.split("\n"):
+                if line == "```text":
+                    self.assertFalse(in_text_block)
+                    in_text_block = True
+                    text_blocks += 1
+                    continue
+                if in_text_block and line == "```":
+                    in_text_block = False
+                    continue
+                if not in_text_block:
+                    continue
+                match = re.fullmatch(r"([A-Z][A-Z0-9_]*): (.+)", line)
+                self.assertIsNotNone(match, line)
+                label, value = match.groups()
+                self.assertNotIn(label, fields, label)
+                fields[label] = value
+            self.assertFalse(in_text_block)
+            self.assertEqual(3, text_blocks)
+            return fields
+
+        failed_order = (
+            "RESULT",
+            "HARD_FAILURES",
+            "RELEASE_EVIDENCE",
+            "FOLLOW_UP_REQUIRED",
+            "DATE_UTC",
+            "OS",
+            "HARNESS",
+            "CANDIDATE_MODEL",
+            "CANDIDATE_REASONING",
+            "CANDIDATE_SANDBOX",
+            "CANDIDATE_SESSION",
+            "CANDIDATE_WRAPPER_STARTED_UTC",
+            "CANDIDATE_FINISHED_UTC",
+            "CANDIDATE_EXIT",
+            "CANDIDATE_TOKENS_REPORTED",
+            "JUDGE_MODEL",
+            "JUDGE_REASONING",
+            "JUDGE_SANDBOX",
+            "JUDGE_SESSION",
+            "JUDGE_WRAPPER_STARTED_UTC",
+            "JUDGE_FINISHED_UTC",
+            "JUDGE_EXIT",
+            "JUDGE_TOKENS_REPORTED",
+            "ULTRA_SHA256",
+            "TEAM_SHA256",
+            "DISPATCHER_SHA256",
+            "SESSIONS_SHA256",
+            "PROMPT_SHA256",
+            "OUTPUT_SHA256",
+            "RAW_OUTPUT_SHA256",
+            "JUDGE_RUBRIC_SHA256",
+            "JUDGE_PROMPT_SHA256",
+            "JUDGE_OUTPUT_SHA256",
+            "RAW_JUDGE_OUTPUT_SHA256",
+            "ARTIFACT_SET_SHA256",
+            "RUN_CANONICALIZATION",
+            "PROVENANCE_BOUNDARY",
+            "CANDIDATE_NORMALIZATION",
+            "JUDGE_NORMALIZATION",
+        )
+        final_order = (
+            "BASELINE_RELEASE",
+            "BASELINE_COMMIT",
+            "COMPARATIVE_SCORE_CLAIM",
+            "RESULT",
+            "HARD_FAILURES",
+            "MATERIAL_FINDINGS",
+            "RELEASE_EVIDENCE",
+            "DATE_UTC",
+            "OS",
+            "HARNESS",
+            "CANDIDATE_MODEL",
+            "CANDIDATE_REASONING",
+            "CANDIDATE_SANDBOX",
+            "CANDIDATE_SESSION",
+            "CANDIDATE_FINISHED_UTC",
+            "CANDIDATE_EXIT",
+            "CANDIDATE_TOKENS_REPORTED",
+            "JUDGE_MODEL",
+            "JUDGE_REASONING",
+            "JUDGE_SANDBOX",
+            "JUDGE_SESSION",
+            "JUDGE_FINISHED_UTC",
+            "JUDGE_EXIT",
+            "JUDGE_TOKENS_REPORTED",
+            "ULTRA_SHA256",
+            "TEAM_SHA256",
+            "DISPATCHER_SHA256",
+            "SESSIONS_SHA256",
+            "PROMPT_SHA256",
+            "OUTPUT_SHA256",
+            "RAW_OUTPUT_SHA256",
+            "JUDGE_RUBRIC_SHA256",
+            "JUDGE_PROMPT_SHA256",
+            "JUDGE_OUTPUT_SHA256",
+            "RAW_JUDGE_OUTPUT_SHA256",
+            "SOURCE_AND_ARTIFACT_SET_SHA256",
+            "RUN_CANONICALIZATION",
+            "PROVENANCE_BOUNDARY",
+            "CANDIDATE_NORMALIZATION",
+            "JUDGE_NORMALIZATION",
+        )
+        failed_fields = parse_run_fields(failed_run)
+        final_fields = parse_run_fields(final_run)
+        self.assertEqual(failed_order, tuple(failed_fields))
+        self.assertEqual(final_order, tuple(final_fields))
+        for fields in (failed_fields, final_fields):
+            for label, value in fields.items():
+                if label.endswith("SHA256"):
+                    self.assertRegex(value, r"^[0-9a-f]{64}$", label)
+        self.assertRegex(final_fields["BASELINE_COMMIT"], r"^[0-9a-f]{40}$")
+        with self.assertRaises(AssertionError):
+            parse_run_fields(
+                "```text\nRESULT: PASS 5/5\nRESULT:garbage\n```\n"
+            )
+        with self.assertRaises(AssertionError):
+            parse_run_fields("```text\nRESULT:\n```\n")
+        with self.assertRaises(AssertionError):
+            parse_run_fields("```text\nRESULT : forged\n```\n")
+
+        self.assertEqual("FAIL 3/5", failed_fields["RESULT"])
+        self.assertEqual("NONE", failed_fields["HARD_FAILURES"])
+        self.assertEqual("NO", failed_fields["RELEASE_EVIDENCE"])
+        self.assertEqual("PASS 5/5", final_fields["RESULT"])
+        self.assertEqual("NONE", final_fields["HARD_FAILURES"])
+        self.assertEqual("NONE", final_fields["MATERIAL_FINDINGS"])
+        self.assertEqual("YES", final_fields["RELEASE_EVIDENCE"])
+        for fields in (failed_fields, final_fields):
+            self.assertEqual(
+                "added one terminal LF for repository text convention",
+                fields["CANDIDATE_NORMALIZATION"],
+            )
+            self.assertEqual(
+                "added one terminal LF for repository text convention",
+                fields["JUDGE_NORMALIZATION"],
+            )
+
+        def assert_canonical_uuid_field(fields: dict[str, str], label: str) -> None:
+            value = fields[label]
+            self.assertRegex(
+                value,
+                r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-"
+                r"[0-9a-f]{4}-[0-9a-f]{12}$",
+            )
+            self.assertEqual(value, str(uuid.UUID(value)))
+
+        for fields in (failed_fields, final_fields):
+            assert_canonical_uuid_field(fields, "CANDIDATE_SESSION")
+            assert_canonical_uuid_field(fields, "JUDGE_SESSION")
+
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        team = (SKILLS / "nobrainer-team" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Dispatcher owns that scheduler inspection", dispatcher)
+        self.assertIn("MAIN remains\nthe owner of the work unit", dispatcher)
+        self.assertIn("do not use to elicit requirements", team)
+        self.assertIn("must not design roles from a vague goal", team)
+
+        def digest(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        def assert_packet(stem: str, fields: dict[str, str]) -> None:
+            prefix = f"docs/evals/artifacts/{stem}"
+            for label, suffix in (
+                ("PROMPT_SHA256", "-prompt.md"),
+                ("OUTPUT_SHA256", "-output.md"),
+                ("JUDGE_RUBRIC_SHA256", "-judge-rubric.md"),
+                ("JUDGE_PROMPT_SHA256", "-judge-prompt.md"),
+                ("JUDGE_OUTPUT_SHA256", "-judge.md"),
+            ):
+                self.assertRegex(fields[label], r"^[0-9a-f]{64}$")
+                self.assertEqual(digest(prefix + suffix), fields[label])
+
+            for label, raw_suffix, normalized_suffix in (
+                ("RAW_OUTPUT_SHA256", "-output.raw.b64", "-output.md"),
+                (
+                    "RAW_JUDGE_OUTPUT_SHA256",
+                    "-judge.raw.b64",
+                    "-judge.md",
+                ),
+            ):
+                raw = base64.b64decode(
+                    (ROOT / (prefix + raw_suffix))
+                    .read_text(encoding="ascii")
+                    .strip(),
+                    validate=True,
+                )
+                self.assertRegex(fields[label], r"^[0-9a-f]{64}$")
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), fields[label])
+                self.assertEqual(
+                    (ROOT / (prefix + normalized_suffix)).read_bytes(), raw + b"\n"
+                )
+
+        assert_packet(failed_stem, failed_fields)
+        assert_packet(final_stem, final_fields)
+
+        source_paths = (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            ("TEAM_SHA256", "skills/nobrainer-team/SKILL.md"),
+            ("DISPATCHER_SHA256", "skills/nobrainer-dispatcher/SKILL.md"),
+            ("SESSIONS_SHA256", "skills/nobrainer-sessions/SKILL.md"),
+        )
+        for stem, fields in (
+            (failed_stem, failed_fields),
+            (final_stem, final_fields),
+        ):
+            prompt = (base / f"{stem}-prompt.md").read_text(encoding="utf-8")
+            for label, _ in source_paths:
+                declared = re.findall(
+                    rf"^{label}: ([0-9a-f]{{64}})$", prompt, re.MULTILINE
+                )
+                self.assertEqual([fields[label]], declared)
+
+        historical_current_matches = {
+            label: failed_fields[label] == digest(relative)
+            for label, relative in source_paths
+        }
+        self.assertEqual(
+            {
+                "ULTRA_SHA256": True,
+                "TEAM_SHA256": False,
+                "DISPATCHER_SHA256": False,
+                "SESSIONS_SHA256": True,
+            },
+            historical_current_matches,
+        )
+
+        final_prompt = (base / f"{final_stem}-prompt.md").read_text(
+            encoding="utf-8"
+        )
+        for label, relative in source_paths:
+            prompt_declared = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", final_prompt, re.M
+            )
+            self.assertIsNotNone(prompt_declared)
+            self.assertEqual(digest(relative), prompt_declared.group(1))
+            self.assertEqual(prompt_declared.group(1), final_fields[label])
+
+        final_output = (base / f"{final_stem}-output.md").read_bytes()
+        final_rubric = (base / f"{final_stem}-judge-rubric.md").read_bytes()
+        final_judge_prompt = (base / f"{final_stem}-judge-prompt.md").read_bytes()
+        embedded = final_judge_prompt.split(b"## Frozen rubric\n\n", 1)[1]
+        embedded_rubric, embedded_output = embedded.split(
+            b"\n## Candidate output\n\n", 1
+        )
+        self.assertEqual(final_rubric, embedded_rubric)
+        self.assertEqual(final_output, embedded_output)
+
+        failed_binding_paths = (
+            f"docs/evals/artifacts/{failed_stem}-prompt.md",
+            f"docs/evals/artifacts/{failed_stem}-output.md",
+            f"docs/evals/artifacts/{failed_stem}-output.raw.b64",
+            f"docs/evals/artifacts/{failed_stem}-judge-rubric.md",
+            f"docs/evals/artifacts/{failed_stem}-judge-prompt.md",
+            f"docs/evals/artifacts/{failed_stem}-judge.md",
+            f"docs/evals/artifacts/{failed_stem}-judge.raw.b64",
+            f"docs/evals/artifacts/{failed_stem}-run.md",
+        )
+        final_binding_paths = tuple(relative for _, relative in source_paths) + (
+            f"docs/evals/artifacts/{final_stem}-prompt.md",
+            f"docs/evals/artifacts/{final_stem}-output.md",
+            f"docs/evals/artifacts/{final_stem}-output.raw.b64",
+            f"docs/evals/artifacts/{final_stem}-judge-rubric.md",
+            f"docs/evals/artifacts/{final_stem}-judge-prompt.md",
+            f"docs/evals/artifacts/{final_stem}-judge.md",
+            f"docs/evals/artifacts/{final_stem}-judge.raw.b64",
+            f"docs/evals/artifacts/{final_stem}-run.md",
+        )
+
+        def binding_digest(paths: tuple[str, ...], field: str) -> str:
+            binding = hashlib.sha256()
+            for relative in paths:
+                data = (ROOT / relative).read_bytes()
+                if relative == paths[-1]:
+                    decoded = data.decode("utf-8")
+                    for separator in (
+                        "\r",
+                        "\v",
+                        "\f",
+                        "\x1c",
+                        "\x1d",
+                        "\x1e",
+                        "\x85",
+                        "\u2028",
+                        "\u2029",
+                    ):
+                        self.assertNotIn(separator, decoded)
+                    self.assertTrue(data.endswith(b"\n"))
+                    self.assertFalse(data.endswith(b"\n\n"))
+                    pattern = rf"(?m)^{field}: [0-9a-f]{{64}}$".encode("ascii")
+                    replacement = f"{field}: <SELF>".encode("ascii")
+                    data, count = re.subn(pattern, replacement, data)
+                    self.assertEqual(1, count)
+                binding.update(relative.encode("utf-8"))
+                binding.update(b"\0")
+                binding.update(hashlib.sha256(data).digest())
+            return binding.hexdigest()
+
+        failed_digest = failed_fields["ARTIFACT_SET_SHA256"]
+        final_digest = final_fields["SOURCE_AND_ARTIFACT_SET_SHA256"]
+        self.assertRegex(failed_digest, r"^[0-9a-f]{64}$")
+        self.assertRegex(final_digest, r"^[0-9a-f]{64}$")
+        provenance = (
+            "authenticity requires the reviewed Git commit; this digest proves "
+            "packet consistency"
+        )
+        self.assertEqual(provenance, failed_fields["PROVENANCE_BOUNDARY"])
+        self.assertEqual(provenance, final_fields["PROVENANCE_BOUNDARY"])
+        self.assertEqual(
+            "for repo-relative path docs/evals/artifacts/"
+            f"{failed_stem}-run.md, read its reviewed Git-blob bytes; require valid "
+            "UTF-8, LF-only line endings and exactly one terminal LF; replace exactly "
+            "once only the 64-lowercase-hex value of ARTIFACT_SET_SHA256 with <SELF>; "
+            "hash every other byte unchanged",
+            failed_fields["RUN_CANONICALIZATION"],
+        )
+        self.assertEqual(
+            "for repo-relative path docs/evals/artifacts/"
+            f"{final_stem}-run.md, read its reviewed Git-blob bytes; require valid "
+            "UTF-8, LF-only line endings and exactly one terminal LF; replace exactly "
+            "once only the 64-lowercase-hex value of "
+            "SOURCE_AND_ARTIFACT_SET_SHA256 with <SELF>; hash every other byte unchanged",
+            final_fields["RUN_CANONICALIZATION"],
+        )
+        self.assertEqual(
+            binding_digest(failed_binding_paths, "ARTIFACT_SET_SHA256"),
+            failed_digest,
+        )
+        self.assertEqual(
+            binding_digest(
+                final_binding_paths, "SOURCE_AND_ARTIFACT_SET_SHA256"
+            ),
+            final_digest,
+        )
 
     def test_writing_eval_freezes_research_behavior_and_release_evidence(self) -> None:
         record = (
@@ -1146,6 +1569,29 @@ class SuiteTests(unittest.TestCase):
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
 
+    def test_release_heading_parser_requires_one_unfenced_exact_line(self) -> None:
+        heading = "## v1.1.0 — 2026-08-28"
+        sample = (
+            f"inline {heading}\n"
+            "## v1.1.0-rc\n"
+            f"```md\n{heading}\n```\n"
+            f"~~~text\n{heading}\n~~~~\n"
+            f"{heading}\n"
+        )
+        spans = markdown_heading_spans(sample, heading)
+        self.assertEqual(1, len(spans))
+        start, end = spans[0]
+        self.assertEqual(heading, sample[start:end])
+        self.assertEqual(
+            [], markdown_heading_spans(f"```md\n{heading}\n```\n", heading)
+        )
+        self.assertEqual(
+            1,
+            len(markdown_heading_spans(f"``` `\n{heading}\n", heading)),
+        )
+        with self.assertRaisesRegex(ValueError, "raw HTML"):
+            markdown_heading_spans(f"<div>\n{heading}\n</div>\n", heading)
+
     def test_v1_0_release_readback_remains_explicit(self) -> None:
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         normalized_notes = " ".join(release_notes.split())
@@ -1199,7 +1645,18 @@ class SuiteTests(unittest.TestCase):
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.1.0.md"
         ).read_text(encoding="utf-8")
-        section = release_notes.split("## v1.1.0", 1)[1].split("## v1.0.0", 1)[0]
+        v1_1_spans = markdown_heading_spans(
+            release_notes, "## v1.1.0 — 2026-08-28"
+        )
+        v1_0_spans = markdown_heading_spans(
+            release_notes, "## v1.0.0 — 2026-08-28"
+        )
+        self.assertEqual(1, len(v1_1_spans))
+        self.assertEqual(1, len(v1_0_spans))
+        _, v1_1_end = v1_1_spans[0]
+        v1_0_start, _ = v1_0_spans[0]
+        self.assertLess(v1_1_end, v1_0_start)
+        section = release_notes[v1_1_end:v1_0_start]
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
@@ -1209,7 +1666,6 @@ class SuiteTests(unittest.TestCase):
             for name in CANONICAL_ORDER
             if name not in {"nobrainer-dispatcher", "nobrainer-writing"}
         ]
-        self.assertIn("## v1.1.0", release_notes)
         self.assertEqual(expected_skills, released_skills)
         self.assertNotIn("release candidate", section.lower())
         self.assertIn(
@@ -1243,15 +1699,26 @@ class SuiteTests(unittest.TestCase):
         current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
             "version"
         ]
-        section = release_notes.split("## v1.1.0", 1)[0]
+        current_spans = markdown_heading_spans(
+            release_notes,
+            f"## v{current} — 2026-08-28 (release candidate)",
+        )
+        v1_1_spans = markdown_heading_spans(
+            release_notes, "## v1.1.0 — 2026-08-28"
+        )
+        self.assertEqual(1, len(current_spans))
+        self.assertEqual(1, len(v1_1_spans))
+        _, current_end = current_spans[0]
+        v1_1_start, _ = v1_1_spans[0]
+        self.assertLess(current_end, v1_1_start)
+        section = release_notes[current_end:v1_1_start]
         candidate_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
         self.assertEqual("1.2.0", current)
-        self.assertIn(f"## v{current}", release_notes)
         self.assertEqual(list(CANONICAL_ORDER), candidate_skills)
         self.assertEqual(ACTIVE, set(candidate_skills))
-        self.assertIn("release candidate", section.lower())
+        self.assertIn("release-candidate contract", section.lower())
         self.assertIn("not a publication claim", section.lower())
 
     def test_readme_branding_and_links(self) -> None:

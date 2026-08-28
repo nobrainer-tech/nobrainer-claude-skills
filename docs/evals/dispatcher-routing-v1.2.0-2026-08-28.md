@@ -11,7 +11,7 @@ status.
 ## Evidence status
 
 ```text
-SKILL_SHA256: ca04366ca56681f46b032dfbf1a94034367816d6efb8c6ff671aa47f055a12e8
+SKILL_SHA256: 5be28a908cb5e467b230205f6e3bf5f35c508b4aa0e2bcaeaae0aa398badf89b
 CURRENT_BOOTSTRAP_SHA256: 3bcc906fbe528dcec1d72c0d1dcbb7d76f644ac1951da6d05ce18b9ffb18d137
 DEVELOPMENT_PROBE: FAIL 3/4; HARD_FAILURES=NONE
 DEVELOPMENT_FINDING: missing explicit parallel-safety evidence
@@ -28,8 +28,13 @@ FINAL_HOLDOUT_BINDING: historical after semantics-preserving bootstrap compressi
 CURRENT_RELEASE_HARNESS_PROBE: FAIL 4/5; HARD_FAILURES=NONE; RELEASE_EVIDENCE=NO
 CURRENT_RELEASE_HARNESS_FINDING: candidate excerpt omitted the explicit no-blind-retry rule
 EXACT_RELEASE_HOLDOUT: PASS 5/5; HARD_FAILURES=NONE; MATERIAL_FINDINGS=NONE
-EXACT_RELEASE_BINDING: current source and 190-word bootstrap hashes verified
-INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_BY_BOUND_REVIEW_CHAIN
+EXACT_RELEASE_BINDING: historical after later trigger-scope contract edits
+TRIGGER_SCOPE_PROBE: FAIL 3/5; HARD_FAILURES=NONE; RELEASE_EVIDENCE=NO
+TRIGGER_SCOPE_FINDINGS: explicit inspection ownership and Ultra-before-Team prerequisite
+TRIGGER_FINAL_HOLDOUT: PASS 5/5; HARD_FAILURES=NONE; MATERIAL_FINDINGS=NONE
+TRIGGER_FINAL_BINDING: current Ultra, Team, Dispatcher and Sessions hashes verified
+INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_SPLIT_COMPLETE
+FINAL_REVIEW_COVERAGE: contracts/docs + frozen artifacts + deterministic tests
 DETERMINISTIC_SUITE: reproducible commands below
 CLIENT_RUNTIME: NOT_VERIFIED
 ```
@@ -54,7 +59,25 @@ FOCUSED_REREVIEW_SESSION: 01a04a01-6dd1-73c1-b155-354e027e2d1d
 FOCUSED_REREVIEW_PACKET_SHA256: 845cbe47e7cce845a7a96b26989ac20ee6c815f5a7d918217a0111c039717fc4
 FOCUSED_REREVIEW_OUTPUT_SHA256: 3e49dd16f3893026764455ec2610d4cabf5fb0e47c506543598c10a94bbca204
 FOCUSED_REREVIEW_RESULT: CLEAN
+FINAL_CONTRACTS_REVIEW_SESSION: 01a04a2d-05af-7ce2-83d0-8a4bf1f97378
+FINAL_CONTRACTS_PATCH_SHA256: fa11910f10e768e42c3d0f555bf2eadc35c817d84f30df361472818385800061
+FINAL_CONTRACTS_REVIEW_RESULT: CLEAN
+FINAL_ARTIFACTS_REVIEW_SESSION: 01a04a2d-05be-7330-8901-936d09e1bc31
+FINAL_ARTIFACTS_PATCH_SHA256: 44e4e62281844fa78d625230253786e89042334c24c65de4d230868fbce68d4a
+FINAL_ARTIFACTS_REVIEW_RESULT: CLEAN
+FINAL_PROVENANCE_REREVIEW_SESSION: 01a04a45-5e67-71d3-b762-3b9550e11628
+FINAL_PROVENANCE_PATCH_SHA256: 54a2d21a87535cd2f6e615df3912fafd1995d54f9df44c2da6ec4fd3956079ef
+FINAL_PROVENANCE_REREVIEW_RESULT: CLEAN
+FINAL_TEST_REREVIEW_SESSION: 01a04a51-b8ac-7f22-9496-188bbdc8606c
+FINAL_TEST_PATCH_SHA256: e5c973c92b08d93250f7efb020392224bc8ec2d897e8c60d051f6e5648cbdd77
+FINAL_TEST_REREVIEW_RESULT: CLEAN
 ```
+
+The test-review chain first found permissive verdict, UUID, Markdown-heading
+and self-digest checks. Each finding was fixed, covered by a negative regression
+and re-reviewed. The final test and provenance packets above are clean. A
+nested-sandbox startup failure and zero-output timeouts are retained as invalid
+attempts; they are not counted as review evidence.
 
 The development probe used a fresh `gpt-5.6-luna` runner at maximum reasoning
 and a separate fresh judge. The judge passed three cases but rejected the
@@ -160,8 +183,31 @@ or material finding:
 - [`exact release judge`](artifacts/v1.2.0-routing-exact-release-holdout-judge.md)
 - [`exact release run record`](artifacts/v1.2.0-routing-exact-release-holdout-run.md)
 
-Publication remains gated on the independent final full-diff review,
-deterministic suite, CI and archive/install readback.
+PR review then narrowed Dispatcher's discovery description. A fresh trigger
+probe found that explicit one-unit inspection ownership was ambiguous and Team
+could appear to own role design before Ultra had bounded a vague goal. The
+failed result remains development evidence:
+
+- [`trigger-scope prompt`](artifacts/v1.2.0-dispatcher-trigger-scope-prompt.md)
+- [`trigger-scope output`](artifacts/v1.2.0-dispatcher-trigger-scope-output.md)
+- [`trigger-scope judge`](artifacts/v1.2.0-dispatcher-trigger-scope-judge.md)
+- [`trigger-scope run`](artifacts/v1.2.0-dispatcher-trigger-scope-run.md)
+
+Dispatcher now distinguishes scheduler-inspection ownership from MAIN's work
+ownership, and Team requires Ultra's approved map before role design. A fresh
+scenario set and separate fresh judge then passed all five trigger and boundary
+cases with no hard failure or material finding. This packet binds the exact
+current Ultra, Team, Dispatcher and Sessions bytes:
+
+- [`trigger final prompt`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-prompt.md)
+- [`trigger final output`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-output.md)
+- [`trigger final judge rubric`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-judge-rubric.md)
+- [`trigger final judge`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-judge.md)
+- [`trigger final run`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-run.md)
+
+The independent final diff review is clean across the complete split surface.
+Publication remains gated on the deterministic suite, CI and archive/install
+readback.
 
 The v1.1.0 baseline commit is
 `d6931a1006bf0180955d8437fd93174b6a512428`. It had no Dispatcher, so the
