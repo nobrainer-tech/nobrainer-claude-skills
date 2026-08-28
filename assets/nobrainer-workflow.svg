@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">NoBrainer Ultra delivery workflow</title>
+  <desc id="desc">One owner request passes through a single clarification gate, a skill-routed execution map, autonomous specialist work, build, review, verification, delivery and learning. Failed review returns to build. Corrections update the canonical plan and durable knowledge.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071317"/>
+      <stop offset="1" stop-color="#0b1c21"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#24e6dc"/>
+      <stop offset="1" stop-color="#68a8ff"/>
+    </linearGradient>
+    <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity=".28"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1l9 5-9 5z" fill="#6c8991"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1l9 5-9 5z" fill="#24e6dc"/>
+    </marker>
+    <style>
+      text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+      .eyebrow{font-size:16px;font-weight:700;letter-spacing:3px;fill:#65d9d3}
+      .headline{font-size:40px;font-weight:720;letter-spacing:-1px;fill:#f2fbfc}
+      .subtitle{font-size:18px;fill:#91a9af}
+      .node{fill:#10252b;stroke:#24464e;stroke-width:2}
+      .node-accent{fill:#10292e;stroke:#24e6dc;stroke-width:2.4}
+      .node-title{font-size:18px;font-weight:750;letter-spacing:1px;fill:#f0fbfc}
+      .node-copy{font-size:15px;fill:#9ab2b8}
+      .tiny{font-size:13px;font-weight:650;letter-spacing:.6px;fill:#75cfc9}
+      .flow{fill:none;stroke:#6c8991;stroke-width:3;marker-end:url(#arrow)}
+      .flow-accent{fill:none;stroke:#24e6dc;stroke-width:3.2;marker-end:url(#arrow-accent)}
+      .flow-dashed{fill:none;stroke:#d69c57;stroke-width:2.5;stroke-dasharray:8 8;marker-end:url(#arrow)}
+      .chip{fill:#0c1c21;stroke:#31525a;stroke-width:1.5}
+      .chip-text{font-size:14px;font-weight:700;fill:#bed0d4}
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" rx="32" fill="url(#background)"/>
+  <circle cx="1390" cy="80" r="230" fill="#24e6dc" opacity=".035"/>
+  <circle cx="220" cy="860" r="300" fill="#68a8ff" opacity=".025"/>
+
+  <text x="76" y="70" class="eyebrow">NOBRAINER ULTRA</text>
+  <text x="76" y="120" class="headline">One request. One map. Verified delivery.</text>
+  <text x="76" y="154" class="subtitle">Clarify once, route every stage, execute autonomously, loop on evidence.</text>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="76" y="220" width="205" height="116" rx="20" class="node"/>
+    <text x="100" y="258" class="tiny">01 · INTENT</text>
+    <text x="100" y="289" class="node-title">OWNER REQUEST</text>
+    <text x="100" y="316" class="node-copy">Outcome + constraints</text>
+
+    <rect x="335" y="220" width="205" height="116" rx="20" class="node"/>
+    <text x="359" y="258" class="tiny">02 · CLARIFY ONCE</text>
+    <text x="359" y="289" class="node-title">BUDDY</text>
+    <text x="359" y="316" class="node-copy">One focused round</text>
+
+    <rect x="594" y="220" width="236" height="116" rx="20" class="node-accent"/>
+    <text x="618" y="258" class="tiny">03 · PLAN THE PATH</text>
+    <text x="618" y="289" class="node-title">EXECUTION MAP</text>
+    <text x="618" y="316" class="node-copy">Skill-routed TODO + proof</text>
+
+    <rect x="884" y="220" width="205" height="116" rx="20" class="node"/>
+    <text x="908" y="258" class="tiny">04 · START GATE</text>
+    <text x="908" y="289" class="node-title">READY</text>
+    <text x="908" y="316" class="node-copy">Scope · proof · rollback</text>
+  </g>
+
+  <path d="M281 278H325" class="flow"/>
+  <path d="M540 278H584" class="flow"/>
+  <path d="M830 278H874" class="flow"/>
+  <path d="M1089 278H1148V382" class="flow-accent"/>
+
+  <g>
+    <rect x="1160" y="204" width="354" height="148" rx="22" fill="#0c1c21" stroke="#24464e" stroke-width="2"/>
+    <text x="1186" y="238" class="tiny">SPECIALISTS — ONLY WHEN THE MAP NEEDS THEM</text>
+    <rect x="1186" y="260" width="137" height="34" rx="17" class="chip"/>
+    <text x="1207" y="282" class="chip-text">RESEARCH</text>
+    <rect x="1335" y="260" width="151" height="34" rx="17" class="chip"/>
+    <text x="1371" y="282" class="chip-text">DECIDE</text>
+    <rect x="1186" y="304" width="137" height="34" rx="17" class="chip"/>
+    <text x="1228" y="326" class="chip-text">SDD</text>
+    <rect x="1335" y="304" width="151" height="34" rx="17" class="chip"/>
+    <text x="1354" y="326" class="chip-text">TEAM + SESSIONS</text>
+  </g>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="340" y="430" width="245" height="124" rx="22" class="node-accent"/>
+    <text x="366" y="468" class="tiny">05 · IMPLEMENT</text>
+    <text x="366" y="501" class="node-title">BUILD</text>
+    <text x="366" y="529" class="node-copy">KISS · DRY · SOLID · YAGNI</text>
+
+    <rect x="690" y="430" width="245" height="124" rx="22" class="node"/>
+    <text x="716" y="468" class="tiny">06 · INDEPENDENT GATE</text>
+    <text x="716" y="501" class="node-title">REVIEW</text>
+    <text x="716" y="529" class="node-copy">Acceptance + adversarial check</text>
+
+    <rect x="1040" y="430" width="245" height="124" rx="22" class="node"/>
+    <text x="1066" y="468" class="tiny">07 · PROVE</text>
+    <text x="1066" y="501" class="node-title">VERIFY</text>
+    <text x="1066" y="529" class="node-copy">Target workflow evidence</text>
+
+    <rect x="1338" y="430" width="186" height="124" rx="22" class="node-accent"/>
+    <text x="1364" y="468" class="tiny">08 · RESULT</text>
+    <text x="1364" y="501" class="node-title">DELIVER</text>
+    <text x="1364" y="529" class="node-copy">Outcome + rollback</text>
+  </g>
+
+  <path d="M1148 352V392H462V420" class="flow-accent"/>
+  <text x="870" y="384" class="tiny">AUTOPILOT · RUN THE APPROVED MAP</text>
+  <path d="M585 492H680" class="flow-accent"/>
+  <path d="M935 492H1030" class="flow-accent"/>
+  <path d="M1285 492H1328" class="flow-accent"/>
+
+  <g id="review-fix-loop">
+    <path d="M812 554V620H462V564" class="flow-dashed"/>
+    <text x="598" y="649" class="tiny" fill="#d69c57">FINDING / FAILED EVIDENCE → FIX → FRESH REVIEW</text>
+  </g>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="985" y="710" width="300" height="112" rx="22" class="node"/>
+    <text x="1011" y="748" class="tiny">09 · COMPOUND</text>
+    <text x="1011" y="781" class="node-title">LEARN</text>
+    <text x="1011" y="808" class="node-copy">Wiki · lessons · measured improvement</text>
+
+    <rect x="76" y="710" width="610" height="112" rx="22" fill="#151e21" stroke="#8a653d" stroke-width="2"/>
+    <text x="102" y="748" class="tiny" fill="#e3ae6c">CORRECTION HOOKS</text>
+    <text x="102" y="780" class="node-copy">Decision changed · agent corrected · review failed · defect repeated</text>
+    <text x="102" y="806" class="node-copy">Update one source of truth, invalidate affected work, resume at the safe stage.</text>
+  </g>
+
+  <path d="M1431 554V672H1135V700" class="flow-accent"/>
+  <path d="M686 766H975" class="flow-dashed"/>
+  <path d="M380 710V676H712V346" class="flow-dashed"/>
+
+  <g>
+    <rect x="76" y="374" width="190" height="72" rx="16" fill="#151e21" stroke="#8a653d" stroke-width="1.5"/>
+    <text x="98" y="403" class="tiny" fill="#e3ae6c">OWNER GATE</text>
+    <text x="98" y="428" class="node-copy">Only at real risk/authority</text>
+    <path d="M266 410H304V336" class="flow-dashed"/>
+  </g>
+
+  <text x="76" y="870" class="subtitle">Default: one MAIN session. Add 2–4 bounded workers only when parallelism, isolation or independent evidence earns its cost.</text>
+</svg>

@@ -1,17 +1,21 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
 # NoBrainer workflow bootstrap
 
-For a non-trivial request, load `nobrainer-ultra` before planning or writing.
-Let it choose the smallest safe workflow and load another NoBrainer skill only
-when its trigger applies.
+For non-trivial work, load `nobrainer-ultra` before planning or writing. It asks
+one requirements round, creates the skill-routed TODO and executes routine
+approved work autonomously.
 
-A simple one-step task stays direct: inspect, change, verify, report. Do not add
-a spec, wiki, extra session, or improvement loop without a concrete benefit.
+A simple one-step task stays direct: inspect, change, verify, report. Add a spec, wiki
+or session only for concrete value. Multiple sessions require independent work,
+isolation, handoff or valuable independent evidence.
 
-Autonomy never expands permission. Keep merge, deploy, publishing, spending,
-credentials, destructive actions, production mutation, and safety-control
-changes behind the owner gate.
+Autonomy never expands permission. Consequential actions remain behind the
+owner gate.
 
-If this runtime cannot load a skill or provide visible session transport, keep
-work in the current MAIN session and report that limitation. Never invent
-delivery, evidence, session identity, or success.
+On a changed decision, agent correction or failed review, invoke Ultra's hook:
+repair the result, invalidate affected TODO/evidence, then apply
+`LEARNING_WRITE_POLICY`. `AUTO_SCOPED` permits only sourced, project-local,
+non-secret lessons; `ASK` prepares an exact diff; `OFF` persists nothing.
+
+If skill loading or session transport is unavailable, work in MAIN and report
+it. Never invent delivery, identity, evidence or success.

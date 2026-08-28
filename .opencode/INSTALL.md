@@ -26,9 +26,6 @@ shared `adapters/bootstrap.md` context to the first user message once. It does
 not copy skill bodies into the prompt, add alternate skill trees, or inject on
 every step when the marker is already present.
 
-Install official Superpowers separately when you want its implementation
-methods. NoBrainer Tech Skills routes to it but does not vendor it.
-
 For a local checkout, either use `scripts/install_skills.py --client opencode`
 or configure the checkout's `skills/` directory as an OpenCode skills path.
 See [the full installation guide](../docs/INSTALL.md).

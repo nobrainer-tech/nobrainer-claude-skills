@@ -1,15 +1,15 @@
 ---
 name: nobrainer-review
-description: "Use when the owner says nb-review; explicitly requests a NoBrainer evidence-gated CLOSEOUT, adversarial BUG_HUNT or RELEASE_GATE; or needs final findings filtered to verified actionable defects. Do not use for ordinary implementation review handled by the current client or Superpowers."
+description: "Use when the owner says nb-review, deep-audit, deep-code-review, or deep-autoreview; explicitly requests an evidence-gated CLOSEOUT, adversarial BUG_HUNT or RELEASE_GATE; or needs final findings filtered to verified actionable defects. Use nobrainer-build for ordinary implementation and correction work."
 ---
 
 # NoBrainer Review
 
 Review the exact requested change, prove real defects against current code, and
 filter out speculative AI noise. This skill owns the final NoBrainer evidence
-gate. Ordinary implementation-time requesting and receiving review belongs to
-the current client's maintained capability or official Superpowers. This skill
-does not silently implement fixes or expand the product scope.
+gate. Ordinary implementation and correction work belongs to
+`nobrainer-build` and the project's maintained engineering capabilities. This
+skill does not silently implement fixes or expand the product scope.
 
 ## Choose one mode
 
@@ -114,7 +114,7 @@ report with low-value observations to look thorough.
 If the owner requested review only, stop after findings. If fixes are also in
 scope:
 
-1. implement the smallest accepted fix;
+1. route the smallest accepted fix through `nobrainer-build`;
 2. run the focused regression plus affected baseline tests;
 3. reread the final diff and recheck the original failure path;
 4. rerun the relevant review pass once.

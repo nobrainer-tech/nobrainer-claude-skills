@@ -7,8 +7,8 @@ description: "Use when the owner says nb-sdd or when implementation needs a dura
 
 Use spec-driven development to freeze what must be true before deciding how to
 build it. This is not subagent-driven development. Session topology is handled
-by `nobrainer-sessions`; implementation technique belongs to Superpowers or the
-project's engineering workflow.
+by `nobrainer-sessions`; implementation belongs to `nobrainer-build` and the
+project's maintained engineering workflow.
 
 Read [references/spec-template.md](references/spec-template.md) before writing a
 new specification.

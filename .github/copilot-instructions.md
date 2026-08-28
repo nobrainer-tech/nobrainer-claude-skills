@@ -1,6 +1,6 @@
 # NoBrainer Tech Skills repository instructions for Copilot
 
-The nine canonical Agent Skills are under `skills/`; retired predecessors exist
+The thirteen canonical Agent Skills are under `skills/`; retired predecessors exist
 only in Git history. Read the relevant `skills/<name>/SKILL.md` before changing
 a skill.
 
@@ -15,5 +15,5 @@ private paths, private client data, hardcoded model vendors, or unsafe shell
 placeholders. Run `python3 scripts/validate_skills.py --suite` and the relevant
 tests before reporting success.
 
-Superpowers is an external dependency for implementation methods. Do not copy or
-fork its skills into this repository.
+Use `nobrainer-build` for implementation, `nobrainer-security` for material
+trust boundaries and `nobrainer-review` for the final evidence gate.

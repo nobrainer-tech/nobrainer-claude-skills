@@ -1,6 +1,6 @@
 ---
 name: nobrainer-autoimprove
-description: "Use when the owner says nb-autoimprove, autoresearch, improve this skill or prompt, or asks to make an artifact measurably better through a bounded baseline-variant-evaluation loop rather than a single subjective rewrite."
+description: "Use when the owner says nb-autoimprove, deep-autoresearch, code-autoresearch, nobrainer-capture-lesson, or nobrainer-continuous-improvement; asks to improve a skill or prompt; or wants a measurable bounded baseline-variant-evaluation loop instead of one subjective rewrite."
 ---
 
 # NoBrainer Autoimprove
@@ -27,10 +27,26 @@ system. Classify it first:
 
 - a task-local clarification changes only the current task;
 - an explicit durable preference, decision or verified fact may be captured
-  through `nobrainer-wiki` mode `ADD` when its scope and confidentiality permit
-  it;
+  through `nobrainer-wiki` mode `ADD` only when its scope, confidentiality and
+  configured `LEARNING_WRITE_POLICY` permit it;
 - a repeatable behavior gap becomes a regression scenario for this skill;
 - a deterministic defect is fixed directly and covered by a test.
+
+When `AGENT_ERROR_CORRECTED` is raised by `nobrainer-ultra`, preserve the exact
+failing scenario and error fingerprint before editing. Correct the active task
+first. Then classify the smallest reusable prevention candidate and honor the
+project's configured policy before any durable learning write:
+
+- `AUTO_SCOPED`: promote at most one minimal, sourced rule to its one canonical
+  governed project-local store;
+- `ASK`: prepare one exact single-store diff and request the persistence
+  decision without applying it;
+- `OFF`: keep the candidate task-local and do not create a durable diff or
+  modify `AGENTS.md`, `tasks/lessons.md` or a wiki.
+
+Use this experiment when behavior needs generalization beyond the deterministic
+active-task correction. The experiment's own target and write scope still need
+the normal authorization; learning policy does not grant an unrelated edit.
 
 For a behavior change, preserve the failing example, define the expected
 response, and run the bounded experiment below. One anecdote does not justify a
@@ -59,6 +75,12 @@ OWNER_GATES: <actions not authorized by the loop>
 Preserve the original target and run in an isolated copy, branch or worktree.
 One coordinator owns the champion and log; generators must not race on the same
 file.
+
+For production code, freeze the harness and metric before the first candidate.
+Prefer one behavioral change per round, preserve a control/baseline path, and
+record the exact commit, test data and environment so a gain can be reproduced.
+The loop may optimize code only inside an approved branch and write scope; it
+does not deploy, tune on production feedback silently or weaken protected tests.
 
 ## Build a trustworthy eval
 

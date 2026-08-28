@@ -22,7 +22,7 @@ Security reports may cover:
 - cross-session identity, checkout, lease or evidence confusion;
 - manifest or adapter behavior that loads unintended content.
 
-Third-party client, model, marketplace and Superpowers vulnerabilities should be
+Third-party client, model, marketplace and external-skill vulnerabilities should be
 reported to their maintainers unless this repository's integration causes the
 issue.
 

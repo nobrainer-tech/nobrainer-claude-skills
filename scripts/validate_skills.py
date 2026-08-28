@@ -17,6 +17,10 @@ LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|#|mailto:)([^)]+)\)")
 
 SUITE = {
     "nobrainer-ultra": "nb-ultra",
+    "nobrainer-team": "nb-team",
+    "nobrainer-research": "nb-research",
+    "nobrainer-build": "nb-build",
+    "nobrainer-security": "nb-security",
     "nobrainer-sessions": "nb-sessions",
     "nobrainer-spec-driven-development": "nb-sdd",
     "nobrainer-wiki": "nb-wiki",
@@ -32,25 +36,36 @@ LEGACY = {
     "agent-browser",
     "agents-restraint",
     "codex-in-claude-code",
+    "code-autoresearch",
     "deep-audit",
     "deep-autoreview",
+    "deep-autoresearch",
     "deep-bugs-finder",
+    "deep-code-review",
     "deep-decide",
     "deep-rca",
+    "engineering-standards",
     "karpathy-auto-improver",
     "karpathy-llm-wiki",
     "llm-wiki",
     "nb-add",
+    "nb-flow",
     "nb-get",
+    "nb-multi",
     "nb-tidy",
+    "nb-workflow",
     "nobrainer-autopilot",
+    "nobrainer-capture-lesson",
     "nobrainer-continuous-improvement",
     "nobrainer-memory",
     "nobrainer-memory-memsearch",
-    "nobrainer-fast-audit",
     "nobrainer-npm-secure",
     "nobrainer-reddit",
     "nobrainer-starter",
+    "nobrainer-skill-browser",
+    "nobrainer-simplifier",
+    "security-review",
+    "session-handoff",
     "nobrainer-team-builder",
     "nobrainer-ultracode-workflow",
     "nobrainer-wiki-add",
@@ -66,9 +81,16 @@ ACTIVE = set(SUITE)
 
 PUBLIC_FORBIDDEN = (
     "/Users/",
+    "/opt/homebrew/",
+    "/private/tmp/",
     "nobrainer-tech@",
     "--dangerously-skip-permissions",
     "CLAUDE-CODE-FABLE",
+)
+EXTERNAL_WORKFLOW_BRANDS = (
+    "av" + "thar",
+    "ti" + "bo",
+    "super" + "powers",
 )
 PORTABLE_FRONTMATTER = {"name", "description"}
 PUBLIC_TEXT_SUFFIXES = {
@@ -288,6 +310,11 @@ def validate(suite_only: bool) -> list[str]:
             if forbidden in scanned_text:
                 errors.append(
                     f"{path.relative_to(ROOT)}: forbidden public value {forbidden!r}"
+                )
+        for brand in EXTERNAL_WORKFLOW_BRANDS:
+            if brand in text.lower():
+                errors.append(
+                    f"{path.relative_to(ROOT)}: external workflow branding {brand!r}"
                 )
         if (
             path.suffix.lower() == ".md"
