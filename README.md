@@ -175,12 +175,14 @@ The commands install the exact Git ref you checked out. Before applying writes,
 confirm that checkout contains `skills/nobrainer-ultra/SKILL.md` and
 `scripts/validate_skills.py`.
 
-After publication, clone the versioned `v1.0.0` source tag, validate it and
-dry-run the portable installer:
+For a reproducible `v1.0.0` install, check out the full reviewed release commit,
+validate it and dry-run the portable installer:
 
 ```bash
-git clone --branch v1.0.0 --depth 1 https://github.com/nobrainer-tech/nobrainer-tech-skills.git
+git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
+git checkout --detach bf60c4c3a57440c6b87cd1b326cd41237b7225da
+test "$(git rev-parse HEAD)" = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
 python3 scripts/install_skills.py --client codex --apply

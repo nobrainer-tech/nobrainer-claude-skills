@@ -20,19 +20,21 @@ for Claude Code, Codex, Cursor, OpenCode, Gemini CLI, Kimi Code, Pi and generic
 Agent Plugins consumers. Official Superpowers remains an external dependency;
 its skills are not copied into this package.
 
-Distribution target: a tagged GitHub source release. At the release-preparation
-stage this file does not claim publication; that is proven only after GitHub
-release and tag-to-commit readback. This is not a claim of publication in npm or
-any client marketplace, and adapter checks are not clean-session runtime proof.
-Current evidence and limits are recorded in
+This version is published as a tagged GitHub source release. Exact release,
+tag-to-commit, CI and downloaded-archive readback are recorded in
+[the v1.0.0 evidence](docs/releases/v1.0.0.md). This is not a claim of publication
+in npm or any client marketplace, and adapter checks are not clean-session
+runtime proof. Current evidence and limits are recorded in
 [the compatibility matrix](docs/COMPATIBILITY.md) and
 [the testing guide](docs/TESTING.md).
 
-After publication, install from the tag:
+Install the exact reviewed commit behind `v1.0.0`:
 
 ```bash
-git clone --branch v1.0.0 --depth 1 https://github.com/nobrainer-tech/nobrainer-tech-skills.git
+git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
+git checkout --detach bf60c4c3a57440c6b87cd1b326cd41237b7225da
+test "$(git rev-parse HEAD)" = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
 ```
