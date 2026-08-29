@@ -12,7 +12,7 @@ status.
 
 ```text
 SKILL_SHA256: 5be28a908cb5e467b230205f6e3bf5f35c508b4aa0e2bcaeaae0aa398badf89b
-CURRENT_BOOTSTRAP_SHA256: 3bcc906fbe528dcec1d72c0d1dcbb7d76f644ac1951da6d05ce18b9ffb18d137
+HISTORICAL_CURRENT_BOOTSTRAP_SHA256: 3bcc906fbe528dcec1d72c0d1dcbb7d76f644ac1951da6d05ce18b9ffb18d137
 DEVELOPMENT_PROBE: FAIL 3/4; HARD_FAILURES=NONE
 DEVELOPMENT_FINDING: missing explicit parallel-safety evidence
 FIX: required PARALLEL_SAFETY and an explicit NOT_NEEDED result
@@ -32,7 +32,9 @@ EXACT_RELEASE_BINDING: historical after later trigger-scope contract edits
 TRIGGER_SCOPE_PROBE: FAIL 3/5; HARD_FAILURES=NONE; RELEASE_EVIDENCE=NO
 TRIGGER_SCOPE_FINDINGS: explicit inspection ownership and Ultra-before-Team prerequisite
 TRIGGER_FINAL_HOLDOUT: PASS 5/5; HARD_FAILURES=NONE; MATERIAL_FINDINGS=NONE
-TRIGGER_FINAL_BINDING: current Ultra, Team, Dispatcher and Sessions hashes verified
+TRIGGER_FINAL_BINDING: historical Ultra, Team, Dispatcher and Sessions hashes verified at v1.2.0
+POST_RELEASE_CONTRACT_EDITS: Ultra GOAL_LOOP, Review deep-audit gates and Autoimprove promotion outcome
+CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md
 INDEPENDENT_FINAL_DIFF_REVIEW: CLEAN_SPLIT_COMPLETE
 FINAL_REVIEW_COVERAGE: contracts/docs + frozen artifacts + deterministic tests
 DETERMINISTIC_SUITE: reproducible commands below
@@ -206,6 +208,10 @@ current Ultra, Team, Dispatcher and Sessions bytes:
 - [`trigger final run`](artifacts/v1.2.0-dispatcher-trigger-final-holdout-run.md)
 
 The independent final diff review is clean across the complete split surface.
+The later Ultra/Review/Autoimprove contract changes intentionally invalidate
+the old "current" source binding; their new current hashes and bounded
+portfolio audit are recorded in
+[`portfolio autoimprove evaluation`](portfolio-autoimprove-2026-08-29.md).
 Publication remains gated on the deterministic suite, CI and archive/install
 readback.
 

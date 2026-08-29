@@ -115,6 +115,14 @@ A generic numbered plan is not equivalent. Any worker requires an earlier
 multiple delegated units, dependency batches or retries also requires a
 `nobrainer-dispatcher` row between role design and transport.
 
+For every non-trivial run, show a compact `GOAL_LOOP` beside the map:
+`GOAL_ID`, `GOAL_STATUS`, `CURRENT_STAGE`, `TODO_PROGRESS`, `LAST_EVIDENCE` and
+one exact `NEXT_ACTION`. The map is the sole mutable TODO owner; the goal block
+is only its progress pointer. Update the row status and goal block together
+after the requirements gate, before and after each auditable stage/report,
+after corrections or review, and at closure. A worker report or exit code never
+advances the TODO or goal without current evidence and receive-audit.
+
 Keep a coherent task in `<repo> | MAIN`. Use `nobrainer-sessions` only when
 visible handoff, isolated checkout, resume, independent parallel work or a warm
 specialist justifies coordination.

@@ -46,6 +46,8 @@ Popularity, file size and prior existence are not admission criteria.
 Do not create separate permanent skills for:
 
 - planning, autopilot, setup or correction capture: Ultra owns the lifecycle;
+- visible goal/TODO progress: Ultra owns the map and its single progress pointer;
+  do not add a separate goal, todo or progress skill;
 - KISS, DRY, SOLID, YAGNI, simplification or test safety: Build owns them;
 - brand-specific voice facts belong in a project guide or wiki; Writing owns the
   portable prose method and can consume an authentic supplied voice sample;

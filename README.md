@@ -45,6 +45,9 @@ DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT
 - `BUDDY` is the first and only ordinary clarification stage.
 - `EXECUTION_MAP` is the complete TODO: every stage has one owning skill or
   capability, dependencies, write scope, evidence, session and owner gate.
+- `GOAL_LOOP` makes progress visible: the map row and one compact goal snapshot
+  are updated together before/after each auditable transition; it is not a
+  second mutable state store.
 - `AUTOPILOT` continues through routine approved work without repeated check-ins.
 - `nobrainer-team` selects the minimum useful capabilities;
   `nobrainer-dispatcher` schedules only approved ready work in bounded batches;

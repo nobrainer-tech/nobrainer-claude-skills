@@ -38,7 +38,9 @@ placeholders with verified paths/commands and remove duplicate lines:
 - Route non-trivial work through `nobrainer-ultra`; keep one-step tasks direct.
 - Read the actual checkout, instructions, relevant wiki knowledge and tests first.
 - Use one short requirements gate, then maintain a full skill-routed execution
-  map and run the approved scope autonomously.
+  map and run the approved scope autonomously. Expose one `GOAL_LOOP` snapshot
+  beside the map and update both after each setup or readback transition; do not
+  create a second mutable TODO ledger.
 - Prefer the smallest complete change. Apply KISS and YAGNI; deduplicate owned
   knowledge, not incidental similarity; preserve cohesive dependency boundaries.
 - Use `nobrainer-team`, `nobrainer-dispatcher` and `nobrainer-sessions` only for
