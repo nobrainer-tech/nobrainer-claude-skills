@@ -62,6 +62,7 @@ IDENTITY:
 - THREAD_ID: <worker ID>
 - HOST_ID: <worker host or verified NONE>
 - TASK_ID: <ID>
+- METHOD: <literal owning skill or project capability>
 - WRITE_SCOPE: <scope>
 
 CANONICAL_INPUTS:
@@ -81,12 +82,16 @@ EXPECTED_STATE:
 START_GATE:
 1. Read repository instructions and canonical inputs.
 2. Verify identity, CHECKOUT, task, scope, current HEAD and expected state.
-3. Verify frozen inputs, writer isolation, LEASE and relevant preflight check.
-4. Record a start manifest before the first write.
-5. Stop on any mismatch; do not repair canonical state yourself.
+3. Verify frozen inputs, writer isolation and relevant preflight check.
+4. Immediately before the first write, acquire LEASE according to the project
+   rule and record its owner, time and evidence. If it is held, conflicting,
+   unsupported where required, or changed after preflight, stop without writing.
+5. Record a start manifest after the lease check and before the first write.
+6. Stop on any mismatch; do not repair canonical state yourself.
 
 WORK_UNIT:
 - <one bounded action>
+- METHOD: <literal owning skill or project capability>
 - ACCEPTANCE: <measurable condition>
 - REQUIRED_EVIDENCE: <diff, tests, verifier, build/runtime, review>
 
@@ -116,6 +121,7 @@ HOST_ID: <worker host or verified NONE>
 REPOSITORY: <identifier>
 CHECKOUT: <checkout/worktree>
 TASK_ID: <ID>
+METHOD: <literal owning skill or project capability>
 BASE_COMMIT: <commit or NONE>
 HEAD_COMMIT: <commit or NONE>
 WRITE_SCOPE: <scope>

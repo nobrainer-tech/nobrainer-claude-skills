@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -32,16 +33,37 @@ def sha256(relative: str) -> str:
     return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
 
 
+def git_sha256(commit: str, relative: str) -> str:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{relative}"],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    )
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
 class PortfolioAuditTests(unittest.TestCase):
-    def test_portfolio_audit_binds_current_contract(self) -> None:
+    def test_portfolio_audit_binds_source_contract(self) -> None:
         report = REPORT.read_text(encoding="utf-8")
         self.assertNotIn("<filled", report)
         self.assertIn(
             "CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md",
             report,
         )
-        self.assertIsNotNone(
-            re.search(r"^CURRENT_COMMIT: [0-9a-f]{40}$", report, re.MULTILINE)
+        source_commit = re.search(
+            r"^SOURCE_COMMIT: ([0-9a-f]{40})$", report, re.MULTILINE
+        )
+        self.assertIsNotNone(source_commit)
+        source_ref = source_commit.group(1)
+        has_git_repository = (
+            subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                cwd=ROOT,
+                capture_output=True,
+                check=False,
+            ).returncode
+            == 0
         )
 
         rows = {}
@@ -69,6 +91,10 @@ class PortfolioAuditTests(unittest.TestCase):
             )
             self.assertIsNotNone(declared)
             self.assertEqual(sha256(relative), declared.group(1))
+            if has_git_repository:
+                self.assertEqual(
+                    git_sha256(source_ref, relative), declared.group(1)
+                )
 
         for pattern in (
             r"^DETERMINISTIC_SUITE: .*90/90 PASS$",

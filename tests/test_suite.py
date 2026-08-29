@@ -1413,6 +1413,15 @@ class SuiteTests(unittest.TestCase):
             "RECEIVE_AUDIT",
         ):
             self.assertIn(term, text)
+        protocol = (
+            SKILLS / "nobrainer-sessions" / "references" / "protocol.md"
+        ).read_text(encoding="utf-8")
+        for term in ("METHOD:", "acquire LEASE", "before the first write"):
+            self.assertIn(term, protocol)
+        team_plan = (
+            SKILLS / "nobrainer-team" / "references" / "team-plan.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("SESSION_MODE: MAIN | MULTI_SESSION", team_plan)
 
     def test_sdd_is_spec_driven_not_subagent_driven(self) -> None:
         text = (SKILLS / "nobrainer-spec-driven-development" / "SKILL.md").read_text(
@@ -1481,6 +1490,18 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("`AUTO_SCOPED` may persist", readme)
         self.assertIn("`ASK` prepares one exact diff", readme)
         self.assertIn("`OFF` keeps it\n  task-local without a durable diff", readme)
+        for term in (
+            "Minimum sufficient change",
+            "NON_GOALS",
+            "UNTOUCHED",
+            "MINIMUM_SOLUTION",
+            "TEST_DECISION",
+            "least complex capable method",
+        ):
+            self.assertIn(term, agents)
+        self.assertEqual(
+            (ROOT / "AGENTS.md").read_bytes(), (ROOT / "CLAUDE.md").read_bytes()
+        )
 
     def test_legacy_skills_are_not_discoverable(self) -> None:
         for name in LEGACY:
@@ -2103,7 +2124,33 @@ class SuiteTests(unittest.TestCase):
             "persist-credentials: false",
         ):
             self.assertIn(term, workflow)
-        self.assertNotRegex(workflow, r"uses:\s+[^\s]+@v[0-9]+(?:\s|$)")
+        uses_lines = [
+            line for line in workflow.splitlines() if line.lstrip().startswith("uses:")
+        ]
+        self.assertGreater(len(uses_lines), 0)
+        for line in uses_lines:
+            self.assertRegex(
+                line,
+                r"^\s*uses:\s+[^\s@]+@[0-9a-f]{40}(?:\s+#.*)?$",
+                line,
+            )
+        self.assertIn("echo \"$RUNNER_TEMP\" >> \"$GITHUB_PATH\"", workflow)
+        self.assertIn("bash -n hooks/session-start\n          bash -n hooks/run-hook.cmd", workflow)
+        self.assertIn("cmp -s AGENTS.md CLAUDE.md", workflow)
+
+    def test_readme_has_github_rendered_workflow_chart(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("```mermaid", readme)
+        self.assertIn("flowchart TD", readme)
+        for term in (
+            "BUDDY: one focused clarification",
+            "EXECUTION_MAP + GOAL_LOOP",
+            "READY_GATE passes?",
+            "BUILD correction + invalidate proof",
+            "RECEIVE_AUDIT",
+            "LEARN + CLOSE",
+        ):
+            self.assertIn(term, readme)
 
     def test_manifest_versions_are_consistent(self) -> None:
         versions = {

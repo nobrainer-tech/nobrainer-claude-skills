@@ -153,15 +153,17 @@ Candidate hard gates:
   diff and secret checks pass before promotion.
 
 The three promoted candidates are intentionally small and reversible. Their
-baseline hashes above are retained for rollback. Current source hashes and the
-exact local command results are filled in the final verification section below;
-this record must not be read as clean-client, runtime or production proof.
+baseline hashes above are retained for rollback. The source hashes and exact
+local command results below bind this record to `SOURCE_COMMIT`; this record
+must not be read as clean-client, runtime or production proof.
+`SOURCE_COMMIT` anchors the source bytes evaluated by the hashes below; it need
+not be the commit that contains this report.
 
 ## Final verification record
 
 ```text
 BASELINE_COMMIT: 44f6e27f0492d7a3cc03cfe812bbe30cdd54bd25
-CURRENT_COMMIT: 54abac7b64463083da1d90cb071004005069001b
+SOURCE_COMMIT: 54abac7b64463083da1d90cb071004005069001b
 CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md
 ULTRA_SHA256: 65f54bcb254ade94e759ed12f069602d62ecc03b4540e7d7d9d5a06152e7a909
 REVIEW_SHA256: ed7d3016fc6b988a2d8af77db285e6cfca9b756d46ba521c2714ca7d4bbc7b3e

@@ -16,9 +16,10 @@ export default function NoBrainerTechSkillsPiExtension(pi) {
   pi.on("resources_discover", async () => ({ skillPaths: [skillsDirectory] }));
   pi.on("session_start", async () => { injectBootstrap = true; });
   pi.on("session_compact", async () => { injectBootstrap = true; });
-  pi.on("agent_end", async () => { injectBootstrap = false; });
 
   pi.on("context", async (event) => {
+    // Context changes are ephemeral, so keep the gate enabled for each prompt.
+    // The marker prevents duplicate injection within one prompt or compaction.
     if (!injectBootstrap || event.messages.some(messageContainsBootstrap)) return;
     const bootstrap = getBootstrap();
     const message = {
