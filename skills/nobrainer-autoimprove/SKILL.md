@@ -82,6 +82,10 @@ record the exact commit, test data and environment so a gain can be reproduced.
 The loop may optimize code only inside an approved branch and write scope; it
 does not deploy, tune on production feedback silently or weaken protected tests.
 
+When this experiment runs as one stage of `nobrainer-ultra`, update the owning
+execution-map row and `GOAL_LOOP` after each auditable round and at the final
+holdout. Do not create a second TODO or status owner inside the experiment log.
+
 ## Build a trustworthy eval
 
 Use deterministic checks wherever possible. For subjective quality define a
@@ -195,6 +199,16 @@ STOP_CHECK: <continue or exact condition>
 
 Return the winning artifact, baseline-to-final development and holdout scores,
 hard-gate/test output, full compact round log, protected regressions, budget
-used, stop reason, diff, rollback and remaining uncertainty. Do not claim
-"improved" without paired scores on the same frozen eval and successful holdout
-promotion.
+used, stop reason, diff, rollback and remaining uncertainty. Also return:
+
+```text
+PROMOTION: PROMOTED | NO_CHANGE | REVERTED | BLOCKED
+CHAMPION: <version/ref or BASELINE>
+HOLDOUT_RESULT: PASS | FAIL | NOT_RUN
+```
+
+Use `NO_CHANGE` when no candidate beats the baseline or the loop is correctly
+not started because measurement/isolation is missing. Use `REVERTED` when a
+candidate fails the final holdout, and `BLOCKED` when a required gate or owner
+decision prevents a valid experiment. Do not claim `PROMOTED` without paired
+scores on the same frozen eval and a successful holdout.

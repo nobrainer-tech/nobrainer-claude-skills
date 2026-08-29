@@ -23,6 +23,36 @@ Run this state machine on every non-trivial invocation:
 
 `DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`
 
+## Goal loop and visible TODO
+
+For every non-trivial run, expose one `GOAL_LOOP` block beside the complete
+`EXECUTION_MAP`. Use the host's native goal/task ID when available; otherwise
+use the project's canonical tracker or the current working response. The map is
+the sole mutable TODO owner. `GOAL_LOOP` is its compact progress pointer, not a
+second ledger.
+
+```text
+GOAL_ID: <host goal/task ID, tracker reference or NONE>
+GOAL_STATUS: ACTIVE | READY | RUNNING | BLOCKED | OWNER_GATE | COMPLETE
+CURRENT_STAGE: <map ID or NONE>
+TODO_PROGRESS: <accepted>/<total>; <blocked/pending IDs or NONE>
+LAST_EVIDENCE: <path or reference or NONE>
+NEXT_ACTION: <one exact action>
+```
+
+Update the affected row's `STATUS` and this block together:
+
+1. after `BUDDY` freezes outcome and acceptance;
+2. after the map and `READY_GATE` are accepted, before the first write;
+3. immediately before and after every independently auditable stage, including
+   a worker report and its `RECEIVE_AUDIT`;
+4. after a correction, failed review or owner gate, and at final closure.
+
+If no tracker can persist the update, print the compact snapshot in the working
+response before the next action. A worker's report, exit code or `NEXT_ACTION`
+cannot advance either the row or the goal. A stale summary never authorizes a
+successor; only current evidence and the canonical map do.
+
 ### 1. `DRIFT_CHECK`
 
 Read the actual repository root, nearest instructions, dirty state,
@@ -69,11 +99,10 @@ or resumability.
 ### 3. Build the complete `EXECUTION_MAP`
 
 Before implementation, create a checkable TODO list for the whole known path to
-acceptance. Keep it inline for ordinary work; persist it only when the task spans
+acceptance. Keep it inline for ordinary work; persist it when the task spans
 sessions, is resumable/risky or the project already has a canonical tracker.
-Before the first write, show the map in the working response or write it to the
-named canonical tracker. Do not replace `EXECUTION_MAP` with a generic numbered
-plan, hidden reasoning or a list of tools.
+Before the first write, show the map and initial `GOAL_LOOP` snapshot in the
+working response or write them to the named canonical tracker. Do not replace `EXECUTION_MAP` with a generic numbered plan, hidden reasoning or a list of tools.
 
 Every stage must contain:
 
@@ -190,9 +219,9 @@ Writing stage for a tiny answer that is already clear, specific and complete.
 ### 5. `AUTOPILOT`
 
 Execute the approved map without routine check-ins. Activate one safe stage or
-independent parallel group, update status from evidence, then continue. Use the
-named skill or project method for each stage; do not silently substitute a
-different owner.
+independent parallel group, update its row and the `GOAL_LOOP` from evidence,
+show that transition, then continue. Use the named skill or project method for
+each stage; do not silently substitute a different owner.
 
 AUTOPILOT includes ordinary file edits, commands, tests, bounded retries and
 corrective work inside the approved scope. It does not expand permission.
@@ -215,6 +244,10 @@ the exact session, host, checkout, commit, work unit, diff, evidence and release
 lease before advancing. If Dispatcher owns the queue, return the audited result
 to its `RECONCILE` mode before releasing dependencies. A worker's `FINISHED`,
 exit code or `NEXT_ACTION` is unverified input, not routing authority.
+
+Only after this audit may the map row and `GOAL_LOOP` move to the next state. If
+the audit fails, keep the current row open, record the blocker/evidence and set
+the next action to the bounded correction or owner gate.
 
 Invoke `nobrainer-review` for the final closeout, adversarial bug hunt or release
 gate justified by the map. Fixes route back through `nobrainer-build` and
@@ -253,6 +286,9 @@ Correction happens immediately, not only at the final learning close:
 - `REPEATED_DEFECT`: stop blind retries and route to `nobrainer-rca` with the
   prior fingerprint and evidence.
 
+After each hook, update the affected map rows and `GOAL_LOOP` before any new
+routing. Invalidation is a visible state transition, not an internal note.
+
 One correction is not permission to infer a permanent user profile. Wiki writes
 remain sourced, classified and authorized; project instruction changes must be
 small, testable and reversible. The detailed store ownership and invalidation
@@ -262,5 +298,6 @@ rules are in the correction-hooks reference.
 
 Lead with the delivered outcome. Report execution-map status, skills/methods and
 sessions actually used, acceptance evidence, unresolved uncertainty, owner gate
-if any, rollback and one next action. Stop when the map is complete or at the
-first real gate; never manufacture a successor after the outcome is accepted.
+if any, rollback, the final `GOAL_LOOP` snapshot and one next action. Stop when
+the map is complete or at the first real gate; never manufacture a successor
+after the outcome is accepted.

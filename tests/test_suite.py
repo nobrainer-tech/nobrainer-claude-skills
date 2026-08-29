@@ -236,6 +236,8 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-research",
             "nobrainer-writing",
             "nobrainer-build",
+            "GOAL_LOOP",
+            "TODO_PROGRESS",
         ):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
@@ -248,6 +250,10 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("target 5-12 rows", text)
         self.assertIn("stable locally testable fact", text)
         self.assertIn("affected not-started `READY` rows to `STOPPED`", text)
+        normalized = " ".join(text.split())
+        self.assertIn("map is the sole mutable TODO owner", normalized)
+        self.assertIn("after every independently auditable stage", normalized)
+        self.assertIn("A stale summary never authorizes a successor", normalized)
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
@@ -597,8 +603,8 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("TRIGGER_SCOPE_PROBE: FAIL 3/5", record)
         self.assertIn("TRIGGER_FINAL_HOLDOUT: PASS 5/5", record)
         self.assertIn(
-            "TRIGGER_FINAL_BINDING: current Ultra, Team, Dispatcher and "
-            "Sessions hashes verified",
+            "TRIGGER_FINAL_BINDING: historical Ultra, Team, Dispatcher and "
+            "Sessions hashes verified at v1.2.0",
             record,
         )
         self.assertIn(
@@ -685,13 +691,11 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(
             sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
         )
-        current_bootstrap = re.search(
-            r"^CURRENT_BOOTSTRAP_SHA256: ([0-9a-f]{64})$", record, re.M
+        historical_bootstrap = re.search(
+            r"^HISTORICAL_CURRENT_BOOTSTRAP_SHA256: ([0-9a-f]{64})$", record, re.M
         )
-        self.assertIsNotNone(current_bootstrap)
-        self.assertEqual(
-            sha256("adapters/bootstrap.md"), current_bootstrap.group(1)
-        )
+        self.assertIsNotNone(historical_bootstrap)
+        self.assertNotEqual(sha256("adapters/bootstrap.md"), historical_bootstrap.group(1))
         for label in (
             "ULTRA_SHA256",
             "CORRECTION_HOOKS_SHA256",
@@ -706,7 +710,7 @@ class SuiteTests(unittest.TestCase):
             r"^BOOTSTRAP_SHA256: ([0-9a-f]{64})$", historical_final_run, re.M
         )
         self.assertIsNotNone(frozen_bootstrap)
-        self.assertNotEqual(current_bootstrap.group(1), frozen_bootstrap.group(1))
+        self.assertNotEqual(historical_bootstrap.group(1), frozen_bootstrap.group(1))
 
         for run in (current_probe_run, exact_run):
             for label, relative in (
@@ -1104,7 +1108,7 @@ class SuiteTests(unittest.TestCase):
         }
         self.assertEqual(
             {
-                "ULTRA_SHA256": True,
+                "ULTRA_SHA256": False,
                 "TEAM_SHA256": False,
                 "DISPATCHER_SHA256": False,
                 "SESSIONS_SHA256": True,
@@ -1120,8 +1124,11 @@ class SuiteTests(unittest.TestCase):
                 rf"^{label}: ([0-9a-f]{{64}})$", final_prompt, re.M
             )
             self.assertIsNotNone(prompt_declared)
-            self.assertEqual(digest(relative), prompt_declared.group(1))
             self.assertEqual(prompt_declared.group(1), final_fields[label])
+            if relative == "skills/nobrainer-ultra/SKILL.md":
+                self.assertNotEqual(digest(relative), prompt_declared.group(1))
+            else:
+                self.assertEqual(digest(relative), prompt_declared.group(1))
 
         final_output = (base / f"{final_stem}-output.md").read_bytes()
         final_rubric = (base / f"{final_stem}-judge-rubric.md").read_bytes()
@@ -1154,33 +1161,42 @@ class SuiteTests(unittest.TestCase):
             f"docs/evals/artifacts/{final_stem}-run.md",
         )
 
-        def binding_digest(paths: tuple[str, ...], field: str) -> str:
+        def binding_digest(
+            paths: tuple[str, ...],
+            field: str,
+            frozen_source_digests: dict[str, bytes] | None = None,
+        ) -> str:
             binding = hashlib.sha256()
             for relative in paths:
-                data = (ROOT / relative).read_bytes()
-                if relative == paths[-1]:
-                    decoded = data.decode("utf-8")
-                    for separator in (
-                        "\r",
-                        "\v",
-                        "\f",
-                        "\x1c",
-                        "\x1d",
-                        "\x1e",
-                        "\x85",
-                        "\u2028",
-                        "\u2029",
-                    ):
-                        self.assertNotIn(separator, decoded)
-                    self.assertTrue(data.endswith(b"\n"))
-                    self.assertFalse(data.endswith(b"\n\n"))
-                    pattern = rf"(?m)^{field}: [0-9a-f]{{64}}$".encode("ascii")
-                    replacement = f"{field}: <SELF>".encode("ascii")
-                    data, count = re.subn(pattern, replacement, data)
-                    self.assertEqual(1, count)
+                source_digest = (frozen_source_digests or {}).get(relative)
+                if source_digest is not None:
+                    digest = source_digest
+                else:
+                    data = (ROOT / relative).read_bytes()
+                    if relative == paths[-1]:
+                        decoded = data.decode("utf-8")
+                        for separator in (
+                            "\r",
+                            "\v",
+                            "\f",
+                            "\x1c",
+                            "\x1d",
+                            "\x1e",
+                            "\x85",
+                            "\u2028",
+                            "\u2029",
+                        ):
+                            self.assertNotIn(separator, decoded)
+                        self.assertTrue(data.endswith(b"\n"))
+                        self.assertFalse(data.endswith(b"\n\n"))
+                        pattern = rf"(?m)^{field}: [0-9a-f]{{64}}$".encode("ascii")
+                        replacement = f"{field}: <SELF>".encode("ascii")
+                        data, count = re.subn(pattern, replacement, data)
+                        self.assertEqual(1, count)
+                    digest = hashlib.sha256(data).digest()
                 binding.update(relative.encode("utf-8"))
                 binding.update(b"\0")
-                binding.update(hashlib.sha256(data).digest())
+                binding.update(digest)
             return binding.hexdigest()
 
         failed_digest = failed_fields["ARTIFACT_SET_SHA256"]
@@ -1213,7 +1229,22 @@ class SuiteTests(unittest.TestCase):
             binding_digest(failed_binding_paths, "ARTIFACT_SET_SHA256"),
             failed_digest,
         )
+        frozen_final_sources = {
+            relative: bytes.fromhex(final_fields[label])
+            for label, relative in source_paths
+        }
         self.assertEqual(
+            binding_digest(
+                final_binding_paths,
+                "SOURCE_AND_ARTIFACT_SET_SHA256",
+                frozen_final_sources,
+            ),
+            final_digest,
+        )
+        # This packet intentionally remains historical: its source list points
+        # to the pre-GOAL_LOOP Ultra bytes. The current contract is bound by the
+        # portfolio evaluation rather than by rewriting old evidence.
+        self.assertNotEqual(
             binding_digest(
                 final_binding_paths, "SOURCE_AND_ARTIFACT_SET_SHA256"
             ),
@@ -1423,6 +1454,8 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("`ASK`", autoimprove)
         self.assertIn("`OFF`", autoimprove)
         self.assertIn("do not create a durable diff", autoimprove)
+        self.assertIn("PROMOTION: PROMOTED | NO_CHANGE | REVERTED | BLOCKED", autoimprove)
+        self.assertIn("HOLDOUT_RESULT: PASS | FAIL | NOT_RUN", autoimprove)
         self.assertIn("Durable personalization without hidden memory", wiki)
         self.assertIn("source, date, scope", wiki)
 
@@ -2117,12 +2150,18 @@ class SuiteTests(unittest.TestCase):
             "Finding gate",
             "reachable input/state/sequence",
             "PARTIAL",
+            "Pre-read predictions",
+            "NAME_PATH_AUDIT",
+            "HIT",
+            "MISS",
+            "UNTESTED",
         ):
             self.assertIn(term, text)
         self.assertIn("filter out speculative AI noise", text)
         self.assertIn("nobrainer-build", text)
         self.assertNotIn("asks for a code or change review", text)
         self.assertNotIn("continue until dry", text.lower())
+        self.assertIn("green test does not replace", text)
 
     def test_opencode_guide_has_no_stale_package_pin(self) -> None:
         text = (ROOT / ".opencode" / "INSTALL.md").read_text(encoding="utf-8")

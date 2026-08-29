@@ -52,6 +52,7 @@ class AdapterTests(unittest.TestCase):
             "at most one sourced, authorized, non-secret project-local learning write",
             "one exact single-store diff",
             "No mode authorizes global instructions",
+            "execution-map TODO and `GOAL_LOOP`",
         ):
             self.assertIn(contract, normalized)
         self.assertLessEqual(len(text.split()), 190)
