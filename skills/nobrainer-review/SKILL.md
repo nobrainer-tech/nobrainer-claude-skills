@@ -41,6 +41,20 @@ Before reviewing:
 If the base, scope or required runtime is inaccessible, state the exact gap. A
 partial review cannot return `CLEAN` for the unavailable surface.
 
+## Pre-read predictions and name/path audit
+
+Before reading implementation details, record two or three falsifiable defect
+hypotheses from the acceptance, changed boundary and risk. Include the trigger
+and expected impact, but do not report a hypothesis as a finding. At the end,
+mark each `HIT`, `MISS` or `UNTESTED` with its evidence. This counters
+confirmation bias without inventing bugs.
+
+Before the verdict, run an explicit `NAME_PATH_AUDIT` for every new or renamed
+symbol, import, export, configuration key and migration reference. Use a literal
+`rg` or project-native checker and retain the command/result or evidence path.
+If the scope has none, record `NOT_APPLICABLE`; a green test does not replace
+this identity check.
+
 ## Pass 1: acceptance and backward trace
 
 Read current files from disk, not remembered implementation context. For each
@@ -51,7 +65,7 @@ changed behavior:
 - inspect the full changed function plus its callers/consumers, not only added
   lines;
 - verify renamed/moved symbols, imports, exports, configuration and migrations
-  against actual references with `rg`;
+  against actual references with the recorded `NAME_PATH_AUDIT`;
 - compare public types/contracts and all affected call sites;
 - run concrete values through risky conditions, boundaries and error paths;
 - compare implemented behavior with acceptance, including negative cases and
@@ -131,6 +145,8 @@ gate fields and keep the location tight. Then report:
 MODE: CLOSEOUT | BUG_HUNT | RELEASE_GATE
 SCOPE:
 ACCEPTANCE_CHECKED:
+PREDICTIONS: <HIT | MISS | UNTESTED with evidence>
+NAME_PATH_AUDIT: PASS | NOT_APPLICABLE | PARTIAL | BLOCKED; <command/evidence>
 TESTS_AND_RUNTIME:
 INDEPENDENT_REVIEW: USED | NOT_JUSTIFIED | UNAVAILABLE
 REJECTED_CANDIDATES:
