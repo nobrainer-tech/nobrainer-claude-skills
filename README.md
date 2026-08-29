@@ -28,6 +28,35 @@ the approved work until verified delivery or a real owner gate.
 
 ![NoBrainer Ultra workflow: one clarification round, a skill-routed execution map, build, review, verification, delivery and durable learning; failed review returns to build](assets/nobrainer-workflow.svg)
 
+### GitHub flow chart
+
+```mermaid
+flowchart TD
+    A[Owner request] --> B{Outcome clear?}
+    B -->|no| C[BUDDY: one focused clarification]
+    B -->|yes| D[Freeze GOAL, NON_GOALS, ACCEPTANCE, UNTOUCHED]
+    C --> D
+    D --> E[EXECUTION_MAP + GOAL_LOOP]
+    E --> F{READY_GATE passes?}
+    F -->|no| G[STOP: re-plan or owner gate]
+    G --> B
+    F -->|yes| H[AUTOPILOT]
+    H --> I{Parallel work earns its cost?}
+    I -->|no| J[MAIN + relevant skill]
+    I -->|yes| K[TEAM / DISPATCHER / SESSIONS]
+    J --> L[VERIFY]
+    K --> L
+    L --> M{Review passes?}
+    M -->|no| N[BUILD correction + invalidate proof]
+    N --> L
+    M -->|yes| O[RECEIVE_AUDIT]
+    O --> P{Evidence and lease valid?}
+    P -->|no| G
+    P -->|yes| Q{Approved tasks remain?}
+    Q -->|yes| H
+    Q -->|no| R[LEARN + CLOSE]
+```
+
 **Continuous improvement beats delayed perfection.** A small task stays small.
 A non-trivial task gets enough structure to be reliable, but no speculative
 framework, automatic swarm or documentation theatre.

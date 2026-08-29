@@ -30,6 +30,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Python
@@ -46,6 +47,7 @@ jobs:
         run: |
           python3 scripts/validate_skills.py
           python3 scripts/validate_skills.py --suite
+          cmp -s AGENTS.md CLAUDE.md
 
       - name: Scan current tree for secrets
         if: runner.os == 'Linux'
@@ -59,6 +61,7 @@ jobs:
             "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$archive"
           echo "$GITLEAKS_SHA256  $RUNNER_TEMP/$archive" | sha256sum --check -
           tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
           "$RUNNER_TEMP/gitleaks" dir . --config .gitleaks.toml --redact --no-banner --ignore-gitleaks-allow
 
       - name: Run deterministic tests
@@ -67,7 +70,8 @@ jobs:
       - name: Check adapter syntax
         run: |
           python3 -m py_compile scripts/*.py tests/*.py
-          bash -n hooks/session-start hooks/run-hook.cmd
+          bash -n hooks/session-start
+          bash -n hooks/run-hook.cmd
 
       - name: Verify checkout remains unchanged
         run: git diff --exit-code

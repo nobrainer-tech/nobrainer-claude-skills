@@ -68,6 +68,22 @@ For non-trivial work use:
 A timeout, partial output, schema error, dead session, exhausted retry, failed
 test or inaccessible runtime is not success.
 
+## Minimum sufficient change
+
+Before the first write, state the smallest complete contract: `GOAL`,
+`NON_GOALS`, `ACCEPTANCE`, `UNTOUCHED`, `MINIMUM_SOLUTION` and
+`TEST_DECISION` (`EXISTING`, `NEW_REQUIRED` or `NOT_NEEDED` with one reason).
+Planning may use enough reasoning to remove ambiguity. Execution should use the
+least complex capable method and stop when acceptance is met. Do not add an
+abstraction, dependency, compatibility layer, agent, skill or test unless
+acceptance or a demonstrated risk requires it. If scope or complexity grows,
+stop and re-plan rather than layering a second implementation.
+
+For external tools or skills, discovery may use a moving source, but execution
+requires the exact tool version and an immutable source/ref recorded in the
+work unit. If either cannot be pinned, keep the step descriptive and report the
+capability as unavailable.
+
 ## Attention-first operating model
 
 Start with the result and the human's attention, not with model or tool choice.

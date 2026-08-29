@@ -105,7 +105,8 @@ record a trace when reproduction or evidence matters:
 
 ```bash
 npx playwright test path/to/spec --trace on
-npx playwright show-report --port 0
+REPORT_PORT=9324  # replace with an available explicit port
+npx playwright show-report --port "$REPORT_PORT"
 npx playwright show-trace trace.zip
 ```
 
@@ -120,9 +121,13 @@ playwright-cli tracing-stop
 
 Locate the actual trace artifact, preserve its path and open it. Review Actions,
 DOM snapshots, Network, Console and Source; a green status without the expected
-side effect is not proof. Use `--port 0` for a remote/headless viewer. Do not
-edit project trace policy merely to inspect one failure when a CLI flag is
-sufficient.
+side effect is not proof. Use an available explicit report port; do not assume
+that `--port 0` selects an ephemeral port across CLI versions. Treat traces as
+sensitive artifacts: they may contain cookies, headers, form values, URLs,
+payloads and private page content. Keep them in a project-ignored or temporary
+path, inspect and redact before sharing, and never commit them as routine
+evidence. Do not edit project trace policy merely to inspect one failure when a
+CLI flag is sufficient.
 
 ## Failure and closeout
 
