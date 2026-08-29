@@ -9,6 +9,11 @@ For a non-trivial delivery workflow start with `nobrainer-ultra`. Use
 multiple delegated units, and `nobrainer-sessions` for exact transport. Worker
 reports require independent receive-audit before state advances.
 
+Keep the complete execution-map TODO visible for non-trivial work and expose one
+`GOAL_LOOP` (`GOAL_ID`, status, current stage, progress, evidence, next action).
+Update the row and snapshot together before/after each auditable transition;
+never advance from a worker report or exit code alone.
+
 Use `nobrainer-writing` for material user-facing prose. On a problem, ambiguity
 or error, check only relevant wiki context and then current internet research
 before choosing a remedy; repository/runtime readback proves present state. If

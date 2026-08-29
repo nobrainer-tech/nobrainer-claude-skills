@@ -1,0 +1,84 @@
+from __future__ import annotations
+
+import hashlib
+import re
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+REPORT = ROOT / "docs" / "evals" / "portfolio-autoimprove-2026-08-29.md"
+
+ACTIVE_SKILLS = (
+    "nobrainer-ultra",
+    "nobrainer-team",
+    "nobrainer-dispatcher",
+    "nobrainer-research",
+    "nobrainer-writing",
+    "nobrainer-build",
+    "nobrainer-security",
+    "nobrainer-sessions",
+    "nobrainer-spec-driven-development",
+    "nobrainer-wiki",
+    "nobrainer-browser",
+    "nobrainer-autoimprove",
+    "nobrainer-decide",
+    "nobrainer-rca",
+    "nobrainer-review",
+)
+
+
+def sha256(relative: str) -> str:
+    return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+
+class PortfolioAuditTests(unittest.TestCase):
+    def test_portfolio_audit_binds_current_contract(self) -> None:
+        report = REPORT.read_text(encoding="utf-8")
+        self.assertNotIn("<filled", report)
+        self.assertIn(
+            "CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md",
+            report,
+        )
+        self.assertIsNotNone(
+            re.search(r"^CURRENT_COMMIT: [0-9a-f]{40}$", report, re.MULTILINE)
+        )
+
+        rows = {}
+        row_pattern = re.compile(
+            r"^\| `([^`]+)` \| `([0-9a-f]{64})` \| [^|]* \| "
+            r"`?(PROMOTED|NO_CHANGE|REVERTED|BLOCKED)`?[^|]* \| [^|]* \|$",
+            re.MULTILINE,
+        )
+        for name, baseline, result in row_pattern.findall(report):
+            rows[name] = (baseline, result)
+        self.assertEqual(set(rows), set(ACTIVE_SKILLS))
+        self.assertEqual(
+            {name for name, (_, result) in rows.items() if result == "PROMOTED"},
+            {"nobrainer-ultra", "nobrainer-autoimprove", "nobrainer-review"},
+        )
+
+        for label, relative in (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            ("REVIEW_SHA256", "skills/nobrainer-review/SKILL.md"),
+            ("AUTOIMPROVE_SHA256", "skills/nobrainer-autoimprove/SKILL.md"),
+            ("BOOTSTRAP_SHA256", "adapters/bootstrap.md"),
+        ):
+            declared = re.search(
+                rf"^{label}: ([0-9a-f]{{64}})$", report, re.MULTILINE
+            )
+            self.assertIsNotNone(declared)
+            self.assertEqual(sha256(relative), declared.group(1))
+
+        for pattern in (
+            r"^DETERMINISTIC_SUITE: .*90/90 PASS$",
+            r"^QUICK_VALIDATE: .*15/15 PASS$",
+            r"^SECRET_SCAN: .*PASS$",
+            r"^INDEPENDENT_REVIEW: CLEAN; .+$",
+        ):
+            self.assertIsNotNone(re.search(pattern, report, re.MULTILINE))
+        self.assertIn("CLIENT_RUNTIME: NOT_VERIFIED", report)
+
+
+if __name__ == "__main__":
+    unittest.main()

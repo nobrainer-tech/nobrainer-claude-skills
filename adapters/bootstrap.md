@@ -1,10 +1,10 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
 # NoBrainer bootstrap
 
-For non-trivial work, load `nobrainer-ultra`: gather requirements once, route a
-TODO and execute work. Keep simple work direct. Add specs, wiki or sessions
-when useful. Team designs roles; Dispatcher schedules; Sessions alone owns
-identity, transport, lease and receive-audit.
+For non-trivial work, load `nobrainer-ultra`: gather requirements once, expose
+execution-map TODO and `GOAL_LOOP`, execute. Keep simple work direct. Add specs,
+wiki or sessions when useful. Team designs roles; Dispatcher
+schedules; Sessions alone owns identity, transport, lease and receive-audit.
 
 `PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
 query relevant wiki decisions and lessons, then run current internet
