@@ -175,12 +175,12 @@ if (count !== 1 || !combined.includes('nobrainer-ultra') || !combined.endsWith('
             (ROOT / "GEMINI.md").read_text(encoding="utf-8"),
         )
 
-    def test_pi_extension_registers_skills_and_reinjects_after_compaction(self) -> None:
+    def test_pi_extension_registers_skills_and_reinjects_per_prompt(self) -> None:
         script = r"""
 import plugin from './.pi/extensions/nobrainer-tech-skills.js';
 const handlers = new Map();
 plugin({on: (name, handler) => handlers.set(name, handler)});
-for (const name of ['resources_discover', 'session_start', 'session_compact', 'agent_end', 'context']) {
+for (const name of ['resources_discover', 'session_start', 'session_compact', 'context']) {
   if (!handlers.has(name)) process.exit(2);
 }
 const resources = await handlers.get('resources_discover')();
@@ -193,10 +193,15 @@ const second = await handlers.get('context')({messages: result.messages});
 if (second !== undefined) process.exit(5);
 text = result.messages.flatMap(m => Array.isArray(m.content) ? m.content.map(p => p.text || '') : [m.content || '']).join('\n');
 if (text.split('NOBRAINER_BOOTSTRAP_V1').length - 1 !== 1) process.exit(6);
+result = await handlers.get('context')({messages: [{role: 'user', content: 'next prompt'}]});
+text = result.messages.flatMap(m => Array.isArray(m.content) ? m.content.map(p => p.text || '') : [m.content || '']).join('\n');
+if (!text.includes('NOBRAINER_BOOTSTRAP_V1')) process.exit(7);
+if (text.split('NOBRAINER_BOOTSTRAP_V1').length - 1 !== 1) process.exit(8);
 await handlers.get('session_compact')();
 result = await handlers.get('context')({messages: [{role: 'compactionSummary', content: 'summary'}, {role: 'user', content: 'next'}]});
 text = result.messages.flatMap(m => Array.isArray(m.content) ? m.content.map(p => p.text || '') : [m.content || '']).join('\n');
 if (!text.includes('NOBRAINER_BOOTSTRAP_V1')) process.exit(7);
+if (text.split('NOBRAINER_BOOTSTRAP_V1').length - 1 !== 1) process.exit(10);
 """
         result = subprocess.run(
             ["node", "--input-type=module", "-e", script],

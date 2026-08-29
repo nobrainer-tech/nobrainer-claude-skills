@@ -26,6 +26,8 @@ class NoBrainerBrowserTests(unittest.TestCase):
             "playwright show-trace",
             "trace.zip",
             "existing",
+            "sensitive artifacts",
+            "explicit report port",
         ):
             self.assertIn(required, text)
 
