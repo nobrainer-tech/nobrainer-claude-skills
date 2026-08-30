@@ -65,6 +65,18 @@ class PortfolioAuditTests(unittest.TestCase):
             ).returncode
             == 0
         )
+        if has_git_repository:
+            source_is_reachable = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", source_ref, "HEAD"],
+                cwd=ROOT,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(
+                0,
+                source_is_reachable.returncode,
+                "historical source commit must remain reachable from the current history",
+            )
 
         rows = {}
         row_pattern = re.compile(
