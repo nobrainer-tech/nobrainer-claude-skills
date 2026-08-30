@@ -275,7 +275,11 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
         self.assertIn("one focused requirements round", text.lower())
+        self.assertIn("do not make them owner questions", text.lower())
         self.assertIn("without routine check-ins", text.lower())
+        routing_contract = " ".join(text.lower().split())
+        self.assertIn("a routing-table line or remembered summary is insufficient", routing_contract)
+        self.assertIn("loading method context is not task execution", routing_contract)
         self.assertIn("Progress", text)
         self.assertIn("- [x]", text)
         self.assertIn("- [>]", text)
@@ -298,7 +302,9 @@ class SuiteTests(unittest.TestCase):
             "Done clean",
         ):
             self.assertIn(field, text)
-        self.assertIn("stable local", text.lower())
+        problem_gate = " ".join(text.lower().split())
+        self.assertIn("do not infer that a documented command produced the failure", problem_gate)
+        self.assertIn("simulation-only request forbids execution, not naming that next diagnostic action", problem_gate)
         normalized = " ".join(text.split())
         self.assertIn("affected not-started `READY` rows to `STOPPED`", normalized)
         self.assertIn("one canonical todo owner", normalized.lower())
@@ -1740,6 +1746,10 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(level, pull_request_template)
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
+        self.assertIn("RUNTIME_VERIFIED_EXPLICIT", text)
+        self.assertIn(
+            "under explicit invocation; this does not prove discovery", text
+        )
 
     def test_release_heading_parser_requires_one_unfenced_exact_line(self) -> None:
         heading = "## v1.1.0 — 2026-08-28"
@@ -2184,6 +2194,20 @@ class SuiteTests(unittest.TestCase):
             / "artifacts"
             / "v1.3.0-harness-clarity-runtime-boundaries.md"
         ).read_text(encoding="utf-8")
+        luna_candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-luna-max-priority-output.md"
+        ).read_text(encoding="utf-8")
+        claude_candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-claude-explicit-output.md"
+        ).read_text(encoding="utf-8")
 
         current_spans = markdown_heading_spans(
             release_notes, "## v1.3.0 candidate — 2026-08-30"
@@ -2212,10 +2236,22 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("184", evidence["ROOT_LINES"])
         self.assertEqual("220", evidence["ULTRA_LINES"])
         self.assertEqual("PASS", evidence["CODEX_EXPLICIT_RUNTIME"])
-        self.assertEqual("PASS", evidence["CODEX_FINAL_SMOKE"])
-        self.assertEqual("77", evidence["CODEX_FINAL_SMOKE_WORDS"])
+        self.assertEqual("PASS", evidence["CODEX_SOL_SMOKE"])
+        self.assertEqual("77", evidence["CODEX_SOL_SMOKE_WORDS"])
+        self.assertNotIn("CODEX_FINAL_SMOKE", evidence)
         self.assertEqual("FAIL", evidence["CODEX_ALIAS_CONTROL"])
-        self.assertEqual("BLOCKED_AUTH", evidence["CLAUDE_RUNTIME"])
+        self.assertEqual("gpt-5.6-luna", evidence["CODEX_LUNA_MODEL"])
+        self.assertEqual("max", evidence["CODEX_LUNA_REASONING"])
+        self.assertEqual("REQUESTED_NOT_READ_BACK", evidence["CODEX_LUNA_PRIORITY"])
+        self.assertEqual("PASS_EXPLICIT", evidence["CODEX_LUNA_FINAL_RUNTIME"])
+        self.assertEqual("PASS", evidence["CODEX_LUNA_IMPLEMENTATION"])
+        self.assertEqual("PASS", evidence["CODEX_LUNA_AUTOIMPROVE_ROUTING"])
+        self.assertEqual("PASS_EXPLICIT", evidence["CLAUDE_RUNTIME"])
+        self.assertEqual("PASS", evidence["CLAUDE_AUTOIMPROVE_ROUTING"])
+        self.assertEqual(
+            "NO_CHANGE_INVALID_HOLDOUT", evidence["AUTORESEARCH_LONG_RUN"]
+        )
+        self.assertEqual("FAIL_MODEL_NO_SKILL", evidence["NON_TRIGGER_CONTROL"])
         self.assertEqual("99", evidence["DETERMINISTIC_TESTS_TOTAL"])
         self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
         self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
@@ -2223,7 +2259,7 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("NOT_CREATED", evidence["TAG"])
         self.assertEqual("NOT_PUBLISHED", evidence["DISTRIBUTION"])
         self.assertEqual("NOT_AUTHORIZED", evidence["MERGE"])
-        self.assertEqual("BLOCKED_CLAUDE_AUTH", evidence["ACCEPTANCE"])
+        self.assertEqual("PASS_LOCAL_PR_CANDIDATE", evidence["ACCEPTANCE"])
         self.assertNotIn("RELEASE_URL", evidence)
         self.assertIn(
             f"STORED_OUTPUT_SHA256: `{hashlib.sha256(final_smoke).hexdigest()}`",
@@ -2235,7 +2271,6 @@ class SuiteTests(unittest.TestCase):
             return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
 
         for label, relative in (
-            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
             ("RESEARCH_SHA256", "skills/nobrainer-research/SKILL.md"),
         ):
             declared = re.search(
@@ -2243,6 +2278,17 @@ class SuiteTests(unittest.TestCase):
             )
             self.assertIsNotNone(declared)
             self.assertEqual(digest(relative), declared.group(1))
+
+        for document in (luna_candidate, claude_candidate):
+            for label, relative in (
+                ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+                ("AUTOIMPROVE_SHA256", "skills/nobrainer-autoimprove/SKILL.md"),
+            ):
+                declared = re.search(
+                    rf"^{label}: `([0-9a-f]{{64}})`$", document, re.MULTILINE
+                )
+                self.assertIsNotNone(declared)
+                self.assertEqual(digest(relative), declared.group(1))
 
         output_sections = re.findall(
             r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", candidate
@@ -2266,14 +2312,87 @@ class SuiteTests(unittest.TestCase):
                 )
                 self.assertEqual(int(declared_words.group(1)), len(output.split()))
 
+        luna_sections = {
+            title: body
+            for title, body in re.findall(
+                r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", luna_candidate
+            )
+            if "OUTPUT_SHA256:" in body
+        }
+        self.assertEqual(
+            {
+                "Final pressure case",
+                "Final local-error case",
+                "Ultra to Autoimprove routing",
+                "Owner-decision correction case",
+                "Mechanical non-trigger model control",
+                "Long-run sealed baseline",
+                "Long-run compact candidate",
+                "Isolated implementation task",
+            },
+            set(luna_sections),
+        )
+        for title, section_body in luna_sections.items():
+            with self.subTest(luna_output=title):
+                metadata, output = section_body.split("\n\n", 1)
+                output = output.rstrip("\n")
+                declared_sha = re.search(
+                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
+                )
+                declared_words = re.search(
+                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
+                )
+                self.assertIsNotNone(declared_sha)
+                self.assertIsNotNone(declared_words)
+                self.assertEqual(
+                    declared_sha.group(1),
+                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
+                )
+                self.assertEqual(int(declared_words.group(1)), len(output.split()))
+
+        claude_section = re.search(
+            r"(?ms)^## Stored owner-facing output\n\n(.*)\Z", claude_candidate
+        )
+        self.assertIsNotNone(claude_section)
+        claude_metadata, claude_output = claude_section.group(1).split("\n\n", 1)
+        claude_output = claude_output.rstrip("\n")
+        self.assertIn(
+            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(claude_output.encode('utf-8')).hexdigest()}`",
+            claude_metadata,
+        )
+        self.assertIn(
+            f"STORED_OUTPUT_WORDS: `{len(claude_output.split())}`",
+            claude_metadata,
+        )
+        self.assertIn("SERVICE_TIER_READBACK: `NOT_EXPOSED_BY_CLI_JSON`", luna_candidate)
+        self.assertIn("RESULT: `NOT_COMPARABLE_SOURCE_DRIFT`", luna_candidate)
+        self.assertIn("PROMOTION: `NO_CHANGE_INVALID_HOLDOUT`", luna_candidate)
+        for prompt in (
+            "v1.3.0-luna-correction-prompt.md",
+            "v1.3.0-luna-non-trigger-prompt.md",
+            "v1.3.0-long-run-recovery-v2-holdout-prompt.md",
+        ):
+            self.assertIn(
+                hashlib.sha256(
+                    (ROOT / "docs" / "evals" / "artifacts" / prompt).read_bytes()
+                ).hexdigest(),
+                luna_candidate,
+            )
+        self.assertNotIn("/private/tmp", luna_candidate)
+        self.assertNotIn("/private/tmp", claude_candidate)
+
         for status in (
-            "CANDIDATE_CODEX: PASS_EXPLICIT",
+            "CANDIDATE_CODEX_LUNA: PASS_EXPLICIT_MAX",
             "CODEX_ALIAS_CONTROL: FAIL",
             "LOCAL_ERROR: PASS",
             "LONG_RUN_HOLDOUT: PASS",
             "RESEARCH_HOLDOUT: PASS",
-            "CANDIDATE_CLAUDE: BLOCKED_AUTH",
-            "PROMOTION: BLOCKED",
+            "AUTOIMPROVE_ROUTING: PASS_BOTH_CLIENTS",
+            "LUNA_IMPLEMENTATION: PASS",
+            "LONG_RUN_COMPRESSION_EXPERIMENT: NO_CHANGE_INVALID_HOLDOUT",
+            "NON_TRIGGER_CONTROL: FAIL_MODEL_NO_SKILL",
+            "CANDIDATE_CLAUDE: PASS_EXPLICIT",
+            "PROMOTION: PASS_PR_CANDIDATE",
         ):
             self.assertIn(status, evaluation)
         self.assertIn("$nobrainer-ultra", readme)

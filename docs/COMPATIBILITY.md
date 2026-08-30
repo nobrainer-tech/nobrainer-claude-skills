@@ -10,12 +10,16 @@ not the same as a proven client integration. Record these levels separately:
    contract; this does not prove the client accepts it.
 3. `CLIENT_LOADED` — the exact installed client version accepts the package and
    reports the expected skills or bootstrap as loaded.
-4. `RUNTIME_VERIFIED` — a clean client session discovers and follows
+4. `RUNTIME_VERIFIED_EXPLICIT` — a clean client session loads and follows the
+   canonical body under explicit invocation; this does not prove discovery.
+5. `RUNTIME_VERIFIED` — a clean client session discovers and follows
    `nobrainer-ultra` without manually pasting its body.
-5. `DISTRIBUTED` — the exact release is available through the claimed public
+6. `DISTRIBUTED` — the exact release is available through the claimed public
    marketplace or install channel and was read back after installation.
 
 Never promote one level from evidence belonging to another.
+Merge is a repository delivery state, not a client-compatibility level; release
+evidence records it separately.
 
 The GitHub source channel is `DISTRIBUTED` for `v1.2.1`, the latest fully
 accepted release. Exact tag-to-commit identity, merged-main CI,
@@ -36,10 +40,14 @@ installation readback.
 The untagged v1.3.0 candidate has additional local runtime evidence in
 [the harness evaluation](evals/v1.3.0-harness-clarity-2026-08-30.md). Codex CLI
 `0.149.1` loaded the exact repo-scoped Ultra SHA through the documented
-`$nobrainer-ultra` invocation and followed development, local-error and two
-sealed holdout cases. This is not distribution evidence. Claude Code `2.1.241`
-could not start a model session because local OAuth was expired, so no Claude
-runtime claim is made.
+`$nobrainer-ultra` invocation. Final-candidate `gpt-5.6-luna` runs used `max`
+reasoning, requested priority/fast service, passed pressure and local-error
+cases, loaded Autoimprove and completed a real isolated two-file implementation.
+The CLI did not expose the response service tier, so priority was requested but
+not independently read back. Claude Code `2.1.241` also loaded the exact final
+Ultra and Autoimprove bytes through an isolated plugin after owner-driven OAuth.
+Both clients have explicit-runtime evidence only; automatic routing and public
+distribution remain unverified.
 
 ## Current evidence
 
@@ -48,8 +56,8 @@ not mean the external client's parser accepted or loaded the package.
 
 | Client / harness | Source | Repository contract | Client load | Runtime | Distribution |
 |---|---|---|---|---|---|
-| Claude Code | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest, portable installer and Claude SessionStart output | `BLOCKED_AUTH`: CLI `2.1.241` could not open a model session | `NOT_VERIFIED` | `NOT_PUBLISHED` |
-| Codex | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: accepted manifest schema and portable installer | `CLIENT_LOADED`: CLI `0.149.1`, repo-scoped copy, explicit canonical invocation | `RUNTIME_VERIFIED_EXPLICIT`: candidate cases passed; automatic and alias-only routing remain unverified | `NOT_PUBLISHED` |
+| Claude Code | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest, portable installer and Claude SessionStart output | `CLIENT_LOADED`: CLI `2.1.241`, isolated plugin, namespaced explicit invocation | `RUNTIME_VERIFIED_EXPLICIT`: final Ultra routed to and read canonical Autoimprove; automatic routing remains unverified | `NOT_PUBLISHED` |
+| Codex | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: accepted manifest schema and portable installer | `CLIENT_LOADED`: CLI `0.149.1`, repo-scoped copy, explicit canonical invocation | `RUNTIME_VERIFIED_EXPLICIT`: final Luna cases and isolated implementation passed; automatic and alias-only routing remain unverified | `NOT_PUBLISHED` |
 | Cursor | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest path and Cursor SessionStart output | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | OpenCode | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: skills registration plus idempotent first-user transform | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | GitHub Copilot CLI | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: portable installer and repository instructions; no bootstrap | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |

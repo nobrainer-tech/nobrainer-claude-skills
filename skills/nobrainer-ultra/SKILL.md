@@ -31,8 +31,7 @@ The ordinary lifecycle is:
 
 `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`
 
-These names describe internal control points. Do not print a state-machine form
-to the owner.
+These names describe internal control points. Do not print a state-machine form to the owner.
 
 ## `DRIFT_CHECK`: establish current truth
 
@@ -41,22 +40,23 @@ current plan/spec, callers, tests, runtime and available capabilities. Preserve
 unrelated work. Prior summaries, titles, wiki pages and worker reports are
 context, not current runtime proof.
 
-Query an existing wiki only for a decision, constraint or lesson that can change
-this task. Research a fact when it is current, external, niche, uncertain,
-high-stakes or source-attributed.
+Query an existing wiki only for a decision, constraint or lesson that can change this task.
+Research a fact when it is current, external, niche, uncertain, high-stakes or source-attributed.
 
-`PROBLEM_GATE`: start with the literal failure, current local evidence and the
-smallest reproducer. Check related wiki decisions when available. Use current
-primary-source internet research only when the remedy depends on a current,
-external, niche, uncertain or high-stakes fact. A stable local syntax, import,
-test or configuration error does not need browsing before the next local
-diagnostic. If required research is inaccessible, stop at `RESEARCH_BLOCKED`.
+`PROBLEM_GATE`: start with the literal failure and current local evidence. Do not
+infer that a documented command produced the failure. If the exact invocation is
+unknown, first name reproduction from the repository root with the documented
+command; a simulation-only request forbids execution, not naming that next
+diagnostic action. Only then propose path, dependency or configuration changes.
+Check related wiki decisions when available. Use current primary-source internet
+research only when the remedy depends on a current, external, niche, uncertain
+or high-stakes fact. If required research is inaccessible, stop at `RESEARCH_BLOCKED`.
 
 ## `BUDDY`: clarify once
 
-Use one focused requirements round only when the answer changes scope,
-architecture, safety or acceptance. Otherwise state the smallest safe assumption
-and continue. Establish:
+Use one focused requirements round only when scope, architecture, safety or acceptance
+depends on an answer repository evidence cannot resolve. Current code, schema, tests
+or conventions should settle implementation details; do not make them owner questions. Establish:
 
 - observable outcome, audience and quality bar;
 - target-workflow proof;
@@ -136,13 +136,13 @@ owner-facing Progress checklist concise.
 
 ## Readiness and method routing
 
-The safe next step is ready only when current state, write scope, dependencies,
-proof, rollback, owner gates and required capability are known. Unknown identity,
-dirty overlap, stale input, missing verifier or ambiguous irreversible effect
-blocks the write.
+The safe next step is ready only when current state, write scope, dependencies, proof, rollback,
+owner gates and required capability are known. Unknown identity, dirty overlap, stale input, missing verifier or ambiguous irreversible effect blocks the write.
 
-Choose the least complex capable method. Route implementation through
-`nobrainer-build`. Load other skills only for their active boundary:
+Choose the least complex capable method; route implementation through `nobrainer-build`.
+When another skill owns a stage, load its canonical body and required references before
+planning. Loading method context is not task execution; a routing-table line or remembered
+summary is insufficient. Load specialists only:
 
 - `nobrainer-research` for decision-relevant external uncertainty;
 - `nobrainer-writing` for material user-facing prose;
