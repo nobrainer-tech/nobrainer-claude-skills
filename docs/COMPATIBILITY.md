@@ -33,6 +33,14 @@ installation readback.
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
 
+The untagged v1.3.0 candidate has additional local runtime evidence in
+[the harness evaluation](evals/v1.3.0-harness-clarity-2026-08-30.md). Codex CLI
+`0.149.1` loaded the exact repo-scoped Ultra SHA through the documented
+`$nobrainer-ultra` invocation and followed development, local-error and two
+sealed holdout cases. This is not distribution evidence. Claude Code `2.1.241`
+could not start a model session because local OAuth was expired, so no Claude
+runtime claim is made.
+
 ## Current evidence
 
 `REPOSITORY_CHECKED` below means deterministic repository tests passed. It does
@@ -40,8 +48,8 @@ not mean the external client's parser accepted or loaded the package.
 
 | Client / harness | Source | Repository contract | Client load | Runtime | Distribution |
 |---|---|---|---|---|---|
-| Claude Code | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest, portable installer and Claude SessionStart output | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
-| Codex | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest, empty hook isolation and portable installer | `NOT_VERIFIED` | `NOT_VERIFIED` for this public package | `NOT_PUBLISHED` |
+| Claude Code | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest, portable installer and Claude SessionStart output | `BLOCKED_AUTH`: CLI `2.1.241` could not open a model session | `NOT_VERIFIED` | `NOT_PUBLISHED` |
+| Codex | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: accepted manifest schema and portable installer | `CLIENT_LOADED`: CLI `0.149.1`, repo-scoped copy, explicit canonical invocation | `RUNTIME_VERIFIED_EXPLICIT`: candidate cases passed; automatic and alias-only routing remain unverified | `NOT_PUBLISHED` |
 | Cursor | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: manifest path and Cursor SessionStart output | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | OpenCode | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: skills registration plus idempotent first-user transform | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | GitHub Copilot CLI | `SOURCE_VALIDATED` | `REPOSITORY_CHECKED`: portable installer and repository instructions; no bootstrap | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
@@ -71,8 +79,8 @@ rewrite skill bodies.
   global instructions.
 - Kimi maps native tools but explicitly refuses to treat a hidden subagent as
   proof of visible cross-session transport.
-- Codex declares an empty hook map so it does not accidentally consume Claude
-  hook shapes; native skill discovery remains the routing mechanism.
+- Codex omits unsupported hook fields; native skill discovery remains the
+  routing mechanism and Claude hook shapes stay in their own adapter.
 - The portable root manifest contains no client-specific bootstrap. Hermes can
   consume it through its Agent Plugins path, where skills remain namespaced and
   explicitly selected until a clean runtime transcript proves more.
@@ -96,7 +104,7 @@ Passing behavior:
 
 - `nobrainer-ultra` is selected without pasting its body;
 - the agent enters a short requirements/acceptance gate before writes;
-- it creates a complete execution map with one owning method per stage;
+- it creates one canonical plan and shows a compact Progress checklist;
 - production effects remain owner-gated;
 - it does not manufacture workers before work units exist.
 
@@ -111,14 +119,26 @@ items and evidence are invalidated, and the affected route is rebuilt without a
 second ordinary clarification round. A simulated verified review finding must
 return to Build and then fresh Review; it may not reuse the old green result.
 
-### Explicit alias
+### Explicit canonical invocation
+
+```text
+$nobrainer-ultra Deliver this task with the smallest safe workflow.
+```
+
+Passing behavior: the client loads the canonical `nobrainer-ultra` body and any
+required relative reference without the user pasting either one.
+
+### Implicit alias control
 
 ```text
 Use nb-ultra to deliver this task with the smallest safe workflow.
 ```
 
-Passing behavior: the client resolves the alias from the skill description and
-loads the canonical `nobrainer-ultra` body.
+`nb-ultra` is a trigger phrase in the description, not a second skill name.
+Record whether the client supports and selects it through implicit matching.
+Do not present this as an explicit invocation guarantee. In the v1.3.0 Codex
+probe, alias-only selection failed under a crowded skill catalog and a prompt
+that prohibited file reads; the canonical `$nobrainer-ultra` probe passed.
 
 ### Non-trigger control
 
@@ -140,6 +160,8 @@ MODEL:
 OS:
 INSTALL_SOURCE:
 RELEASE_OR_COMMIT:
+SKILL_SHA256:
+INVOCATION: CANONICAL_EXPLICIT | IMPLICIT_DESCRIPTION
 PROMPT:
 SKILL_DISCOVERED:
 FIRST_WRITE_BEFORE_GATE: YES | NO
@@ -151,6 +173,6 @@ Marketplace screenshots, manifest parsing, an installer exit code, or a skill
 appearing on disk do not replace this acceptance test.
 
 For a hook-based client, preserve the emitted JSON and prove the client consumed
-the marker. For OpenCode or Pi, preserve both adapter logs/readback and
-the first model action. A manual prompt that pastes `nobrainer-ultra` does not
-prove automatic routing.
+the marker. For OpenCode or Pi, preserve both adapter logs/readback and the first
+model action. A prompt that pastes the skill body does not prove discovery. A
+valid explicit `$nobrainer-ultra` run proves explicit loading, not automatic routing.

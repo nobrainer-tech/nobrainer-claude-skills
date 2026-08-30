@@ -14,11 +14,14 @@ class NoBrainerBrowserTests(unittest.TestCase):
         self.assertFalse((ROOT / "skills" / "agent-browser" / "SKILL.md").exists())
         self.assertFalse((ROOT / "skills" / "playwright-cli" / "SKILL.md").exists())
 
-    def test_latest_cli_attach_and_trace_contract(self) -> None:
+    def test_pinned_cli_attach_and_trace_contract(self) -> None:
         text = SKILL.read_text(encoding="utf-8")
         for required in (
             "nb-browser",
-            "@playwright/cli@latest",
+            "npm view @playwright/cli version",
+            'PLAYWRIGHT_CLI_VERSION="$(npm view @playwright/cli version)"',
+            'test -n "$PLAYWRIGHT_CLI_VERSION"',
+            'npm install -g "@playwright/cli@$PLAYWRIGHT_CLI_VERSION"',
             "playwright-cli attach --cdp=chrome",
             "playwright-cli attach --cdp=http://127.0.0.1:9222",
             "playwright-cli --help attach",
@@ -30,6 +33,7 @@ class NoBrainerBrowserTests(unittest.TestCase):
             "explicit report port",
         ):
             self.assertIn(required, text)
+        self.assertNotIn("npm install -g @playwright/cli@latest", text)
 
     def test_no_default_plugin_or_mcp_install(self) -> None:
         text = " ".join(SKILL.read_text(encoding="utf-8").lower().split())

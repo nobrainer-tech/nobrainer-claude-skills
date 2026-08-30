@@ -1,13 +1,13 @@
 ---
 name: nobrainer-team
-description: "Use when the owner says nb-team or nobrainer-skill-browser, or after nobrainer-ultra has produced an approved non-trivial execution map that needs installed-capability inventory, minimum role selection, safe skills.sh lookup, or justified parallel workers; do not use to elicit requirements, invent the execution map, schedule work, or create sessions."
+description: "Use when the owner says nb-team or nobrainer-skill-browser, or after nobrainer-ultra has produced an approved non-trivial plan that needs installed-capability inventory, minimum role selection, safe skills.sh lookup, or justified parallel workers; do not use to elicit requirements, invent the plan, schedule work, or create sessions."
 ---
 
 # NoBrainer Team
 
-Compose the smallest capable team for a concrete execution map. This skill owns
+Compose the smallest capable team for a concrete approved plan. This skill owns
 capability selection and role design. `nobrainer-dispatcher` owns readiness,
-batch ordering and backpressure after the map is approved. `nobrainer-sessions`
+batch ordering and backpressure after the plan is approved. `nobrainer-sessions`
 owns actual visible session identity, transport, checkout isolation, leases and
 receive-audit.
 
@@ -21,7 +21,7 @@ exist, return to `nobrainer-ultra` or the approved specification. Do not invent 
 team around vague titles such as architect, coder and tester.
 
 Even an explicit Team invocation is a discovery trigger, not permission to skip
-Ultra's intake and map boundary. Team may report the missing prerequisite and
+Ultra's intake and planning boundary. Team may report the missing prerequisite and
 return control to Ultra, but it must not design roles from a vague goal.
 
 For every work unit identify the method and capability actually needed. Inspect
@@ -101,8 +101,9 @@ For each role record:
 - why parallelism or specialization earns its coordination cost.
 
 Separate phases from concurrency groups. Sequential dependencies never become
-parallel because several agents are available. MAIN keeps the complete execution
-map. When several delegated units, dependency batches or retries exist,
+parallel because several agents are available. MAIN keeps the canonical plan
+and, when needed, its detailed ledger. When several delegated units, dependency
+batches or retries exist,
 `nobrainer-dispatcher` activates only the current safe group; Team does not
 schedule it.
 

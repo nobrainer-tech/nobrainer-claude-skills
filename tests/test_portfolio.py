@@ -48,7 +48,7 @@ class PortfolioAuditTests(unittest.TestCase):
         report = REPORT.read_text(encoding="utf-8")
         self.assertNotIn("<filled", report)
         self.assertIn(
-            "CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md",
+            "HISTORICAL_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md",
             report,
         )
         source_commit = re.search(
@@ -80,21 +80,29 @@ class PortfolioAuditTests(unittest.TestCase):
             {"nobrainer-ultra", "nobrainer-autoimprove", "nobrainer-review"},
         )
 
-        for label, relative in (
+        bindings = (
             ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
             ("REVIEW_SHA256", "skills/nobrainer-review/SKILL.md"),
             ("AUTOIMPROVE_SHA256", "skills/nobrainer-autoimprove/SKILL.md"),
             ("BOOTSTRAP_SHA256", "adapters/bootstrap.md"),
-        ):
+        )
+        for label, relative in bindings:
             declared = re.search(
                 rf"^{label}: ([0-9a-f]{{64}})$", report, re.MULTILINE
             )
             self.assertIsNotNone(declared)
-            self.assertEqual(sha256(relative), declared.group(1))
             if has_git_repository:
                 self.assertEqual(
                     git_sha256(source_ref, relative), declared.group(1)
                 )
+            if label in {
+                "ULTRA_SHA256",
+                "AUTOIMPROVE_SHA256",
+                "BOOTSTRAP_SHA256",
+            }:
+                self.assertNotEqual(sha256(relative), declared.group(1))
+            else:
+                self.assertEqual(sha256(relative), declared.group(1))
 
         for pattern in (
             r"^DETERMINISTIC_SUITE: .*90/90 PASS$",

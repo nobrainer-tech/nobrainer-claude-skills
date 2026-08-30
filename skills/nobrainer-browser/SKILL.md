@@ -1,6 +1,6 @@
 ---
 name: nobrainer-browser
-description: "Use when the owner says nb-browser or nobrainer-browser, asks to inspect or operate a rendered website, attach to an existing approved Chrome/Edge session, reproduce a browser flow, run Playwright tests, or record and analyze a Playwright trace. Prefer the latest Playwright CLI; do not set up MCP or extra browser plugins by default."
+description: "Use when the owner says nb-browser or nobrainer-browser, asks to inspect or operate a rendered website, attach to an existing approved Chrome/Edge session, reproduce a browser flow, run Playwright tests, or record and analyze a Playwright trace. Prefer a current Playwright CLI with an explicit version readback; do not set up MCP or extra browser plugins by default."
 ---
 
 # NoBrainer Browser
@@ -33,11 +33,13 @@ test -f package.json && npm exec playwright -- --version
 npm view @playwright/cli dist-tags.latest --json
 ```
 
-For interactive agent work, prefer the current npm `latest` channel and record
-the exact version after installation:
+For interactive agent work, use the current npm channel only to discover a
+version, then pin that exact version for execution and record the readback:
 
 ```bash
-npm install -g @playwright/cli@latest
+PLAYWRIGHT_CLI_VERSION="$(npm view @playwright/cli version)"
+test -n "$PLAYWRIGHT_CLI_VERSION"
+npm install -g "@playwright/cli@$PLAYWRIGHT_CLI_VERSION"
 playwright-cli --version
 playwright-cli --help
 playwright-cli --help attach

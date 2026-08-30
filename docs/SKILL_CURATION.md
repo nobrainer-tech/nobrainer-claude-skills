@@ -25,7 +25,7 @@ Popularity, file size and prior existence are not admission criteria.
 
 | Skill | Distinct owner |
 |---|---|
-| `nobrainer-ultra` | One request through brief requirements, complete execution map, guarded autopilot, audit and learning. |
+| `nobrainer-ultra` | One request through brief requirements, concise progress, guarded execution, audit, recovery and learning. |
 | `nobrainer-team` | Minimal roles, installed capability inventory and safe temporary specialist discovery. |
 | `nobrainer-dispatcher` | Ready-set calculation, dependency-aware bounded batches, backpressure and audited result routing. |
 | `nobrainer-research` | Bounded current external research and source-quality/freshness control. |
@@ -46,7 +46,7 @@ Popularity, file size and prior existence are not admission criteria.
 Do not create separate permanent skills for:
 
 - planning, autopilot, setup or correction capture: Ultra owns the lifecycle;
-- visible goal/TODO progress: Ultra owns the map and its single progress pointer;
+- visible goal/TODO progress: Ultra owns one canonical plan and its compact view;
   do not add a separate goal, todo or progress skill;
 - KISS, DRY, SOLID, YAGNI, simplification or test safety: Build owns them;
 - brand-specific voice facts belong in a project guide or wiki; Writing owns the

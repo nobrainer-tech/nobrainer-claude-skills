@@ -6,3 +6,10 @@ repos:
     hooks:
       - id: gitleaks
         args: ["--ignore-gitleaks-allow"]
+  - repo: local
+    hooks:
+      - id: public-commit-guard
+        name: Reject automated identities and backup artifacts
+        entry: python3 scripts/check_public_commit.py
+        language: system
+        pass_filenames: false

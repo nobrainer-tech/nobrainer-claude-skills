@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+from unittest import mock
 from pathlib import Path
 
 from scripts import install_skills, validate_skills
@@ -202,11 +203,47 @@ class SuiteTests(unittest.TestCase):
     def test_all_active_frontmatter_is_portable(self) -> None:
         for skill in sorted(SKILLS.glob("*/SKILL.md")):
             with self.subTest(skill=skill.parent.name):
+                frontmatter = parse_frontmatter(skill)
                 self.assertEqual(
                     {"name", "description"},
-                    set(parse_frontmatter(skill)),
+                    set(frontmatter),
                     f"{skill}: active skills use only portable frontmatter",
                 )
+                self.assertLessEqual(
+                    len(frontmatter["name"]),
+                    validate_skills.MAX_NAME_LENGTH,
+                )
+
+    def test_validator_rejects_overlong_skill_name(self) -> None:
+        name = "nobrainer-" + ("x" * 60)
+        self.assertGreater(len(name), validate_skills.MAX_NAME_LENGTH)
+        self.assertIsNotNone(validate_skills.NAME_RE.fullmatch(name))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "skills" / name / "SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text(
+                f'---\nname: {name}\ndescription: "Use when testing."\n---\n',
+                encoding="utf-8",
+            )
+            with mock.patch.object(validate_skills, "ROOT", root), mock.patch.object(
+                validate_skills, "SKILLS", root / "skills"
+            ):
+                errors = validate_skills.validate(False)
+        self.assertTrue(
+            any("invalid name length" in error for error in errors),
+            errors,
+        )
+
+    def test_codex_installer_uses_official_shared_agents_path(self) -> None:
+        self.assertEqual(
+            Path.home() / ".agents" / "skills",
+            install_skills.CLIENT_DESTINATIONS["codex"],
+        )
+        self.assertEqual(
+            install_skills.CLIENT_DESTINATIONS["agents"],
+            install_skills.CLIENT_DESTINATIONS["codex"],
+        )
 
     def test_canonical_skills_and_aliases(self) -> None:
         for name, alias in CANONICAL.items():
@@ -225,8 +262,6 @@ class SuiteTests(unittest.TestCase):
         for term in (
             "DRIFT_CHECK",
             "BUDDY",
-            "EXECUTION_MAP",
-            "READY_GATE",
             "AUTOPILOT",
             "RECEIVE_AUDIT",
             "nobrainer-sessions",
@@ -236,24 +271,40 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-research",
             "nobrainer-writing",
             "nobrainer-build",
-            "GOAL_LOOP",
-            "TODO_PROGRESS",
         ):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
         self.assertIn("one focused requirements round", text.lower())
         self.assertIn("without routine check-ins", text.lower())
-        self.assertIn("Use these enum values literally", text)
-        self.assertIn("Any map that assigns a worker", text)
-        self.assertIn("Do not replace `EXECUTION_MAP` with a generic numbered", text)
-        self.assertIn("Every executable row must display its literal `METHOD`", text)
-        self.assertIn("target 5-12 rows", text)
-        self.assertIn("stable locally testable fact", text)
-        self.assertIn("affected not-started `READY` rows to `STOPPED`", text)
+        self.assertIn("Progress", text)
+        self.assertIn("- [x]", text)
+        self.assertIn("- [>]", text)
+        self.assertIn("- [ ]", text)
+        self.assertIn("Next:", text)
+        self.assertIn("ordinary single-session", text.lower())
+        self.assertIn("detailed ledger", text.lower())
+        self.assertIn("do not announce skill use", text.lower())
+        self.assertIn("invent unseen", text.lower())
+        self.assertIn("fits one coherent session does not pass this gate", text.lower())
+        for field in (
+            "Outcome",
+            "Non-goals",
+            "Expected files",
+            "Proof",
+            "Untouched",
+            "Minimum solution",
+            "Test decision",
+            "Done clean",
+        ):
+            self.assertIn(field, text)
+        self.assertIn("stable local", text.lower())
         normalized = " ".join(text.split())
-        self.assertIn("map is the sole mutable TODO owner", normalized)
-        self.assertIn("after every independently auditable stage", normalized)
+        self.assertIn("affected not-started `READY` rows to `STOPPED`", normalized)
+        self.assertIn("one canonical todo owner", normalized.lower())
         self.assertIn("A stale summary never authorizes a successor", normalized)
+        self.assertNotIn("Run this state machine on every non-trivial invocation", text)
+        self.assertLessEqual(len(text.splitlines()), 220)
+        self.assertLessEqual(len(text.split()), 1600)
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
@@ -313,7 +364,7 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertIn("Stop when the decision-relevant uncertainty is resolved", text)
 
-    def test_problem_gate_checks_targeted_wiki_then_current_research(self) -> None:
+    def test_problem_gate_calibrates_local_evidence_and_current_research(self) -> None:
         research = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
             encoding="utf-8"
         )
@@ -325,9 +376,12 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for text in (research, ultra, setup):
             self.assertIn("PROBLEM_GATE", text)
-            self.assertIn("wiki", text.lower())
-            self.assertIn("internet", text.lower())
+            self.assertIn("local", text.lower())
+            self.assertIn("current", text.lower())
         self.assertIn("Wiki is context, not current-state proof", research)
+        self.assertIn("stable local", research.lower())
+        self.assertIn("does not require internet research", research.lower())
+        self.assertNotIn("Run at least a `MICRO` internet research pass", research)
 
     def test_writing_contract_is_high_signal_without_detector_gaming(self) -> None:
         text = (SKILLS / "nobrainer-writing" / "SKILL.md").read_text(
@@ -388,11 +442,16 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("METHOD", reference)
         self.assertIn("WRITE_SCOPE", reference)
         self.assertIn("ACCEPTANCE", reference)
+        self.assertIn("canonical plan", text.lower())
+        self.assertNotIn("execution map", text.lower())
 
     def test_dispatcher_contract_schedules_without_stealing_other_owners(self) -> None:
         text = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
             encoding="utf-8"
         )
+        agent = (
+            SKILLS / "nobrainer-dispatcher" / "agents" / "openai.yaml"
+        ).read_text(encoding="utf-8")
         normalized = " ".join(text.split())
         for term in (
             "SCHEDULE",
@@ -422,6 +481,9 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("transport identity may still be", text)
         self.assertIn("unknown transport state keeps the task `READY`", normalized)
         self.assertIn("Sessions alone performs the send", text)
+        self.assertNotIn("execution map", text.lower())
+        self.assertIn("approved plan", agent.lower())
+        self.assertNotIn("execution map", agent.lower())
         self.assertIn(
             "rerun affected tests and any required failed review, then run a "
             "fresh `RECEIVE_AUDIT`",
@@ -444,20 +506,25 @@ class SuiteTests(unittest.TestCase):
         ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
             encoding="utf-8"
         )
+        long_run = (
+            SKILLS / "nobrainer-ultra" / "references" / "long-run-state.md"
+        ).read_text(encoding="utf-8")
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
         normalized_dispatcher = " ".join(dispatcher.split())
         normalized_sessions = " ".join(sessions.split())
         normalized_ultra = " ".join(ultra.split())
+        normalized_long_run = " ".join(long_run.split())
         normalized_routing = " ".join(routing.split())
         sequence = (
             "Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher "
             "DISPATCH"
         )
         self.assertIn(sequence, dispatcher)
-        self.assertIn(sequence, ultra)
-        self.assertIn("Sessions alone performs identity preflight and transport", normalized_ultra)
+        self.assertIn(sequence, long_run)
+        self.assertIn("references/long-run-state.md", ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_long_run)
         self.assertIn("Sessions alone performs identity preflight and transport", normalized_routing)
         self.assertIn("it never invokes a second transport pass", normalized_dispatcher)
         self.assertIn("return `CORRECTION_REQUIRED`", sessions)
@@ -469,10 +536,8 @@ class SuiteTests(unittest.TestCase):
             "`receive_audit`",
             normalized_sessions.lower(),
         )
-        self.assertIn(
-            "repeat the review with fresh proof, then run a fresh `RECEIVE_AUDIT`",
-            normalized_ultra,
-        )
+        self.assertIn("changed work invalidates old proof", normalized_ultra)
+        self.assertIn("RECEIVE_AUDIT", normalized_long_run)
         hooks = (
             SKILLS
             / "nobrainer-ultra"
@@ -689,7 +754,12 @@ class SuiteTests(unittest.TestCase):
         declared_skill = re.search(r"^SKILL_SHA256: ([0-9a-f]{64})$", record, re.M)
         self.assertIsNotNone(declared_skill)
         self.assertEqual(
-            sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
+            "5be28a908cb5e467b230205f6e3bf5f35c508b4aa0e2bcaeaae0aa398badf89b",
+            declared_skill.group(1),
+        )
+        self.assertNotEqual(
+            sha256("skills/nobrainer-dispatcher/SKILL.md"),
+            declared_skill.group(1),
         )
         historical_bootstrap = re.search(
             r"^HISTORICAL_CURRENT_BOOTSTRAP_SHA256: ([0-9a-f]{64})$", record, re.M
@@ -1125,7 +1195,11 @@ class SuiteTests(unittest.TestCase):
             )
             self.assertIsNotNone(prompt_declared)
             self.assertEqual(prompt_declared.group(1), final_fields[label])
-            if relative == "skills/nobrainer-ultra/SKILL.md":
+            if relative in {
+                "skills/nobrainer-ultra/SKILL.md",
+                "skills/nobrainer-team/SKILL.md",
+                "skills/nobrainer-dispatcher/SKILL.md",
+            }:
                 self.assertNotEqual(digest(relative), prompt_declared.group(1))
             else:
                 self.assertEqual(digest(relative), prompt_declared.group(1))
@@ -1502,6 +1576,21 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(
             (ROOT / "AGENTS.md").read_bytes(), (ROOT / "CLAUDE.md").read_bytes()
         )
+
+    def test_always_loaded_instructions_are_concise(self) -> None:
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertEqual(agents, claude)
+        self.assertLessEqual(len(agents.splitlines()), 200)
+        self.assertLessEqual(len(agents.split()), 1550)
+        for term in (
+            "Expected files",
+            "Done clean",
+            "one primary agent",
+            "fetch remote refs",
+            "Never commit directly to `main`",
+        ):
+            self.assertIn(term, agents)
 
     def test_legacy_skills_are_not_discoverable(self) -> None:
         for name in LEGACY:
@@ -1926,12 +2015,10 @@ class SuiteTests(unittest.TestCase):
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.2.1.md"
         ).read_text(encoding="utf-8")
-        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
-            "version"
-        ]
+        historical = "1.2.1"
         current_spans = markdown_heading_spans(
             release_notes,
-            f"## v{current} — 2026-08-28",
+            f"## v{historical} — 2026-08-28",
         )
         v1_2_0_spans = markdown_heading_spans(
             release_notes, "## v1.2.0 — 2026-08-28"
@@ -1945,7 +2032,6 @@ class SuiteTests(unittest.TestCase):
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
-        self.assertEqual("1.2.1", current)
         self.assertEqual(list(CANONICAL_ORDER), released_skills)
         self.assertEqual(ACTIVE, set(released_skills))
         normalized_section = " ".join(re.findall(r"[a-z0-9]+", section.lower()))
@@ -1956,7 +2042,7 @@ class SuiteTests(unittest.TestCase):
             section,
         )
         self.assertIn(
-            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            "373dced811e277615d9d0301c88fd9781741d6bc",
             readme,
         )
         self.assertIn("docs/releases/v1.2.1.md", readme)
@@ -1997,9 +2083,35 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.2.1", evidence["VERSION"])
         self.assertEqual("v1.2.1", evidence["TAG"])
         self.assertEqual(
-            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            "373dced811e277615d9d0301c88fd9781741d6bc",
             evidence["COMMIT_SHA"],
         )
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.2.1^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(
+                evidence["COMMIT_SHA"],
+                tag_readback.stdout.strip(),
+            )
+            tree_readback = subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--verify",
+                    f"{evidence['COMMIT_SHA']}^{{tree}}",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, tree_readback.returncode, tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tree_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("88", evidence["ARCHIVE_TESTS_PASSED"])
@@ -2013,6 +2125,89 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["INSTALL_FILE_MATCH"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
         self.assertEqual("PASS", evidence["ACCEPTANCE"])
+
+    def test_v1_3_candidate_is_explicit_hash_bound_and_not_published(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.3.0.md"
+        ).read_text(encoding="utf-8")
+        evaluation = (
+            ROOT / "docs" / "evals" / "v1.3.0-harness-clarity-2026-08-30.md"
+        ).read_text(encoding="utf-8")
+        candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-codex-candidate-output.md"
+        ).read_text(encoding="utf-8")
+
+        current_spans = markdown_heading_spans(
+            release_notes, "## v1.3.0 candidate — 2026-08-30"
+        )
+        accepted_spans = markdown_heading_spans(
+            release_notes, "## v1.2.1 — 2026-08-28"
+        )
+        self.assertEqual(1, len(current_spans))
+        self.assertEqual(1, len(accepted_spans))
+        _, current_end = current_spans[0]
+        accepted_start, _ = accepted_spans[0]
+        self.assertLess(current_end, accepted_start)
+        section = release_notes[current_end:accepted_start]
+        self.assertEqual(
+            list(CANONICAL_ORDER),
+            re.findall(
+                r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+            ),
+        )
+        self.assertIn("not a merged, tagged, distributed", section)
+
+        evidence = parse_release_evidence(release_evidence)
+        self.assertEqual("1.3.0", evidence["VERSION"])
+        self.assertEqual("RELEASE_CANDIDATE", evidence["STATUS"])
+        self.assertEqual("15", evidence["SKILL_COUNT"])
+        self.assertEqual("184", evidence["ROOT_LINES"])
+        self.assertEqual("220", evidence["ULTRA_LINES"])
+        self.assertEqual("PASS", evidence["CODEX_EXPLICIT_RUNTIME"])
+        self.assertEqual("FAIL", evidence["CODEX_ALIAS_CONTROL"])
+        self.assertEqual("BLOCKED_AUTH", evidence["CLAUDE_RUNTIME"])
+        self.assertEqual("98", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
+        self.assertEqual("BLOCKED", evidence["AUTOMATED_PUBLIC_COMMIT_PUSH"])
+        self.assertEqual("NOT_CREATED", evidence["TAG"])
+        self.assertEqual("NOT_PUBLISHED", evidence["DISTRIBUTION"])
+        self.assertEqual("NOT_AUTHORIZED", evidence["MERGE"])
+        self.assertEqual("BLOCKED_CLAUDE_AUTH", evidence["ACCEPTANCE"])
+        self.assertNotIn("RELEASE_URL", evidence)
+
+        def digest(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        for label, relative in (
+            ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+            ("RESEARCH_SHA256", "skills/nobrainer-research/SKILL.md"),
+        ):
+            declared = re.search(
+                rf"^{label}: `([0-9a-f]{{64}})`$", candidate, re.MULTILINE
+            )
+            self.assertIsNotNone(declared)
+            self.assertEqual(digest(relative), declared.group(1))
+
+        for status in (
+            "CANDIDATE_CODEX: PASS_EXPLICIT",
+            "CODEX_ALIAS_CONTROL: FAIL",
+            "LOCAL_ERROR: PASS",
+            "LONG_RUN_HOLDOUT: PASS",
+            "RESEARCH_HOLDOUT: PASS",
+            "CANDIDATE_CLAUDE: BLOCKED_AUTH",
+            "PROMOTION: BLOCKED",
+        ):
+            self.assertIn(status, evaluation)
+        self.assertIn("$nobrainer-ultra", readme)
+        self.assertIn("docs/releases/v1.3.0.md", readme)
+        self.assertIn("latest fully accepted GitHub\nsource release", readme)
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -2075,7 +2270,7 @@ class SuiteTests(unittest.TestCase):
         self.assertTrue(text.startswith("<svg"))
         self.assertIn('viewBox="0 0 1600 900"', text)
         self.assertIn("BUDDY", text)
-        self.assertIn("EXECUTION MAP", text)
+        self.assertIn("SCOPE + PLAN", text)
         self.assertIn("BUILD", text)
         self.assertIn("REVIEW", text)
         self.assertIn("LEARN", text)
@@ -2093,11 +2288,14 @@ class SuiteTests(unittest.TestCase):
             "docs/COMPATIBILITY.md",
             "docs/releases/v1.0.0.md",
             "docs/releases/v1.1.0.md",
+            "docs/releases/v1.3.0.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
             "docs/evals/dispatcher-routing-v1.2.0-2026-08-28.md",
             "docs/evals/writing-density-v1.2.0-2026-08-28.md",
+            "docs/evals/v1.3.0-harness-clarity-2026-08-30.md",
+            "docs/specs/v1.3.0-harness-clarity.spec.md",
             "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -2144,8 +2342,8 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("flowchart TD", readme)
         for term in (
             "BUDDY: one focused clarification",
-            "EXECUTION_MAP + GOAL_LOOP",
-            "READY_GATE passes?",
+            "One canonical plan + compact Progress",
+            "Ready and authorized?",
             "BUILD correction + invalidate proof",
             "RECEIVE_AUDIT",
             "LEARN + CLOSE",
@@ -2175,9 +2373,13 @@ class SuiteTests(unittest.TestCase):
         codex = json.loads(
             (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
-        self.assertEqual({}, codex["hooks"])
+        self.assertNotIn("hooks", codex)
         self.assertEqual("./skills/", codex["skills"])
         interface = codex["interface"]
+        self.assertIn("concise progress", interface["longDescription"])
+        self.assertNotIn("execution map", interface["longDescription"].lower())
+        self.assertTrue(interface["defaultPrompt"][0].startswith("Use $nobrainer-ultra"))
+        self.assertNotIn("Use nb-ultra", interface["defaultPrompt"])
         self.assertEqual("./assets/nobrainer-tech-logo.svg", interface["composerIcon"])
         self.assertEqual(
             "https://nobrainer.tech/privacy", interface["privacyPolicyURL"]

@@ -1,3 +1,11 @@
 .DS_Store
 __pycache__/
 *.py[cod]
+
+# Runtime state and backup artifacts never belong in the public source repo.
+.git-backups/
+backup/
+backups/
+*.bak
+*.backup
+*.backup-*

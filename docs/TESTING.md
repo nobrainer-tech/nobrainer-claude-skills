@@ -48,6 +48,7 @@ do not tune against a failed holdout. Record accepted findings, null results,
 digest, rollback and any model/harness substitutions.
 
 The current changed-control records are
+[`evals/v1.3.0-harness-clarity-2026-08-30.md`](evals/v1.3.0-harness-clarity-2026-08-30.md),
 [`evals/dispatcher-routing-v1.2.0-2026-08-28.md`](evals/dispatcher-routing-v1.2.0-2026-08-28.md)
 and
 [`evals/writing-density-v1.2.0-2026-08-28.md`](evals/writing-density-v1.2.0-2026-08-28.md).
@@ -61,6 +62,12 @@ A client becomes runtime-verified only after a clean-session transcript proves
 discovery and correct first actions. Follow
 [`COMPATIBILITY.md`](COMPATIBILITY.md). Marketplace publication, production
 behavior and buyer usefulness each require their own readback.
+
+For Codex, test explicit canonical invocation with `$nobrainer-ultra` and test
+plain aliases separately as implicit-routing controls. Bind the transcript to
+the exact installed skill hash and disable same-name user copies in an isolated
+probe; two skills with the same name are not merged. An alias failure must not be
+reported as a source-isolated behavior result.
 
 ## Release gate
 

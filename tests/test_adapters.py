@@ -39,27 +39,26 @@ class AdapterTests(unittest.TestCase):
         self.assertIn("simple", text.lower())
         self.assertIn("owner gate", text.lower())
         for contract in (
-            "problem, complication, ambiguity, difficulty or error",
-            "relevant wiki decisions and lessons",
-            "current internet research",
-            "actual repository/runtime evidence",
+            "literal failure, local evidence and smallest reproducer",
+            "Query useful wiki decisions",
+            "Use current internet research when the remedy depends",
             "RESEARCH_BLOCKED",
-            "choose no remedy",
+            "choose no remedy dependent",
+            "one primary agent",
+            "short Progress checklist",
+            "detailed ledger only",
             "supersedes the old requirement",
             "invalidates affected TODO and evidence",
-            "failed review returns to Build",
+            "Failed review returns to Build",
             "invalidates stale proof",
-            "at most one sourced, authorized, non-secret project-local learning write",
-            "one exact single-store diff",
             "No mode authorizes global instructions",
-            "execution-map TODO and `GOAL_LOOP`",
         ):
             self.assertIn(contract, normalized)
         self.assertLessEqual(len(text.split()), 190)
         self.assertNotIn("/" + "Users" + "/", text)
         self.assertNotIn("continue until done", text.lower())
 
-    def test_all_problem_gate_entrypoints_fail_closed_without_web(self) -> None:
+    def test_all_problem_gate_entrypoints_calibrate_local_and_web_evidence(self) -> None:
         paths = (
             ROOT / "adapters" / "bootstrap.md",
             ROOT / "skills" / "nobrainer-ultra" / "references" / "setup.md",
@@ -71,6 +70,7 @@ class AdapterTests(unittest.TestCase):
                 self.assertIn("RESEARCH_BLOCKED", normalized)
                 self.assertIn("choose no remedy", normalized)
                 self.assertIn("internet research", normalized)
+                self.assertIn("local", normalized.lower())
 
     def test_session_start_hook_emits_one_platform_specific_context(self) -> None:
         hook = ROOT / "hooks" / "session-start"
@@ -153,7 +153,7 @@ if (count !== 1 || !combined.includes('nobrainer-ultra') || !combined.endsWith('
         kimi = json.loads((ROOT / ".kimi-plugin" / "plugin.json").read_text())
         for manifest in (portable, gemini, kimi):
             self.assertEqual("nobrainer-tech-skills", manifest["name"])
-            self.assertEqual("1.2.1", manifest["version"])
+            self.assertEqual("1.3.0", manifest["version"])
         self.assertEqual(
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
             portable["$schema"],

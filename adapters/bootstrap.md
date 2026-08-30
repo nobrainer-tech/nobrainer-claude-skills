@@ -1,28 +1,26 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
 # NoBrainer bootstrap
 
-For non-trivial work, load `nobrainer-ultra`: gather requirements once, expose
-execution-map TODO and `GOAL_LOOP`, execute. Keep simple work direct. Add specs,
-wiki or sessions when useful. Team designs roles; Dispatcher
-schedules; Sessions alone owns identity, transport, lease and receive-audit.
+For non-trivial work, load `nobrainer-ultra`: inspect state, clarify once if
+needed, freeze the minimum change, show a short Progress checklist, execute and
+verify. Keep simple work direct. Use a detailed ledger only when resumability,
+dependencies, multiple writers or consequential recovery require it.
 
-`PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
-query relevant wiki decisions and lessons, then run current internet
-research. Reconcile both with actual repository/runtime evidence. If research
-is unavailable, return `RESEARCH_BLOCKED` and choose no remedy.
+Default to one primary agent. Team designs roles; Dispatcher schedules a real
+delegated queue; Sessions owns identity, transport and receive-audit.
+
+`PROBLEM_GATE`: start from the literal failure, local evidence and smallest
+reproducer. Query useful wiki decisions. Use current internet research when the
+remedy depends on an external, current, uncertain or high-stakes fact. If that
+research is unavailable, return `RESEARCH_BLOCKED` and choose no remedy dependent on it.
 
 Autonomy never expands permission. Consequential actions require an owner gate.
+A changed owner decision supersedes the old requirement and invalidates affected
+TODO and evidence. Failed review returns to Build and invalidates stale proof;
+repair, retest and re-review before acceptance.
 
-A changed owner decision supersedes the old requirement, stops affected
-not-started `READY` work, keeps dependants blocked, invalidates affected TODO
-and evidence, and requires a new plan fingerprint before readiness. A failed
-review returns to Build and invalidates stale proof. After repair, rerun tests
-and required review, then a fresh receive-audit before acceptance.
+Correction persistence follows Ultra. No mode authorizes global instructions,
+disclosure, commits or publishing.
 
-After a correction, apply `LEARNING_WRITE_POLICY`: `AUTO_SCOPED` allows at most
-one sourced, authorized, non-secret project-local learning write; `ASK` prepares
-one exact single-store diff; `OFF` persists nothing. No mode authorizes global
-instructions, public disclosure, commits or publishing.
-
-If skill or transport is unavailable, use MAIN and report. Never invent
-success.
+If a skill or transport is unavailable, use MAIN safely or report the blocker.
+Never invent success.

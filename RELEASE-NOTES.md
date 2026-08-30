@@ -1,5 +1,48 @@
 # NoBrainer Tech Skills release notes
 
+## v1.3.0 candidate — 2026-08-30
+
+This untagged candidate keeps exactly fifteen portable skills:
+
+- `nobrainer-ultra`
+- `nobrainer-team`
+- `nobrainer-dispatcher`
+- `nobrainer-research`
+- `nobrainer-writing`
+- `nobrainer-build`
+- `nobrainer-security`
+- `nobrainer-sessions`
+- `nobrainer-spec-driven-development`
+- `nobrainer-wiki`
+- `nobrainer-browser`
+- `nobrainer-autoimprove`
+- `nobrainer-decide`
+- `nobrainer-rca`
+- `nobrainer-review`
+
+Highlights:
+
+- Ultra uses a short natural-language scope and Progress checklist for ordinary
+  work; a durable ledger appears only for dependencies, handoff, recovery,
+  multiple writers or consequential external effects.
+- The scope guard now names expected files, proof, untouched work, the minimum
+  solution and clean completion before a non-trivial write.
+- Stable local errors start from local evidence. Current, uncertain or
+  high-stakes remedies still route to bounded primary-source research.
+- Codex installation follows the shared `.agents/skills` convention and
+  documents `$nobrainer-ultra` as the canonical explicit invocation. The short
+  alias remains an implicit-routing hint, not a second skill name.
+- Public automation may fetch remote refs but cannot commit, push, open a PR or
+  merge. Versioned guards reject backup paths and automated commit identities.
+- Root instructions and Ultra are smaller while preserving owner gates,
+  correction, recovery, review and receive-audit boundaries.
+
+The source-isolated Codex candidate passed the development, local-error and two
+holdout probes. Alias-only discovery failed and Claude runtime remains blocked
+by an expired local OAuth session, so this is not a merged, tagged, distributed
+or cross-client accepted release. Exact evidence and limits are recorded in
+[the v1.3.0 candidate checkpoint](docs/releases/v1.3.0.md).
+
 ## v1.2.1 — 2026-08-28
 
 This patch release contains exactly fifteen portable skills:
@@ -26,7 +69,7 @@ archive without the repository's `.git` directory receives the same strict
 check instead of failing before validation.
 
 This version is published as a tagged GitHub source release at commit
-`1949dd99c962662f7c275d3e57288bd0a8cd184a`. Tag identity, CI, downloaded
+`373dced811e277615d9d0301c88fd9781741d6bc`. Tag identity, CI, downloaded
 archive parity and checksum, 88/88 archive-native tests, secret scan and an
 isolated fifteen-skill copy-install readback are recorded in
 [the v1.2.1 evidence](docs/releases/v1.2.1.md). This is not a claim of client

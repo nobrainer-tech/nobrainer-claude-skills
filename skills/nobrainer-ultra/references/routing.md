@@ -1,6 +1,6 @@
 # NoBrainer Ultra routing
 
-Use this reference during `DRIFT_CHECK` and `EXECUTION_MAP`. Prefer current
+Use this reference during `DRIFT_CHECK` and method selection. Prefer current
 project conventions and one source of truth. A method is loaded only when its
 trigger applies.
 
@@ -8,7 +8,7 @@ trigger applies.
 
 | Need | Primary method |
 |---|---|
-| lifecycle, brief requirements, full execution map and guarded autonomy | `nobrainer-ultra` |
+| lifecycle, brief requirements, visible progress and guarded autonomy | `nobrainer-ultra` |
 | minimal roles, capability discovery or open-skill evaluation | `nobrainer-team` |
 | ready-set calculation, dependency batches, bounded dispatch and backpressure | `nobrainer-dispatcher` |
 | current, niche, uncertain, high-stakes or attributed external facts | `nobrainer-research` |
@@ -47,19 +47,19 @@ Inspect existing `AGENTS.md`, `CLAUDE.md` and client-managed blocks. Add one
 short marked NoBrainer block from `setup.md` only when durable routing is absent.
 Link to canonical project paths instead of pasting every protocol.
 
-### Execution map
+### Progress and detailed state
 
-Create a full checkable map for non-trivial work. Persist it only when the
-project's tracker, resumability, multiple sessions or risk makes persistence
-useful. The map orders work; it does not duplicate the specification or live
-session state.
+Use a compact Progress checklist for ordinary work. Persist the detailed ledger
+from `long-run-state.md` only when multiple sessions/writers, dependencies,
+consequential recovery, context-loss resume or an owner request makes it useful.
+It orders work without duplicating the specification or wiki.
 
 ### Spec-driven development
 
 Persist a spec for architecture/public contract changes, migrations, dependent
 phases/writers, difficult rollback, work that may outlive the session or
 ambiguity expensive enough to justify maintenance. Otherwise keep the bounded
-design in the execution map.
+design in the canonical plan.
 
 ### Wiki
 

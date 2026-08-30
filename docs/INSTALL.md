@@ -39,7 +39,10 @@ python3 scripts/install_skills.py \
 ```
 
 Supported local destinations are `claude`, `codex`, `opencode`, `copilot` and
-the shared `agents` path. Override a destination only when you have inspected it:
+the shared `agents` path. `codex` and `agents` both target the current shared
+`~/.agents/skills` location documented by
+[Codex Agent Skills](https://developers.openai.com/codex/skills). Override a
+destination only when you have inspected it:
 
 ```bash
 python3 scripts/install_skills.py \
@@ -110,13 +113,14 @@ After restart, verify:
 - `nobrainer-ultra` is discoverable without pasting its body;
 - the hook emits exactly one bootstrap context;
 - a simple task remains direct;
-- a non-trivial task starts with Ultra and a complete execution map.
+- a non-trivial task starts with Ultra and a compact Progress checklist.
 
 ### Codex
 
 The `.codex-plugin/plugin.json` manifest exposes `./skills/` and intentionally
 declares no unsupported plugin hook. Install through the current native plugin
-channel when available, or use:
+channel when available, or use the installer. Its `codex` destination is the
+shared `~/.agents/skills` path:
 
 ```bash
 python3 scripts/install_skills.py --client codex
@@ -125,6 +129,9 @@ python3 scripts/install_skills.py --client codex --apply
 
 Restart Codex and test discovery in a fresh task. Repository instructions or the
 native skill trigger provide bootstrap; a file on disk is not routing proof.
+Use `$nobrainer-ultra` for an explicit invocation. Plain `nb-ultra` depends on
+implicit description matching and must be recorded separately. Existing legacy
+entries under `~/.codex/skills` are not deleted or rewritten automatically.
 
 ### Cursor
 
@@ -196,9 +203,10 @@ After every install or upgrade:
 1. restart the client;
 2. list/read back the loaded source and skill count;
 3. start a clean task with no pasted skill body;
-4. issue one explicit `nb-ultra` request and one semantic non-trivial request;
-5. confirm Ultra asks no more than one ordinary requirements round, creates the
-   execution map and routes a matching specialist;
+4. issue one explicit canonical request and one semantic non-trivial request;
+   for Codex the canonical form is `$nobrainer-ultra`;
+5. confirm Ultra asks no more than one ordinary requirements round, shows one
+   compact Progress checklist and routes a specialist only when needed;
 6. issue a one-step task and confirm it remains direct;
 7. simulate a correction and confirm affected TODO/evidence is invalidated;
 8. record client version, source ref, transcript/evidence and gaps.
