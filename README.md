@@ -230,8 +230,8 @@ parity, 88/88 tests without `.git`, a fresh secret scan and an isolated
 fifteen-skill copy installation. To reproduce the reviewed source:
 
 ```bash
-git checkout --detach 373dced811e277615d9d0301c88fd9781741d6bc
-test "$(git rev-parse HEAD)" = "373dced811e277615d9d0301c88fd9781741d6bc"
+git checkout --detach 0010140d19a7ff847dff776569772ef04d82c314
+test "$(git rev-parse HEAD)" = "0010140d19a7ff847dff776569772ef04d82c314"
 python3 scripts/validate_skills.py --suite
 python3 -m unittest discover -s tests -q
 ```
@@ -239,9 +239,12 @@ python3 -m unittest discover -s tests -q
 `v1.2.0` remains published but failed archive acceptance; its exact boundary is
 [recorded separately](docs/releases/v1.2.0.md). GitHub reports the `v1.2.1`
 release object as non-immutable and tag protection was not independently
-verified, so security-sensitive consumers should pin the full commit SHA.
+verified, so security-sensitive consumers should pin the full commit SHA. The
+current tag archive was re-read after the metadata-only history rewrite and
+passed 88/88 tests; historical CI binds the same tree, not the current commit
+identity.
 [`v1.1.0`](docs/releases/v1.1.0.md) remains the accepted rollback anchor at full
-commit `d6931a1006bf0180955d8437fd93174b6a512428`.
+commit `711be31d654835a04ef8c70674c3e493aeb2da8a`.
 
 ## One source, thin adapters
 

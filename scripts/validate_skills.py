@@ -380,8 +380,14 @@ def validate(suite_only: bool) -> list[str]:
         codex_data = json.loads(codex_manifest.read_text(encoding="utf-8"))
         if "hooks" in codex_data:
             errors.append(
-                f"{codex_manifest.relative_to(ROOT)}: unsupported hooks field must "
-                "be omitted; Claude hook shapes belong to the Claude adapter"
+                f"{codex_manifest.relative_to(ROOT)}: hooks must be omitted; "
+                "Claude hooks use an explicit non-default path so Codex cannot "
+                "auto-discover them"
+            )
+        if (ROOT / "hooks" / "hooks.json").exists():
+            errors.append(
+                "hooks/hooks.json: reserved Codex auto-discovery path must remain "
+                "absent; use a client-specific hook path"
             )
         if codex_data.get("skills") != "./skills/":
             errors.append(f"{codex_manifest.relative_to(ROOT)}: skills path must be ./skills/")

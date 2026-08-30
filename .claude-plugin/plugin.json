@@ -14,5 +14,6 @@
     "multi-session",
     "spec-driven-development",
     "verification"
-  ]
+  ],
+  "hooks": "./hooks/claude-hooks.json"
 }

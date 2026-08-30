@@ -74,10 +74,16 @@ class AdapterTests(unittest.TestCase):
 
     def test_session_start_hook_emits_one_platform_specific_context(self) -> None:
         hook = ROOT / "hooks" / "session-start"
-        claude_hooks = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+        claude_hook_path = ROOT / "hooks" / "claude-hooks.json"
+        claude_hooks = json.loads(claude_hook_path.read_text())
         cursor_hooks = json.loads(
             (ROOT / "hooks" / "hooks-cursor.json").read_text()
         )
+        claude_manifest = json.loads(
+            (ROOT / ".claude-plugin" / "plugin.json").read_text()
+        )
+        self.assertEqual("./hooks/claude-hooks.json", claude_manifest["hooks"])
+        self.assertFalse((ROOT / "hooks" / "hooks.json").exists())
         claude_entry = claude_hooks["hooks"]["SessionStart"][0]
         cursor_entry = cursor_hooks["hooks"]["sessionStart"][0]
         self.assertEqual("startup|resume|clear|compact|fork", claude_entry["matcher"])

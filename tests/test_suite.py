@@ -283,7 +283,8 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("Next:", text)
         self.assertIn("ordinary single-session", text.lower())
         self.assertIn("detailed ledger", text.lower())
-        self.assertIn("do not announce skill use", text.lower())
+        normalized = " ".join(text.lower().split())
+        self.assertIn("do not add a repetitive skill/mode preamble", normalized)
         self.assertIn("invent unseen", text.lower())
         self.assertIn("fits one coherent session does not pass this gate", text.lower())
         for field in (
@@ -1674,7 +1675,7 @@ class SuiteTests(unittest.TestCase):
             ".pi/extensions/nobrainer-tech-skills.js",
             "GEMINI.md",
             "gemini-extension.json",
-            "hooks/hooks.json",
+            "hooks/claude-hooks.json",
             "hooks/hooks-cursor.json",
             "hooks/run-hook.cmd",
             "hooks/session-start",
@@ -1792,7 +1793,7 @@ class SuiteTests(unittest.TestCase):
             ROOT / "docs" / "releases" / "v1.0.0.md"
         ).read_text(encoding="utf-8")
         version = "1.0.0"
-        release_sha = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
+        release_sha = "55c49f40d7dc4ebe900f139711cd46617c706233"
         self.assertIn(release_sha, release_notes)
         self.assertIn(f"## v{version}", release_notes)
         self.assertIn(
@@ -1815,6 +1816,15 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(f"v{version}", evidence["TAG"])
         self.assertEqual(version, evidence["VERSION"])
         self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", f"refs/tags/v{version}^{{commit}}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(release_sha, tag_readback.stdout.strip())
         self.assertRegex(evidence["COMMIT_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TREE_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TARBALL_SHA256"], r"^[0-9a-f]{64}$")
@@ -1850,7 +1860,7 @@ class SuiteTests(unittest.TestCase):
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
-        release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
+        release_sha = "711be31d654835a04ef8c70674c3e493aeb2da8a"
         expected_skills = [
             name
             for name in CANONICAL_ORDER
@@ -1881,6 +1891,15 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.1.0", evidence["VERSION"])
         self.assertEqual("v1.1.0", evidence["TAG"])
         self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.1.0^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(release_sha, tag_readback.stdout.strip())
         self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("13", evidence["ARCHIVE_SKILL_COUNT"])
@@ -1958,9 +1977,18 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.2.0", evidence["VERSION"])
         self.assertEqual("v1.2.0", evidence["TAG"])
         self.assertEqual(
-            "afd0bffa3f287493a4f646b9ceaafb82273e46b0",
+            "46feb1e95567db6967ea718cb75051c507ada02f",
             evidence["COMMIT_SHA"],
         )
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.2.0^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(evidence["COMMIT_SHA"], tag_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("86", evidence["REPOSITORY_TESTS_PASSED"])
@@ -1982,11 +2010,11 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["SUPERSEDING_RELEASE_ACCEPTANCE"])
         self.assertEqual("NOT_VERIFIED", evidence["TAG_PROTECTION_STATUS"])
         self.assertEqual(
-            "d6931a1006bf0180955d8437fd93174b6a512428",
+            "711be31d654835a04ef8c70674c3e493aeb2da8a",
             evidence["ROLLBACK_COMMIT_SHA"],
         )
         expected_rollback_tarball = (
-            "5d344b25178ce79b261b8be1da5865d57dfbc7b0e1b5c2b22dd397c71bcdc768"
+            "1a05186234487df1fa2381a291b53141a5fad6347d24f1638fc86b961abb7f5e"
         )
         self.assertEqual(
             expected_rollback_tarball,
@@ -2042,7 +2070,7 @@ class SuiteTests(unittest.TestCase):
             section,
         )
         self.assertIn(
-            "373dced811e277615d9d0301c88fd9781741d6bc",
+            "0010140d19a7ff847dff776569772ef04d82c314",
             readme,
         )
         self.assertIn("docs/releases/v1.2.1.md", readme)
@@ -2083,7 +2111,7 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.2.1", evidence["VERSION"])
         self.assertEqual("v1.2.1", evidence["TAG"])
         self.assertEqual(
-            "373dced811e277615d9d0301c88fd9781741d6bc",
+            "0010140d19a7ff847dff776569772ef04d82c314",
             evidence["COMMIT_SHA"],
         )
         tag_readback = subprocess.run(
@@ -2142,6 +2170,20 @@ class SuiteTests(unittest.TestCase):
             / "artifacts"
             / "v1.3.0-harness-clarity-codex-candidate-output.md"
         ).read_text(encoding="utf-8")
+        final_smoke = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-final-codex-smoke-output.md"
+        ).read_bytes()
+        runtime_boundaries = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-runtime-boundaries.md"
+        ).read_text(encoding="utf-8")
 
         current_spans = markdown_heading_spans(
             release_notes, "## v1.3.0 candidate — 2026-08-30"
@@ -2170,9 +2212,11 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("184", evidence["ROOT_LINES"])
         self.assertEqual("220", evidence["ULTRA_LINES"])
         self.assertEqual("PASS", evidence["CODEX_EXPLICIT_RUNTIME"])
+        self.assertEqual("PASS", evidence["CODEX_FINAL_SMOKE"])
+        self.assertEqual("77", evidence["CODEX_FINAL_SMOKE_WORDS"])
         self.assertEqual("FAIL", evidence["CODEX_ALIAS_CONTROL"])
         self.assertEqual("BLOCKED_AUTH", evidence["CLAUDE_RUNTIME"])
-        self.assertEqual("98", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("99", evidence["DETERMINISTIC_TESTS_TOTAL"])
         self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
         self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
         self.assertEqual("BLOCKED", evidence["AUTOMATED_PUBLIC_COMMIT_PUSH"])
@@ -2181,6 +2225,11 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("NOT_AUTHORIZED", evidence["MERGE"])
         self.assertEqual("BLOCKED_CLAUDE_AUTH", evidence["ACCEPTANCE"])
         self.assertNotIn("RELEASE_URL", evidence)
+        self.assertIn(
+            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(final_smoke).hexdigest()}`",
+            runtime_boundaries,
+        )
+        self.assertIn("STORED_OUTPUT_NORMALIZATION: one terminal LF added", runtime_boundaries)
 
         def digest(relative: str) -> str:
             return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
@@ -2195,6 +2244,28 @@ class SuiteTests(unittest.TestCase):
             self.assertIsNotNone(declared)
             self.assertEqual(digest(relative), declared.group(1))
 
+        output_sections = re.findall(
+            r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", candidate
+        )
+        self.assertEqual(5, len(output_sections))
+        for title, section_body in output_sections:
+            with self.subTest(output=title):
+                metadata, output = section_body.split("\n\n", 1)
+                output = output.rstrip("\n")
+                declared_sha = re.search(
+                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
+                )
+                declared_words = re.search(
+                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
+                )
+                self.assertIsNotNone(declared_sha)
+                self.assertIsNotNone(declared_words)
+                self.assertEqual(
+                    declared_sha.group(1),
+                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
+                )
+                self.assertEqual(int(declared_words.group(1)), len(output.split()))
+
         for status in (
             "CANDIDATE_CODEX: PASS_EXPLICIT",
             "CODEX_ALIAS_CONTROL: FAIL",
@@ -2208,6 +2279,35 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("$nobrainer-ultra", readme)
         self.assertIn("docs/releases/v1.3.0.md", readme)
         self.assertIn("latest fully accepted GitHub\nsource release", readme)
+
+    def test_v1_3_spec_self_authenticates(self) -> None:
+        spec = (
+            ROOT / "docs" / "specs" / "v1.3.0-harness-clarity.spec.md"
+        ).read_bytes()
+        declared = re.search(rb"^SPEC_HASH: ([0-9a-f]{64})$", spec, re.MULTILINE)
+        approved = re.search(rb"^- APPROVED_HASH: ([0-9a-f]{64})$", spec, re.MULTILINE)
+        self.assertIsNotNone(declared)
+        self.assertIsNotNone(approved)
+
+        canonical, spec_replacements = re.subn(
+            rb"^SPEC_HASH: [^\r\n]+$",
+            b"SPEC_HASH: NONE",
+            spec,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        canonical, approval_replacements = re.subn(
+            rb"^- APPROVED_HASH: [^\r\n]+$",
+            b"- APPROVED_HASH: NONE",
+            canonical,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        self.assertEqual(1, spec_replacements)
+        self.assertEqual(1, approval_replacements)
+        calculated = hashlib.sha256(canonical).hexdigest().encode("ascii")
+        self.assertEqual(declared.group(1), approved.group(1))
+        self.assertEqual(declared.group(1), calculated)
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -2374,7 +2474,12 @@ class SuiteTests(unittest.TestCase):
             (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
         self.assertNotIn("hooks", codex)
+        self.assertFalse((ROOT / "hooks" / "hooks.json").exists())
         self.assertEqual("./skills/", codex["skills"])
+        claude = json.loads(
+            (ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("./hooks/claude-hooks.json", claude["hooks"])
         interface = codex["interface"]
         self.assertIn("concise progress", interface["longDescription"])
         self.assertNotIn("execution map", interface["longDescription"].lower())

@@ -34,6 +34,11 @@ Highlights:
   alias remains an implicit-routing hint, not a second skill name.
 - Public automation may fetch remote refs but cannot commit, push, open a PR or
   merge. Versioned guards reject backup paths and automated commit identities.
+- Every current public head and release tag was checked for the exact retired
+  backup identity and trailer. Affected refs were rewritten with exact leases
+  while preserving every source tree; unrelated historical authors and
+  committers were intentionally preserved. GitHub-managed historical
+  pull-request refs remain outside repository write control.
 - Root instructions and Ultra are smaller while preserving owner gates,
   correction, recovery, review and receive-audit boundaries.
 
@@ -69,8 +74,9 @@ archive without the repository's `.git` directory receives the same strict
 check instead of failing before validation.
 
 This version is published as a tagged GitHub source release at commit
-`373dced811e277615d9d0301c88fd9781741d6bc`. Tag identity, CI, downloaded
-archive parity and checksum, 88/88 archive-native tests, secret scan and an
+`0010140d19a7ff847dff776569772ef04d82c314`. Current tag identity,
+tree-equivalent historical CI, downloaded archive parity and checksum, 88/88
+archive-native tests, secret scan and an
 isolated fifteen-skill copy-install readback are recorded in
 [the v1.2.1 evidence](docs/releases/v1.2.1.md). This is not a claim of client
 marketplace publication, native loading or clean-session runtime behavior.
@@ -113,8 +119,8 @@ Highlights:
   no-replace semantics, so a concurrent foreign target is preserved.
 
 This version was published as a tagged GitHub source release at commit
-`afd0bffa3f287493a4f646b9ceaafb82273e46b0`. Its repository CI, source parity,
-secret scan, skill validation and isolated installer readback passed, but the
+`46feb1e95567db6967ea718cb75051c507ada02f`. Its tree-equivalent historical CI,
+source parity, secret scan, skill validation and isolated installer readback passed, but the
 downloaded archive exposed one environment-dependent test that assumed the
 presence of `.git`. It is therefore published but not fully accepted and is
 superseded by the accepted `v1.2.1` release. The complete boundary is recorded
@@ -156,8 +162,9 @@ Highlights:
   reported for post-readback manual cleanup.
 
 This version is published as a tagged GitHub source release at commit
-`d6931a1006bf0180955d8437fd93174b6a512428`. Tag identity, archive SHA-256, file
-parity, CI, tests, secret scan and isolated installer readback are recorded in
+`711be31d654835a04ef8c70674c3e493aeb2da8a`. Current tag identity, archive
+SHA-256, file parity, tree-equivalent historical CI, tests, secret scan and
+isolated installer readback are recorded in
 [the v1.1.0 evidence](docs/releases/v1.1.0.md). This is not a claim of
 publication in npm or any client marketplace, nor of native client loading or
 runtime behavior.
@@ -195,8 +202,8 @@ Install the exact reviewed commit behind `v1.0.0`:
 ```bash
 git clone https://github.com/nobrainer-tech/nobrainer-tech-skills.git
 cd nobrainer-tech-skills
-git checkout --detach bf60c4c3a57440c6b87cd1b326cd41237b7225da
-test "$(git rev-parse HEAD)" = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
+git checkout --detach 55c49f40d7dc4ebe900f139711cd46617c706233
+test "$(git rev-parse HEAD)" = "55c49f40d7dc4ebe900f139711cd46617c706233"
 python3 scripts/validate_skills.py --suite
 python3 scripts/install_skills.py --client codex
 ```

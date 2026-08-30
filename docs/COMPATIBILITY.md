@@ -79,8 +79,10 @@ rewrite skill bodies.
   global instructions.
 - Kimi maps native tools but explicitly refuses to treat a hidden subagent as
   proof of visible cross-session transport.
-- Codex omits unsupported hook fields; native skill discovery remains the
-  routing mechanism and Claude hook shapes stay in their own adapter.
+- Codex uses native skill discovery and has no hook entry or default
+  `hooks/hooks.json` file. Claude points explicitly to
+  `hooks/claude-hooks.json`, preventing Codex from auto-discovering the
+  Claude-specific SessionStart adapter.
 - The portable root manifest contains no client-specific bootstrap. Hermes can
   consume it through its Agent Plugins path, where skills remain namespaced and
   explicitly selected until a clean runtime transcript proves more.

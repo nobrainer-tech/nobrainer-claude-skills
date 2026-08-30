@@ -92,9 +92,9 @@ inspection proves another file necessary, update scope before editing it.
 placeholders and speculative layers are absent, and final status has no surprise.
 If inspection or execution is explicitly excluded, keep the plan provisional.
 Default to at most 160 words: one outcome sentence, at most three scope bullets, the compact Progress view,
-at most three proof bullets and one next action. Do not announce skill use, claim planning is complete, or enumerate
-implementation phases or possible mechanisms. Do not invent unseen schemas, endpoints, state machines, storage or polling;
-name only required boundaries and proof, and mark exact paths and methods as pending inspection.
+at most three proof bullets and one next action. Do not add a repetitive skill/mode preamble, claim planning is complete,
+or enumerate implementation phases or possible mechanisms. Do not invent unseen schemas, endpoints, state machines,
+storage or polling; name only required boundaries and proof, and mark exact paths and methods as pending inspection.
 
 Do not add a dependency, compatibility layer, fallback stack, worker, skill or
 test without an acceptance need or demonstrated risk. A new shared abstraction
