@@ -154,17 +154,17 @@ Candidate hard gates:
 
 The three promoted candidates are intentionally small and reversible. Their
 baseline hashes above are retained for rollback. The source hashes and exact
-local command results below bind this record to `SOURCE_COMMIT`; this record
-must not be read as clean-client, runtime or production proof.
-`SOURCE_COMMIT` anchors the source bytes evaluated by the hashes below; it need
-not be the commit that contains this report.
+local command results below bind this historical record to `SOURCE_COMMIT`;
+this record must not be read as current v1.3 source, clean-client, runtime or
+production proof. `SOURCE_COMMIT` continues to anchor the evaluated bytes after
+a later release changes them.
 
 ## Final verification record
 
 ```text
 BASELINE_COMMIT: 44f6e27f0492d7a3cc03cfe812bbe30cdd54bd25
-SOURCE_COMMIT: 2fae7117862aba759d001237b9fc1b230efbd9ad
-CURRENT_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md
+SOURCE_COMMIT: 0613d3fc3d32b60b34d18529dd587b51bb45305f
+HISTORICAL_BINDING: docs/evals/portfolio-autoimprove-2026-08-29.md
 ULTRA_SHA256: 65f54bcb254ade94e759ed12f069602d62ecc03b4540e7d7d9d5a06152e7a909
 REVIEW_SHA256: ed7d3016fc6b988a2d8af77db285e6cfca9b756d46ba521c2714ca7d4bbc7b3e
 AUTOIMPROVE_SHA256: 29f0b796a08040a91297d8230876cda128b3a86f0bef9cd4a360a12fda7cdb38

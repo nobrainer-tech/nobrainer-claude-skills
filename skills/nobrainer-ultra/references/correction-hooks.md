@@ -98,7 +98,7 @@ Every write must have one canonical owner, a source, scope, confidentiality,
 verification and rollback. Keep these concerns separate:
 
 - active requirement or decision -> spec/decision record;
-- live work and invalidation -> execution map/state;
+- live work and invalidation -> canonical plan/state;
 - repository behavior rule -> nearest `AGENTS.md`;
 - project-specific failure pattern -> `tasks/lessons.md`;
 - reusable sourced knowledge -> `nobrainer-wiki`;

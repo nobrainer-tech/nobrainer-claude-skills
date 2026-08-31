@@ -22,11 +22,12 @@
 </p>
 
 Give the agent one outcome. `nobrainer-ultra` inspects the real project, asks at
-most one focused requirements round, builds a complete skill-routed execution
-map, creates a minimal specialist team when it will genuinely help, and drives
-the approved work until verified delivery or a real owner gate.
+most one focused requirements round, scopes the minimum complete change, shows
+one short Progress checklist and drives approved work until verified delivery or
+a real owner gate. Detailed state and specialists appear only when they earn
+their coordination cost.
 
-![NoBrainer Ultra workflow: one clarification round, a skill-routed execution map, build, review, verification, delivery and durable learning; failed review returns to build](assets/nobrainer-workflow.svg)
+![NoBrainer Ultra workflow: one clarification round, minimum scope, one plan, bounded build, review, verification, delivery and durable learning](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
 
@@ -34,27 +35,30 @@ the approved work until verified delivery or a real owner gate.
 flowchart TD
     A[Owner request] --> B{Outcome clear?}
     B -->|no| C[BUDDY: one focused clarification]
-    B -->|yes| D[Freeze GOAL, NON_GOALS, ACCEPTANCE, UNTOUCHED]
+    B -->|yes| D[Freeze outcome, scope, proof and untouched work]
     C --> D
-    D --> E[EXECUTION_MAP + GOAL_LOOP]
-    E --> F{READY_GATE passes?}
-    F -->|no| G[STOP: re-plan or owner gate]
-    G --> B
-    F -->|yes| H[AUTOPILOT]
-    H --> I{Parallel work earns its cost?}
-    I -->|no| J[MAIN + relevant skill]
-    I -->|yes| K[TEAM / DISPATCHER / SESSIONS]
-    J --> L[VERIFY]
-    K --> L
-    L --> M{Review passes?}
-    M -->|no| N[BUILD correction + invalidate proof]
-    N --> L
-    M -->|yes| O[RECEIVE_AUDIT]
-    O --> P{Evidence and lease valid?}
-    P -->|no| G
-    P -->|yes| Q{Approved tasks remain?}
-    Q -->|yes| H
-    Q -->|no| R[LEARN + CLOSE]
+    D --> E[One canonical plan + compact Progress]
+    E --> F{Resume, dependencies or recovery need a ledger?}
+    F -->|yes| G[Durable identity, checkpoints and rollback]
+    F -->|no| H[Keep ordinary work lightweight]
+    G --> I{Ready and authorized?}
+    H --> I
+    I -->|no| J[STOP: re-plan, block or ask owner]
+    J --> B
+    I -->|yes| K{Independent work earns coordination?}
+    K -->|no| L[MAIN + relevant skill]
+    K -->|yes| M[TEAM / DISPATCHER / SESSIONS]
+    L --> N[VERIFY + REVIEW when justified]
+    M --> N
+    N --> O{Review passes?}
+    O -->|no| P[BUILD correction + invalidate proof]
+    P --> N
+    O -->|yes| Q{Delegated result?}
+    Q -->|yes| R[RECEIVE_AUDIT]
+    Q -->|no| S{Evidence current?}
+    R --> S
+    S -->|no| J
+    S -->|yes| T[LEARN + CLOSE]
 ```
 
 **Continuous improvement beats delayed perfection.** A small task stays small.
@@ -63,20 +67,22 @@ framework, automatic swarm or documentation theatre.
 
 ## Start with one skill
 
-Use [`nobrainer-ultra`](skills/nobrainer-ultra/) (`nb-ultra`) for setup or any
-non-trivial outcome:
+Use [`nobrainer-ultra`](skills/nobrainer-ultra/) for setup or any non-trivial
+outcome. In Codex, explicit invocation is `$nobrainer-ultra`; `nb-ultra` is a
+natural-language trigger phrase and therefore depends on a client's implicit
+description matching.
 
 ```text
-DRIFT_CHECK -> BUDDY -> EXECUTION_MAP -> READY_GATE -> AUTOPILOT
-            -> VERIFY -> RECEIVE_AUDIT -> LEARN
+DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN
 ```
 
 - `BUDDY` is the first and only ordinary clarification stage.
-- `EXECUTION_MAP` is the complete TODO: every stage has one owning skill or
-  capability, dependencies, write scope, evidence, session and owner gate.
-- `GOAL_LOOP` makes progress visible: the map row and one compact goal snapshot
-  are updated together before/after each auditable transition; it is not a
-  second mutable state store.
+- `SCOPE` freezes outcome, non-goals, expected files, proof, untouched work,
+  minimum solution, test decision and clean completion before a non-trivial write.
+- One canonical plan owns TODO state; the owner sees only a compact Progress
+  checklist and one next action.
+- A durable ledger adds exact identity, dependencies, checkpoints, retries and
+  rollback only for cross-session, dependency-rich or consequential work.
 - `AUTOPILOT` continues through routine approved work without repeated check-ins.
 - `nobrainer-team` selects the minimum useful capabilities;
   `nobrainer-dispatcher` schedules only approved ready work in bounded batches;
@@ -104,7 +110,7 @@ recurring boundary:
 
 | Skill | Alias | Responsibility |
 |---|---|---|
-| [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-ultra` | End-to-end setup and delivery: one requirements gate, complete execution map, autopilot, audit and learning |
+| [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-ultra` | End-to-end setup and delivery: one requirements gate, concise progress, bounded execution, recovery, audit and learning |
 | [`nobrainer-team`](skills/nobrainer-team/) | `nb-team` | Minimal capability roster, installed-skill inventory and safe temporary specialist discovery |
 | [`nobrainer-dispatcher`](skills/nobrainer-dispatcher/) | `nb-dispatcher` | Dependency-aware ready-set scheduling, bounded dispatch, backpressure and audited result routing |
 | [`nobrainer-research`](skills/nobrainer-research/) | `nb-research` | Bounded current research from primary sources with facts separated from inference |
@@ -161,8 +167,9 @@ The shared delivery contract operationalizes:
 
 If a decision-relevant fact may be current, niche, uncertain, high-stakes or
 source-attributed, Ultra routes the smallest sufficient check through Research.
-If primary evidence is unavailable, it says `RESEARCH_BLOCKED` instead of
-guessing.
+A stable local syntax, import, test or configuration error starts from local
+evidence instead of an automatic wiki/web detour. If required primary evidence
+is unavailable, it says `RESEARCH_BLOCKED` instead of guessing.
 
 ## Compatibility is a proof ladder
 
@@ -211,14 +218,20 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version [`v1.2.1`](docs/releases/v1.2.1.md) is the latest fully accepted GitHub
+The manifests currently identify an untagged
+[`v1.3.0 candidate`](docs/releases/v1.3.0.md). Its exact repo-scoped
+`$nobrainer-ultra` Codex probe passed, while alias-only discovery failed and the
+Claude runtime probe is blocked by local authentication. It is not a merged,
+tagged or distributed release.
+
+Version [`v1.2.1`](docs/releases/v1.2.1.md) is still the latest fully accepted GitHub
 source release. It passed exact tag-to-commit readback, merged-main CI, archive
 parity, 88/88 tests without `.git`, a fresh secret scan and an isolated
 fifteen-skill copy installation. To reproduce the reviewed source:
 
 ```bash
-git checkout --detach 1949dd99c962662f7c275d3e57288bd0a8cd184a
-test "$(git rev-parse HEAD)" = "1949dd99c962662f7c275d3e57288bd0a8cd184a"
+git checkout --detach 0010140d19a7ff847dff776569772ef04d82c314
+test "$(git rev-parse HEAD)" = "0010140d19a7ff847dff776569772ef04d82c314"
 python3 scripts/validate_skills.py --suite
 python3 -m unittest discover -s tests -q
 ```
@@ -226,9 +239,12 @@ python3 -m unittest discover -s tests -q
 `v1.2.0` remains published but failed archive acceptance; its exact boundary is
 [recorded separately](docs/releases/v1.2.0.md). GitHub reports the `v1.2.1`
 release object as non-immutable and tag protection was not independently
-verified, so security-sensitive consumers should pin the full commit SHA.
+verified, so security-sensitive consumers should pin the full commit SHA. The
+current tag archive was re-read after the metadata-only history rewrite and
+passed 88/88 tests; historical CI binds the same tree, not the current commit
+identity.
 [`v1.1.0`](docs/releases/v1.1.0.md) remains the accepted rollback anchor at full
-commit `d6931a1006bf0180955d8437fd93174b6a512428`.
+commit `711be31d654835a04ef8c70674c3e493aeb2da8a`.
 
 ## One source, thin adapters
 

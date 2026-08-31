@@ -1,6 +1,6 @@
 {
   "name": "nobrainer-tech-skills",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Portable workflows for one-brief autopilot, specialist teams, research, secure implementation, review, and durable learning.",
   "author": {
     "name": "NoBrainer Tech",
@@ -17,11 +17,10 @@
     "verification"
   ],
   "skills": "./skills/",
-  "hooks": {},
   "interface": {
     "displayName": "NoBrainer Tech Skills",
     "shortDescription": "Fast, visible, evidence-gated agentic workflows",
-    "longDescription": "Turn one request into a skill-routed execution map, guarded autopilot, useful visible sessions, secure implementation, independent review, measurable improvement, and durable wiki knowledge.",
+    "longDescription": "Turn one request into minimum scope, concise progress, bounded execution, conditional recovery state, secure implementation, independent review, and durable learning.",
     "developerName": "NoBrainer Tech",
     "category": "Developer Tools",
     "capabilities": [
@@ -30,8 +29,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use nb-ultra to deliver this task with the smallest safe workflow.",
-      "Build the minimum specialist team and deliver this project with evidence."
+      "Use $nobrainer-ultra to deliver this task with the smallest safe workflow.",
+      "Use $nobrainer-team to build the minimum specialist team and deliver this project with evidence."
     ],
     "websiteURL": "https://nobrainer.tech",
     "privacyPolicyURL": "https://nobrainer.tech/privacy",

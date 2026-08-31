@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+from unittest import mock
 from pathlib import Path
 
 from scripts import install_skills, validate_skills
@@ -202,11 +203,47 @@ class SuiteTests(unittest.TestCase):
     def test_all_active_frontmatter_is_portable(self) -> None:
         for skill in sorted(SKILLS.glob("*/SKILL.md")):
             with self.subTest(skill=skill.parent.name):
+                frontmatter = parse_frontmatter(skill)
                 self.assertEqual(
                     {"name", "description"},
-                    set(parse_frontmatter(skill)),
+                    set(frontmatter),
                     f"{skill}: active skills use only portable frontmatter",
                 )
+                self.assertLessEqual(
+                    len(frontmatter["name"]),
+                    validate_skills.MAX_NAME_LENGTH,
+                )
+
+    def test_validator_rejects_overlong_skill_name(self) -> None:
+        name = "nobrainer-" + ("x" * 60)
+        self.assertGreater(len(name), validate_skills.MAX_NAME_LENGTH)
+        self.assertIsNotNone(validate_skills.NAME_RE.fullmatch(name))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            skill = root / "skills" / name / "SKILL.md"
+            skill.parent.mkdir(parents=True)
+            skill.write_text(
+                f'---\nname: {name}\ndescription: "Use when testing."\n---\n',
+                encoding="utf-8",
+            )
+            with mock.patch.object(validate_skills, "ROOT", root), mock.patch.object(
+                validate_skills, "SKILLS", root / "skills"
+            ):
+                errors = validate_skills.validate(False)
+        self.assertTrue(
+            any("invalid name length" in error for error in errors),
+            errors,
+        )
+
+    def test_codex_installer_uses_official_shared_agents_path(self) -> None:
+        self.assertEqual(
+            Path.home() / ".agents" / "skills",
+            install_skills.CLIENT_DESTINATIONS["codex"],
+        )
+        self.assertEqual(
+            install_skills.CLIENT_DESTINATIONS["agents"],
+            install_skills.CLIENT_DESTINATIONS["codex"],
+        )
 
     def test_canonical_skills_and_aliases(self) -> None:
         for name, alias in CANONICAL.items():
@@ -225,8 +262,6 @@ class SuiteTests(unittest.TestCase):
         for term in (
             "DRIFT_CHECK",
             "BUDDY",
-            "EXECUTION_MAP",
-            "READY_GATE",
             "AUTOPILOT",
             "RECEIVE_AUDIT",
             "nobrainer-sessions",
@@ -236,24 +271,47 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-research",
             "nobrainer-writing",
             "nobrainer-build",
-            "GOAL_LOOP",
-            "TODO_PROGRESS",
         ):
             self.assertIn(term, text)
         self.assertNotIn("continue until done", text.lower())
         self.assertIn("one focused requirements round", text.lower())
+        self.assertIn("do not make them owner questions", text.lower())
         self.assertIn("without routine check-ins", text.lower())
-        self.assertIn("Use these enum values literally", text)
-        self.assertIn("Any map that assigns a worker", text)
-        self.assertIn("Do not replace `EXECUTION_MAP` with a generic numbered", text)
-        self.assertIn("Every executable row must display its literal `METHOD`", text)
-        self.assertIn("target 5-12 rows", text)
-        self.assertIn("stable locally testable fact", text)
-        self.assertIn("affected not-started `READY` rows to `STOPPED`", text)
+        routing_contract = " ".join(text.lower().split())
+        self.assertIn("a routing-table line or remembered summary is insufficient", routing_contract)
+        self.assertIn("loading method context is not task execution", routing_contract)
+        self.assertIn("Progress", text)
+        self.assertIn("- [x]", text)
+        self.assertIn("- [>]", text)
+        self.assertIn("- [ ]", text)
+        self.assertIn("Next:", text)
+        self.assertIn("ordinary single-session", text.lower())
+        self.assertIn("detailed ledger", text.lower())
+        normalized = " ".join(text.lower().split())
+        self.assertIn("do not add a repetitive skill/mode preamble", normalized)
+        self.assertIn("invent unseen", text.lower())
+        self.assertIn("fits one coherent session does not pass this gate", text.lower())
+        for field in (
+            "Outcome",
+            "Non-goals",
+            "Expected files",
+            "Proof",
+            "Untouched",
+            "Minimum solution",
+            "Test decision",
+            "Done clean",
+        ):
+            self.assertIn(field, text)
+        problem_gate = " ".join(text.lower().split())
+        self.assertIn("do not infer that a documented command produced the failure", problem_gate)
+        self.assertIn("simulation-only request forbids execution, not naming that next diagnostic action", problem_gate)
         normalized = " ".join(text.split())
-        self.assertIn("map is the sole mutable TODO owner", normalized)
-        self.assertIn("after every independently auditable stage", normalized)
+        self.assertIn("affected not-started `READY` rows to `STOPPED`", normalized)
+        self.assertIn("one canonical todo owner", normalized.lower())
         self.assertIn("A stale summary never authorizes a successor", normalized)
+        self.assertNotIn("Run this state machine on every non-trivial invocation", text)
+        self.assertLessEqual(len(text.splitlines()), 220)
+        self.assertLessEqual(len(text.split()), 1600)
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
@@ -313,7 +371,7 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertIn("Stop when the decision-relevant uncertainty is resolved", text)
 
-    def test_problem_gate_checks_targeted_wiki_then_current_research(self) -> None:
+    def test_problem_gate_calibrates_local_evidence_and_current_research(self) -> None:
         research = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
             encoding="utf-8"
         )
@@ -325,9 +383,12 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for text in (research, ultra, setup):
             self.assertIn("PROBLEM_GATE", text)
-            self.assertIn("wiki", text.lower())
-            self.assertIn("internet", text.lower())
+            self.assertIn("local", text.lower())
+            self.assertIn("current", text.lower())
         self.assertIn("Wiki is context, not current-state proof", research)
+        self.assertIn("stable local", research.lower())
+        self.assertIn("does not require internet research", research.lower())
+        self.assertNotIn("Run at least a `MICRO` internet research pass", research)
 
     def test_writing_contract_is_high_signal_without_detector_gaming(self) -> None:
         text = (SKILLS / "nobrainer-writing" / "SKILL.md").read_text(
@@ -388,11 +449,16 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("METHOD", reference)
         self.assertIn("WRITE_SCOPE", reference)
         self.assertIn("ACCEPTANCE", reference)
+        self.assertIn("canonical plan", text.lower())
+        self.assertNotIn("execution map", text.lower())
 
     def test_dispatcher_contract_schedules_without_stealing_other_owners(self) -> None:
         text = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
             encoding="utf-8"
         )
+        agent = (
+            SKILLS / "nobrainer-dispatcher" / "agents" / "openai.yaml"
+        ).read_text(encoding="utf-8")
         normalized = " ".join(text.split())
         for term in (
             "SCHEDULE",
@@ -422,6 +488,9 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("transport identity may still be", text)
         self.assertIn("unknown transport state keeps the task `READY`", normalized)
         self.assertIn("Sessions alone performs the send", text)
+        self.assertNotIn("execution map", text.lower())
+        self.assertIn("approved plan", agent.lower())
+        self.assertNotIn("execution map", agent.lower())
         self.assertIn(
             "rerun affected tests and any required failed review, then run a "
             "fresh `RECEIVE_AUDIT`",
@@ -444,20 +513,25 @@ class SuiteTests(unittest.TestCase):
         ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
             encoding="utf-8"
         )
+        long_run = (
+            SKILLS / "nobrainer-ultra" / "references" / "long-run-state.md"
+        ).read_text(encoding="utf-8")
         routing = (
             SKILLS / "nobrainer-ultra" / "references" / "routing.md"
         ).read_text(encoding="utf-8")
         normalized_dispatcher = " ".join(dispatcher.split())
         normalized_sessions = " ".join(sessions.split())
         normalized_ultra = " ".join(ultra.split())
+        normalized_long_run = " ".join(long_run.split())
         normalized_routing = " ".join(routing.split())
         sequence = (
             "Team -> Dispatcher SCHEDULE -> Sessions setup/delegate -> Dispatcher "
             "DISPATCH"
         )
         self.assertIn(sequence, dispatcher)
-        self.assertIn(sequence, ultra)
-        self.assertIn("Sessions alone performs identity preflight and transport", normalized_ultra)
+        self.assertIn(sequence, long_run)
+        self.assertIn("references/long-run-state.md", ultra)
+        self.assertIn("Sessions alone performs identity preflight and transport", normalized_long_run)
         self.assertIn("Sessions alone performs identity preflight and transport", normalized_routing)
         self.assertIn("it never invokes a second transport pass", normalized_dispatcher)
         self.assertIn("return `CORRECTION_REQUIRED`", sessions)
@@ -469,10 +543,8 @@ class SuiteTests(unittest.TestCase):
             "`receive_audit`",
             normalized_sessions.lower(),
         )
-        self.assertIn(
-            "repeat the review with fresh proof, then run a fresh `RECEIVE_AUDIT`",
-            normalized_ultra,
-        )
+        self.assertIn("changed work invalidates old proof", normalized_ultra)
+        self.assertIn("RECEIVE_AUDIT", normalized_long_run)
         hooks = (
             SKILLS
             / "nobrainer-ultra"
@@ -689,7 +761,12 @@ class SuiteTests(unittest.TestCase):
         declared_skill = re.search(r"^SKILL_SHA256: ([0-9a-f]{64})$", record, re.M)
         self.assertIsNotNone(declared_skill)
         self.assertEqual(
-            sha256("skills/nobrainer-dispatcher/SKILL.md"), declared_skill.group(1)
+            "5be28a908cb5e467b230205f6e3bf5f35c508b4aa0e2bcaeaae0aa398badf89b",
+            declared_skill.group(1),
+        )
+        self.assertNotEqual(
+            sha256("skills/nobrainer-dispatcher/SKILL.md"),
+            declared_skill.group(1),
         )
         historical_bootstrap = re.search(
             r"^HISTORICAL_CURRENT_BOOTSTRAP_SHA256: ([0-9a-f]{64})$", record, re.M
@@ -1125,7 +1202,11 @@ class SuiteTests(unittest.TestCase):
             )
             self.assertIsNotNone(prompt_declared)
             self.assertEqual(prompt_declared.group(1), final_fields[label])
-            if relative == "skills/nobrainer-ultra/SKILL.md":
+            if relative in {
+                "skills/nobrainer-ultra/SKILL.md",
+                "skills/nobrainer-team/SKILL.md",
+                "skills/nobrainer-dispatcher/SKILL.md",
+            }:
                 self.assertNotEqual(digest(relative), prompt_declared.group(1))
             else:
                 self.assertEqual(digest(relative), prompt_declared.group(1))
@@ -1503,6 +1584,21 @@ class SuiteTests(unittest.TestCase):
             (ROOT / "AGENTS.md").read_bytes(), (ROOT / "CLAUDE.md").read_bytes()
         )
 
+    def test_always_loaded_instructions_are_concise(self) -> None:
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertEqual(agents, claude)
+        self.assertLessEqual(len(agents.splitlines()), 200)
+        self.assertLessEqual(len(agents.split()), 1550)
+        for term in (
+            "Expected files",
+            "Done clean",
+            "one primary agent",
+            "fetch remote refs",
+            "Never commit directly to `main`",
+        ):
+            self.assertIn(term, agents)
+
     def test_legacy_skills_are_not_discoverable(self) -> None:
         for name in LEGACY:
             with self.subTest(name=name):
@@ -1585,7 +1681,7 @@ class SuiteTests(unittest.TestCase):
             ".pi/extensions/nobrainer-tech-skills.js",
             "GEMINI.md",
             "gemini-extension.json",
-            "hooks/hooks.json",
+            "hooks/claude-hooks.json",
             "hooks/hooks-cursor.json",
             "hooks/run-hook.cmd",
             "hooks/session-start",
@@ -1650,6 +1746,10 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(level, pull_request_template)
         for surface in (text, pull_request_template):
             self.assertNotIn("ADAPTER_VALIDATED", surface)
+        self.assertIn("RUNTIME_VERIFIED_EXPLICIT", text)
+        self.assertIn(
+            "under explicit invocation; this does not prove discovery", text
+        )
 
     def test_release_heading_parser_requires_one_unfenced_exact_line(self) -> None:
         heading = "## v1.1.0 — 2026-08-28"
@@ -1703,7 +1803,7 @@ class SuiteTests(unittest.TestCase):
             ROOT / "docs" / "releases" / "v1.0.0.md"
         ).read_text(encoding="utf-8")
         version = "1.0.0"
-        release_sha = "bf60c4c3a57440c6b87cd1b326cd41237b7225da"
+        release_sha = "55c49f40d7dc4ebe900f139711cd46617c706233"
         self.assertIn(release_sha, release_notes)
         self.assertIn(f"## v{version}", release_notes)
         self.assertIn(
@@ -1726,6 +1826,15 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(f"v{version}", evidence["TAG"])
         self.assertEqual(version, evidence["VERSION"])
         self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", f"refs/tags/v{version}^{{commit}}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(release_sha, tag_readback.stdout.strip())
         self.assertRegex(evidence["COMMIT_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TREE_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TARBALL_SHA256"], r"^[0-9a-f]{64}$")
@@ -1761,7 +1870,7 @@ class SuiteTests(unittest.TestCase):
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
-        release_sha = "d6931a1006bf0180955d8437fd93174b6a512428"
+        release_sha = "711be31d654835a04ef8c70674c3e493aeb2da8a"
         expected_skills = [
             name
             for name in CANONICAL_ORDER
@@ -1792,6 +1901,15 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.1.0", evidence["VERSION"])
         self.assertEqual("v1.1.0", evidence["TAG"])
         self.assertEqual(release_sha, evidence["COMMIT_SHA"])
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.1.0^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(release_sha, tag_readback.stdout.strip())
         self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("13", evidence["ARCHIVE_SKILL_COUNT"])
@@ -1869,9 +1987,18 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.2.0", evidence["VERSION"])
         self.assertEqual("v1.2.0", evidence["TAG"])
         self.assertEqual(
-            "afd0bffa3f287493a4f646b9ceaafb82273e46b0",
+            "46feb1e95567db6967ea718cb75051c507ada02f",
             evidence["COMMIT_SHA"],
         )
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.2.0^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(evidence["COMMIT_SHA"], tag_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("86", evidence["REPOSITORY_TESTS_PASSED"])
@@ -1893,11 +2020,11 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["SUPERSEDING_RELEASE_ACCEPTANCE"])
         self.assertEqual("NOT_VERIFIED", evidence["TAG_PROTECTION_STATUS"])
         self.assertEqual(
-            "d6931a1006bf0180955d8437fd93174b6a512428",
+            "711be31d654835a04ef8c70674c3e493aeb2da8a",
             evidence["ROLLBACK_COMMIT_SHA"],
         )
         expected_rollback_tarball = (
-            "5d344b25178ce79b261b8be1da5865d57dfbc7b0e1b5c2b22dd397c71bcdc768"
+            "1a05186234487df1fa2381a291b53141a5fad6347d24f1638fc86b961abb7f5e"
         )
         self.assertEqual(
             expected_rollback_tarball,
@@ -1926,12 +2053,10 @@ class SuiteTests(unittest.TestCase):
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.2.1.md"
         ).read_text(encoding="utf-8")
-        current = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))[
-            "version"
-        ]
+        historical = "1.2.1"
         current_spans = markdown_heading_spans(
             release_notes,
-            f"## v{current} — 2026-08-28",
+            f"## v{historical} — 2026-08-28",
         )
         v1_2_0_spans = markdown_heading_spans(
             release_notes, "## v1.2.0 — 2026-08-28"
@@ -1945,7 +2070,6 @@ class SuiteTests(unittest.TestCase):
         released_skills = re.findall(
             r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
         )
-        self.assertEqual("1.2.1", current)
         self.assertEqual(list(CANONICAL_ORDER), released_skills)
         self.assertEqual(ACTIVE, set(released_skills))
         normalized_section = " ".join(re.findall(r"[a-z0-9]+", section.lower()))
@@ -1956,7 +2080,7 @@ class SuiteTests(unittest.TestCase):
             section,
         )
         self.assertIn(
-            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            "0010140d19a7ff847dff776569772ef04d82c314",
             readme,
         )
         self.assertIn("docs/releases/v1.2.1.md", readme)
@@ -1997,9 +2121,35 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("1.2.1", evidence["VERSION"])
         self.assertEqual("v1.2.1", evidence["TAG"])
         self.assertEqual(
-            "1949dd99c962662f7c275d3e57288bd0a8cd184a",
+            "0010140d19a7ff847dff776569772ef04d82c314",
             evidence["COMMIT_SHA"],
         )
+        tag_readback = subprocess.run(
+            ["git", "rev-parse", "--verify", "refs/tags/v1.2.1^{commit}"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if tag_readback.returncode == 0:
+            self.assertEqual(
+                evidence["COMMIT_SHA"],
+                tag_readback.stdout.strip(),
+            )
+            tree_readback = subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--verify",
+                    f"{evidence['COMMIT_SHA']}^{{tree}}",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, tree_readback.returncode, tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tree_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("88", evidence["ARCHIVE_TESTS_PASSED"])
@@ -2013,6 +2163,270 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["INSTALL_FILE_MATCH"])
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
         self.assertEqual("PASS", evidence["ACCEPTANCE"])
+
+    def test_v1_3_candidate_is_explicit_hash_bound_and_not_published(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        release_evidence = (
+            ROOT / "docs" / "releases" / "v1.3.0.md"
+        ).read_text(encoding="utf-8")
+        evaluation = (
+            ROOT / "docs" / "evals" / "v1.3.0-harness-clarity-2026-08-30.md"
+        ).read_text(encoding="utf-8")
+        candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-codex-candidate-output.md"
+        ).read_text(encoding="utf-8")
+        final_smoke = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-final-codex-smoke-output.md"
+        ).read_bytes()
+        runtime_boundaries = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-harness-clarity-runtime-boundaries.md"
+        ).read_text(encoding="utf-8")
+        luna_candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-luna-max-priority-output.md"
+        ).read_text(encoding="utf-8")
+        claude_candidate = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "artifacts"
+            / "v1.3.0-claude-explicit-output.md"
+        ).read_text(encoding="utf-8")
+
+        current_spans = markdown_heading_spans(
+            release_notes, "## v1.3.0 candidate — 2026-08-30"
+        )
+        accepted_spans = markdown_heading_spans(
+            release_notes, "## v1.2.1 — 2026-08-28"
+        )
+        self.assertEqual(1, len(current_spans))
+        self.assertEqual(1, len(accepted_spans))
+        _, current_end = current_spans[0]
+        accepted_start, _ = accepted_spans[0]
+        self.assertLess(current_end, accepted_start)
+        section = release_notes[current_end:accepted_start]
+        self.assertEqual(
+            list(CANONICAL_ORDER),
+            re.findall(
+                r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
+            ),
+        )
+        self.assertIn("not a merged, tagged, distributed", section)
+
+        evidence = parse_release_evidence(release_evidence)
+        self.assertEqual("1.3.0", evidence["VERSION"])
+        self.assertEqual("RELEASE_CANDIDATE", evidence["STATUS"])
+        self.assertEqual("15", evidence["SKILL_COUNT"])
+        self.assertEqual("184", evidence["ROOT_LINES"])
+        self.assertEqual("220", evidence["ULTRA_LINES"])
+        self.assertEqual("PASS", evidence["CODEX_EXPLICIT_RUNTIME"])
+        self.assertEqual("PASS", evidence["CODEX_SOL_SMOKE"])
+        self.assertEqual("77", evidence["CODEX_SOL_SMOKE_WORDS"])
+        self.assertNotIn("CODEX_FINAL_SMOKE", evidence)
+        self.assertEqual("FAIL", evidence["CODEX_ALIAS_CONTROL"])
+        self.assertEqual("gpt-5.6-luna", evidence["CODEX_LUNA_MODEL"])
+        self.assertEqual("max", evidence["CODEX_LUNA_REASONING"])
+        self.assertEqual("REQUESTED_NOT_READ_BACK", evidence["CODEX_LUNA_PRIORITY"])
+        self.assertEqual("PASS_EXPLICIT", evidence["CODEX_LUNA_FINAL_RUNTIME"])
+        self.assertEqual("PASS", evidence["CODEX_LUNA_IMPLEMENTATION"])
+        self.assertEqual("PASS", evidence["CODEX_LUNA_AUTOIMPROVE_ROUTING"])
+        self.assertEqual("PASS_EXPLICIT", evidence["CLAUDE_RUNTIME"])
+        self.assertEqual("PASS", evidence["CLAUDE_AUTOIMPROVE_ROUTING"])
+        self.assertEqual(
+            "NO_CHANGE_INVALID_HOLDOUT", evidence["AUTORESEARCH_LONG_RUN"]
+        )
+        self.assertEqual("FAIL_MODEL_NO_SKILL", evidence["NON_TRIGGER_CONTROL"])
+        self.assertEqual("99", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
+        self.assertEqual("BLOCKED", evidence["AUTOMATED_PUBLIC_COMMIT_PUSH"])
+        self.assertEqual("NOT_CREATED", evidence["TAG"])
+        self.assertEqual("NOT_PUBLISHED", evidence["DISTRIBUTION"])
+        self.assertEqual("NOT_AUTHORIZED", evidence["MERGE"])
+        self.assertEqual("PASS_LOCAL_PR_CANDIDATE", evidence["ACCEPTANCE"])
+        self.assertNotIn("RELEASE_URL", evidence)
+        self.assertIn(
+            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(final_smoke).hexdigest()}`",
+            runtime_boundaries,
+        )
+        self.assertIn("STORED_OUTPUT_NORMALIZATION: one terminal LF added", runtime_boundaries)
+
+        def digest(relative: str) -> str:
+            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+        for label, relative in (
+            ("RESEARCH_SHA256", "skills/nobrainer-research/SKILL.md"),
+        ):
+            declared = re.search(
+                rf"^{label}: `([0-9a-f]{{64}})`$", candidate, re.MULTILINE
+            )
+            self.assertIsNotNone(declared)
+            self.assertEqual(digest(relative), declared.group(1))
+
+        for document in (luna_candidate, claude_candidate):
+            for label, relative in (
+                ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
+                ("AUTOIMPROVE_SHA256", "skills/nobrainer-autoimprove/SKILL.md"),
+            ):
+                declared = re.search(
+                    rf"^{label}: `([0-9a-f]{{64}})`$", document, re.MULTILINE
+                )
+                self.assertIsNotNone(declared)
+                self.assertEqual(digest(relative), declared.group(1))
+
+        output_sections = re.findall(
+            r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", candidate
+        )
+        self.assertEqual(5, len(output_sections))
+        for title, section_body in output_sections:
+            with self.subTest(output=title):
+                metadata, output = section_body.split("\n\n", 1)
+                output = output.rstrip("\n")
+                declared_sha = re.search(
+                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
+                )
+                declared_words = re.search(
+                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
+                )
+                self.assertIsNotNone(declared_sha)
+                self.assertIsNotNone(declared_words)
+                self.assertEqual(
+                    declared_sha.group(1),
+                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
+                )
+                self.assertEqual(int(declared_words.group(1)), len(output.split()))
+
+        luna_sections = {
+            title: body
+            for title, body in re.findall(
+                r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", luna_candidate
+            )
+            if "OUTPUT_SHA256:" in body
+        }
+        self.assertEqual(
+            {
+                "Final pressure case",
+                "Final local-error case",
+                "Ultra to Autoimprove routing",
+                "Owner-decision correction case",
+                "Mechanical non-trigger model control",
+                "Long-run sealed baseline",
+                "Long-run compact candidate",
+                "Isolated implementation task",
+            },
+            set(luna_sections),
+        )
+        for title, section_body in luna_sections.items():
+            with self.subTest(luna_output=title):
+                metadata, output = section_body.split("\n\n", 1)
+                output = output.rstrip("\n")
+                declared_sha = re.search(
+                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
+                )
+                declared_words = re.search(
+                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
+                )
+                self.assertIsNotNone(declared_sha)
+                self.assertIsNotNone(declared_words)
+                self.assertEqual(
+                    declared_sha.group(1),
+                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
+                )
+                self.assertEqual(int(declared_words.group(1)), len(output.split()))
+
+        claude_section = re.search(
+            r"(?ms)^## Stored owner-facing output\n\n(.*)\Z", claude_candidate
+        )
+        self.assertIsNotNone(claude_section)
+        claude_metadata, claude_output = claude_section.group(1).split("\n\n", 1)
+        claude_output = claude_output.rstrip("\n")
+        self.assertIn(
+            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(claude_output.encode('utf-8')).hexdigest()}`",
+            claude_metadata,
+        )
+        self.assertIn(
+            f"STORED_OUTPUT_WORDS: `{len(claude_output.split())}`",
+            claude_metadata,
+        )
+        self.assertIn("SERVICE_TIER_READBACK: `NOT_EXPOSED_BY_CLI_JSON`", luna_candidate)
+        self.assertIn("RESULT: `NOT_COMPARABLE_SOURCE_DRIFT`", luna_candidate)
+        self.assertIn("PROMOTION: `NO_CHANGE_INVALID_HOLDOUT`", luna_candidate)
+        for prompt in (
+            "v1.3.0-luna-correction-prompt.md",
+            "v1.3.0-luna-non-trigger-prompt.md",
+            "v1.3.0-long-run-recovery-v2-holdout-prompt.md",
+        ):
+            self.assertIn(
+                hashlib.sha256(
+                    (ROOT / "docs" / "evals" / "artifacts" / prompt).read_bytes()
+                ).hexdigest(),
+                luna_candidate,
+            )
+        self.assertNotIn("/private/tmp", luna_candidate)
+        self.assertNotIn("/private/tmp", claude_candidate)
+
+        for status in (
+            "CANDIDATE_CODEX_LUNA: PASS_EXPLICIT_MAX",
+            "CODEX_ALIAS_CONTROL: FAIL",
+            "LOCAL_ERROR: PASS",
+            "LONG_RUN_HOLDOUT: PASS",
+            "RESEARCH_HOLDOUT: PASS",
+            "AUTOIMPROVE_ROUTING: PASS_BOTH_CLIENTS",
+            "LUNA_IMPLEMENTATION: PASS",
+            "LONG_RUN_COMPRESSION_EXPERIMENT: NO_CHANGE_INVALID_HOLDOUT",
+            "NON_TRIGGER_CONTROL: FAIL_MODEL_NO_SKILL",
+            "CANDIDATE_CLAUDE: PASS_EXPLICIT",
+            "PROMOTION: PASS_PR_CANDIDATE",
+        ):
+            self.assertIn(status, evaluation)
+        self.assertIn("$nobrainer-ultra", readme)
+        self.assertIn("docs/releases/v1.3.0.md", readme)
+        self.assertIn("latest fully accepted GitHub\nsource release", readme)
+
+    def test_v1_3_spec_self_authenticates(self) -> None:
+        spec = (
+            ROOT / "docs" / "specs" / "v1.3.0-harness-clarity.spec.md"
+        ).read_bytes()
+        declared = re.search(rb"^SPEC_HASH: ([0-9a-f]{64})$", spec, re.MULTILINE)
+        approved = re.search(rb"^- APPROVED_HASH: ([0-9a-f]{64})$", spec, re.MULTILINE)
+        self.assertIsNotNone(declared)
+        self.assertIsNotNone(approved)
+
+        canonical, spec_replacements = re.subn(
+            rb"^SPEC_HASH: [^\r\n]+$",
+            b"SPEC_HASH: NONE",
+            spec,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        canonical, approval_replacements = re.subn(
+            rb"^- APPROVED_HASH: [^\r\n]+$",
+            b"- APPROVED_HASH: NONE",
+            canonical,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        self.assertEqual(1, spec_replacements)
+        self.assertEqual(1, approval_replacements)
+        calculated = hashlib.sha256(canonical).hexdigest().encode("ascii")
+        self.assertEqual(declared.group(1), approved.group(1))
+        self.assertEqual(declared.group(1), calculated)
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -2075,7 +2489,7 @@ class SuiteTests(unittest.TestCase):
         self.assertTrue(text.startswith("<svg"))
         self.assertIn('viewBox="0 0 1600 900"', text)
         self.assertIn("BUDDY", text)
-        self.assertIn("EXECUTION MAP", text)
+        self.assertIn("SCOPE + PLAN", text)
         self.assertIn("BUILD", text)
         self.assertIn("REVIEW", text)
         self.assertIn("LEARN", text)
@@ -2093,11 +2507,14 @@ class SuiteTests(unittest.TestCase):
             "docs/COMPATIBILITY.md",
             "docs/releases/v1.0.0.md",
             "docs/releases/v1.1.0.md",
+            "docs/releases/v1.3.0.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",
             "docs/evals/dispatcher-routing-v1.2.0-2026-08-28.md",
             "docs/evals/writing-density-v1.2.0-2026-08-28.md",
+            "docs/evals/v1.3.0-harness-clarity-2026-08-30.md",
+            "docs/specs/v1.3.0-harness-clarity.spec.md",
             "assets/nobrainer-workflow.svg",
             ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -2144,8 +2561,8 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("flowchart TD", readme)
         for term in (
             "BUDDY: one focused clarification",
-            "EXECUTION_MAP + GOAL_LOOP",
-            "READY_GATE passes?",
+            "One canonical plan + compact Progress",
+            "Ready and authorized?",
             "BUILD correction + invalidate proof",
             "RECEIVE_AUDIT",
             "LEARN + CLOSE",
@@ -2175,9 +2592,18 @@ class SuiteTests(unittest.TestCase):
         codex = json.loads(
             (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
-        self.assertEqual({}, codex["hooks"])
+        self.assertNotIn("hooks", codex)
+        self.assertFalse((ROOT / "hooks" / "hooks.json").exists())
         self.assertEqual("./skills/", codex["skills"])
+        claude = json.loads(
+            (ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("./hooks/claude-hooks.json", claude["hooks"])
         interface = codex["interface"]
+        self.assertIn("concise progress", interface["longDescription"])
+        self.assertNotIn("execution map", interface["longDescription"].lower())
+        self.assertTrue(interface["defaultPrompt"][0].startswith("Use $nobrainer-ultra"))
+        self.assertNotIn("Use nb-ultra", interface["defaultPrompt"])
         self.assertEqual("./assets/nobrainer-tech-logo.svg", interface["composerIcon"])
         self.assertEqual(
             "https://nobrainer.tech/privacy", interface["privacyPolicyURL"]

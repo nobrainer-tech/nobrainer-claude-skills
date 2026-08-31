@@ -1,17 +1,17 @@
 ---
 name: nobrainer-dispatcher
-description: "Use when the owner says nb-dispatcher or nobrainer-dispatcher, or when an approved execution map has multiple queued work units that require ready-set selection, dependency-aware ordering, bounded parallel batches, retry scheduling, or routing audited results to the next queued unit; do not use for one coherent task, one bounded delegate, a standalone receive-audit, requirements, team design, or session transport."
+description: "Use when the owner says nb-dispatcher or nobrainer-dispatcher, or when an approved plan has multiple queued work units that require ready-set selection, dependency-aware ordering, bounded parallel batches, retry scheduling, or routing audited results to the next queued unit; do not use for one coherent task, one bounded delegate, a standalone receive-audit, requirements, team design, or session transport."
 ---
 
 # NoBrainer Dispatcher
 
-Turn an approved execution map into a controlled sequence of work batches. Own
+Turn an approved detailed plan into a controlled sequence of work batches. Own
 readiness, ordering, backpressure and scheduler state; never own requirements,
 implementation, session identity or final acceptance evidence.
 
 Keep the boundaries explicit:
 
-- `nobrainer-ultra` owns intent, the complete execution map and lifecycle;
+- `nobrainer-ultra` owns intent, the canonical plan and lifecycle;
 - `nobrainer-team` owns the minimum roles and capability sources;
 - Dispatcher owns which already-defined work unit may run now;
 - `nobrainer-sessions` owns exact session identity, transport, lease and
@@ -28,7 +28,7 @@ work ownership in every report.
 
 ## Preconditions
 
-Dispatch only from a visible or canonical execution map whose executable rows
+Dispatch only from a visible canonical ledger whose executable rows
 contain:
 
 ```text
@@ -68,10 +68,10 @@ acceptance into an opaque `continue until done` loop.
 
 ## Own one dispatch ledger
 
-Keep scheduler state separate from the specification, execution map, session
+Keep scheduler state separate from the specification, canonical plan, session
 registry, reports and wiki. MAIN or one named coordinator is the only writer.
 Persist the ledger only when work spans sessions, can be interrupted or needs
-auditable retries; otherwise keep it in the current execution map.
+auditable retries; otherwise keep it in the current plan.
 
 ```text
 DISPATCH_RUN_ID:
@@ -215,4 +215,4 @@ RESULT: NOT_NEEDED | DISPATCHED | ADVANCED | DEGRADED_MAIN | STOPPED | CLOSED
 ```
 
 Do not claim speedup from worker count. Report elapsed critical-path evidence
-when available and close the dispatcher when the execution map is accepted.
+when available and close the dispatcher when the canonical plan is accepted.

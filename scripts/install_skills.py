@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 CLIENT_DESTINATIONS = {
     "claude": Path.home() / ".claude" / "skills",
-    "codex": Path.home() / ".codex" / "skills",
+    "codex": Path.home() / ".agents" / "skills",
     "opencode": Path.home() / ".config" / "opencode" / "skills",
     "copilot": Path.home() / ".copilot" / "skills",
     "agents": Path.home() / ".agents" / "skills",

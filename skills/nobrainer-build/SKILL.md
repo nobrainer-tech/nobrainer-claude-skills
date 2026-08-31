@@ -16,9 +16,10 @@ Before the first write, resolve:
 
 - observable outcome and acceptance IDs or checks;
 - exact repository, checkout, dirty state, write scope and exclusions;
+- expected files with one reason each, plus protected untouched files;
 - relevant instructions, current callers/consumers and baseline behavior;
 - cheapest useful failing proof, target tests, broader verifier/build/runtime;
-- side effects, owner gates and rollback.
+- side effects, owner gates, rollback and the `Done clean` condition.
 
 Preserve unrelated changes. Use an isolated worktree or disjoint write scope
 when another writer is active. If a missing requirement changes architecture,
@@ -41,6 +42,11 @@ Apply these principles as decision rules, not slogans:
 Reuse a maintained project capability before adding a dependency. Prefer a
 small local change over a new framework. Configuration owns values that vary by
 environment or run; code owns invariants.
+
+A new shared abstraction requires two real current callers or an explicit
+acceptance contract that needs the boundary. A hypothetical future caller does
+not justify it. If inspection expands the expected file set, update scope before
+editing the newly required file.
 
 ## Anti-slop gate
 
@@ -81,6 +87,8 @@ artifact merely to make the change look substantial.
    Perform a behavior-preserving simplification pass: remove unused indirection,
    duplicate state and needless fallback layers only when references and tests
    prove the simpler path. Do not compress readable code merely to reduce lines.
+   Check `Done clean`: actual files match the expected scope, no unexpected
+   status entry remains, and no placeholder or speculative layer survived.
 6. Route a consequential or user-requested final gate to `nobrainer-review`.
    Every fix invalidates earlier evidence for the changed path and must be
    rechecked.
@@ -103,6 +111,10 @@ Do not push through three failed fix-like attempts. Preserve the failing proof,
 return to `nobrainer-rca` or revise the design with the owner.
 
 ## Build report
+
+This schema is an audit input for Ultra or another machine handoff. In ordinary
+conversation, translate it into a short natural-language outcome, evidence,
+uncertainty, rollback and next action instead of dumping the form.
 
 ```text
 RESULT: FINISHED | BLOCKED | FAILED | SPEC_CHANGE_PROPOSED

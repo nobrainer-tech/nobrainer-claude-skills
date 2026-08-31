@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+MAX_NAME_LENGTH = 64
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|#|mailto:)([^)]+)\)")
 
 SUITE = {
@@ -283,6 +284,11 @@ def validate(suite_only: bool) -> list[str]:
             )
         if not NAME_RE.fullmatch(name):
             errors.append(f"{path.relative_to(ROOT)}: invalid name {name!r}")
+        if len(name) > MAX_NAME_LENGTH:
+            errors.append(
+                f"{path.relative_to(ROOT)}: invalid name length "
+                f"{len(name)} > {MAX_NAME_LENGTH}"
+            )
         if name != path.parent.name:
             errors.append(
                 f"{path.relative_to(ROOT)}: name {name!r} does not match directory"
@@ -372,10 +378,16 @@ def validate(suite_only: bool) -> list[str]:
     codex_manifest = ROOT / ".codex-plugin" / "plugin.json"
     try:
         codex_data = json.loads(codex_manifest.read_text(encoding="utf-8"))
-        if codex_data.get("hooks") != {}:
+        if "hooks" in codex_data:
             errors.append(
-                f"{codex_manifest.relative_to(ROOT)}: hooks must be an empty object "
-                "so Codex does not auto-discover Claude hook shapes"
+                f"{codex_manifest.relative_to(ROOT)}: hooks must be omitted; "
+                "Claude hooks use an explicit non-default path so Codex cannot "
+                "auto-discover them"
+            )
+        if (ROOT / "hooks" / "hooks.json").exists():
+            errors.append(
+                "hooks/hooks.json: reserved Codex auto-discovery path must remain "
+                "absent; use a client-specific hook path"
             )
         if codex_data.get("skills") != "./skills/":
             errors.append(f"{codex_manifest.relative_to(ROOT)}: skills path must be ./skills/")

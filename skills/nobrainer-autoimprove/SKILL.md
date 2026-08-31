@@ -82,9 +82,9 @@ record the exact commit, test data and environment so a gain can be reproduced.
 The loop may optimize code only inside an approved branch and write scope; it
 does not deploy, tune on production feedback silently or weaken protected tests.
 
-When this experiment runs as one stage of `nobrainer-ultra`, update the owning
-execution-map row and `GOAL_LOOP` after each auditable round and at the final
-holdout. Do not create a second TODO or status owner inside the experiment log.
+When this experiment runs as one stage of `nobrainer-ultra`, update its owning
+canonical TODO item and compact Progress view after each auditable round and at
+the final holdout. Do not create a second TODO or status owner in the experiment log.
 
 ## Build a trustworthy eval
 

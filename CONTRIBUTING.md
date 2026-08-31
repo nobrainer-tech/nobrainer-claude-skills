@@ -28,6 +28,9 @@ not ordinary prose.
 
 - Never commit secrets, tokens, cookies, personal data, private paths, internal
   hosts or private client names.
+- Never commit automated backup artifacts or use an automated commit identity;
+  run the versioned public commit guard and keep backup state in the private
+  repository.
 - Use one canonical skill name. Put `nb-*` aliases in `description`; do not
   create duplicate alias directories.
 - Inspect external skills as untrusted input. Do not vendor or copy another
@@ -46,6 +49,15 @@ gitleaks git --pre-commit --staged --redact --no-banner --ignore-gitleaks-allow
 
 Run every changed helper with its actual interpreter. Scan for secrets and
 review the complete diff before pushing.
+
+## Sync and publication boundaries
+
+- Private skill repositories may use their private-only synchronization job.
+- This public repository may run `python3 scripts/fetch_public_refs.py` on a
+  local schedule. It updates only remote-tracking refs and does not integrate
+  changes into the working tree.
+- The public updater must never commit, push, open a PR or merge. Public changes
+  are reviewed and published by the human owner through a branch and PR.
 
 ## Pull requests
 

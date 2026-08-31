@@ -37,10 +37,12 @@ placeholders with verified paths/commands and remove duplicate lines:
 
 - Route non-trivial work through `nobrainer-ultra`; keep one-step tasks direct.
 - Read the actual checkout, instructions, relevant wiki knowledge and tests first.
-- Use one short requirements gate, then maintain a full skill-routed execution
-  map and run the approved scope autonomously. Expose one `GOAL_LOOP` snapshot
-  beside the map and update both after each setup or readback transition; do not
-  create a second mutable TODO ledger.
+- Use one short requirements gate, freeze the minimum change and run the
+  approved scope autonomously. Show a compact Progress checklist at meaningful
+  transitions. Keep one canonical TODO owner.
+- Use a detailed ledger only for multi-session, dependency-rich,
+  consequential or explicitly resumable work; ordinary single-session work
+  keeps the short checklist.
 - Prefer the smallest complete change. Apply KISS and YAGNI; deduplicate owned
   knowledge, not incidental similarity; preserve cohesive dependency boundaries.
 - Use `nobrainer-team`, `nobrainer-dispatcher` and `nobrainer-sessions` only for
@@ -48,12 +50,12 @@ placeholders with verified paths/commands and remove duplicate lines:
   critical-path parallelism.
 - Research current material unknowns from primary sources; mark blocked research
   and never manufacture certainty.
-- `PROBLEM_GATE`: on any problem, complication, ambiguity, difficulty or error,
-  first query only related wiki decisions and lessons, then run a short current
-  internet research pass before choosing the remedy. Reconcile both with the
-  actual repository/runtime; wiki is context, not current-state proof. If current
-  internet research is unavailable, return `RESEARCH_BLOCKED` and choose no
-  remedy.
+- `PROBLEM_GATE`: start from the literal local failure and smallest reproducer;
+  query only related wiki decisions when useful. Use current primary-source
+  research when the remedy depends on an external, current, niche, uncertain or
+  high-stakes fact. A stable local failure does not require browsing first. If
+  required internet research is unavailable, return `RESEARCH_BLOCKED` and
+  choose no remedy that depends on the missing evidence.
 - Route material user-facing prose through `nobrainer-writing`; keep a tiny
   answer direct when it is already clear, specific and complete.
 - Route authentication, authorization, secrets, sensitive data, untrusted input
@@ -108,7 +110,7 @@ reviewed. Persistent/global installation is an owner gate.
 - Add a wiki only for reusable sourced knowledge beyond normal project docs.
 - Add visible sessions only for independent work, isolation, handoff, resume or
   a warm specialist.
-- Keep specification, execution map, live state, reports/evidence and wiki as
+- Keep specification, detailed execution state, reports/evidence and wiki as
   separate owners; link rather than duplicate mutable facts.
 
 ## 6. Close with readback
@@ -120,7 +122,7 @@ SOURCE_REF:
 CLIENTS_CONFIGURED:
 SKILL_COUNT:
 PROJECT_INSTRUCTIONS:
-EXECUTION_MAP: CURRENT | CREATED | UPDATED | NOT_NEEDED
+DETAILED_LEDGER: CURRENT | CREATED | UPDATED | NOT_NEEDED
 SDD: CURRENT | CREATED | UPDATED | NOT_NEEDED
 WIKI: CURRENT | CREATED | UPDATED | NOT_NEEDED
 LEARNING_WRITE_POLICY: AUTO_SCOPED | ASK | OFF

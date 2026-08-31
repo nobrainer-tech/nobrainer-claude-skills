@@ -1,6 +1,6 @@
 ---
 name: nobrainer-research
-description: "Use when the owner says nb-research, asks to research or verify external information, when a task depends on current, niche, uncertain, high-stakes, or source-attributed facts, or when a problem, complication, ambiguity, difficulty, or error requires a targeted wiki check and current internet research before choosing the response."
+description: "Use when the owner says nb-research, asks to research or verify external information, when a task depends on current, niche, uncertain, high-stakes, or source-attributed facts, or when solving a problem requires current external evidence rather than a stable local diagnostic."
 ---
 
 # NoBrainer Research
@@ -11,22 +11,20 @@ or collect an unreadable pile of links.
 
 ## `PROBLEM_GATE`
 
-When the work encounters a problem, complication, ambiguity, difficulty or
-error, pause before choosing the response:
+When work encounters a problem, first freeze the literal symptom and inspect the
+current repository/runtime, smallest reproducer and related local evidence.
+Query only relevant wiki decisions or lessons when they can change the remedy.
 
-1. Query only the relevant project or owner wiki pages for prior decisions,
-   constraints and lessons. Do not load the whole wiki.
-2. Run at least a `MICRO` internet research pass against current reliable
-   sources for the safest applicable response, even when local evidence already
-   establishes the symptom.
-3. Compare wiki context, external evidence and the actual repository/runtime.
-   Separate fact from inference, then choose the next action.
+A stable local syntax, import, test, configuration or deterministic runtime
+failure does not require internet research before the next local diagnostic.
+Escalate to a `MICRO` internet pass when the response depends on a current,
+external, niche, uncertain or high-stakes fact, or when local evidence leaves
+material alternatives that current primary sources can resolve.
 
-Wiki is context, not current-state proof. Current repository and runtime
-readback remain authoritative for the present incident. If no relevant wiki is
-available, say so and continue to the internet pass. If required internet access
-is unavailable, return `RESEARCH_BLOCKED` and do not disguise memory as current
-verification.
+Wiki is context, not current-state proof. Compare it and external evidence with
+the actual repository/runtime, separating fact from inference. If required
+internet access is unavailable, return `RESEARCH_BLOCKED` and do not disguise
+memory as current verification.
 
 ## Decide whether research is needed
 
