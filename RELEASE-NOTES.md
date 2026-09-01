@@ -1,8 +1,8 @@
 # NoBrainer Tech Skills release notes
 
-## v1.3.0 candidate — 2026-09-01
+## v1.3.0 — 2026-09-01
 
-This untagged candidate keeps exactly fifteen portable skills:
+This published source release keeps exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -48,11 +48,11 @@ Highlights:
 - The final5 candidate passed three paired repetitions and a sealed holdout;
   the full evidence is in the [Autoimprove receipt](docs/evals/artifacts/v1.3.0-autoimprove-integrity-final5-receipt.md).
 
-The source-isolated candidate passed the local deterministic and behavioral
-gates, but is not a merged, tagged, distributed or cross-client accepted
-release. Client compatibility remains separate; alias discovery and marketplace
-distribution require their own clean-session readback. Exact status and
-behavioral evidence are recorded in [the v1.3.0 candidate checkpoint](docs/releases/v1.3.0.md).
+The source release is merged in PR #31 at commit
+`8ae4a26548ce908fc5f98b22663f52e163541f56`, tagged as `v1.3.0` and published on
+GitHub. Client compatibility remains separate: alias discovery and marketplace
+distribution require their own clean-session readback. Exact release and
+behavioral evidence are recorded in [the v1.3.0 post-release readback](docs/releases/v1.3.0-publication-readback.md).
 
 ## v1.2.1 — 2026-08-28
 

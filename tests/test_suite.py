@@ -2425,11 +2425,14 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
         self.assertEqual("PASS", evidence["ACCEPTANCE"])
 
-    def test_v1_3_candidate_evidence_is_explicit_and_unpublished(self) -> None:
+    def test_v1_3_candidate_and_publication_readbacks_are_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.3.0.md"
+        ).read_text(encoding="utf-8")
+        publication_readback = (
+            ROOT / "docs" / "releases" / "v1.3.0-publication-readback.md"
         ).read_text(encoding="utf-8")
         evaluation = (
             ROOT
@@ -2446,7 +2449,7 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         current_spans = markdown_heading_spans(
-            release_notes, "## v1.3.0 candidate — 2026-09-01"
+            release_notes, "## v1.3.0 — 2026-09-01"
         )
         accepted_spans = markdown_heading_spans(
             release_notes, "## v1.2.1 — 2026-08-28"
@@ -2463,7 +2466,13 @@ class SuiteTests(unittest.TestCase):
                 r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
             ),
         )
-        self.assertIn("not a merged, tagged, distributed", section.lower())
+        self.assertNotIn("not a merged, tagged, distributed", section.lower())
+        self.assertIn(
+            "The source release is merged in PR #31 at commit\n"
+            "`8ae4a26548ce908fc5f98b22663f52e163541f56`, tagged as `v1.3.0` and published on\n"
+            "GitHub.",
+            section,
+        )
 
         evidence = parse_release_evidence(release_evidence)
         self.assertEqual("1.3.0", evidence["VERSION"])
@@ -2480,6 +2489,115 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("NOT_CREATED", evidence["TAG"])
         self.assertEqual("NOT_PUBLISHED", evidence["DISTRIBUTION"])
         self.assertEqual("PASS_LOCAL_PR_CANDIDATE", evidence["ACCEPTANCE"])
+
+        publication = parse_release_evidence(publication_readback)
+        self.assertEqual("1.3.0", publication["VERSION"])
+        self.assertEqual("PUBLISHED", publication["STATUS"])
+        self.assertEqual("15", publication["SKILL_COUNT"])
+        self.assertEqual("PROMOTED_FINAL5", publication["AUTOIMPROVE_RESULT"])
+        self.assertEqual("CALIBRATED", publication["AUTOIMPROVE_EVALUATOR"])
+        self.assertEqual("PASS", publication["AUTOIMPROVE_HOLDOUT"])
+        self.assertEqual("PASS", publication["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("PASS", publication["SECRET_SCAN"])
+        self.assertEqual("FETCH_ONLY", publication["PUBLIC_SYNC"])
+        self.assertEqual("31", publication["MERGE_PR"])
+        self.assertEqual("MERGED", publication["MERGE"])
+        self.assertEqual(
+            "8ae4a26548ce908fc5f98b22663f52e163541f56",
+            publication["COMMIT_SHA"],
+        )
+        self.assertEqual(
+            "726162390429c18db8c504833a502aeb0db09d41",
+            publication["TREE_SHA"],
+        )
+        self.assertEqual("v1.3.0", publication["TAG"])
+        self.assertEqual(
+            "e7a76dd85cc3b2c101f7d1619f08022b903758bd",
+            publication["TAG_OBJECT_SHA"],
+        )
+        self.assertEqual(publication["COMMIT_SHA"], publication["TAG_COMMIT_SHA"])
+        self.assertEqual("main", publication["TARGET_COMMITISH"])
+        self.assertEqual("33558906561", publication["CI_UBUNTU_RUN"])
+        self.assertEqual("33558906561", publication["CI_MACOS_RUN"])
+        self.assertEqual("false", publication["GITHUB_RELEASE_IMMUTABLE"])
+        self.assertEqual("NOT_VERIFIED", publication["TAG_PROTECTION_STATUS"])
+        self.assertEqual("false", publication["RELEASE_DRAFT"])
+        self.assertEqual("false", publication["RELEASE_PRERELEASE"])
+        self.assertEqual(
+            "https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.3.0",
+            publication["RELEASE_URL"],
+        )
+        self.assertEqual(
+            "https://github.com/nobrainer-tech/nobrainer-tech-skills/archive/refs/tags/v1.3.0.tar.gz",
+            publication["SOURCE_ARCHIVE_URL"],
+        )
+        self.assertEqual("v1.3.0.tar.gz", publication["SOURCE_ARCHIVE_FILENAME"])
+        self.assertEqual(
+            "cb6e270c261585ef133e0bbb419605e63abe562b46d12df88015c8861d25317a",
+            publication["SOURCE_ARCHIVE_SHA256"],
+        )
+        self.assertEqual("PASS", publication["SOURCE_ARCHIVE_TREE_MATCH"])
+        self.assertEqual("0", publication["SOURCE_ARCHIVE_PYCACHE_COUNT"])
+        self.assertEqual("15", publication["SOURCE_ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("PASS", publication["SOURCE_ARCHIVE_VALIDATOR"])
+        self.assertEqual("102/102 PASS", publication["SOURCE_ARCHIVE_TESTS"])
+        self.assertEqual("PASS", publication["SOURCE_ARCHIVE_SECRET_SCAN"])
+        self.assertEqual("codex", publication["INSTALL_CLIENT"])
+        self.assertEqual("copy", publication["INSTALL_MODE"])
+        self.assertEqual("15", publication["INSTALL_SKILL_COUNT"])
+        self.assertEqual("PASS", publication["INSTALL_FILE_MATCH"])
+        self.assertEqual("PASS", publication["INSTALL_READBACK"])
+        self.assertEqual("PUBLISHED", publication["DISTRIBUTION"])
+        self.assertEqual("PASS_RELEASE", publication["ACCEPTANCE"])
+
+        if (ROOT / ".git").exists():
+            tag_object_readback = subprocess.run(
+                ["git", "rev-parse", "--verify", "refs/tags/v1.3.0"],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if tag_object_readback.returncode == 0:
+                self.assertEqual(
+                    publication["TAG_OBJECT_SHA"],
+                    tag_object_readback.stdout.strip(),
+                )
+                tag_readback = subprocess.run(
+                    ["git", "rev-parse", "--verify", "refs/tags/v1.3.0^{commit}"],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(0, tag_readback.returncode, tag_readback.stderr)
+                self.assertEqual(publication["COMMIT_SHA"], tag_readback.stdout.strip())
+                tag_tree_readback = subprocess.run(
+                    [
+                        "git",
+                        "rev-parse",
+                        "--verify",
+                        f"{tag_readback.stdout.strip()}^{{tree}}",
+                    ],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+                self.assertEqual(publication["TREE_SHA"], tag_tree_readback.stdout.strip())
+            else:
+                if os.environ.get("NOBRAINER_REQUIRE_RELEASE_TAG") == "1":
+                    self.fail(
+                        "v1.3.0 tag is required for release readback in the "
+                        "release-validation checkout: "
+                        + tag_object_readback.stderr.strip()
+                    )
+                self.skipTest(
+                    "v1.3.0 tag is unavailable in this checkout; release tag "
+                    "identity is unverified (set NOBRAINER_REQUIRE_RELEASE_TAG=1 "
+                    "for a strict release gate)"
+                )
 
         candidate_hash = hashlib.sha256(
             (SKILLS / "nobrainer-autoimprove" / "SKILL.md").read_bytes()
@@ -2505,13 +2623,22 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("CALIBRATION: PASS", receipt)
         self.assertIn("TERRA: candidate 3/3", receipt)
         self.assertIn("SOL: candidate 3/3", receipt)
-        for document in (evaluation, receipt):
+        for document in (evaluation, receipt, publication_readback):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
         self.assertIn("v1.3.0", readme)
-        self.assertIn("latest fully accepted\nGitHub source release", readme)
+        self.assertIn(
+            "Version [`v1.3.0`](docs/releases/v1.3.0-publication-readback.md) is the latest\n"
+            "fully accepted GitHub source release.",
+            readme,
+        )
+        self.assertIn(
+            "8ae4a26548ce908fc5f98b22663f52e163541f56",
+            readme,
+        )
         self.assertIn("docs/releases/v1.3.0.md", readme)
+        self.assertIn("docs/releases/v1.3.0-publication-readback.md", readme)
 
     def test_v1_3_spec_self_authenticates(self) -> None:
         spec = (

@@ -218,19 +218,22 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-The manifests currently identify an untagged [`v1.3.0 candidate`](docs/releases/v1.3.0.md).
-It keeps exactly fifteen skills and records the calibrated Autoimprove final5
-holdout, deterministic gates and secret scan. It is not a merged, tagged or
-distributed release.
+Version [`v1.3.0`](docs/releases/v1.3.0-publication-readback.md) is the latest
+fully accepted GitHub source release. It keeps exactly fifteen skills and
+records the calibrated Autoimprove final5 holdout, deterministic gates, secret
+scan and source distribution readback in the post-release record. The source-tag
+candidate checkpoint remains available in [the candidate record](docs/releases/v1.3.0.md).
+Client-specific runtime rows remain evidence-scoped; source publication does not
+imply marketplace discovery.
 
-Version [`v1.2.1`](docs/releases/v1.2.1.md) is still the latest fully accepted
-GitHub source release at full commit
-`0010140d19a7ff847dff776569772ef04d82c314`. It has its own exact tag, archive
-and isolated-install evidence. To reproduce the reviewed source:
+Version [`v1.2.1`](docs/releases/v1.2.1.md) remains the rollback source release
+at full commit `0010140d19a7ff847dff776569772ef04d82c314`, with its own exact
+tag, archive and isolated-install evidence. To reproduce the reviewed v1.3.0
+source:
 
 ```bash
-git checkout --detach 0010140d19a7ff847dff776569772ef04d82c314
-test "$(git rev-parse HEAD)" = "0010140d19a7ff847dff776569772ef04d82c314"
+git checkout --detach 8ae4a26548ce908fc5f98b22663f52e163541f56
+test "$(git rev-parse HEAD)" = "8ae4a26548ce908fc5f98b22663f52e163541f56"
 python3 scripts/validate_skills.py --suite
 python3 -m unittest discover -s tests -q
 ```
