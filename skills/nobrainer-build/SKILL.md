@@ -39,9 +39,15 @@ Apply these principles as decision rules, not slogans:
   this is not a mandate for object-oriented ceremony, tiny classes or needless
   interfaces.
 
-Reuse a maintained project capability before adding a dependency. Prefer a
-small local change over a new framework. Configuration owns values that vary by
-environment or run; code owns invariants.
+Before writing, stop at the first complete option that satisfies acceptance:
+
+1. skip or delete work when the outcome already exists or the artifact is unnecessary;
+2. reuse existing code or a maintained project capability;
+3. use the standard library or native platform;
+4. use an already-installed dependency;
+5. add the minimum local implementation.
+
+Configuration owns values that vary by environment or run; code owns invariants.
 
 A new shared abstraction requires two real current callers or an explicit
 acceptance contract that needs the boundary. A hypothetical future caller does

@@ -26,28 +26,23 @@ accepted release. Exact tag-to-commit identity, merged-main CI,
 downloaded-archive parity and checksum, secret scan, 88/88 archive-native tests
 and isolated installer readback in copy mode for all fifteen skills are recorded in
 [the release evidence](releases/v1.2.1.md). `v1.2.0` remains available but failed
-one archive-native test and is superseded; see
-[its exact readback](releases/v1.2.0.md). GitHub reports the `v1.2.1` release
-object as non-immutable and tag protection was not independently verified, so
-security-sensitive consumers should pin the reviewed full commit SHA. None of
-this proves that a client marketplace accepted, loaded or ran the package; the
-per-client rows remain `NOT_PUBLISHED` until that exact channel has an
-installation readback.
+one archive-native test and is superseded; see [its exact readback](releases/v1.2.0.md).
+GitHub reports the `v1.2.1` release object as non-immutable and tag protection
+was not independently verified, so security-sensitive consumers should pin the
+reviewed full commit SHA. None of this proves that a client marketplace
+accepted, loaded or ran the package; the per-client rows remain `NOT_PUBLISHED`
+until that exact channel has an installation readback.
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
 
 The untagged v1.3.0 candidate has additional local runtime evidence in
-[the harness evaluation](evals/v1.3.0-harness-clarity-2026-08-30.md). Codex CLI
-`0.149.1` loaded the exact repo-scoped Ultra SHA through the documented
-`$nobrainer-ultra` invocation. Final-candidate `gpt-5.6-luna` runs used `max`
-reasoning, requested priority/fast service, passed pressure and local-error
-cases, loaded Autoimprove and completed a real isolated two-file implementation.
-The CLI did not expose the response service tier, so priority was requested but
-not independently read back. Claude Code `2.1.241` also loaded the exact final
-Ultra and Autoimprove bytes through an isolated plugin after owner-driven OAuth.
-Both clients have explicit-runtime evidence only; automatic routing and public
-distribution remain unverified.
+[the historical harness evaluation](evals/v1.3.0-harness-clarity-2026-08-30.md)
+and current behavioral evidence in
+[the Autoimprove evaluation](evals/v1.3.0-autoimprove-integrity-2026-09-01.md).
+The older client transcripts remain hash-scoped and do not silently upgrade to
+marketplace or automatic-routing claims. Both clients retain explicit-runtime
+evidence only; automatic routing and client publication remain unverified.
 
 ## Current evidence
 

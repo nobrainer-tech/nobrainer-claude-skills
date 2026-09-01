@@ -47,6 +47,14 @@ an independent judge. Keep development cases separate from final holdout cases;
 do not tune against a failed holdout. Record accepted findings, null results,
 digest, rollback and any model/harness substitutions.
 
+Before baseline scoring, self-test the complete evaluator with known-good and
+known-bad controls plus a deceptive control when the metric can be gamed.
+Candidate writes must not reach the rubric, cases, score extractor or acceptance
+harness. Bind each score to target/evaluator/case identities and raw evidence;
+changed receipt fields require re-baselining. Predeclare equal repetitions for
+stochastic comparisons and require at least three paired runs for a borderline
+promotion claim.
+
 The current changed-control records are
 [`evals/v1.3.0-harness-clarity-2026-08-30.md`](evals/v1.3.0-harness-clarity-2026-08-30.md),
 [`evals/dispatcher-routing-v1.2.0-2026-08-28.md`](evals/dispatcher-routing-v1.2.0-2026-08-28.md)

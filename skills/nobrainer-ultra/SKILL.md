@@ -37,11 +37,11 @@ These names describe internal control points. Do not print a state-machine form 
 
 Read the repository root, nearest instructions, dirty state, branch/worktree,
 current plan/spec, callers, tests, runtime and available capabilities. Preserve
-unrelated work. Prior summaries, titles, wiki pages and worker reports are
-context, not current runtime proof.
-
-Query an existing wiki only for a decision, constraint or lesson that can change this task.
+unrelated work. Prior summaries, wiki pages and worker reports are context, not proof. Query an existing wiki only for a decision, constraint or lesson that can change this task.
 Research a fact when it is current, external, niche, uncertain, high-stakes or source-attributed.
+For large documents or data, and large repositories, inspect structure first with maps or
+search, then read selected contracts in full and only relevant ranges. Respect the
+context budget and name any unread required surface instead of implying coverage.
 
 `PROBLEM_GATE`: start with the literal failure and current local evidence. Do not
 infer that a documented command produced the failure. If the exact invocation is
@@ -85,12 +85,12 @@ Test decision: EXISTING | NEW_REQUIRED | NOT_NEEDED — reason
 Done clean:
 ```
 
-`Expected files` names the predicted write surface and why each file belongs; if
-inspection proves another file necessary, update scope before editing it.
-`Untouched` protects unrelated dirty work and compatibility boundaries.
-`Done clean` means actual files match the approved scope, proof passes,
-placeholders and speculative layers are absent, and final status has no surprise.
-If inspection or execution is explicitly excluded, keep the plan provisional.
+`Outcome` is the portable goal; `Proof` plus `Done clean` are its definition of done.
+`Expected files` predicts the justified write surface; update scope before expanding it.
+`Untouched` protects unrelated dirty work and compatibility boundaries. `Done clean`
+requires matching scope, passing proof, no placeholders or surprises; excluded inspection keeps it provisional.
+When the owner explicitly requests a goal/DoD contract, show every field above and state the detailed-ledger decision.
+Create a supported host-native goal after scope is frozen and require goal readback; the canonical plan supersedes stale goal text after correction.
 Default to at most 160 words: one outcome sentence, at most three scope bullets, the compact Progress view,
 at most three proof bullets and one next action. Do not add a repetitive skill/mode preamble, claim planning is complete,
 or enumerate implementation phases or possible mechanisms. Do not invent unseen schemas, endpoints, state machines,
@@ -116,12 +116,14 @@ Progress
 Next: open the named caller and its existing test
 ```
 
-Update it after scope is frozen, at meaningful transitions, on a blocker and at
-closeout. Do not narrate every command or print specialist forms. The checklist
-is a view of the canonical TODO owner, not a second ledger. A worker report,
-exit code or summary cannot mark an item complete. A stale summary never
-authorizes a successor.
-
+Update it after scope is frozen, at a material transition, blocker, safety gate,
+new evidence and closeout. Run tools without announcing the next command when
+the host permits; otherwise emit its shortest useful scope or evidence sentence.
+Never repeat the plan, unchanged state or already reported proof. Preserve exact
+commands, errors, numbers and negations; expand when brevity risks ambiguity.
+Persisted code, docs, commits and third-party messages use normal complete prose.
+The checklist views the canonical TODO; worker reports, exit codes and summaries
+cannot advance it. A stale summary never authorizes a successor.
 Use a detailed ledger only when at least one condition is true:
 
 - work crosses sessions or must resume safely after context loss;
@@ -173,9 +175,8 @@ Retry only when evidence or a condition changes and within a declared budget.
 A timeout, partial result, dead session, failed check or exhausted retry is not
 completion.
 
-Specialist report schemas are audit inputs. Translate them into natural language
-for the owner: outcome, material evidence, uncertainty, gate and next action.
-Do not dump all-caps status forms into ordinary conversation.
+Specialist schemas are audit inputs. Report once: outcome, decisive evidence,
+remaining uncertainty or gate, and next action. Do not dump status forms.
 
 ## `VERIFY` and `RECEIVE_AUDIT`
 
@@ -191,7 +192,6 @@ its reconcile mode before releasing dependencies.
 Invoke `nobrainer-review` for a justified adversarial or release closeout.
 A verified finding returns to `nobrainer-build`; changed work invalidates old
 proof and must be re-tested and re-reviewed.
-
 ## Correction hooks
 
 Apply corrections immediately:
@@ -203,17 +203,16 @@ Apply corrections immediately:
   prevention candidate under the configured learning policy.
 - `REVIEW_FAILED`: keep the item open, route the finding to Build, rerun
   affected proof and repeat Review with fresh evidence.
+- `CANDIDATE_REJECTED`: preserve the champion, close that experiment rather than
+  the owner outcome, then try one smallest high-leverage change against a fresh holdout or report the concrete blocker.
 - `REPEATED_DEFECT`: stop blind retries and route the frozen failure to RCA.
-
 Detailed canonical-store rules live in the correction-hooks reference.
-
 ## `LEARN` and close
 
 Keep learning proportional. Discard transient state. Persist only durable,
 sourced, authorized and non-secret knowledge. Route a repeatable behavior gap to
-`nobrainer-autoimprove` only with a frozen baseline and holdout; a null result
-is valid.
-
+`nobrainer-autoimprove` only with a frozen baseline, calibrated evaluator
+outside candidate write scope and sealed holdout; a null result is valid.
 Lead the final response with the delivered outcome. Include changed scope,
 fresh checks and proof layer, unresolved uncertainty, rollback, owner gate if
 any, and one next action. Do not repeat internal forms or invent follow-up work

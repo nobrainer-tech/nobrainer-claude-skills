@@ -91,9 +91,21 @@ Dispatch only when all are true:
 4. frozen inputs and the cheapest relevant preflight check pass;
 5. the report receiver is an exact session, not a title.
 
+Context propagation is not assumed. Send the minimum context: repository
+instructions, the owning method and its source hash, frozen task inputs and
+acceptance. Never copy the whole parent transcript or unrelated skills. Require
+the worker's context readback before work; stale context or evidence, mismatch or transport failure blocks dispatch.
+
 Build the prompt from the template in the protocol. The worker performs exactly
 one work unit, does not select a successor, releases its lease on finish or hard
-stop, sends exactly one final report, and ends its turn.
+stop, sends exactly one final report, and ends its turn. Bind retryable transport
+to message and payload identity, an idempotency key, delivery receipt and ACK;
+record unsupported fields honestly and never blindly retry an uncertain send.
+For every delegation record, including a blocked or stale one, copy the caller's
+schema before filling values; do not rename fields or change nesting. Preserve
+exact observed values as raw evidence in the requested location and derive the
+canonical verdict separately from the protocol enum and readback. When either
+is insufficient, use its honest failure state and block retry or advancement.
 
 ## RECEIVE_AUDIT
 

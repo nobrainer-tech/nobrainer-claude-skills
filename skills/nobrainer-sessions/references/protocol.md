@@ -72,6 +72,18 @@ CANONICAL_INPUTS:
 - FROZEN_INPUTS: <hashes/versions or NONE>
 - VERIFIER: <command or NONE>
 
+CONTEXT_RECEIPT:
+- CONTEXT_SOURCE_REF: <repository instructions plus owning method refs>
+- CONTEXT_SHA256: <hash of the exact minimum context packet>
+- CONTEXT_READBACK: PENDING
+
+TRANSPORT:
+- MESSAGE_ID: <provider receipt ID or UNSUPPORTED>
+- PAYLOAD_SHA256: <hash of the exact sent payload>
+- IDEMPOTENCY_KEY: <stable retry key or UNSUPPORTED>
+- DELIVERY_RECEIPT: <provider readback or UNSUPPORTED>
+- ACK_STATUS: PENDING | ACKNOWLEDGED | UNSUPPORTED
+
 EXPECTED_STATE:
 - ACTIVE_TASK: <ID>
 - PREDECESSOR: <state>
@@ -80,9 +92,11 @@ EXPECTED_STATE:
 - FENCING_EPOCH: <token or NONE>
 
 START_GATE:
-1. Read repository instructions and canonical inputs.
+1. Read repository instructions, the owning method and canonical inputs. Return
+   `CONTEXT_READBACK` bound to `CONTEXT_SOURCE_REF` and `CONTEXT_SHA256` before work.
 2. Verify identity, CHECKOUT, task, scope, current HEAD and expected state.
-3. Verify frozen inputs, writer isolation and relevant preflight check.
+3. Verify frozen inputs, writer isolation and relevant preflight check. Stale context or evidence,
+   a mismatch or unread required source stops the task without writing.
 4. Immediately before the first write, acquire LEASE according to the project
    rule and record its owner, time and evidence. If it is held, conflicting,
    unsupported where required, or changed after preflight, stop without writing.
@@ -109,13 +123,22 @@ Release LEASE when safe. Recommend one bounded remediation.
 HANDOFF:
 - COORDINATOR_THREAD_ID: <exact MAIN ID>
 - COORDINATOR_HOST_ID: <exact host or verified NONE>
-- If transport has no receipt, set HANDOFF_STATUS: NOT_SENT.
+- If transport has no receipt, set HANDOFF_STATUS: NOT_SENT. An uncertain send
+  blocks automatic retry; never infer delivery from submission.
 
 FINAL_REPORT:
 RESULT: FINISHED | BLOCKED | FAILED | OWNER_DECISION_REQUIRED |
   INPUT_CHANGED | LEASE_CONFLICT
 HANDOFF_STATUS: SENT | NOT_SENT
 HANDOFF_MESSAGE_ID: <receipt ID or NONE>
+MESSAGE_ID: <provider receipt ID or UNSUPPORTED>
+PAYLOAD_SHA256: <hash of exact sent payload>
+IDEMPOTENCY_KEY: <stable retry key or UNSUPPORTED>
+DELIVERY_RECEIPT: <provider readback or UNSUPPORTED>
+ACK_STATUS: ACKNOWLEDGED | UNSUPPORTED | NOT_ACKNOWLEDGED
+CONTEXT_SOURCE_REF: <exact refs>
+CONTEXT_SHA256: <hash>
+CONTEXT_READBACK: <worker-confirmed refs and hash>
 THREAD_ID: <worker ID>
 HOST_ID: <worker host or verified NONE>
 REPOSITORY: <identifier>
@@ -147,13 +170,14 @@ MAIN verifies from independent readback:
 1. expected session and completed turn;
 2. registry identity, CHECKOUT, base and HEAD;
 3. task, allowed transition, write scope and changed paths;
-4. frozen inputs, start manifest and close evidence;
+4. frozen inputs, exact context source/hash/readback, start manifest and close evidence;
 5. reproducible test, verifier, build/runtime and quality evidence;
 6. no hidden writer, task, side effect, secret, or scope expansion;
 7. lease passes: `RELEASED`, or independently verified `NOT_HELD` or
    `UNSUPPORTED`; `NOT_RELEASED_WITH_REASON` always blocks advancement; when
    fencing is supported, the fencing token must also be valid;
-8. transport receipt or an honest `NOT_SENT`.
+8. message and payload identity, idempotency key, delivery receipt and ACK, or
+   honest `UNSUPPORTED`/`NOT_SENT`; uncertain delivery blocks retry and advance.
 
 Only MAIN updates canonical execution state. A worker's `NEXT_ACTION` is a
 recommendation, not a command.

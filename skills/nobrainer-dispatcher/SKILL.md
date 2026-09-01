@@ -201,6 +201,8 @@ Finish with:
 MODE: SCHEDULE | DISPATCH | RECONCILE | RECOVER
 PLAN_REF_AND_FINGERPRINT:
 READY_SET:
+CRITICAL_PATH: <measured chain or UNKNOWN with reason>
+UNBLOCKS: <selected task -> dependent acceptance work, or NONE>
 DISPATCHED_BATCH: <task -> exact session, or NONE>
 DEFERRED_READY_TASKS_AND_REASON:
 PARALLEL_SAFETY: <task pair -> disjoint scope, checkout and mutable-state proof,
@@ -209,6 +211,8 @@ STATE_TRANSITIONS:
 AUDIT_REFS:
 ATTENTION_AND_RETRY_BUDGET:
 BLOCKERS_OR_OWNER_GATES:
+INTEGRATION_OWNER: <exact owner or NOT_NEEDED>
+NEXT_PROOF: <one acceptance or transport evidence target>
 NEXT_ACTION: <one batch, correction, stop or return to Ultra>
 ROLLBACK_OR_RECOVERY:
 RESULT: NOT_NEEDED | DISPATCHED | ADVANCED | DEGRADED_MAIN | STOPPED | CLOSED
