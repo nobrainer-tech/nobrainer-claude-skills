@@ -5,210 +5,204 @@ description: "Use when the owner says nb-autoimprove, deep-autoresearch, code-au
 
 # NoBrainer Autoimprove
 
-Improve one artifact only when a frozen evaluation proves the change is better.
-This skill is explicitly inspired by Andrej Karpathy's
-[autoresearch](https://github.com/karpathy/autoresearch) experiment loop and
-adapts its measure-change-keep-or-revert idea to skills, prompts, instructions,
-checklists and other reviewable artifacts. It is an independent adaptation, not
-an official Karpathy project.
+Improve one artifact only when a frozen evaluation proves a candidate better.
+This independent adaptation applies Andrej Karpathy's
+[autoresearch](https://github.com/karpathy/autoresearch) measure-change-keep loop
+to skills, prompts, instructions and other reviewable artifacts; it is not an
+official Karpathy project.
 
-## When not to loop
+## Route the smallest fix
 
-Fix an obvious typo, dead link or deterministic defect directly. Use the
-project's normal test-driven workflow for code with a strong existing harness.
-Do not start when success cannot be measured, the target cannot be isolated, or
-the proposed mutation touches credentials, production, safety controls,
-external publishing or irreversible data without an owner-approved experiment.
+Fix an obvious typo, dead link or deterministic defect directly and cover it
+with the normal test. Do not start an experiment when the objective cannot be
+measured, target/evaluator isolation is impossible, or the change needs an
+unapproved production, credential, publishing, safety or irreversible action.
 
-## From feedback to durable improvement
+Treat owner correction as evidence, not permission for a global rewrite:
 
-Treat an owner correction as evidence, not automatic permission to rewrite the
-system. Classify it first:
+- task-local clarification stays in the task;
+- a repeatable behavior gap becomes a regression scenario;
+- a verified durable fact or preference follows `LEARNING_WRITE_POLICY`:
+  `AUTO_SCOPED` writes one minimal sourced rule to one canonical store, `ASK`
+  prepares one exact diff, and `OFF` keeps it task-local: do not create a durable
+  diff in `AGENTS.md`, `tasks/lessons.md` or a wiki.
 
-- a task-local clarification changes only the current task;
-- an explicit durable preference, decision or verified fact may be captured
-  through `nobrainer-wiki` mode `ADD` only when its scope, confidentiality and
-  configured `LEARNING_WRITE_POLICY` permit it;
-- a repeatable behavior gap becomes a regression scenario for this skill;
-- a deterministic defect is fixed directly and covered by a test.
+On `AGENT_ERROR_CORRECTED`, preserve the failing scenario and error fingerprint,
+fix the active result first, then test the smallest reusable prevention. One
+anecdote never justifies a broad user trait or unrelated write.
 
-When `AGENT_ERROR_CORRECTED` is raised by `nobrainer-ultra`, preserve the exact
-failing scenario and error fingerprint before editing. Correct the active task
-first. Then classify the smallest reusable prevention candidate and honor the
-project's configured policy before any durable learning write:
+## Frame before mutation
 
-- `AUTO_SCOPED`: promote at most one minimal, sourced rule to its one canonical
-  governed project-local store;
-- `ASK`: prepare one exact single-store diff and request the persistence
-  decision without applying it;
-- `OFF`: keep the candidate task-local and do not create a durable diff or
-  modify `AGENTS.md`, `tasks/lessons.md` or a wiki.
-
-Use this experiment when behavior needs generalization beyond the deterministic
-active-task correction. The experiment's own target and write scope still need
-the normal authorization; learning policy does not grant an unrelated edit.
-
-For a behavior change, preserve the failing example, define the expected
-response, and run the bounded experiment below. One anecdote does not justify a
-broad inferred user trait or a global instruction rewrite. Record what was
-learned, its source, scope and rollback so personalization remains visible and
-correctable.
-
-## Experiment contract
-
-Freeze before changing the target:
+Freeze this contract before changing the target:
 
 ```text
 TARGET: <one artifact and allowed write scope>
 OBJECTIVE: <one observable improvement>
 BASELINE_VERSION: <commit/hash/copy>
-DEVELOPMENT_EVAL: <representative cases used to iterate>
-HOLDOUT_EVAL: <unseen cases used only for promotion>
-HARD_GATES: <format, safety, forbidden values, links, deterministic tests>
-SCORE: <criteria, weights, aggregation, direction>
-BUDGET: <rounds, variants, time/tokens/cost>
-PLATEAU: <minimum meaningful delta and dry rounds>
-ROLLBACK: <restore procedure and readback>
-OWNER_GATES: <actions not authorized by the loop>
+DEVELOPMENT_EVAL: <representative iteration cases>
+HOLDOUT_EVAL: <unseen promotion cases>
+HARD_GATES: <format, safety and deterministic checks>
+SCORE: <criteria, aggregation, direction and meaningful delta>
+EVAL_INTEGRITY: <separate owners, access and calibration controls>
+SCORE_RECEIPT: <append-only trial identity, provenance, raw evidence and decision>
+NOISE_POLICY: <paired repetitions, dispersion and retry rule>
+BUDGET: <finite variants, rounds, repetitions, retries, time and resources>
+PLATEAU: <minimum delta and dry rounds>
+ROLLBACK: <retained baseline, restore and readback>
+OWNER_GATES: <action, owner and recorded evidence>
 ```
 
-Preserve the original target and run in an isolated copy, branch or worktree.
-One coordinator owns the champion and log; generators must not race on the same
-file.
+Preserve the baseline in an isolated copy, branch or worktree. One coordinator
+owns the champion and log; candidates never race on the same file.
 
-For production code, freeze the harness and metric before the first candidate.
-Prefer one behavioral change per round, preserve a control/baseline path, and
-record the exact commit, test data and environment so a gain can be reproduced.
-The loop may optimize code only inside an approved branch and write scope; it
-does not deploy, tune on production feedback silently or weaken protected tests.
+## Return a complete initial plan
 
-When this experiment runs as one stage of `nobrainer-ultra`, update its owning
-canonical TODO item and compact Progress view after each auditable round and at
-the final holdout. Do not create a second TODO or status owner in the experiment log.
+An initial plan comes from a completed experiment contract, not a summary of
+this skill. Resolve every field internally; the owner-facing plan need not mirror
+internal labels. Never omit a hard gate or replace exact evidence with
+"immutable receipt", "bounded budget" or similar shorthand.
 
-## Build a trustworthy eval
+The plan must operationalize:
 
-Use deterministic checks wherever possible. For subjective quality define a
-concrete rubric whose criteria map to the target workflow. For a skill this
-usually includes trigger precision, actionability, correctness, failure/stop
-coverage, compatibility and concision.
+- an observable access boundary: candidate write scope excludes evaluator
+  inputs, labels, logic, extractor, cases and holdout;
+- ordinary positive, known-bad and tailored deceptive controls for the literal
+  gaming, omission and unsafe-abstention risks;
+- fixed baseline/candidate identity, exact paired run count, blind or shuffled
+  presentation, seeds or sampling rule, dispersion, score math and threshold;
+- the complete per-trial receipt fields, not a mutable aggregate;
+- a disjoint holdout frozen before tuning, opened once, never reused for
+  iteration, with measurable primary delta, uncertainty rule and protected
+  usefulness, safety or regression guardrails;
+- every supplied ceiling or an explicit stricter one, honest terminal states,
+  and each named owner's approval identity, scope, timestamp/evidence and next
+  gate. An experiment win grants no live or durable authority.
 
-Freeze two scenario sets:
+A ceiling needs a concrete quantity and unit; a label or promise to predeclare
+one later is not a ceiling.
 
-- development cases exercise common, edge, adversarial and non-trigger inputs;
-- holdout cases detect overfitting and are not shown to generators or used to
-  select an iteration.
+Unless the owner supplies another terminal, end plan-only output with
+`STATUS: READY_FOR_OWNER_REVIEW | BLOCKED` and `EXECUTION: NOT_STARTED`. Pending
+future gates normally mean ready for review. Use `BLOCKED` only when a missing
+fact, boundary or decision prevents a valid proposal. Never imply that
+calibration, trials or approval ran. Any owner-defined exact terminal values,
+including experiment-result terminals, suppress canonical status and execution.
 
-Score the unchanged baseline on development only. Evaluate the sealed baseline
-and selected champion against holdout cases together, exactly once, during
-`FINAL_HOLDOUT`. Do not reveal holdout cases, criterion results or failure clues
-to generators before that check. If the champion fails, create a new holdout,
-re-baseline and start a new bounded experiment instead of tuning against the
-failed holdout. If a rubric, weights or cases change, invalidate prior scores
-and re-baseline. Never tune against one anecdote and call the artifact generally
-improved.
+`STRICT_CAP` makes the owner's word limit a hard gate. At 250 words or fewer,
+budget the draft to `min(limit - 40, 140)` words in at most six nonblank lines.
+With a counter, compress until the owner limit passes; without one, target
+`min(limit - 50, 130)` and never claim an exact count. Print no heading, blank
+line, internal form, rollback explanation or duplicate terminal. Group only:
+access; sets/controls; trials/receipt; holdout/decision; limits/stops; gates.
+Preserve exact numbers, owners and negations; invent no optional mechanism.
+Treat scope and timing qualifiers, closed field sets and terminal value domains as
+non-compressible: reuse their literal wording instead of a plausible synonym.
+When a qualifier applies to each role or item, repeat it for each; collective
+shorthand is not equivalent.
+If the owner gives a word range or minimum, its lower bound is also a hard gate
+and overrides the compact budget. For an exact range, count the final draft with
+an available whitespace counter and adjust once. Without one, target the range
+midpoint and tally whitespace-delimited words before sending. For a bare minimum,
+leave at least 10% headroom. Never exceed a stated maximum.
+Count exact final text. For a serialized draft, pipe it through the bundled
+`scripts/count_words.py --escaped-newlines`; a raw `%s` count is invalid evidence.
 
-For LLM judgment use independent judges, anonymized/shuffled candidates,
-per-criterion reasons, median aggregation and pairwise tie-breaks. Judges do not
-generate candidates and do not know which candidate is incumbent. Record model
-or capability substitutions because judge drift affects comparability.
+Run `CAP_AUDIT` before compact output: preserve disjoint one-time holdout and
+open-once semantics; reproduce an exact receipt field list with no additions;
+retain `immediately` when stops are immediate; and when the owner defines exact
+terminal values, append no canonical status or execution field. If required
+facts cannot fit, return `BLOCKED` within the cap rather than omitting them.
+Scan the complete draft once more: no later duty may contradict a role's `only`
+boundary, and every closed value domain retains its literal `only` or `no other`
+qualifier.
 
-## Bounded loop
+## Protect evaluator integrity
 
-```text
-FRAME -> BASELINE -> GENERATE -> HARD_GATE -> DEV_SCORE -> SELECT -> GRAFT
-      -> REPEAT_OR_STOP -> FINAL_HOLDOUT -> PROMOTE_OR_REVERT
-```
+The evaluator owner and candidate owner must be separate. Candidate write scope
+excludes the rubric, development/holdout cases, score extractor and acceptance
+harness; keep them read-only and outside the candidate workspace when possible.
+A prompt-only prohibition is insufficient when the generator can mutate the
+score path. Record weaker isolation and do not promote a gameable result.
 
-### Generate
+Before baseline scoring, calibrate the complete path on ordinary positive,
+known-good, known-bad and tailored deceptive controls. It must rank good above
+bad, reject deceptive metric gaming, and self-test score extraction and hard
+failures. Trace every rubric requirement to the frozen request; a hidden
+judge-only requirement invalidates the evaluator. Missing ground truth or failed
+calibration is `BLOCKED`.
 
-Produce three to six complete candidates with different hypotheses, not
-paraphrases. Useful strategies include restructure, compress, expand missing
-failure coverage, sharpen routing, add a concrete example, remove duplication,
-or invert the flow around stop conditions.
+Bind every score to an append-only immutable receipt containing: experiment and
+round ID; candidate ID and target hash; case-set, evaluator, rubric and extractor
+hashes; judge version/settings; seed or sampling policy and call order;
+input/data snapshot and configuration; timestamp, repetition ID, environment and
+budget identity; raw evidence; criterion vector, hard gates, inclusion,
+retry/error/stop and resulting decision; aggregation formula, inputs, math and
+aggregate. Content-address it and forbid post-hoc edits. Changed provenance makes
+results non-comparable: re-baseline instead of carrying a score forward.
 
-### Hard gate and score
+Predeclare at least three paired repetitions under identical conditions and
+compare aggregated gain with measured dispersion. Forbid cherry-picking and
+favorable retries. Retry only one predeclared transient failure; receipt and
+count it, never retry to change a result. A calibrated deterministic evaluator
+may run once when its receipt proves determinism.
 
-Run format, security, public-clean, deterministic tests and repository-specific
-validators before spending judge budget. A hard-gate failure is disqualified,
-not averaged away.
+Production deployment, credentials, publishing, security or system changes,
+external contact, spend, destructive actions, durable policy, lessons or wiki
+writes remain named owner gates. Record the owner, decision and evidence
+reference before action; experiment success grants none of them.
 
-Score surviving candidates on the unchanged development eval. Select the best
-median score only when it exceeds the current champion beyond expected judge
-noise. On a near-tie prefer the simpler, shorter, lower-risk candidate.
+## Run the bounded loop
 
-### Graft
+`FRAME -> CALIBRATE -> BASELINE -> GENERATE -> HARD_GATE -> DEV_SCORE -> SELECT -> FINAL_HOLDOUT -> PROMOTE_OR_REVERT`
 
-Inspect criterion vectors. A losing candidate may contain the strongest trigger
-or rollback section. Build one challenger that grafts only those distinct
-strengths onto the champion, then rerun all gates and scoring. Keep it only when
-it wins.
+Use development cases for common, edge, adversarial and non-trigger behavior.
+Prefer one behavioral change per round and three to six genuinely different
+candidate hypotheses. Run deterministic, public-clean and security gates before
+judge spend. A hard-gate failure, missing receipt or failed calibration is
+disqualified, not averaged down.
 
-### Holdout and promotion
+Score on the unchanged development eval. Select only beyond measured noise; on
+a near-tie keep the simpler, shorter, lower-risk artifact. One optional graft may
+combine distinct strengths from a losing candidate, then rerun every gate.
 
-After development iteration has stopped, run the final champion and original
-baseline once on the untouched frozen holdout. Do not use that result to tune
-another candidate in the same experiment.
-Promotion requires:
+Open the sealed holdout exactly once for the unchanged baseline and champion.
+Promotion requires all hard gates, the predeclared meaningful primary gain, no
+protected regression, target-workflow review when subjective, retained baseline
+and tested rollback. A holdout loss is `REVERTED`; never tune on that holdout.
+Any next attempt needs a new holdout, new baseline and new experiment record.
 
-- all hard gates pass;
-- meaningful improvement on the primary score;
-- no unacceptable regression in a protected criterion or scenario;
-- target-workflow review when quality is subjective;
-- scoped diff, retained baseline and tested rollback.
+When nested under `nobrainer-ultra`, update its one canonical TODO after each
+auditable round and final holdout; do not create a second status owner.
 
-A development gain that disappears on holdout is overfitting. Revert to the
-previous champion and record the negative result. Any further tuning requires a
-new holdout, a new baseline and a new experiment record.
+## Stop the experiment, not the outcome
 
-Prefer the smallest promoted change. Continuous improvement beats delayed
-perfection only when each increment passes its current acceptance gates; the
-principle never converts known failure or missing proof into success.
+Stop the current experiment on its predeclared decision, failed evidence or
+safety anomaly, configured dry rounds, practical score ceiling, exhausted
+budget, converged candidates, hard-gate regression, holdout loss, or changed
+target/constraints/authorization. A null result retains the baseline.
 
-## Stop conditions
-
-Stop on the first of:
-
-- minimum meaningful improvement is not reached for the configured dry rounds;
-- score reaches a practical ceiling without protected regressions;
-- experiment budget is exhausted;
-- candidates converge on the same shape;
-- hard gate regresses during development;
-- final holdout regresses, which ends promotion rather than starting a new
-  iteration;
-- target, constraints, frozen eval or owner authorization changes.
-
-Do not continue indefinitely. A null result is valid: retain the baseline and
-report that no candidate proved better.
-
-## Round log
-
-```text
-ROUND: <integer>
-CHAMPION_IN: <version and development score>
-CANDIDATES: <strategy, hard-gate result, criterion vector, score>
-WINNER: <candidate or NONE>
-GRAFT: <source ideas and result or NONE>
-CHAMPION_OUT: <version and delta>
-REGRESSIONS: <protected criteria/cases or NONE>
-JUDGE_AGREEMENT: <dispersion and tie-break>
-STOP_CHECK: <continue or exact condition>
-```
+These stops do not close a still-open owner outcome. If proved improvement is
+still required, diagnose frozen evidence once, choose the smallest high-leverage
+change and start a fresh bounded experiment. Never reuse a failed holdout or
+substitute blind retries. Apply Pareto discipline: remove the largest observed
+failure before polishing lower-impact criteria. Close only when DoD passes or a
+concrete authority, access, budget or distinct-hypothesis blocker is reported.
 
 ## Final report
 
-Return the winning artifact, baseline-to-final development and holdout scores,
-hard-gate/test output, full compact round log, protected regressions, budget
-used, stop reason, diff, rollback and remaining uncertainty. Also return:
+Return winner/baseline identity, development and holdout scores, criterion
+vectors, hard-gate output, noise/dispersion, calibrated evaluator status, budget,
+stop reason, diff, rollback and uncertainty. End with:
 
 ```text
 PROMOTION: PROMOTED | NO_CHANGE | REVERTED | BLOCKED
 CHAMPION: <version/ref or BASELINE>
 HOLDOUT_RESULT: PASS | FAIL | NOT_RUN
+EVALUATOR_STATUS: CALIBRATED | FAILED | UNVERIFIED
+SCORE_RECEIPT: <immutable receipt ref or NONE>
+NOISE_RESULT: <replications, dispersion and comparable delta or NOT_APPLICABLE>
 ```
 
-Use `NO_CHANGE` when no candidate beats the baseline or the loop is correctly
-not started because measurement/isolation is missing. Use `REVERTED` when a
-candidate fails the final holdout, and `BLOCKED` when a required gate or owner
-decision prevents a valid experiment. Do not claim `PROMOTED` without paired
-scores on the same frozen eval and a successful holdout.
+Use `NO_CHANGE` when no candidate proves better, `REVERTED` after holdout loss,
+and `BLOCKED` when a gate prevents a valid experiment. Never claim `PROMOTED`
+without paired comparable scores and a successful holdout.

@@ -70,6 +70,13 @@ Before the first non-trivial write, resolve this compact contract:
 - `Done clean`: actual files match the expected scope, checks pass, no
   placeholder/future abstraction remains and `git status` has no surprise.
 
+Communication is evidence-budgeted. When the host permits, run tools without
+announcing them; otherwise emit its shortest useful scope or evidence sentence.
+Speak mid-run only for material transition, blocker, safety gate or new evidence;
+never repeat the plan or unchanged state. Final: outcome, decisive proof,
+remaining risk and next action. Preserve exact errors, commands, numbers and
+negations; expand when brevity risks ambiguity. Persisted artifacts use normal prose.
+
 Do not add an abstraction, dependency, compatibility layer, agent, skill or test
 without an acceptance need or demonstrated risk. A shared abstraction needs at
 least two real current callers or an explicit contract requiring it.
@@ -143,11 +150,18 @@ route causal uncertainty to RCA.
 ### Changing a skill
 
 1. Inspect existing patterns, consumers and baseline.
-2. Freeze a pressure scenario and observe the gap.
+2. Freeze a pressure scenario and observe the gap. Calibrate the evaluator and
+   keep its score path outside candidate write scope.
 3. Make the smallest change through Build.
 4. Re-run the same scenario and deterministic gates.
 5. Run a sealed non-trigger/adversarial holdout.
 6. Review current bytes and record null results honestly.
+
+Rejecting a candidate closes that experiment, not a still-open owner outcome.
+Preserve the champion, diagnose the frozen evidence once, then try the smallest
+high-leverage change against a fresh holdout. Do not tune against the failed
+holdout or retry blindly. Finish only when the DoD passes or a concrete blocker
+is reported.
 
 Do one behavioral owner at a time. Prefer behavior assertions over tests that
 freeze wording. Runtime compatibility requires a clean-session client readback.

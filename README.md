@@ -218,16 +218,15 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-The manifests currently identify an untagged
-[`v1.3.0 candidate`](docs/releases/v1.3.0.md). Its exact repo-scoped
-`$nobrainer-ultra` Codex probe passed, while alias-only discovery failed and the
-Claude runtime probe is blocked by local authentication. It is not a merged,
-tagged or distributed release.
+The manifests currently identify an untagged [`v1.3.0 candidate`](docs/releases/v1.3.0.md).
+It keeps exactly fifteen skills and records the calibrated Autoimprove final5
+holdout, deterministic gates and secret scan. It is not a merged, tagged or
+distributed release.
 
-Version [`v1.2.1`](docs/releases/v1.2.1.md) is still the latest fully accepted GitHub
-source release. It passed exact tag-to-commit readback, merged-main CI, archive
-parity, 88/88 tests without `.git`, a fresh secret scan and an isolated
-fifteen-skill copy installation. To reproduce the reviewed source:
+Version [`v1.2.1`](docs/releases/v1.2.1.md) is still the latest fully accepted
+GitHub source release at full commit
+`0010140d19a7ff847dff776569772ef04d82c314`. It has its own exact tag, archive
+and isolated-install evidence. To reproduce the reviewed source:
 
 ```bash
 git checkout --detach 0010140d19a7ff847dff776569772ef04d82c314

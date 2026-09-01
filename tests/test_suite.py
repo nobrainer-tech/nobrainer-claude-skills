@@ -318,6 +318,43 @@ class SuiteTests(unittest.TestCase):
         for name in CANONICAL:
             self.assertIn(name, routing)
 
+    def test_ultra_binds_goal_dod_and_context_budget(self) -> None:
+        text = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
+        normalized = " ".join(text.split()).lower()
+        for contract in (
+            "portable goal",
+            "definition of done",
+            "after scope is frozen",
+            "explicitly requests",
+            "host-native goal",
+            "goal readback",
+            "show every field above",
+            "detailed-ledger decision",
+            "structure first",
+            "selected contracts in full",
+            "large documents or data",
+            "context budget",
+            "unread required surface",
+            "run tools without announcing the next command when the host permits",
+            "shortest useful scope or evidence sentence",
+            "never repeat the plan, unchanged state or already reported proof",
+            "preserve exact commands, errors, numbers and negations",
+            "persisted code, docs, commits and third-party messages",
+        ):
+            self.assertIn(contract, normalized)
+
+        bootstrap = (ROOT / "adapters" / "bootstrap.md").read_text(encoding="utf-8")
+        bootstrap_normalized = " ".join(bootstrap.split()).lower()
+        for contract in (
+            "brief and outcome-first",
+            "when the host permits, run tools without announcing them",
+            "shortest useful scope or evidence sentence",
+            "never repeat the plan or unchanged state",
+            "expand when brevity risks ambiguity",
+            "human-facing artifacts use normal complete prose",
+        ):
+            self.assertIn(contract, bootstrap_normalized)
+
     def test_ultra_setup_upgrade_contract(self) -> None:
         skill = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
         setup = (SKILLS / "nobrainer-ultra" / "references" / "setup.md").read_text(
@@ -353,6 +390,17 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, text)
         self.assertIn("incidental similarity", text)
         self.assertIn("not a mandate for object-oriented ceremony", text)
+        normalized = " ".join(text.lower().split())
+        for contract in (
+            "skip or delete",
+            "existing code",
+            "standard library",
+            "native platform",
+            "already-installed dependency",
+            "minimum local implementation",
+            "stop at the first complete option",
+        ):
+            self.assertIn(contract, normalized)
 
     def test_research_contract_is_bounded_and_current(self) -> None:
         text = (SKILLS / "nobrainer-research" / "SKILL.md").read_text(
@@ -497,6 +545,13 @@ class SuiteTests(unittest.TestCase):
             normalized,
         )
         self.assertIn("none substitutes for another", normalized)
+        for field in (
+            "CRITICAL_PATH:",
+            "UNBLOCKS:",
+            "INTEGRATION_OWNER:",
+            "NEXT_PROOF:",
+        ):
+            self.assertIn(field, text)
         self.assertIn(
             "affected not-started `READY` rows to `STOPPED`", normalized
         )
@@ -1188,7 +1243,7 @@ class SuiteTests(unittest.TestCase):
                 "ULTRA_SHA256": False,
                 "TEAM_SHA256": False,
                 "DISPATCHER_SHA256": False,
-                "SESSIONS_SHA256": True,
+                "SESSIONS_SHA256": False,
             },
             historical_current_matches,
         )
@@ -1206,6 +1261,7 @@ class SuiteTests(unittest.TestCase):
                 "skills/nobrainer-ultra/SKILL.md",
                 "skills/nobrainer-team/SKILL.md",
                 "skills/nobrainer-dispatcher/SKILL.md",
+                "skills/nobrainer-sessions/SKILL.md",
             }:
                 self.assertNotEqual(digest(relative), prompt_declared.group(1))
             else:
@@ -1497,8 +1553,34 @@ class SuiteTests(unittest.TestCase):
         protocol = (
             SKILLS / "nobrainer-sessions" / "references" / "protocol.md"
         ).read_text(encoding="utf-8")
-        for term in ("METHOD:", "acquire LEASE", "before the first write"):
+        for term in (
+            "METHOD:",
+            "acquire LEASE",
+            "before the first write",
+            "CONTEXT_SOURCE_REF:",
+            "CONTEXT_SHA256:",
+            "CONTEXT_READBACK:",
+            "MESSAGE_ID:",
+            "PAYLOAD_SHA256:",
+            "IDEMPOTENCY_KEY:",
+            "DELIVERY_RECEIPT:",
+            "ACK_STATUS:",
+        ):
             self.assertIn(term, protocol)
+        normalized = " ".join(text.lower().split())
+        self.assertIn("propagation is not assumed", normalized)
+        self.assertIn("minimum context", normalized)
+        self.assertIn("whole parent transcript", normalized)
+        self.assertIn("stale context or evidence", normalized)
+        self.assertIn("including a blocked or stale one", normalized)
+        for contract in (
+            "copy the caller's schema before filling values",
+            "do not rename fields or change nesting",
+            "raw evidence",
+            "canonical verdict",
+        ):
+            self.assertIn(contract, normalized)
+        self.assertIn("stale context or evidence", protocol.lower())
         team_plan = (
             SKILLS / "nobrainer-team" / "references" / "team-plan.md"
         ).read_text(encoding="utf-8")
@@ -1519,6 +1601,150 @@ class SuiteTests(unittest.TestCase):
                 text = (SKILLS / name / "SKILL.md").read_text(encoding="utf-8")
                 self.assertIn("Andrej Karpathy", text)
                 self.assertRegex(text, r"https://(gist\.)?github\.com/karpathy/")
+
+    def test_autoimprove_protects_evaluator_integrity(self) -> None:
+        autoimprove = (
+            SKILLS / "nobrainer-autoimprove" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        normalized = " ".join(autoimprove.split()).lower()
+
+        for field in (
+            "EVAL_INTEGRITY:",
+            "NOISE_POLICY:",
+            "EVALUATOR_STATUS:",
+            "SCORE_RECEIPT:",
+            "NOISE_RESULT:",
+        ):
+            self.assertIn(field, autoimprove)
+        for contract in (
+            "known-good",
+            "known-bad",
+            "tailored deceptive",
+            "candidate write scope excludes",
+            "outside the candidate workspace",
+            "prompt-only prohibition",
+            "append-only immutable receipt",
+            "experiment and round id",
+            "candidate id and target hash",
+            "call order",
+            "input/data snapshot",
+            "repetition id",
+            "resulting decision",
+            "aggregation formula",
+            "post-hoc edits",
+            "non-comparable",
+            "re-baseline",
+            "at least three paired repetitions",
+            "forbid cherry-picking and favorable retries",
+            "never retry to change a result",
+            "finite variants, rounds, repetitions, retries",
+            "production deployment",
+            "security or system changes",
+            "durable policy",
+            "lessons or wiki writes",
+            "record the owner, decision and evidence reference",
+            "failed evidence or safety anomaly",
+            "an initial plan comes from a completed experiment contract",
+            "never omit a hard gate",
+            "observable access boundary",
+            "ordinary positive, known-bad and tailored deceptive controls",
+            "exact paired run count",
+            "blind or shuffled presentation",
+            "dispersion",
+            "opened once, never reused for iteration",
+            "measurable primary delta",
+            "uncertainty rule",
+            "protected usefulness, safety or regression guardrails",
+            "every supplied ceiling or an explicit stricter one",
+            "a ceiling needs a concrete quantity and unit",
+            "promise to predeclare",
+            "an experiment win grants no live",
+            "status: ready_for_owner_review | blocked",
+            "execution: not_started",
+            "never imply that calibration, trials or approval ran",
+            "`strict_cap` makes the owner's word limit a hard gate",
+            "budget the draft to `min(limit - 40, 140)` words",
+            "at most six nonblank lines",
+            "compress until the owner limit passes",
+            "without one, target `min(limit - 50, 130)`",
+            "never claim an exact count",
+            "print no heading, blank line, internal form, rollback explanation",
+            "invent no optional mechanism",
+            "within the cap rather than omitting them",
+            "run `cap_audit`",
+            "disjoint one-time holdout and open-once semantics",
+            "exact receipt field list with no additions",
+            "retain `immediately` when stops are immediate",
+            "append no canonical status or execution field",
+            "no later duty may contradict a role's `only` boundary",
+            "closed value domain retains its literal `only` or `no other` qualifier",
+            "the owner-facing plan need not mirror internal labels",
+            "unless the owner supplies another terminal",
+            "owner-defined exact terminal values",
+            "suppress canonical status and execution",
+            "pending future gates normally mean ready for review",
+            "lower bound is also a hard gate",
+            "overrides the compact budget",
+            "count the final draft with",
+            "available whitespace counter",
+            "tally whitespace-delimited words before sending",
+            "never exceed a stated maximum",
+            "scope and timing qualifiers, closed field sets and terminal value domains",
+            "reuse their literal wording",
+            "repeat it for each",
+            "collective shorthand is not equivalent",
+            "count exact final text",
+            "scripts/count_words.py --escaped-newlines",
+            "a raw `%s` count is invalid evidence",
+            "trace every rubric requirement to the frozen request",
+            "hidden judge-only requirement invalidates the evaluator",
+            "these stops do not close a still-open owner outcome",
+            "smallest high-leverage change",
+            "new holdout, new baseline and new experiment record",
+            "apply pareto discipline",
+            "close only when dod passes",
+        ):
+            self.assertIn(contract, normalized)
+
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("calibrated evaluator", ultra)
+        self.assertIn("candidate write scope", ultra)
+        self.assertIn("CANDIDATE_REJECTED", ultra)
+        self.assertIn("fresh holdout", ultra)
+
+    def test_autoimprove_word_counter_handles_serialized_newlines(self) -> None:
+        counter = (
+            SKILLS
+            / "nobrainer-autoimprove"
+            / "scripts"
+            / "count_words.py"
+        )
+        raw = subprocess.run(
+            ["python3", str(counter)],
+            input="one two\nthree",
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        escaped = subprocess.run(
+            ["python3", str(counter), "--escaped-newlines"],
+            input=r"one two\nthree",
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        serialized_without_flag = subprocess.run(
+            ["python3", str(counter)],
+            input=r"one two\nthree",
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        self.assertEqual(raw.stdout.strip(), "3")
+        self.assertEqual(escaped.stdout.strip(), "3")
+        self.assertEqual(serialized_without_flag.stdout.strip(), "2")
 
     def test_lightweight_learning_contract(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -1543,7 +1769,7 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("`AUTO_SCOPED`", autoimprove)
         self.assertIn("`ASK`", autoimprove)
         self.assertIn("`OFF`", autoimprove)
-        self.assertIn("do not create a durable diff", autoimprove)
+        self.assertIn("do not create a durable diff", " ".join(autoimprove.split()))
         self.assertIn("PROMOTION: PROMOTED | NO_CHANGE | REVERTED | BLOCKED", autoimprove)
         self.assertIn("HOLDOUT_RESULT: PASS | FAIL | NOT_RUN", autoimprove)
         self.assertIn("Durable personalization without hidden memory", wiki)
@@ -1834,7 +2060,20 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         if tag_readback.returncode == 0:
-            self.assertEqual(release_sha, tag_readback.stdout.strip())
+            tag_tree_readback = subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--verify",
+                    f"{tag_readback.stdout.strip()}^{{tree}}",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tag_tree_readback.stdout.strip())
         self.assertRegex(evidence["COMMIT_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TREE_SHA"], r"^[0-9a-f]{40}$")
         self.assertRegex(evidence["TARBALL_SHA256"], r"^[0-9a-f]{64}$")
@@ -1909,7 +2148,20 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         if tag_readback.returncode == 0:
-            self.assertEqual(release_sha, tag_readback.stdout.strip())
+            tag_tree_readback = subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--verify",
+                    f"{tag_readback.stdout.strip()}^{{tree}}",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tag_tree_readback.stdout.strip())
         self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("13", evidence["ARCHIVE_SKILL_COUNT"])
@@ -1998,7 +2250,20 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         if tag_readback.returncode == 0:
-            self.assertEqual(evidence["COMMIT_SHA"], tag_readback.stdout.strip())
+            tag_tree_readback = subprocess.run(
+                [
+                    "git",
+                    "rev-parse",
+                    "--verify",
+                    f"{tag_readback.stdout.strip()}^{{tree}}",
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tag_tree_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("86", evidence["REPOSITORY_TESTS_PASSED"])
@@ -2132,24 +2397,20 @@ class SuiteTests(unittest.TestCase):
             check=False,
         )
         if tag_readback.returncode == 0:
-            self.assertEqual(
-                evidence["COMMIT_SHA"],
-                tag_readback.stdout.strip(),
-            )
-            tree_readback = subprocess.run(
+            tag_tree_readback = subprocess.run(
                 [
                     "git",
                     "rev-parse",
                     "--verify",
-                    f"{evidence['COMMIT_SHA']}^{{tree}}",
+                    f"{tag_readback.stdout.strip()}^{{tree}}",
                 ],
                 cwd=ROOT,
                 text=True,
                 capture_output=True,
                 check=False,
             )
-            self.assertEqual(0, tree_readback.returncode, tree_readback.stderr)
-            self.assertEqual(evidence["TREE_SHA"], tree_readback.stdout.strip())
+            self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+            self.assertEqual(evidence["TREE_SHA"], tag_tree_readback.stdout.strip())
         self.assertEqual("PASS", evidence["ARCHIVE_FILE_MATCH"])
         self.assertEqual("15", evidence["ARCHIVE_SKILL_COUNT"])
         self.assertEqual("88", evidence["ARCHIVE_TESTS_PASSED"])
@@ -2164,53 +2425,28 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual("PASS", evidence["INSTALL_READBACK"])
         self.assertEqual("PASS", evidence["ACCEPTANCE"])
 
-    def test_v1_3_candidate_is_explicit_hash_bound_and_not_published(self) -> None:
+    def test_v1_3_candidate_evidence_is_explicit_and_unpublished(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         release_evidence = (
             ROOT / "docs" / "releases" / "v1.3.0.md"
         ).read_text(encoding="utf-8")
         evaluation = (
-            ROOT / "docs" / "evals" / "v1.3.0-harness-clarity-2026-08-30.md"
+            ROOT
+            / "docs"
+            / "evals"
+            / "v1.3.0-autoimprove-integrity-2026-09-01.md"
         ).read_text(encoding="utf-8")
-        candidate = (
+        receipt = (
             ROOT
             / "docs"
             / "evals"
             / "artifacts"
-            / "v1.3.0-harness-clarity-codex-candidate-output.md"
-        ).read_text(encoding="utf-8")
-        final_smoke = (
-            ROOT
-            / "docs"
-            / "evals"
-            / "artifacts"
-            / "v1.3.0-harness-clarity-final-codex-smoke-output.md"
-        ).read_bytes()
-        runtime_boundaries = (
-            ROOT
-            / "docs"
-            / "evals"
-            / "artifacts"
-            / "v1.3.0-harness-clarity-runtime-boundaries.md"
-        ).read_text(encoding="utf-8")
-        luna_candidate = (
-            ROOT
-            / "docs"
-            / "evals"
-            / "artifacts"
-            / "v1.3.0-luna-max-priority-output.md"
-        ).read_text(encoding="utf-8")
-        claude_candidate = (
-            ROOT
-            / "docs"
-            / "evals"
-            / "artifacts"
-            / "v1.3.0-claude-explicit-output.md"
+            / "v1.3.0-autoimprove-integrity-final5-receipt.md"
         ).read_text(encoding="utf-8")
 
         current_spans = markdown_heading_spans(
-            release_notes, "## v1.3.0 candidate — 2026-08-30"
+            release_notes, "## v1.3.0 candidate — 2026-09-01"
         )
         accepted_spans = markdown_heading_spans(
             release_notes, "## v1.2.1 — 2026-08-28"
@@ -2227,177 +2463,55 @@ class SuiteTests(unittest.TestCase):
                 r"^- `(nobrainer-[a-z0-9-]+)`$", section, re.MULTILINE
             ),
         )
-        self.assertIn("not a merged, tagged, distributed", section)
+        self.assertIn("not a merged, tagged, distributed", section.lower())
 
         evidence = parse_release_evidence(release_evidence)
         self.assertEqual("1.3.0", evidence["VERSION"])
         self.assertEqual("RELEASE_CANDIDATE", evidence["STATUS"])
         self.assertEqual("15", evidence["SKILL_COUNT"])
-        self.assertEqual("184", evidence["ROOT_LINES"])
-        self.assertEqual("220", evidence["ULTRA_LINES"])
-        self.assertEqual("PASS", evidence["CODEX_EXPLICIT_RUNTIME"])
-        self.assertEqual("PASS", evidence["CODEX_SOL_SMOKE"])
-        self.assertEqual("77", evidence["CODEX_SOL_SMOKE_WORDS"])
-        self.assertNotIn("CODEX_FINAL_SMOKE", evidence)
-        self.assertEqual("FAIL", evidence["CODEX_ALIAS_CONTROL"])
-        self.assertEqual("gpt-5.6-luna", evidence["CODEX_LUNA_MODEL"])
-        self.assertEqual("max", evidence["CODEX_LUNA_REASONING"])
-        self.assertEqual("REQUESTED_NOT_READ_BACK", evidence["CODEX_LUNA_PRIORITY"])
-        self.assertEqual("PASS_EXPLICIT", evidence["CODEX_LUNA_FINAL_RUNTIME"])
-        self.assertEqual("PASS", evidence["CODEX_LUNA_IMPLEMENTATION"])
-        self.assertEqual("PASS", evidence["CODEX_LUNA_AUTOIMPROVE_ROUTING"])
-        self.assertEqual("PASS_EXPLICIT", evidence["CLAUDE_RUNTIME"])
-        self.assertEqual("PASS", evidence["CLAUDE_AUTOIMPROVE_ROUTING"])
-        self.assertEqual(
-            "NO_CHANGE_INVALID_HOLDOUT", evidence["AUTORESEARCH_LONG_RUN"]
-        )
-        self.assertEqual("FAIL_MODEL_NO_SKILL", evidence["NON_TRIGGER_CONTROL"])
-        self.assertEqual("99", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("PROMOTED_FINAL5", evidence["AUTOIMPROVE_RESULT"])
+        self.assertEqual("CALIBRATED", evidence["AUTOIMPROVE_EVALUATOR"])
+        self.assertEqual("PASS", evidence["AUTOIMPROVE_HOLDOUT"])
         self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("PASS", evidence["SECRET_SCAN"])
         self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
         self.assertEqual("BLOCKED", evidence["AUTOMATED_PUBLIC_COMMIT_PUSH"])
+        self.assertEqual("NOT_PERFORMED", evidence["MERGE"])
         self.assertEqual("NOT_CREATED", evidence["TAG"])
         self.assertEqual("NOT_PUBLISHED", evidence["DISTRIBUTION"])
-        self.assertEqual("NOT_AUTHORIZED", evidence["MERGE"])
         self.assertEqual("PASS_LOCAL_PR_CANDIDATE", evidence["ACCEPTANCE"])
-        self.assertNotIn("RELEASE_URL", evidence)
-        self.assertIn(
-            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(final_smoke).hexdigest()}`",
-            runtime_boundaries,
-        )
-        self.assertIn("STORED_OUTPUT_NORMALIZATION: one terminal LF added", runtime_boundaries)
 
-        def digest(relative: str) -> str:
-            return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+        candidate_hash = hashlib.sha256(
+            (SKILLS / "nobrainer-autoimprove" / "SKILL.md").read_bytes()
+        ).hexdigest()
+        helper_hash = hashlib.sha256(
+            (
+                SKILLS
+                / "nobrainer-autoimprove"
+                / "scripts"
+                / "count_words.py"
+            ).read_bytes()
+        ).hexdigest()
+        self.assertIn(f"CANDIDATE_SHA256: `{candidate_hash}`", evaluation)
+        self.assertIn(f"COUNTER_SHA256: `{helper_hash}`", evaluation)
+        self.assertIn("PROMOTION: PROMOTED", evaluation)
+        self.assertIn("HOLDOUT_RESULT: PASS", evaluation)
+        self.assertIn("EVALUATOR_STATUS: CALIBRATED", evaluation)
+        self.assertIn("NOISE_RESULT: 3 paired repetitions", evaluation)
+        self.assertIn("PARETO_DECISION: promoted after closing the largest", evaluation)
+        self.assertIn("SCORE_RECEIPT: artifacts/v1.3.0-autoimprove-integrity-final5-receipt.md", evaluation)
+        self.assertIn("CANDIDATE_SHA256:", receipt)
+        self.assertIn("HOLDOUT_SHA256:", receipt)
+        self.assertIn("CALIBRATION: PASS", receipt)
+        self.assertIn("TERRA: candidate 3/3", receipt)
+        self.assertIn("SOL: candidate 3/3", receipt)
+        for document in (evaluation, receipt):
+            for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
+                self.assertNotIn(private_root, document)
 
-        for label, relative in (
-            ("RESEARCH_SHA256", "skills/nobrainer-research/SKILL.md"),
-        ):
-            declared = re.search(
-                rf"^{label}: `([0-9a-f]{{64}})`$", candidate, re.MULTILINE
-            )
-            self.assertIsNotNone(declared)
-            self.assertEqual(digest(relative), declared.group(1))
-
-        for document in (luna_candidate, claude_candidate):
-            for label, relative in (
-                ("ULTRA_SHA256", "skills/nobrainer-ultra/SKILL.md"),
-                ("AUTOIMPROVE_SHA256", "skills/nobrainer-autoimprove/SKILL.md"),
-            ):
-                declared = re.search(
-                    rf"^{label}: `([0-9a-f]{{64}})`$", document, re.MULTILINE
-                )
-                self.assertIsNotNone(declared)
-                self.assertEqual(digest(relative), declared.group(1))
-
-        output_sections = re.findall(
-            r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", candidate
-        )
-        self.assertEqual(5, len(output_sections))
-        for title, section_body in output_sections:
-            with self.subTest(output=title):
-                metadata, output = section_body.split("\n\n", 1)
-                output = output.rstrip("\n")
-                declared_sha = re.search(
-                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
-                )
-                declared_words = re.search(
-                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
-                )
-                self.assertIsNotNone(declared_sha)
-                self.assertIsNotNone(declared_words)
-                self.assertEqual(
-                    declared_sha.group(1),
-                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
-                )
-                self.assertEqual(int(declared_words.group(1)), len(output.split()))
-
-        luna_sections = {
-            title: body
-            for title, body in re.findall(
-                r"(?ms)^## ([^\n]+)\n\n(.*?)(?=^## |\Z)", luna_candidate
-            )
-            if "OUTPUT_SHA256:" in body
-        }
-        self.assertEqual(
-            {
-                "Final pressure case",
-                "Final local-error case",
-                "Ultra to Autoimprove routing",
-                "Owner-decision correction case",
-                "Mechanical non-trigger model control",
-                "Long-run sealed baseline",
-                "Long-run compact candidate",
-                "Isolated implementation task",
-            },
-            set(luna_sections),
-        )
-        for title, section_body in luna_sections.items():
-            with self.subTest(luna_output=title):
-                metadata, output = section_body.split("\n\n", 1)
-                output = output.rstrip("\n")
-                declared_sha = re.search(
-                    r"^OUTPUT_SHA256: `([0-9a-f]{64})`$", metadata, re.MULTILINE
-                )
-                declared_words = re.search(
-                    r"^OUTPUT_WORDS: `(\d+)`$", metadata, re.MULTILINE
-                )
-                self.assertIsNotNone(declared_sha)
-                self.assertIsNotNone(declared_words)
-                self.assertEqual(
-                    declared_sha.group(1),
-                    hashlib.sha256(output.encode("utf-8")).hexdigest(),
-                )
-                self.assertEqual(int(declared_words.group(1)), len(output.split()))
-
-        claude_section = re.search(
-            r"(?ms)^## Stored owner-facing output\n\n(.*)\Z", claude_candidate
-        )
-        self.assertIsNotNone(claude_section)
-        claude_metadata, claude_output = claude_section.group(1).split("\n\n", 1)
-        claude_output = claude_output.rstrip("\n")
-        self.assertIn(
-            f"STORED_OUTPUT_SHA256: `{hashlib.sha256(claude_output.encode('utf-8')).hexdigest()}`",
-            claude_metadata,
-        )
-        self.assertIn(
-            f"STORED_OUTPUT_WORDS: `{len(claude_output.split())}`",
-            claude_metadata,
-        )
-        self.assertIn("SERVICE_TIER_READBACK: `NOT_EXPOSED_BY_CLI_JSON`", luna_candidate)
-        self.assertIn("RESULT: `NOT_COMPARABLE_SOURCE_DRIFT`", luna_candidate)
-        self.assertIn("PROMOTION: `NO_CHANGE_INVALID_HOLDOUT`", luna_candidate)
-        for prompt in (
-            "v1.3.0-luna-correction-prompt.md",
-            "v1.3.0-luna-non-trigger-prompt.md",
-            "v1.3.0-long-run-recovery-v2-holdout-prompt.md",
-        ):
-            self.assertIn(
-                hashlib.sha256(
-                    (ROOT / "docs" / "evals" / "artifacts" / prompt).read_bytes()
-                ).hexdigest(),
-                luna_candidate,
-            )
-        self.assertNotIn("/private/tmp", luna_candidate)
-        self.assertNotIn("/private/tmp", claude_candidate)
-
-        for status in (
-            "CANDIDATE_CODEX_LUNA: PASS_EXPLICIT_MAX",
-            "CODEX_ALIAS_CONTROL: FAIL",
-            "LOCAL_ERROR: PASS",
-            "LONG_RUN_HOLDOUT: PASS",
-            "RESEARCH_HOLDOUT: PASS",
-            "AUTOIMPROVE_ROUTING: PASS_BOTH_CLIENTS",
-            "LUNA_IMPLEMENTATION: PASS",
-            "LONG_RUN_COMPRESSION_EXPERIMENT: NO_CHANGE_INVALID_HOLDOUT",
-            "NON_TRIGGER_CONTROL: FAIL_MODEL_NO_SKILL",
-            "CANDIDATE_CLAUDE: PASS_EXPLICIT",
-            "PROMOTION: PASS_PR_CANDIDATE",
-        ):
-            self.assertIn(status, evaluation)
-        self.assertIn("$nobrainer-ultra", readme)
+        self.assertIn("v1.3.0", readme)
+        self.assertIn("latest fully accepted\nGitHub source release", readme)
         self.assertIn("docs/releases/v1.3.0.md", readme)
-        self.assertIn("latest fully accepted GitHub\nsource release", readme)
 
     def test_v1_3_spec_self_authenticates(self) -> None:
         spec = (

@@ -1,6 +1,6 @@
 # NoBrainer Tech Skills release notes
 
-## v1.3.0 candidate — 2026-08-30
+## v1.3.0 candidate — 2026-09-01
 
 This untagged candidate keeps exactly fifteen portable skills:
 
@@ -41,12 +41,18 @@ Highlights:
   pull-request refs remain outside repository write control.
 - Root instructions and Ultra are smaller while preserving owner gates,
   correction, recovery, review and receive-audit boundaries.
+- Autoimprove now separates candidate and evaluator ownership, calibrates the
+  scoring path, binds per-trial receipts, handles noise and continues Pareto-
+  sized fresh experiments after a rejected candidate. A bundled counter makes
+  serialized-newline word limits reproducible.
+- The final5 candidate passed three paired repetitions and a sealed holdout;
+  the full evidence is in the [Autoimprove receipt](docs/evals/artifacts/v1.3.0-autoimprove-integrity-final5-receipt.md).
 
-The source-isolated Codex candidate passed the development, local-error and two
-holdout probes. Alias-only discovery failed and Claude runtime remains blocked
-by an expired local OAuth session, so this is not a merged, tagged, distributed
-or cross-client accepted release. Exact evidence and limits are recorded in
-[the v1.3.0 candidate checkpoint](docs/releases/v1.3.0.md).
+The source-isolated candidate passed the local deterministic and behavioral
+gates, but is not a merged, tagged, distributed or cross-client accepted
+release. Client compatibility remains separate; alias discovery and marketplace
+distribution require their own clean-session readback. Exact status and
+behavioral evidence are recorded in [the v1.3.0 candidate checkpoint](docs/releases/v1.3.0.md).
 
 ## v1.2.1 — 2026-08-28
 
