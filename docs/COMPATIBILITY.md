@@ -21,22 +21,23 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.2.1`, the latest fully
-accepted release. Exact tag-to-commit identity, merged-main CI,
-downloaded-archive parity and checksum, secret scan, 88/88 archive-native tests
-and isolated installer readback in copy mode for all fifteen skills are recorded in
-[the release evidence](releases/v1.2.1.md). `v1.2.0` remains available but failed
-one archive-native test and is superseded; see [its exact readback](releases/v1.2.0.md).
-GitHub reports the `v1.2.1` release object as non-immutable and tag protection
-was not independently verified, so security-sensitive consumers should pin the
-reviewed full commit SHA. None of this proves that a client marketplace
-accepted, loaded or ran the package; the per-client rows remain `NOT_PUBLISHED`
-until that exact channel has an installation readback.
+The GitHub source channel is `DISTRIBUTED` for `v1.3.0`, the latest fully
+accepted source release. Its exact merge, tag, deterministic checks, secret scan
+and calibrated final5 holdout are recorded in [the release evidence](releases/v1.3.0-publication-readback.md)
+and [the behavioral receipt](evals/artifacts/v1.3.0-autoimprove-integrity-final5-receipt.md).
+`v1.2.1` remains the rollback source release; `v1.2.0` remains available but
+failed one archive-native test and is superseded. GitHub reports the `v1.3.0`
+release object as non-immutable and tag protection was not independently
+verified, so security-sensitive consumers should pin the reviewed full commit
+SHA. Source distribution does not prove that a client marketplace accepted,
+loaded or ran the package; the per-client rows remain `NOT_PUBLISHED` until
+that exact channel has an installation readback. The rollback release evidence
+also records an isolated installer readback.
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
 
-The untagged v1.3.0 candidate has additional local runtime evidence in
+The v1.3.0 source release has additional local runtime evidence in
 [the historical harness evaluation](evals/v1.3.0-harness-clarity-2026-08-30.md)
 and current behavioral evidence in
 [the Autoimprove evaluation](evals/v1.3.0-autoimprove-integrity-2026-09-01.md).
