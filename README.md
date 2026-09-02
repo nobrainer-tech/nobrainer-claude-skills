@@ -253,18 +253,18 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest
-published GitHub source release. It keeps exactly fifteen skills and
-records the quick path, deterministic gates, secret scan, source distribution
-readback and the discovered coherence gap in the post-release record. The
-candidate checkpoint remains available in [the candidate record](docs/releases/v1.4.0.md).
-Client-specific runtime rows remain evidence-scoped; source publication does not
-imply marketplace discovery.
+Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) is the latest
+published GitHub source release. It keeps exactly fifteen skills, and its tag,
+archive, deterministic checks, secret scan and isolated copy installation are
+recorded in the [publication readback](docs/releases/v1.5.0-publication-readback.md).
+Its model positioning is workflow-level; direct Astra and Claude runtime support
+remains unverified in [Compatibility](docs/COMPATIBILITY.md). The pre-publication
+checkpoint remains available in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
 
-The unreleased [`v1.5.0` candidate](docs/releases/v1.5.0.md) adds the mandatory
-public-surface coherence gate and refreshes the README Mermaid flow and workflow
-SVG; `v1.4.0` remains the accepted source release until this candidate is
-reviewed and published.
+Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) remains the
+previous accepted source release and rollback option. Client-specific runtime
+rows remain evidence-scoped; source publication does not imply marketplace
+discovery.
 
 The [`v1.3.1` release](docs/releases/v1.3.1-publication-readback.md) remains the
 previous accepted source release and a rollback option. It adds the English

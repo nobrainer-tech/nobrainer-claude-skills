@@ -1,9 +1,9 @@
 # NoBrainer Tech Skills release notes
 
-## v1.5.0 candidate — 2026-09-02
+## v1.5.0 — 2026-09-02
 
-This untagged candidate keeps exactly fifteen portable skills and closes the
-v1.4.0 public-surface coherence gap.
+This published source release keeps exactly fifteen portable skills and closes
+the v1.4.0 public-surface coherence gap.
 
 Highlights:
 
@@ -29,8 +29,10 @@ Highlights:
 - The v1.4.0 publication gap is recorded in
   [`docs/releases/v1.4.0-publication-readback.md`](docs/releases/v1.4.0-publication-readback.md).
 
-This is a local release candidate, not a merged, tagged or distributed release.
-The exact candidate state is recorded in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
+Source publication is verified in the
+[`v1.5.0 publication readback`](docs/releases/v1.5.0-publication-readback.md).
+The pre-publication checkpoint remains in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md),
+and direct provider runtime support remains separately evidence-scoped.
 
 ## v1.4.0 — 2026-09-02
 
