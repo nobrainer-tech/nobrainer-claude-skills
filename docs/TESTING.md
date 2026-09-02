@@ -87,6 +87,9 @@ A releasable commit requires:
 - a recorded behavior holdout for changed workflow controls;
 - a review-failure scenario proving the route returns to Build with invalidated
   evidence;
+- a public-surface coherence check: every affected README, doc, template and
+  diagram is updated and read back, or `NOT_NEEDED` is recorded with a reason;
+  flow changes refresh both the SVG and README Mermaid chart;
 - honest compatibility labels;
 - a rollback path;
 - owner approval for merge and publication.

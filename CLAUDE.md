@@ -43,20 +43,21 @@ native capability owns. Do not add one because a topic is popular.
 
 ## Delivery workflow
 
-A mechanical, reversible task can use Ultra's quick path: inspect the actual
-checkout, instructions, dirty state and nearest proof, make the scoped edit,
-run the nearest check plus `git diff --check`, and read back diff/status. Use
-`nobrainer-ultra`'s full workflow for non-trivial outcomes, setup/upgrade work,
-ambiguous scope, several proof layers or meaningful recovery risk.
+A mechanical, reversible task with no public contract/routing/workflow/portfolio impact
+can use Ultra's quick path: inspect the actual checkout, instructions, dirty state and
+nearest proof, make the scoped edit, run the nearest check plus `git diff --check`, and
+read back diff/status. Public contract, routing, workflow or portfolio changes use the
+full workflow and update each affected README, doc, template and diagram, or record
+`NOT_NEEDED` with a reason. Use `nobrainer-ultra`'s full workflow for non-trivial outcomes,
+setup/upgrade work, ambiguous scope, several proof layers or meaningful recovery risk.
 
 For non-trivial work follow:
 
 `inspect -> clarify once if needed -> scope -> implement -> verify -> review -> report`
 
-Inspect the actual checkout, nearest instructions, dirty state, callers, tests,
-runtime and relevant durable decisions before planning. Prefer one primary agent.
-Add workers only for independent bounded work whose latency or isolation benefit
-exceeds coordination cost.
+Inspect the actual checkout, nearest instructions, dirty state, callers, tests, runtime
+and relevant durable decisions before planning. Prefer one primary agent; add workers
+only for independent bounded work whose latency or isolation benefit exceeds coordination cost.
 
 ### Minimum sufficient change
 
@@ -98,10 +99,9 @@ after every command. The canonical plan or tracker owns TODO state; summaries,
 exit codes and worker reports cannot advance it.
 
 Use a detailed execution ledger only when work is multi-session, dependency-rich,
-consequential, explicitly resumable after context loss or requested by the
-owner. It must record exact identity, dependencies, write ownership, evidence,
-checkpoint, retry/stop conditions and rollback. Ordinary single-session work
-uses a short checklist.
+consequential, explicitly resumable after context loss or requested by the owner. It
+must record exact identity, dependencies, write ownership, evidence, checkpoint,
+retry/stop conditions and rollback; ordinary single-session work uses a short checklist.
 
 ## Routing without ceremony
 

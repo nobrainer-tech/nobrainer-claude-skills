@@ -1,8 +1,29 @@
 # NoBrainer Tech Skills release notes
 
-## v1.4.0 candidate — 2026-09-02
+## v1.5.0 candidate — 2026-09-02
 
-This untagged candidate keeps exactly fifteen portable skills:
+This untagged candidate keeps exactly fifteen portable skills and closes the
+v1.4.0 public-surface coherence gap.
+
+Highlights:
+
+- `nobrainer-ultra` now requires a `PUBLIC_SURFACE` decision for every change:
+  update affected README, docs, templates, assets and flow, or record
+  `NOT_NEEDED` with a reason. Public contract, routing and workflow changes use
+  the full lifecycle and require fresh SVG and README Mermaid readback.
+- The quick path is limited to small reversible edits with no public contract,
+  routing, workflow or portfolio impact.
+- README's Mermaid flow and `assets/nobrainer-workflow.svg` now show the quick
+  path and coherence gate.
+- The v1.4.0 publication gap is recorded in
+  [`docs/releases/v1.4.0-publication-readback.md`](docs/releases/v1.4.0-publication-readback.md).
+
+This is a local release candidate, not a merged, tagged or distributed release.
+The exact candidate state is recorded in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
+
+## v1.4.0 — 2026-09-02
+
+This published source release keeps exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -31,8 +52,11 @@ Highlights:
 - API request/response and database query/result proof remain separate and
   copyable, while the public bug template follows the same contract.
 
-This is a local release candidate, not a merged, tagged or distributed release.
-The exact candidate state is recorded in [`docs/releases/v1.4.0.md`](docs/releases/v1.4.0.md).
+The source release is merged in PR #35 at commit
+`215c0bb0d6dbfe9b45ecf3202ec198a2c219b3b2`, tagged as `v1.4.0` and published on
+GitHub. The archive and installation readback are recorded in
+[`docs/releases/v1.4.0-publication-readback.md`](docs/releases/v1.4.0-publication-readback.md),
+which also records the post-release coherence gap that v1.5.0 closes.
 
 ## v1.3.1 — 2026-09-02
 

@@ -282,6 +282,11 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("nearest deterministic check", text.lower())
         self.assertIn("escalate to the full ultra lifecycle", text.lower())
         self.assertIn("quick path never bypasses", text.lower())
+        self.assertIn("PUBLIC_SURFACE", text)
+        self.assertIn("affected README/docs/templates/assets/flow", text)
+        self.assertIn("public contract, routing or workflow changes", text)
+        self.assertIn("fresh SVG + README Mermaid readback", text)
+        self.assertIn("fails closeout", text)
         routing_contract = " ".join(text.lower().split())
         self.assertIn("a routing-table line or remembered summary is insufficient", routing_contract)
         self.assertIn("loading method context is not task execution", routing_contract)
@@ -2992,12 +2997,9 @@ class SuiteTests(unittest.TestCase):
             "`d1e0ea761d4bf439973727668ee871e2b367797e`, tagged as `v1.3.1`",
             release_section,
         )
-        self.assertIn(
-            "Version [`v1.3.1`](docs/releases/v1.3.1-publication-readback.md) is the latest\n"
-            "fully accepted GitHub source release.",
-            readme,
-        )
-        self.assertIn("`DISTRIBUTED` for `v1.3.1`", compatibility)
+        self.assertIn("docs/releases/v1.3.1-publication-readback.md", readme)
+        self.assertIn("previous accepted source release", readme)
+        self.assertIn("v1.3.1", compatibility)
         self.assertIn("HOLDOUT_RESULT: PASS 5/5", evaluation)
 
         evidence = parse_release_evidence(publication)
@@ -3154,6 +3156,33 @@ class SuiteTests(unittest.TestCase):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
+    def test_v1_5_coherence_candidate_is_explicit(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
+            encoding="utf-8"
+        )
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        candidate = (ROOT / "docs" / "releases" / "v1.5.0.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest",
+            readme,
+        )
+        self.assertIn("The unreleased [`v1.5.0` candidate]", readme)
+        self.assertIn("`DISTRIBUTED` for `v1.4.0`", compatibility)
+        self.assertIn("## v1.5.0 candidate — 2026-09-02", release_notes)
+        for term in (
+            "COHERENCE_GATE: PASS",
+            "README_COHERENCE_READBACK: PASS",
+            "MERMAID_FLOW_READBACK: PASS",
+            "SVG_FLOW_READBACK: PASS",
+            "PUBLIC_SYNC: FETCH_ONLY",
+            "MERGE: NOT_PERFORMED",
+            "TAG: NOT_CREATED",
+        ):
+            self.assertIn(term, candidate)
+
     def test_v1_3_spec_self_authenticates(self) -> None:
         spec = (
             ROOT / "docs" / "specs" / "v1.3.0-harness-clarity.spec.md"
@@ -3244,6 +3273,9 @@ class SuiteTests(unittest.TestCase):
         self.assertTrue(text.startswith("<svg"))
         self.assertIn('viewBox="0 0 1600 900"', text)
         self.assertIn("BUDDY", text)
+        self.assertIn("QUICK PATH", text)
+        self.assertIn("Small + reversible", text)
+        self.assertIn("RISK → OWNER GATE", text)
         self.assertIn("SCOPE + PLAN", text)
         self.assertIn("BUILD", text)
         self.assertIn("REVIEW", text)
@@ -3265,6 +3297,8 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.3.0.md",
             "docs/releases/v1.3.1.md",
             "docs/releases/v1.3.1-publication-readback.md",
+            "docs/releases/v1.4.0-publication-readback.md",
+            "docs/releases/v1.5.0.md",
             "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",
@@ -3326,6 +3360,10 @@ class SuiteTests(unittest.TestCase):
         for term in (
             "BUDDY: one focused clarification",
             "One canonical plan + compact Progress",
+            "Public contract, routing, workflow or portfolio may change?",
+            "COHERENCE:",
+            "QUICK PATH:",
+            "refresh SVG + Mermaid",
             "Ready and authorized?",
             "BUILD correction + invalidate proof",
             "RECEIVE_AUDIT",
