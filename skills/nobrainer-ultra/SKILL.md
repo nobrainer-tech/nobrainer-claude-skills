@@ -6,51 +6,50 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 # NoBrainer Ultra
 
 Turn one owner request into the smallest complete verified outcome the current
-project and runtime can deliver. Hide orchestration mechanics from the owner;
-surface scope, progress, proof, real decisions and blockers.
+project and runtime can deliver; hide orchestration mechanics from the owner and
+surface scope, progress, proof, decisions and blockers.
 
-Read [references/routing.md](references/routing.md) before selecting methods.
-For setup, upgrade, installation or repair, also read
-[references/setup.md](references/setup.md). Read
-[references/correction-hooks.md](references/correction-hooks.md) only after an
-owner decision changes, the agent is corrected or review fails. Read
-[references/long-run-state.md](references/long-run-state.md) only when the
-detailed-ledger gate below passes.
+Read [references/routing.md](references/routing.md) before selecting methods. For
+setup, upgrade, installation or repair, also read [references/setup.md](references/setup.md).
+Read [references/correction-hooks.md](references/correction-hooks.md) only after
+an owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
 
 ## Choose the smallest workflow
 
-A mechanical, reversible task remains direct. Use Ultra when the outcome is
-non-trivial because scope, dependencies, risk, proof layers, resumability or
-specialist routing matter.
+### Quick path for small changes
 
-Default to one primary agent in the current session. Add a worker only for a
-bounded independent unit with a measurable latency, isolation or independent
-judgment benefit. More available agents is not evidence that a team helps.
+Use it for one coherent, reversible edit with obvious acceptance and no authentication,
+secrets, data/production mutation, external side effect, architecture, migration or dependency decision.
 
-The ordinary lifecycle is:
+1. Inspect the actual checkout, instructions, dirty state and nearest caller/test.
+2. Edit only scoped files; run the nearest deterministic check and `git diff --check`.
+3. Read back diff/status; report outcome, proof, uncertainty and rollback.
 
-`DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`
+Skip requirements, ledger, team/dispatcher/sessions and independent review;
+escalate to the full Ultra lifecycle when scope, risk, proof or an owner decision
+expands; quick path never bypasses an owner gate.
 
-These names describe internal control points. Do not print a state-machine form to the owner.
+Default to one primary agent. Add a worker only for a bounded independent unit with measurable latency, isolation or independent-judgment benefit; more agents are not evidence that a team helps.
+
+The ordinary lifecycle is `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal control points, not an owner-facing state machine.
 
 ## `DRIFT_CHECK`: establish current truth
 
-Read the repository root, nearest instructions, dirty state, branch/worktree,
-current plan/spec, callers, tests, runtime and available capabilities. Preserve
-unrelated work. Prior summaries, wiki pages and worker reports are context, not proof. Query an existing wiki only for a decision, constraint or lesson that can change this task.
-Research a fact when it is current, external, niche, uncertain, high-stakes or source-attributed.
-For large documents or data, and large repositories, inspect structure first with maps or
-search, then read selected contracts in full and only relevant ranges. Respect the
-context budget and name any unread required surface instead of implying coverage.
+Read the repository root, instructions, dirty state, branch/worktree, plan/spec,
+callers, tests, runtime and capabilities; preserve unrelated work. Prior summaries,
+wiki pages and worker reports are context, not proof. Query an existing wiki only for
+a decision or lesson that can change this task. Research current, external, niche,
+uncertain, high-stakes or source-attributed facts. For large documents or data,
+and large repositories, inspect structure first, then read selected contracts in full and
+relevant ranges; respect the context budget and name any unread required surface instead of implying coverage.
 
-`PROBLEM_GATE`: start with the literal failure and current local evidence. Do not
-infer that a documented command produced the failure. If the exact invocation is
-unknown, first name reproduction from the repository root with the documented
-command; a simulation-only request forbids execution, not naming that next
-diagnostic action. Only then propose path, dependency or configuration changes.
-Check related wiki decisions when available. Use current primary-source internet
-research only when the remedy depends on a current, external, niche, uncertain
-or high-stakes fact. If required research is inaccessible, stop at `RESEARCH_BLOCKED`.
+`PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that
+a documented command produced the failure. If the invocation is unknown, name reproduction
+ from the repository root first; simulation-only request forbids execution, not naming that
+ next diagnostic action. Only then propose path, dependency or configuration changes. Check
+related wiki decisions. Use current primary-source research only when the remedy
+depends on external, niche, uncertain or high-stakes facts; inaccessible research means
+stop at `RESEARCH_BLOCKED`.
 
 ## `BUDDY`: clarify once
 
@@ -85,16 +84,18 @@ Test decision: EXISTING | NEW_REQUIRED | NOT_NEEDED — reason
 Done clean:
 ```
 
-`Outcome` is the portable goal; `Proof` plus `Done clean` are its definition of done.
-`Expected files` predicts the justified write surface; update scope before expanding it.
-`Untouched` protects unrelated dirty work and compatibility boundaries. `Done clean`
-requires matching scope, passing proof, no placeholders or surprises; excluded inspection keeps it provisional.
-When the owner explicitly requests a goal/DoD contract, show every field above and state the detailed-ledger decision.
-Create a supported host-native goal after scope is frozen and require goal readback; the canonical plan supersedes stale goal text after correction.
-Default to at most 160 words: one outcome sentence, at most three scope bullets, the compact Progress view,
-at most three proof bullets and one next action. Do not add a repetitive skill/mode preamble, claim planning is complete,
-or enumerate implementation phases or possible mechanisms. Do not invent unseen schemas, endpoints, state machines,
-storage or polling; name only required boundaries and proof, and mark exact paths and methods as pending inspection.
+`Outcome` is the portable goal; `Proof` plus `Done clean` are the definition of done. `Expected files`
+predict scope; `Untouched` protects unrelated work and compatibility; update scope
+before expanding. `Done clean` requires matching scope, passing proof, no placeholders
+or surprises; excluded inspection stays provisional.
+When the owner requests goal/DoD, show every field above and state the detailed-ledger decision.
+Create a host-native goal after scope is frozen and require goal readback; the canonical
+plan supersedes stale goal text after correction.
+Default to at most 160 words: one outcome sentence, three scope bullets, compact
+Progress, three proof bullets and one next action. Do not add a repetitive
+skill/mode preamble or planning claim; avoid mechanism lists and invent unseen schemas, endpoints, state machines,
+storage or polling; name required boundaries/proof and mark exact paths/methods
+pending inspection.
 
 Do not add a dependency, compatibility layer, fallback stack, worker, skill or
 test without an acceptance need or demonstrated risk. A new shared abstraction

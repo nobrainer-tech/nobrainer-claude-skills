@@ -1,5 +1,39 @@
 # NoBrainer Tech Skills release notes
 
+## v1.4.0 candidate — 2026-09-02
+
+This untagged candidate keeps exactly fifteen portable skills:
+
+- `nobrainer-ultra`
+- `nobrainer-team`
+- `nobrainer-dispatcher`
+- `nobrainer-research`
+- `nobrainer-writing`
+- `nobrainer-build`
+- `nobrainer-security`
+- `nobrainer-sessions`
+- `nobrainer-spec-driven-development`
+- `nobrainer-wiki`
+- `nobrainer-browser`
+- `nobrainer-autoimprove`
+- `nobrainer-decide`
+- `nobrainer-rca`
+- `nobrainer-review`
+
+Highlights:
+
+- `nobrainer-ultra` now has an explicit quick path for one coherent,
+  reversible small change, with a local check and diff/status readback before
+  reporting; risk, scope or owner-gate expansion escalates to the full flow.
+- `nobrainer-writing` uses one `Env indicator` for bugs and comments, containing
+  the environment name, exact URL and user used; bug reports keep only an
+  explicit `Description` and use `Evidence` for UI screenshots or MP4 recordings.
+- API request/response and database query/result proof remain separate and
+  copyable, while the public bug template follows the same contract.
+
+This is a local release candidate, not a merged, tagged or distributed release.
+The exact candidate state is recorded in [`docs/releases/v1.4.0.md`](docs/releases/v1.4.0.md).
+
 ## v1.3.1 — 2026-09-02
 
 This published source release keeps exactly fifteen portable skills:
