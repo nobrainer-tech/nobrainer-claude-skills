@@ -11,6 +11,9 @@ Highlights:
   update affected README, docs, templates, assets and flow, or record
   `NOT_NEEDED` with a reason. Public contract, routing and workflow changes use
   the full lifecycle and require fresh SVG and README Mermaid readback.
+- `nobrainer-writing` now uses a compact `ENV:` block for bugs and comments;
+  bug reports omit speculative workaround and root-cause fields, while feature
+  issues keep a one-sentence Description, affected user, desired outcome and evidence.
 - The quick path is limited to small reversible edits with no public contract,
   routing, workflow or portfolio impact.
 - `CONTRIBUTING.md` and the pull-request template carry the same coherence
@@ -48,7 +51,7 @@ Highlights:
 - `nobrainer-ultra` now has an explicit quick path for one coherent,
   reversible small change, with a local check and diff/status readback before
   reporting; risk, scope or owner-gate expansion escalates to the full flow.
-- `nobrainer-writing` uses one `Env indicator` for bugs and comments, containing
+- `nobrainer-writing` uses one environment block for bugs and comments, containing
   the environment name, exact URL and user used; bug reports keep only an
   explicit `Description` and use `Evidence` for UI screenshots or MP4 recordings.
 - API request/response and database query/result proof remain separate and

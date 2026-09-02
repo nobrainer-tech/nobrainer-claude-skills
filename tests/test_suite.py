@@ -482,7 +482,7 @@ class SuiteTests(unittest.TestCase):
             "ISSUE",
             "USER_STORY",
             "REQUEST",
-            "Env indicator",
+            "ENV:",
             "Name",
             "URL",
             "User",
@@ -521,7 +521,7 @@ class SuiteTests(unittest.TestCase):
         ]
         field_order = (
             "Description:",
-            "Env indicator:",
+            "ENV:",
             "Name:",
             "URL:",
             "User:",
@@ -535,7 +535,6 @@ class SuiteTests(unittest.TestCase):
             "Database result, when applicable:",
             "Evidence, for a UI screenshot or MP4 recording, when applicable:",
             "HAR, only when the page-load/request chain matters:",
-            "Unknown or workaround:",
             "Definition of Done (DoD):",
         )
         positions = [bug_reference.index(field) for field in field_order]
@@ -544,10 +543,13 @@ class SuiteTests(unittest.TestCase):
         self.assertNotIn("Environment:", bug_reference)
         self.assertNotIn("Summary:", bug_reference)
         self.assertNotIn("Done when:", bug_reference)
+        self.assertNotIn("Unknown or workaround:", bug_reference)
+        self.assertNotIn("Workaround:", bug_reference)
+        self.assertNotIn("Root cause:", bug_reference)
         comment_reference = reference[
             reference.index("## COMMENT") : reference.index("## BUG")
         ]
-        self.assertIn("Env indicator:", comment_reference)
+        self.assertIn("ENV:", comment_reference)
         self.assertIn("Name", comment_reference)
         self.assertIn("URL", comment_reference)
         self.assertIn("User", comment_reference)
@@ -582,6 +584,11 @@ class SuiteTests(unittest.TestCase):
                     heading,
                 )
         self.assertIn("Never add mistakes, random slang or fake personal experience", reference)
+        issue_reference = reference[
+            reference.index("## ISSUE") : reference.index("## USER_STORY")
+        ]
+        self.assertNotIn("Out of scope:", issue_reference)
+        self.assertNotIn("Open question:", issue_reference)
         self.assertNotIn("AI detector", reference)
 
     def test_public_bug_template_matches_brief_diagnostic_contract(self) -> None:
@@ -590,7 +597,7 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for term in (
             "## Description",
-            "## Env indicator",
+            "## ENV",
             "| Name |",
             "| URL |",
             "| User |",
@@ -614,11 +621,12 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, template)
         self.assertNotIn("## Impact", template)
         self.assertNotIn("## Environment", template)
+        self.assertNotIn("## Env indicator", template)
         self.assertNotIn("## URL", template)
         self.assertNotIn("## UI screenshot or MP4 recording", template)
         fields = (
             "## Description",
-            "## Env indicator",
+            "## ENV",
             "## Steps to reproduce",
             "## Current behavior",
             "## Expected behavior",
@@ -639,7 +647,9 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for term in (
             "## Description",
-            "## Proposed outcome",
+            "## Who is affected",
+            "## Desired outcome",
+            "## Evidence",
             "## Acceptance criteria",
             "## Definition of Done (DoD)",
             "AC01",
@@ -649,10 +659,11 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, template)
         fields = (
             "## Description",
-            "## Proposed outcome",
+            "## Who is affected",
+            "## Desired outcome",
+            "## Evidence",
             "## Acceptance criteria",
             "## Definition of Done (DoD)",
-            "## Alternatives considered",
         )
         positions = [template.index(field) for field in fields]
         self.assertEqual(sorted(positions), positions)

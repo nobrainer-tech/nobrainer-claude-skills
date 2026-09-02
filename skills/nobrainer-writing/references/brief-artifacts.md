@@ -47,7 +47,7 @@ Use for code review, issue updates, decisions, questions and status. Start with
 the observation or decision, then the impact, evidence and one request.
 
 ```text
-Env indicator: <Name> | URL: <route or N/A> | User: <role or redacted alias>
+ENV: <Name> | URL: <route or N/A> | User: <role or redacted alias>
 <Observation or decision>. <Why it matters or what changed>.
 <Requested action or question>.
 Evidence: <file, line, test, link or concrete example>.
@@ -55,7 +55,7 @@ Evidence: <file, line, test, link or concrete example>.
 
 Good code-review comment:
 
-> Env indicator: TEST | URL: N/A | User: reviewer
+> ENV: TEST | URL: N/A | User: reviewer
 >
 > This returns `200` when the provider times out, so the caller treats a failed
 > sync as success. Return the error or mark the result `UNKNOWN`, and add a
@@ -64,7 +64,7 @@ Good code-review comment:
 Good status comment:
 
 ```text
-Env indicator: QA | URL: https://demo.example.test/runs/42 | User: qa-operator
+ENV: QA | URL: https://demo.example.test/runs/42 | User: qa-operator
 The timeout is now reported as a failed sync, and test `provider_timeout_marks_failure` passes. Next: review the PR.
 ```
 
@@ -80,7 +80,7 @@ Title: [Bug] <what fails> when <condition>
 
 Description: <one sentence describing the failure>
 
-Env indicator:
+ENV:
 - Name: <QA | DEV | TEST | PROD | PREPROD | BETA | UNKNOWN>
 - URL: <exact non-secret route or page, or N/A when no URL applies>
 - User: <role or redacted/synthetic alias, never a credential>
@@ -117,12 +117,11 @@ Database result, when applicable:
 Evidence, for a UI screenshot or MP4 recording, when applicable: <attach file>
 HAR, only when the page-load/request chain matters: <attach file or N/A>
 
-Unknown or workaround: <only if useful>
 Definition of Done (DoD): <observable regression proof and required checks>
 ````
 
-`Description`, `Env indicator`, `Steps to reproduce`, `Current behavior` and
-`Expected behavior` are separate diagnostic fields. `Env indicator` keeps the
+`Description`, `ENV:`, `Steps to reproduce`, `Current behavior` and
+`Expected behavior` are separate diagnostic fields. `ENV:` keeps the
 environment name, exact URL and user used together; its optional `Build/client`
 line preserves useful release or client context. Surface-proof sections remain separate
 and appear only when applicable. Keep `URL` as `N/A` for a worker, CLI
@@ -154,7 +153,7 @@ Title: [Bug] Sync reports success after a provider timeout
 
 Description: A timeout leaves the sync marked as successful.
 
-Env indicator:
+ENV:
 - Name: TEST
 - URL: N/A (worker-only reproduction)
 - User: sync-test-user
@@ -187,8 +186,8 @@ lets another person reproduce the behavior without a meeting.
 
 ## ISSUE
 
-Use for a feature, workflow improvement or change request. Describe the problem
-and desired result before proposing implementation.
+Use for a feature, workflow improvement or change request. Keep `Description` to
+one sentence, then use only the fields that help someone decide or build it.
 
 ```text
 Title: [Feature] <user outcome>
@@ -206,9 +205,6 @@ Acceptance:
 Definition of Done (DoD):
 - [ ] <acceptance criteria pass in the affected surface>
 - [ ] <required tests/checks and proof are attached or linked>
-
-Out of scope: <one important exclusion, if needed>
-Open question: <only a decision that blocks acceptance>
 ```
 
 Example:
