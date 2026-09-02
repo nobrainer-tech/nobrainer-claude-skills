@@ -150,6 +150,7 @@ REPOSITORY: <identifier>
 CHECKOUT: <checkout/worktree>
 TASK_ID: <ID>
 METHOD: <literal owning skill or project capability>
+MODEL_POLICY: <exact frozen policy>
 MODEL_REQUESTED: <exact requested model or UNKNOWN>
 MODEL_ACTUAL: <exact readback or UNKNOWN>
 MODEL_READBACK: VERIFIED | UNSUPPORTED | UNKNOWN

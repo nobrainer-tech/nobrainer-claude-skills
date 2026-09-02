@@ -5,7 +5,7 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 
 # NoBrainer Ultra
 
-Turn one owner request into the smallest verified outcome the current
+Turn one owner request into the smallest complete verified outcome the current
 project and runtime can deliver; hide orchestration from the owner and
 surface scope, proof, decisions and blockers.
 
