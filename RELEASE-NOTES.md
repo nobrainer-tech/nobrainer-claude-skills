@@ -7,6 +7,12 @@ v1.4.0 public-surface coherence gap.
 
 Highlights:
 
+- `nobrainer-ultra` now freezes a portable `STANDARD`/`EXTENDED`/`ROUTED` model
+  policy with explicit model, effort, budget and escalation fields; Dispatcher
+  and Sessions carry the policy without silently switching models.
+- The README presents v1.5.0 as an Astra Ready Flow for current Codex and
+  Claude Fable 5.1 / Mythos 5.1 workflows, with direct runtime compatibility
+  kept evidence-scoped.
 - `nobrainer-ultra` now requires a `PUBLIC_SURFACE` decision for every change:
   update affected README, docs, templates, assets and flow, or record
   `NOT_NEEDED` with a reason. Public contract, routing and workflow changes use

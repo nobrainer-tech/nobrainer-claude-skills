@@ -5,11 +5,11 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 
 # NoBrainer Ultra
 
-Turn one owner request into the smallest complete verified outcome the current
-project and runtime can deliver; hide orchestration mechanics from the owner and
-surface scope, progress, proof, decisions and blockers.
+Turn one owner request into the smallest verified outcome the current
+project and runtime can deliver; hide orchestration from the owner and
+surface scope, proof, decisions and blockers.
 
-Read [references/routing.md](references/routing.md) before selecting methods. For
+Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods. For
 setup, upgrade, installation or repair, also read [references/setup.md](references/setup.md).
 Read [references/correction-hooks.md](references/correction-hooks.md) only after
 an owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.

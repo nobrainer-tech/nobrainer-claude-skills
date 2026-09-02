@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">NoBrainer Ultra delivery workflow</title>
-  <desc id="desc">One owner request takes a quick path when the edit is small, reversible and has no public-surface impact; otherwise it passes through clarification, minimum scope, coherence readback, bounded execution, review, verification, delivery and learning. Detailed state and specialists appear only when recovery, dependencies or independent work require them.</desc>
+  <desc id="desc">One owner request takes a quick path when the edit is small, reversible and has no public-surface impact; otherwise it passes through clarification, minimum scope, explicit model policy, coherence readback, bounded execution, review, verification, delivery and learning. Detailed state and specialists appear only when recovery, dependencies or independent work require them.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#071317"/>
@@ -44,7 +44,7 @@
 
   <text x="76" y="70" class="eyebrow">NOBRAINER ULTRA</text>
   <text x="76" y="120" class="headline">One request. Clear progress. Verified delivery.</text>
-  <text x="76" y="154" class="subtitle">Small reversible edits take the quick path; public flow changes refresh docs, README and diagrams.</text>
+  <text x="76" y="154" class="subtitle">Small reversible edits take the quick path; model budgets and public-flow docs stay explicit.</text>
 
   <g filter="url(#soft-shadow)">
     <rect x="76" y="220" width="205" height="116" rx="20" class="node"/>
@@ -60,12 +60,12 @@
     <rect x="594" y="220" width="236" height="116" rx="20" class="node-accent"/>
     <text x="618" y="258" class="tiny">03 · SCOPE THE MINIMUM</text>
     <text x="618" y="289" class="node-title">SCOPE + PLAN</text>
-    <text x="618" y="316" class="node-copy">One TODO · proof · untouched</text>
+    <text x="618" y="316" class="node-copy">Proof · model policy</text>
 
     <rect x="884" y="220" width="205" height="116" rx="20" class="node"/>
     <text x="908" y="258" class="tiny">04 · COHERENCE / START</text>
     <text x="908" y="289" class="node-title">READY</text>
-    <text x="908" y="316" class="node-copy">Scope · proof · docs readback</text>
+    <text x="908" y="316" class="node-copy">Scope · model · docs readback</text>
   </g>
 
   <path d="M281 278H325" class="flow"/>

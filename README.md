@@ -7,7 +7,7 @@
 <h1 align="center">nobrainer-tech-skills</h1>
 
 <p align="center">
-  Lightweight, portable agentic workflows for fast and evidence-gated delivery.
+  Lightweight, portable, model-neutral agentic workflows for fast and evidence-gated delivery.
 </p>
 
 <p align="center">
@@ -25,11 +25,11 @@ Give the agent one outcome. `nobrainer-ultra` inspects the real project, asks at
 most one focused requirements round, scopes the minimum complete change, shows
 one short Progress checklist and drives approved work until verified delivery or
 a real owner gate. Small reversible edits without a public contract, routing,
-workflow or portfolio change take a quick path; such changes use the full path so
+workflow or portfolio change take a quick path; other changes use the full path so
 docs, README and diagrams stay aligned. Detailed state and specialists appear only
 when they earn their coordination cost.
 
-![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, minimum scope, bounded build, review, verification, delivery and learning](assets/nobrainer-workflow.svg)
+![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, minimum scope, bounded build, review, verification, delivery and learning](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
 
@@ -37,10 +37,10 @@ when they earn their coordination cost.
 flowchart TD
     A[Owner request] --> B{Outcome clear?}
     B -->|no| C[BUDDY: one focused clarification]
-    B -->|yes| D[Freeze outcome, scope, proof and untouched work]
+    B -->|yes| D[Freeze outcome, scope, proof, untouched work and model policy]
     C --> D
     D --> E{Public contract, routing, workflow or portfolio may change?}
-    E -->|yes| F[COHERENCE: update README/docs/templates/assets; refresh SVG + Mermaid; read back]
+    E -->|yes| F[COHERENCE: update README/docs/templates/assets; bind model policy; refresh SVG + Mermaid; read back]
     E -->|no| G{One coherent, reversible edit with obvious acceptance?}
     G -->|yes| H[QUICK PATH: inspect -> scoped edit -> nearest deterministic check -> diff/status readback]
     G -->|no| I[One canonical plan + compact Progress]
@@ -72,6 +72,27 @@ flowchart TD
     Z -->|yes| T
 ```
 
+## Astra Ready Flow for current model fleets
+
+`v1.5.0` introduces an **Astra Ready Flow** at the workflow level: the
+skills stay model-neutral while making scope, evidence, model, effort, budget
+and escalation explicit before execution. The same portable contract is
+designed to pair with the [current Codex model catalog](https://developers.openai.com/api/docs/models)
+and Anthropic's Claude 5.1 line, officially [Claude Fable 5.1 and Claude Mythos 5.1](https://www.anthropic.com/claude-fable-and-mythos-5-1).
+
+This is workflow readiness, not a provider integration badge. [OpenAI describes
+Astra as being prepared for release](https://openai.com/index/path-to-astra/), and
+the current public API catalog does not list it; this repository has no
+clean-session runtime proof for Astra or the Claude 5.1 releases. See the
+[model policy](skills/nobrainer-ultra/references/model-routing.md) and
+[compatibility evidence](docs/COMPATIBILITY.md).
+
+```text
+STANDARD -> host-selected model + declared effort
+EXTENDED -> larger declared budget; any stronger model is explicit
+ROUTED -> advertised capability tier; exact model recorded; escalation needs proposal/approval
+```
+
 **Continuous improvement beats delayed perfection.** A small task stays small.
 A non-trivial task gets enough structure to be reliable, but no speculative
 framework, automatic swarm or documentation theatre.
@@ -80,7 +101,7 @@ framework, automatic swarm or documentation theatre.
 
 Use [`nobrainer-ultra`](skills/nobrainer-ultra/) for setup or any non-trivial
 outcome. A small reversible edit without a public contract, routing, workflow or
-portfolio change can use its quick path; such changes use the full path and its
+portfolio change can use its quick path; other changes use the full path and its
 coherence gate.
 In Codex, explicit invocation is `$nobrainer-ultra`; `nb-ultra` is a
 natural-language trigger phrase and therefore depends on a client's implicit

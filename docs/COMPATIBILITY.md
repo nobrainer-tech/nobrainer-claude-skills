@@ -39,10 +39,30 @@ surface-specific bug evidence. The source release is distributed and repository
 checked; client-specific runtime and marketplace levels remain separately
 evidence-scoped.
 
-The untagged `v1.5.0` candidate adds the mandatory public-surface coherence gate
-and refreshed README/flow artifacts. Until its publication readback is complete,
-it remains `SOURCE_VALIDATED` and `REPOSITORY_CHECKED` candidate state; it does
-not upgrade the client rows below.
+The untagged `v1.5.0` candidate adds the mandatory public-surface coherence gate,
+refreshed README/flow artifacts and an explicit model policy for selected,
+extended or routed work. Until its publication readback is complete, it remains
+`SOURCE_VALIDATED` and `REPOSITORY_CHECKED` candidate state; it does not upgrade the
+client rows below.
+
+## Model-neutral readiness
+
+`WORKFLOW_READY` is a product-positioning label, not a seventh compatibility
+level. It means the portable policy can carry a selected model, effort, budget
+and escalation gate; it does not prove that a provider exposes or follows that
+policy.
+
+| Model family | Workflow posture | Direct runtime proof in this repository |
+|---|---|---|
+| Astra | `WORKFLOW_READY`: model-neutral scope, budget and escalation contract | `NOT_VERIFIED`: OpenAI describes Astra as being prepared for release, and its current public API catalog does not list it |
+| Claude Fable 5.1 / Mythos 5.1 | `WORKFLOW_READY`: portable skills with explicit effort and escalation boundaries | `NOT_VERIFIED`: no clean-session transcript for either release |
+| Current Codex model catalog | `WORKFLOW_READY`: host-selected or explicitly routed model policy | `NOT_VERIFIED` per model variant; the client rows below remain the runtime source of truth |
+
+The official Anthropic announcement uses the names Fable 5.1 and Mythos 5.1;
+`Claude 5.1` is a convenient family description, not the exact model name.
+See [OpenAI's Astra update](https://openai.com/index/path-to-astra/),
+[OpenAI's model catalog](https://developers.openai.com/api/docs/models) and
+[Anthropic's Fable 5.1/Mythos 5.1 announcement](https://www.anthropic.com/claude-fable-and-mythos-5-1).
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
@@ -110,6 +130,12 @@ installation source and commit or release. Start with no project-specific rule
 that names NoBrainer. Preserve the complete transcript and use these probes:
 
 ### Automatic routing
+
+The portable `ROUTED` policy describes how a plan may select an advertised
+capability tier; it is not a cross-provider gateway. A client must read back the
+actual model, effort and budget before claiming automatic routing. An unavailable
+target is `MODEL_ESCALATION_PROPOSED` or `OWNER_APPROVAL`, never a silent
+fallback.
 
 ```text
 Help me design and implement an ambiguous feature that crosses several modules

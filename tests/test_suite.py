@@ -328,6 +328,50 @@ class SuiteTests(unittest.TestCase):
         for name in CANONICAL:
             self.assertIn(name, routing)
 
+    def test_model_routing_contract_is_explicit(self) -> None:
+        policy = (
+            SKILLS / "nobrainer-ultra" / "references" / "model-routing.md"
+        ).read_text(encoding="utf-8")
+        normalized_policy = " ".join(policy.split()).lower()
+        for term in (
+            "MODEL_POLICY:",
+            "STANDARD",
+            "EXTENDED",
+            "ROUTED",
+            "MODEL:",
+            "EFFORT:",
+            "BUDGET:",
+            "ESCALATION:",
+            "MODEL_ESCALATION_PROPOSED",
+            "do not silently substitute another model",
+            "clean runtime readback",
+        ):
+            self.assertIn(term.lower(), normalized_policy)
+
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("references/model-routing.md", ultra)
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        sessions = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        protocol = (
+            SKILLS / "nobrainer-sessions" / "references" / "protocol.md"
+        ).read_text(encoding="utf-8")
+        for text in (dispatcher, sessions):
+            normalized = " ".join(text.split())
+            self.assertIn("MODEL_POLICY", normalized)
+        for text in (sessions, protocol):
+            normalized = " ".join(text.split())
+            self.assertIn("MODEL_REQUESTED", normalized)
+        self.assertIn("MODEL_ACTUAL", protocol)
+        self.assertIn("MODEL_READBACK", protocol)
+        self.assertIn("without a silent substitution", dispatcher)
+        self.assertIn("never silently substitute another model", sessions)
+
     def test_ultra_binds_goal_dod_and_context_budget(self) -> None:
         text = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
         normalized = " ".join(text.split()).lower()
@@ -3180,6 +3224,11 @@ class SuiteTests(unittest.TestCase):
         candidate = (ROOT / "docs" / "releases" / "v1.5.0.md").read_text(
             encoding="utf-8"
         )
+        self.assertIn("Astra Ready Flow", readme)
+        self.assertIn("model-neutral", readme)
+        self.assertIn("WORKFLOW_READY", compatibility)
+        self.assertIn("Claude Fable 5.1 / Mythos 5.1", compatibility)
+        self.assertIn("model policy", candidate.lower())
         self.assertIn(
             "Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest",
             readme,
@@ -3295,6 +3344,7 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("QUICK PATH", text)
         self.assertIn("Small + reversible", text)
         self.assertIn("RISK → OWNER GATE", text)
+        self.assertIn("model policy", text.lower())
         self.assertIn("SCOPE + PLAN", text)
         self.assertIn("BUILD", text)
         self.assertIn("REVIEW", text)
@@ -3318,6 +3368,7 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.3.1-publication-readback.md",
             "docs/releases/v1.4.0-publication-readback.md",
             "docs/releases/v1.5.0.md",
+            "skills/nobrainer-ultra/references/model-routing.md",
             "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",
@@ -3381,6 +3432,8 @@ class SuiteTests(unittest.TestCase):
             "One canonical plan + compact Progress",
             "Public contract, routing, workflow or portfolio may change?",
             "COHERENCE:",
+            "bind model policy",
+            "Freeze outcome, scope, proof, untouched work and model policy",
             "QUICK PATH:",
             "refresh SVG + Mermaid",
             "Ready and authorized?",

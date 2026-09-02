@@ -32,7 +32,7 @@ Dispatch only from a visible canonical ledger whose executable rows
 contain:
 
 ```text
-TASK_ID | OUTCOME | METHOD | OWNER_OR_ROLE | DEPENDENCIES | WRITE_SCOPE |
+TASK_ID | OUTCOME | METHOD | MODEL_POLICY | OWNER_OR_ROLE | DEPENDENCIES | WRITE_SCOPE |
 ACCEPTANCE_AND_EVIDENCE | PARALLEL_GROUP | OWNER_GATE | STATUS
 ```
 
@@ -51,6 +51,11 @@ Sessions alone owns identity preflight and prompt transport. Dispatcher selects
 the batch before that call and records `READY -> SENT` only from Sessions'
 successful transport readback. A role name or conversation title is not a
 transport address.
+
+Ultra freezes `MODEL_POLICY`; Dispatcher carries it with the work unit
+and never chooses a provider model. Sessions binds the requested model, effort,
+budget and escalation gate when the host exposes them, or records
+`UNKNOWN`/`UNSUPPORTED` without a silent substitution.
 
 ## Modes
 
@@ -81,7 +86,7 @@ INTEGRATION_OWNER:
 ATTENTION_BUDGET: max_active | urgent_events | digest_cadence |
   expected_wait | context_switch_limit
 TASKS:
-  TASK_ID | STATE | DEPENDENCIES | METHOD | SESSION_ID | WRITE_SCOPE |
+  TASK_ID | STATE | DEPENDENCIES | METHOD | MODEL_POLICY | SESSION_ID | WRITE_SCOPE |
   ATTEMPT_NO | BLOCKER_FINGERPRINT | REPORT_REF | EVIDENCE_REF
 ```
 
@@ -144,6 +149,7 @@ transport state keeps the task `READY` and stops dispatch. Bind:
 
 - exact `TASK_ID`, session and host IDs, checkout, branch/base/HEAD and lease;
 - one observable outcome, exclusions, allowed write scope and frozen inputs;
+- frozen `MODEL_POLICY`, exact model/effort/budget and escalation gate;
 - method/skill, dependencies, acceptance, tests, evidence and rollback;
 - report receiver, retry budget, blocker behavior and explicit stop;
 - the rule that the worker cannot choose, dispatch or start a successor.
@@ -209,6 +215,7 @@ PARALLEL_SAFETY: <task pair -> disjoint scope, checkout and mutable-state proof,
   or NOT_NEEDED>
 STATE_TRANSITIONS:
 AUDIT_REFS:
+MODEL_POLICY_READBACK:
 ATTENTION_AND_RETRY_BUDGET:
 BLOCKERS_OR_OWNER_GATES:
 INTEGRATION_OWNER: <exact owner or NOT_NEEDED>

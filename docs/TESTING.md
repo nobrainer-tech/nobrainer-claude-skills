@@ -21,9 +21,10 @@ python3 scripts/validate_skills.py --suite
 
 ## 2. Deterministic behavior contracts
 
-Unit tests pressure the routing and safety invariants that can be checked
-without an LLM: Ultra states, session identity and lease gates, SDD boundaries,
-trigger ownership, browser routing, adapter registration and installer races.
+Unit tests pressure the routing, model-policy and safety invariants that can be
+checked without an LLM: Ultra states, session identity and lease gates, SDD
+boundaries, trigger ownership, browser routing, adapter registration and
+installer races.
 Adapter tests execute every bootstrap mechanism that can run locally: the Claude
 and Cursor SessionStart JSON shapes, OpenCode injection/deduplication, and Pi
 discovery plus post-compaction re-injection. They also parse the portable Agent
@@ -77,6 +78,11 @@ the exact installed skill hash and disable same-name user copies in an isolated
 probe; two skills with the same name are not merged. An alias failure must not be
 reported as a source-isolated behavior result.
 
+Model-policy tests prove the portable `STANDARD`, `EXTENDED` and `ROUTED`
+contract, including the no-silent-switch rule. They do not prove that a client
+actually selects a provider model. That requires a clean-session readback of
+requested versus actual model, effort, budget and escalation behavior.
+
 ## Release gate
 
 A releasable commit requires:
@@ -91,6 +97,8 @@ A releasable commit requires:
   diagram is updated and read back, or `NOT_NEEDED` is recorded with a reason;
   flow changes refresh both the SVG and README Mermaid chart;
 - honest compatibility labels;
+- model names and marketing remain workflow-positioning claims unless direct
+  runtime evidence exists;
 - a rollback path;
 - owner approval for merge and publication.
 
