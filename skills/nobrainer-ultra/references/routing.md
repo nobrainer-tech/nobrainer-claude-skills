@@ -54,6 +54,13 @@ from `long-run-state.md` only when multiple sessions/writers, dependencies,
 consequential recovery, context-loss resume or an owner request makes it useful.
 It orders work without duplicating the specification or wiki.
 
+### Public-surface coherence
+
+For a skill, workflow, template or portfolio change, map README, compatibility and
+release docs, public templates and diagrams. Update each affected surface or record
+`PUBLIC_SURFACE: NOT_NEEDED` with a reason. Flow, contract or routing changes require
+fresh SVG and README Mermaid readback; do not regenerate unrelated assets.
+
 ### Spec-driven development
 
 Persist a spec for architecture/public contract changes, migrations, dependent

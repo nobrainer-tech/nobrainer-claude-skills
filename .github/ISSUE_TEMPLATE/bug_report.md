@@ -11,9 +11,9 @@ labels: bug
 
 <!-- State what fails and under which condition. Keep it factual and concise. -->
 
-## Env indicator
+## ENV
 
-<!-- Keep the environment name, exact URL and user used together. Name must be
+<!-- Keep ENV compact: include the environment name, exact URL and user together. Name must be
 QA, DEV, TEST, PROD, PREPROD, BETA or UNKNOWN. Use N/A when a field does not
 apply. User is a role or redacted/synthetic alias; never paste credentials. -->
 | Field | Value |

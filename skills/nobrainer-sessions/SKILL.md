@@ -84,7 +84,8 @@ coordinator-owned integration step.
 Dispatch only when all are true:
 
 1. one approved work unit has an observable outcome, exclusions, dependencies,
-   acceptance, verifier, evidence path, rollback, and owner gates;
+   acceptance, verifier, evidence path, rollback, owner gates and a frozen
+   `MODEL_POLICY`;
 2. canonical state identifies the same active task and allowed transition;
 3. session identity, checkout, clean/dirty scope, lease, and active-turn state
    pass fresh readback;
@@ -95,6 +96,11 @@ Context propagation is not assumed. Send the minimum context: repository
 instructions, the owning method and its source hash, frozen task inputs and
 acceptance. Never copy the whole parent transcript or unrelated skills. Require
 the worker's context readback before work; stale context or evidence, mismatch or transport failure blocks dispatch.
+
+Bind the frozen `MODEL_POLICY` and `MODEL_REQUESTED`, effort, budget and
+escalation gate. If the host does not expose one field, record
+`UNKNOWN` or `UNSUPPORTED` and keep runtime proof lower;
+never silently substitute another model.
 
 Build the prompt from the template in the protocol. The worker performs exactly
 one work unit, does not select a successor, releases its lease on finish or hard

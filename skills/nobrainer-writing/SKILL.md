@@ -131,19 +131,23 @@ Number every acceptance criterion with a sequential two-digit ID: `AC01`, `AC02`
 checkboxes under `Acceptance`; DoD remains a separate section and may reference
 the acceptance IDs.
 
-For both `BUG` and `COMMENT`, always provide one compact `Env indicator` with
+For both `BUG` and `COMMENT`, always provide one compact `ENV:` block with
 `Name`, `URL` and `User`. `Name` is one of `QA`, `DEV`, `TEST`, `PROD`,
 `PREPROD`, `BETA` or `UNKNOWN`; use `N/A` when a field genuinely does not
 apply. `User` is a role or redacted/synthetic alias, never a credential.
 
 For `BUG`, start with `Description`, then keep the diagnostic fields separate and
-in this order: `Env indicator`, `Steps to reproduce`, `Current behavior` and
+in this order: `ENV:`, `Steps to reproduce`, `Current behavior` and
 `Expected behavior`; follow them with the applicable surface-proof sections:
 `API request (cURL)`, `API response`, `Database query (read-only)`,
 `Database result`, `Evidence` for a UI screenshot or MP4 recording and, only when
 the page-load/request chain matters, `HAR`; finish with `Definition of Done (DoD)`.
 Use `UNKNOWN` when a value is not known; never silently omit a required field or
 invent its value.
+
+For `ISSUE`, keep `Description` to one sentence, then use `Who is affected`,
+`Desired outcome`, `Evidence`, `Acceptance` and `Definition of Done (DoD)` by
+default. Add another field only when it changes triage or implementation.
 
 Surface proof has a copyable artifact shape:
 

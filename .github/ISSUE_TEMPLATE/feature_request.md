@@ -8,9 +8,17 @@ labels: enhancement
 
 ## Description
 
-<!-- What is hard, missing or unreliable, and why does it matter? -->
+<!-- In one sentence, state what is hard, missing or unreliable. -->
 
-## Proposed outcome
+## Who is affected
+
+<!-- Name the user or workflow that needs this. -->
+
+## Desired outcome
+
+## Evidence
+
+<!-- Add the current example, message, link or attachment that supports the request. -->
 
 ## Acceptance criteria
 
@@ -20,11 +28,3 @@ labels: enhancement
 ## Definition of Done (DoD)
 
 <!-- State the observable completion condition, required checks and proof. -->
-
-## Alternatives considered
-
-## Why this belongs in portable core
-
-<!-- Would it help users across unrelated projects and clients? -->
-
-## Evidence or example session

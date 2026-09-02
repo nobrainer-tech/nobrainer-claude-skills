@@ -23,6 +23,7 @@ protocol. Do not copy execution status into a wiki.
 ```text
 TITLE: <repo> | <MAIN|ROLE|TASK_ID>
 HARNESS: <client and version>
+MODEL_POLICY: <STANDARD | EXTENDED | ROUTED and policy fingerprint>
 THREAD_ID: <exact ID>
 HOST_ID: <exact host ID or verified NONE>
 STATUS: IDLE | ACTIVE | BLOCKED | CLOSED | UNKNOWN
@@ -63,6 +64,8 @@ IDENTITY:
 - HOST_ID: <worker host or verified NONE>
 - TASK_ID: <ID>
 - METHOD: <literal owning skill or project capability>
+- MODEL_POLICY: <exact frozen policy>
+- MODEL_REQUESTED: <exact host/provider model, HOST_SELECTED or UNKNOWN>
 - WRITE_SCOPE: <scope>
 
 CANONICAL_INPUTS:
@@ -106,6 +109,8 @@ START_GATE:
 WORK_UNIT:
 - <one bounded action>
 - METHOD: <literal owning skill or project capability>
+- MODEL_POLICY: <exact frozen policy>
+- MODEL_REQUESTED: <exact host/provider model, HOST_SELECTED or UNKNOWN>
 - ACCEPTANCE: <measurable condition>
 - REQUIRED_EVIDENCE: <diff, tests, verifier, build/runtime, review>
 
@@ -145,6 +150,10 @@ REPOSITORY: <identifier>
 CHECKOUT: <checkout/worktree>
 TASK_ID: <ID>
 METHOD: <literal owning skill or project capability>
+MODEL_POLICY: <exact frozen policy>
+MODEL_REQUESTED: <exact requested model or UNKNOWN>
+MODEL_ACTUAL: <exact readback or UNKNOWN>
+MODEL_READBACK: VERIFIED | UNSUPPORTED | UNKNOWN
 BASE_COMMIT: <commit or NONE>
 HEAD_COMMIT: <commit or NONE>
 WRITE_SCOPE: <scope>

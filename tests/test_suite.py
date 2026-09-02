@@ -282,6 +282,11 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("nearest deterministic check", text.lower())
         self.assertIn("escalate to the full ultra lifecycle", text.lower())
         self.assertIn("quick path never bypasses", text.lower())
+        self.assertIn("PUBLIC_SURFACE", text)
+        self.assertIn("affected README/docs/templates/assets/flow", text)
+        self.assertIn("public contract, routing or workflow changes", text)
+        self.assertIn("fresh SVG + README Mermaid readback", text)
+        self.assertIn("fails closeout", text)
         routing_contract = " ".join(text.lower().split())
         self.assertIn("a routing-table line or remembered summary is insufficient", routing_contract)
         self.assertIn("loading method context is not task execution", routing_contract)
@@ -322,6 +327,50 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for name in CANONICAL:
             self.assertIn(name, routing)
+
+    def test_model_routing_contract_is_explicit(self) -> None:
+        policy = (
+            SKILLS / "nobrainer-ultra" / "references" / "model-routing.md"
+        ).read_text(encoding="utf-8")
+        normalized_policy = " ".join(policy.split()).lower()
+        for term in (
+            "MODEL_POLICY:",
+            "STANDARD",
+            "EXTENDED",
+            "ROUTED",
+            "MODEL:",
+            "EFFORT:",
+            "BUDGET:",
+            "ESCALATION:",
+            "MODEL_ESCALATION_PROPOSED",
+            "do not silently substitute another model",
+            "clean runtime readback",
+        ):
+            self.assertIn(term.lower(), normalized_policy)
+
+        ultra = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("references/model-routing.md", ultra)
+        dispatcher = (SKILLS / "nobrainer-dispatcher" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        sessions = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        protocol = (
+            SKILLS / "nobrainer-sessions" / "references" / "protocol.md"
+        ).read_text(encoding="utf-8")
+        for text in (dispatcher, sessions):
+            normalized = " ".join(text.split())
+            self.assertIn("MODEL_POLICY", normalized)
+        for text in (sessions, protocol):
+            normalized = " ".join(text.split())
+            self.assertIn("MODEL_REQUESTED", normalized)
+        self.assertIn("MODEL_ACTUAL", protocol)
+        self.assertIn("MODEL_READBACK", protocol)
+        self.assertIn("without a silent substitution", dispatcher)
+        self.assertIn("never silently substitute another model", sessions)
 
     def test_ultra_binds_goal_dod_and_context_budget(self) -> None:
         text = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
@@ -477,7 +526,7 @@ class SuiteTests(unittest.TestCase):
             "ISSUE",
             "USER_STORY",
             "REQUEST",
-            "Env indicator",
+            "ENV:",
             "Name",
             "URL",
             "User",
@@ -516,7 +565,7 @@ class SuiteTests(unittest.TestCase):
         ]
         field_order = (
             "Description:",
-            "Env indicator:",
+            "ENV:",
             "Name:",
             "URL:",
             "User:",
@@ -530,7 +579,6 @@ class SuiteTests(unittest.TestCase):
             "Database result, when applicable:",
             "Evidence, for a UI screenshot or MP4 recording, when applicable:",
             "HAR, only when the page-load/request chain matters:",
-            "Unknown or workaround:",
             "Definition of Done (DoD):",
         )
         positions = [bug_reference.index(field) for field in field_order]
@@ -539,10 +587,13 @@ class SuiteTests(unittest.TestCase):
         self.assertNotIn("Environment:", bug_reference)
         self.assertNotIn("Summary:", bug_reference)
         self.assertNotIn("Done when:", bug_reference)
+        self.assertNotIn("Unknown or workaround:", bug_reference)
+        self.assertNotIn("Workaround:", bug_reference)
+        self.assertNotIn("Root cause:", bug_reference)
         comment_reference = reference[
             reference.index("## COMMENT") : reference.index("## BUG")
         ]
-        self.assertIn("Env indicator:", comment_reference)
+        self.assertIn("ENV:", comment_reference)
         self.assertIn("Name", comment_reference)
         self.assertIn("URL", comment_reference)
         self.assertIn("User", comment_reference)
@@ -577,6 +628,11 @@ class SuiteTests(unittest.TestCase):
                     heading,
                 )
         self.assertIn("Never add mistakes, random slang or fake personal experience", reference)
+        issue_reference = reference[
+            reference.index("## ISSUE") : reference.index("## USER_STORY")
+        ]
+        self.assertNotIn("Out of scope:", issue_reference)
+        self.assertNotIn("Open question:", issue_reference)
         self.assertNotIn("AI detector", reference)
 
     def test_public_bug_template_matches_brief_diagnostic_contract(self) -> None:
@@ -585,7 +641,7 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for term in (
             "## Description",
-            "## Env indicator",
+            "## ENV",
             "| Name |",
             "| URL |",
             "| User |",
@@ -609,11 +665,12 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, template)
         self.assertNotIn("## Impact", template)
         self.assertNotIn("## Environment", template)
+        self.assertNotIn("## Env indicator", template)
         self.assertNotIn("## URL", template)
         self.assertNotIn("## UI screenshot or MP4 recording", template)
         fields = (
             "## Description",
-            "## Env indicator",
+            "## ENV",
             "## Steps to reproduce",
             "## Current behavior",
             "## Expected behavior",
@@ -634,7 +691,9 @@ class SuiteTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for term in (
             "## Description",
-            "## Proposed outcome",
+            "## Who is affected",
+            "## Desired outcome",
+            "## Evidence",
             "## Acceptance criteria",
             "## Definition of Done (DoD)",
             "AC01",
@@ -644,10 +703,11 @@ class SuiteTests(unittest.TestCase):
             self.assertIn(term, template)
         fields = (
             "## Description",
-            "## Proposed outcome",
+            "## Who is affected",
+            "## Desired outcome",
+            "## Evidence",
             "## Acceptance criteria",
             "## Definition of Done (DoD)",
-            "## Alternatives considered",
         )
         positions = [template.index(field) for field in fields]
         self.assertEqual(sorted(positions), positions)
@@ -2992,12 +3052,9 @@ class SuiteTests(unittest.TestCase):
             "`d1e0ea761d4bf439973727668ee871e2b367797e`, tagged as `v1.3.1`",
             release_section,
         )
-        self.assertIn(
-            "Version [`v1.3.1`](docs/releases/v1.3.1-publication-readback.md) is the latest\n"
-            "fully accepted GitHub source release.",
-            readme,
-        )
-        self.assertIn("`DISTRIBUTED` for `v1.3.1`", compatibility)
+        self.assertIn("docs/releases/v1.3.1-publication-readback.md", readme)
+        self.assertIn("previous accepted source release", readme)
+        self.assertIn("v1.3.1", compatibility)
         self.assertIn("HOLDOUT_RESULT: PASS 5/5", evaluation)
 
         evidence = parse_release_evidence(publication)
@@ -3154,6 +3211,46 @@ class SuiteTests(unittest.TestCase):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
+    def test_v1_5_coherence_candidate_is_explicit(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
+            encoding="utf-8"
+        )
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        pr_template = (ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md").read_text(
+            encoding="utf-8"
+        )
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        candidate = (ROOT / "docs" / "releases" / "v1.5.0.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Astra Ready Flow", readme)
+        self.assertIn("model-neutral", readme)
+        self.assertIn("WORKFLOW_READY", compatibility)
+        self.assertIn("Claude Fable 5.1 / Mythos 5.1", compatibility)
+        self.assertIn("model policy", candidate.lower())
+        self.assertIn(
+            "Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest",
+            readme,
+        )
+        self.assertIn("The unreleased [`v1.5.0` candidate]", readme)
+        self.assertIn("`DISTRIBUTED` for `v1.4.0`", compatibility)
+        self.assertIn("## v1.5.0 candidate — 2026-09-02", release_notes)
+        for review_surface in (contributing, pr_template):
+            self.assertIn("PUBLIC_SURFACE", review_surface)
+            self.assertIn("README/docs/templates/assets/flow", review_surface)
+            self.assertIn("workflow SVG and README Mermaid", review_surface)
+        for term in (
+            "COHERENCE_GATE: PASS",
+            "README_COHERENCE_READBACK: PASS",
+            "MERMAID_FLOW_READBACK: PASS",
+            "SVG_FLOW_READBACK: PASS",
+            "PUBLIC_SYNC: FETCH_ONLY",
+            "MERGE: NOT_PERFORMED",
+            "TAG: NOT_CREATED",
+        ):
+            self.assertIn(term, candidate)
+
     def test_v1_3_spec_self_authenticates(self) -> None:
         spec = (
             ROOT / "docs" / "specs" / "v1.3.0-harness-clarity.spec.md"
@@ -3244,6 +3341,10 @@ class SuiteTests(unittest.TestCase):
         self.assertTrue(text.startswith("<svg"))
         self.assertIn('viewBox="0 0 1600 900"', text)
         self.assertIn("BUDDY", text)
+        self.assertIn("QUICK PATH", text)
+        self.assertIn("Small + reversible", text)
+        self.assertIn("RISK → OWNER GATE", text)
+        self.assertIn("model policy", text.lower())
         self.assertIn("SCOPE + PLAN", text)
         self.assertIn("BUILD", text)
         self.assertIn("REVIEW", text)
@@ -3265,6 +3366,9 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.3.0.md",
             "docs/releases/v1.3.1.md",
             "docs/releases/v1.3.1-publication-readback.md",
+            "docs/releases/v1.4.0-publication-readback.md",
+            "docs/releases/v1.5.0.md",
+            "skills/nobrainer-ultra/references/model-routing.md",
             "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",
@@ -3326,6 +3430,12 @@ class SuiteTests(unittest.TestCase):
         for term in (
             "BUDDY: one focused clarification",
             "One canonical plan + compact Progress",
+            "Public contract, routing, workflow or portfolio may change?",
+            "COHERENCE:",
+            "bind model policy",
+            "Freeze outcome, scope, proof, untouched work and model policy",
+            "QUICK PATH:",
+            "refresh SVG + Mermaid",
             "Ready and authorized?",
             "BUILD correction + invalidate proof",
             "RECEIVE_AUDIT",

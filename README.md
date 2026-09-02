@@ -7,7 +7,7 @@
 <h1 align="center">nobrainer-tech-skills</h1>
 
 <p align="center">
-  Lightweight, portable agentic workflows for fast and evidence-gated delivery.
+  Lightweight, portable, model-neutral agentic workflows for fast and evidence-gated delivery.
 </p>
 
 <p align="center">
@@ -24,10 +24,12 @@
 Give the agent one outcome. `nobrainer-ultra` inspects the real project, asks at
 most one focused requirements round, scopes the minimum complete change, shows
 one short Progress checklist and drives approved work until verified delivery or
-a real owner gate. Detailed state and specialists appear only when they earn
-their coordination cost.
+a real owner gate. Small reversible edits without a public contract, routing,
+workflow or portfolio change take a quick path; other changes use the full path so
+docs, README and diagrams stay aligned. Detailed state and specialists appear only
+when they earn their coordination cost.
 
-![NoBrainer Ultra workflow: one clarification round, minimum scope, one plan, bounded build, review, verification, delivery and durable learning](assets/nobrainer-workflow.svg)
+![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, minimum scope, bounded build, review, verification, delivery and learning](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
 
@@ -35,30 +37,60 @@ their coordination cost.
 flowchart TD
     A[Owner request] --> B{Outcome clear?}
     B -->|no| C[BUDDY: one focused clarification]
-    B -->|yes| D[Freeze outcome, scope, proof and untouched work]
+    B -->|yes| D[Freeze outcome, scope, proof, untouched work and model policy]
     C --> D
-    D --> E[One canonical plan + compact Progress]
-    E --> F{Resume, dependencies or recovery need a ledger?}
-    F -->|yes| G[Durable identity, checkpoints and rollback]
-    F -->|no| H[Keep ordinary work lightweight]
-    G --> I{Ready and authorized?}
-    H --> I
-    I -->|no| J[STOP: re-plan, block or ask owner]
-    J --> B
-    I -->|yes| K{Independent work earns coordination?}
-    K -->|no| L[MAIN + relevant skill]
-    K -->|yes| M[TEAM / DISPATCHER / SESSIONS]
-    L --> N[VERIFY + REVIEW when justified]
-    M --> N
-    N --> O{Review passes?}
-    O -->|no| P[BUILD correction + invalidate proof]
-    P --> N
-    O -->|yes| Q{Delegated result?}
-    Q -->|yes| R[RECEIVE_AUDIT]
-    Q -->|no| S{Evidence current?}
-    R --> S
-    S -->|no| J
-    S -->|yes| T[LEARN + CLOSE]
+    D --> E{Public contract, routing, workflow or portfolio may change?}
+    E -->|yes| F[COHERENCE: update README/docs/templates/assets; bind model policy; refresh SVG + Mermaid; read back]
+    E -->|no| G{One coherent, reversible edit with obvious acceptance?}
+    G -->|yes| H[QUICK PATH: inspect -> scoped edit -> nearest deterministic check -> diff/status readback]
+    G -->|no| I[One canonical plan + compact Progress]
+    F --> I
+    H --> J{Owner gate or proof expands?}
+    J -->|yes| I
+    J -->|no| K[VERIFY + report]
+    K --> T[LEARN + CLOSE]
+    I --> L{Resume, dependencies or recovery need a ledger?}
+    L -->|yes| M[Durable identity, checkpoints and rollback]
+    L -->|no| N[Keep ordinary work lightweight]
+    M --> O{Ready and authorized?}
+    N --> O
+    O -->|no| P[STOP: re-plan, block or ask owner]
+    P --> B
+    O -->|yes| Q{Independent work earns coordination?}
+    Q -->|no| R[MAIN + relevant skill]
+    Q -->|yes| S[TEAM / DISPATCHER / SESSIONS]
+    R --> U[VERIFY + REVIEW when justified]
+    S --> U
+    U --> V{Review passes?}
+    V -->|no| W[BUILD correction + invalidate proof]
+    W --> U
+    V -->|yes| X{Delegated result?}
+    X -->|yes| Y[RECEIVE_AUDIT]
+    X -->|no| Z{Evidence current?}
+    Y --> Z
+    Z -->|no| P
+    Z -->|yes| T
+```
+
+## Astra Ready Flow for current model fleets
+
+`v1.5.0` introduces an **Astra Ready Flow** at the workflow level: the
+skills stay model-neutral while making scope, evidence, model, effort, budget
+and escalation explicit before execution. The same portable contract is
+designed to pair with the [current Codex model catalog](https://developers.openai.com/api/docs/models)
+and Anthropic's Claude 5.1 line, officially [Claude Fable 5.1 and Claude Mythos 5.1](https://www.anthropic.com/claude-fable-and-mythos-5-1).
+
+This is workflow readiness, not a provider integration badge. [OpenAI describes
+Astra as being prepared for release](https://openai.com/index/path-to-astra/), and
+the current public API catalog does not list it; this repository has no
+clean-session runtime proof for Astra or the Claude 5.1 releases. See the
+[model policy](skills/nobrainer-ultra/references/model-routing.md) and
+[compatibility evidence](docs/COMPATIBILITY.md).
+
+```text
+STANDARD -> host-selected model + declared effort
+EXTENDED -> larger declared budget; any stronger model is explicit
+ROUTED -> advertised capability tier; exact model recorded; escalation needs proposal/approval
 ```
 
 **Continuous improvement beats delayed perfection.** A small task stays small.
@@ -68,7 +100,10 @@ framework, automatic swarm or documentation theatre.
 ## Start with one skill
 
 Use [`nobrainer-ultra`](skills/nobrainer-ultra/) for setup or any non-trivial
-outcome. In Codex, explicit invocation is `$nobrainer-ultra`; `nb-ultra` is a
+outcome. A small reversible edit without a public contract, routing, workflow or
+portfolio change can use its quick path; other changes use the full path and its
+coherence gate.
+In Codex, explicit invocation is `$nobrainer-ultra`; `nb-ultra` is a
 natural-language trigger phrase and therefore depends on a client's implicit
 description matching.
 
@@ -218,24 +253,26 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version [`v1.3.1`](docs/releases/v1.3.1-publication-readback.md) is the latest
-fully accepted GitHub source release. It keeps exactly fifteen skills and
-records the BRIEF holdout, deterministic gates, secret scan and source
-distribution readback in the post-release record. The candidate checkpoint and
-behavioral evaluation remain available in [the candidate record](docs/releases/v1.3.1.md)
-and [the BRIEF evaluation](docs/evals/v1.3.1-writing-brief-2026-09-02.md).
+Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest
+published GitHub source release. It keeps exactly fifteen skills and
+records the quick path, deterministic gates, secret scan, source distribution
+readback and the discovered coherence gap in the post-release record. The
+candidate checkpoint remains available in [the candidate record](docs/releases/v1.4.0.md).
 Client-specific runtime rows remain evidence-scoped; source publication does not
 imply marketplace discovery.
 
-The unreleased [`v1.4.0` candidate](docs/releases/v1.4.0.md) adds Ultra's quick
-path for small reversible edits and the compact `Env indicator`/`Evidence`
-diagnostic contract; `v1.3.1` remains the latest accepted source release until
-fresh publication readback is complete.
+The unreleased [`v1.5.0` candidate](docs/releases/v1.5.0.md) adds the mandatory
+public-surface coherence gate and refreshes the README Mermaid flow and workflow
+SVG; `v1.4.0` remains the accepted source release until this candidate is
+reviewed and published.
 
-The [`v1.3.0` release](docs/releases/v1.3.0-publication-readback.md) remains the
-previous accepted source release and a rollback option. `v1.3.1` adds the
-English `BRIEF` writing mode, concise issue/story templates and surface-specific
-bug evidence.
+The [`v1.3.1` release](docs/releases/v1.3.1-publication-readback.md) remains the
+previous accepted source release and a rollback option. It adds the English
+`BRIEF` writing mode, concise issue/story templates and surface-specific bug
+evidence.
+
+The [`v1.3.0` release](docs/releases/v1.3.0-publication-readback.md) remains an
+older accepted source release and rollback option.
 
 Version [`v1.2.1`](docs/releases/v1.2.1.md) remains the rollback source release
 at full commit `0010140d19a7ff847dff776569772ef04d82c314`, with its own exact

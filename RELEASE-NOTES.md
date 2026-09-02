@@ -1,8 +1,40 @@
 # NoBrainer Tech Skills release notes
 
-## v1.4.0 candidate — 2026-09-02
+## v1.5.0 candidate — 2026-09-02
 
-This untagged candidate keeps exactly fifteen portable skills:
+This untagged candidate keeps exactly fifteen portable skills and closes the
+v1.4.0 public-surface coherence gap.
+
+Highlights:
+
+- `nobrainer-ultra` now freezes a portable `STANDARD`/`EXTENDED`/`ROUTED` model
+  policy with explicit model, effort, budget and escalation fields; Dispatcher
+  and Sessions carry the policy without silently switching models.
+- The README presents v1.5.0 as an Astra Ready Flow for current Codex and
+  Claude Fable 5.1 / Mythos 5.1 workflows, with direct runtime compatibility
+  kept evidence-scoped.
+- `nobrainer-ultra` now requires a `PUBLIC_SURFACE` decision for every change:
+  update affected README, docs, templates, assets and flow, or record
+  `NOT_NEEDED` with a reason. Public contract, routing and workflow changes use
+  the full lifecycle and require fresh SVG and README Mermaid readback.
+- `nobrainer-writing` now uses a compact `ENV:` block for bugs and comments;
+  bug reports omit speculative workaround and root-cause fields, while feature
+  issues keep a one-sentence Description, affected user, desired outcome and evidence.
+- The quick path is limited to small reversible edits with no public contract,
+  routing, workflow or portfolio impact.
+- `CONTRIBUTING.md` and the pull-request template carry the same coherence
+  checklist for human review.
+- README's Mermaid flow and `assets/nobrainer-workflow.svg` now show the quick
+  path and coherence gate.
+- The v1.4.0 publication gap is recorded in
+  [`docs/releases/v1.4.0-publication-readback.md`](docs/releases/v1.4.0-publication-readback.md).
+
+This is a local release candidate, not a merged, tagged or distributed release.
+The exact candidate state is recorded in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
+
+## v1.4.0 — 2026-09-02
+
+This published source release keeps exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -25,14 +57,17 @@ Highlights:
 - `nobrainer-ultra` now has an explicit quick path for one coherent,
   reversible small change, with a local check and diff/status readback before
   reporting; risk, scope or owner-gate expansion escalates to the full flow.
-- `nobrainer-writing` uses one `Env indicator` for bugs and comments, containing
+- `nobrainer-writing` uses one environment block for bugs and comments, containing
   the environment name, exact URL and user used; bug reports keep only an
   explicit `Description` and use `Evidence` for UI screenshots or MP4 recordings.
 - API request/response and database query/result proof remain separate and
   copyable, while the public bug template follows the same contract.
 
-This is a local release candidate, not a merged, tagged or distributed release.
-The exact candidate state is recorded in [`docs/releases/v1.4.0.md`](docs/releases/v1.4.0.md).
+The source release is merged in PR #35 at commit
+`215c0bb0d6dbfe9b45ecf3202ec198a2c219b3b2`, tagged as `v1.4.0` and published on
+GitHub. The archive and installation readback are recorded in
+[`docs/releases/v1.4.0-publication-readback.md`](docs/releases/v1.4.0-publication-readback.md),
+which also records the post-release coherence gap that v1.5.0 closes.
 
 ## v1.3.1 — 2026-09-02
 

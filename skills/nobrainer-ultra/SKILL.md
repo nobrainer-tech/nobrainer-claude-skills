@@ -6,10 +6,10 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 # NoBrainer Ultra
 
 Turn one owner request into the smallest complete verified outcome the current
-project and runtime can deliver; hide orchestration mechanics from the owner and
-surface scope, progress, proof, decisions and blockers.
+project and runtime can deliver; hide orchestration from the owner and
+surface scope, proof, decisions and blockers.
 
-Read [references/routing.md](references/routing.md) before selecting methods. For
+Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods. For
 setup, upgrade, installation or repair, also read [references/setup.md](references/setup.md).
 Read [references/correction-hooks.md](references/correction-hooks.md) only after
 an owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
@@ -18,8 +18,10 @@ an owner decision changes, correction or review failure; read [references/long-r
 
 ### Quick path for small changes
 
-Use it for one coherent, reversible edit with obvious acceptance and no authentication,
-secrets, data/production mutation, external side effect, architecture, migration or dependency decision.
+Use it for one coherent, reversible edit with acceptance and no
+authentication, secrets, data/production mutation, external effect, architecture,
+migration or dependency decision. Public contract, routing, workflow or portfolio
+changes use full lifecycle and coherence gate.
 
 1. Inspect the actual checkout, instructions, dirty state and nearest caller/test.
 2. Edit only scoped files; run the nearest deterministic check and `git diff --check`.
@@ -29,33 +31,30 @@ Skip requirements, ledger, team/dispatcher/sessions and independent review;
 escalate to the full Ultra lifecycle when scope, risk, proof or an owner decision
 expands; quick path never bypasses an owner gate.
 
-Default to one primary agent. Add a worker only for a bounded independent unit with measurable latency, isolation or independent-judgment benefit; more agents are not evidence that a team helps.
+Default to one primary agent. Add workers only for an independent unit earning latency, isolation or judgment cost.
 
 The ordinary lifecycle is `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal control points, not an owner-facing state machine.
 
 ## `DRIFT_CHECK`: establish current truth
 
-Read the repository root, instructions, dirty state, branch/worktree, plan/spec,
-callers, tests, runtime and capabilities; preserve unrelated work. Prior summaries,
-wiki pages and worker reports are context, not proof. Query an existing wiki only for
-a decision or lesson that can change this task. Research current, external, niche,
-uncertain, high-stakes or source-attributed facts. For large documents or data,
-and large repositories, inspect structure first, then read selected contracts in full and
-relevant ranges; respect the context budget and name any unread required surface instead of implying coverage.
+Read repository root, instructions, dirty state, branch/worktree, plan/spec, callers, tests, runtime and capabilities; preserve unrelated work.
+Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
+Research current, external, niche, uncertain, high-stakes or source-attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges;
+respect context budget and name any unread required surface.
 
 `PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that
 a documented command produced the failure. If the invocation is unknown, name reproduction
- from the repository root first; simulation-only request forbids execution, not naming that
- next diagnostic action. Only then propose path, dependency or configuration changes. Check
+from the repository root first; simulation-only request forbids execution, not naming that
+next diagnostic action. Only then propose path, dependency or configuration changes. Check
 related wiki decisions. Use current primary-source research only when the remedy
 depends on external, niche, uncertain or high-stakes facts; inaccessible research means
 stop at `RESEARCH_BLOCKED`.
 
 ## `BUDDY`: clarify once
 
-Use one focused requirements round only when scope, architecture, safety or acceptance
-depends on an answer repository evidence cannot resolve. Current code, schema, tests
-or conventions should settle implementation details; do not make them owner questions. Establish:
+Use one focused requirements round only when repository evidence cannot resolve scope,
+architecture, safety or acceptance. Current code, schema, tests or conventions settle details;
+do not make them owner questions. Establish:
 
 - observable outcome, audience and quality bar;
 - target-workflow proof;
@@ -63,10 +62,9 @@ or conventions should settle implementation details; do not make them owner ques
 - owner-gated actions;
 - unresolved choices that materially affect the design.
 
-Use `nobrainer-decide` for a consequential choice among real alternatives.
-Use `nobrainer-spec-driven-development` only when a maintained contract pays
-for itself through architecture, public behavior, migration, difficult rollback,
-dependent phases or resumability.
+Use `nobrainer-decide` for consequential choices among real alternatives.
+Use `nobrainer-spec-driven-development` only when a maintained contract pays for architecture,
+public behavior, migration, difficult rollback, dependent phases or resumability.
 
 ## Scope the minimum sufficient change
 
@@ -76,7 +74,7 @@ canonical plan; show only the parts the owner needs to inspect.
 ```text
 Outcome:
 Non-goals:
-Expected files:
+Expected files (PUBLIC_SURFACE):
 Proof:
 Untouched:
 Minimum solution:
@@ -88,11 +86,12 @@ Done clean:
 predict scope; `Untouched` protects unrelated work and compatibility; update scope
 before expanding. `Done clean` requires matching scope, passing proof, no placeholders
 or surprises; excluded inspection stays provisional.
+`PUBLIC_SURFACE` is mandatory: set `UPDATE` and map affected README/docs/templates/assets/flow, or set `PUBLIC_SURFACE: NOT_NEEDED` with a reason; public contract, routing or workflow changes use full lifecycle and require fresh SVG + README Mermaid readback.
 When the owner requests goal/DoD, show every field above and state the detailed-ledger decision.
 Create a host-native goal after scope is frozen and require goal readback; the canonical
 plan supersedes stale goal text after correction.
 Default to at most 160 words: one outcome sentence, three scope bullets, compact
-Progress, three proof bullets and one next action. Do not add a repetitive
+Progress, three proof bullets plus next action. Do not add a repetitive
 skill/mode preamble or planning claim; avoid mechanism lists and invent unseen schemas, endpoints, state machines,
 storage or polling; name required boundaries/proof and mark exact paths/methods
 pending inspection.
@@ -139,8 +138,7 @@ owner-facing Progress checklist concise.
 
 ## Readiness and method routing
 
-The safe next step is ready only when current state, write scope, dependencies, proof, rollback,
-owner gates and required capability are known. Unknown identity, dirty overlap, stale input, missing verifier or ambiguous irreversible effect blocks the write.
+Proceed only when state, scope, dependencies, proof, rollback, owner gates and capability are known; unknown identity, dirty overlap, stale input, missing verifier or ambiguous irreversible effect blocks writing.
 
 Choose the least complex capable method; route implementation through `nobrainer-build`.
 When another skill owns a stage, load its canonical body and required references before
@@ -193,6 +191,7 @@ its reconcile mode before releasing dependencies.
 Invoke `nobrainer-review` for a justified adversarial or release closeout.
 A verified finding returns to `nobrainer-build`; changed work invalidates old
 proof and must be re-tested and re-reviewed.
+`VERIFY` fails closeout when an affected public surface lacks its update or readback.
 ## Correction hooks
 
 Apply corrections immediately:
