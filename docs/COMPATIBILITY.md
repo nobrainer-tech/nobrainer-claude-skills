@@ -21,29 +21,28 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.4.0`, the latest published
-source release. Its exact merge, tag, deterministic checks, secret scan
-and isolated installer readback are recorded in the [publication evidence](releases/v1.4.0-publication-readback.md).
-That record also names the coherence gap found after publication. `v1.3.1`
-remains the previous rollback source release; `v1.3.0` and `v1.2.1` remain older
-accepted rollback releases, while `v1.2.0` remains available but failed one
-archive-native test and is superseded. GitHub reports the `v1.4.0` release object
-as non-immutable and tag protection was not independently verified, so
-security-sensitive consumers should pin the reviewed full commit SHA. Source
-distribution does not prove that a client marketplace accepted, loaded or ran
-the package; the per-client rows remain `NOT_PUBLISHED` until that exact channel
-has an installation readback.
+The GitHub source channel is `DISTRIBUTED` for `v1.5.0`, the latest published
+source release. Its exact merge, tag, deterministic checks, secret scan and
+isolated installer readback are recorded in the [publication evidence](releases/v1.5.0-publication-readback.md).
+The current `main` documentation was aligned after tag creation through the
+post-release metadata PR recorded there; the tag remains pinned to its reviewed
+merge commit. `v1.4.0` remains the previous rollback source release, while
+`v1.3.1`, `v1.3.0` and `v1.2.1` remain older accepted rollback releases. GitHub's
+release API did not expose an immutability field in this readback and tag
+protection was not independently verified, so security-sensitive consumers
+should pin the reviewed full commit SHA. Source distribution does not prove
+that a client marketplace accepted, loaded or ran the package; the per-client
+rows remain `NOT_PUBLISHED` until that exact channel has an installation readback.
 
 The published `v1.3.1` source adds the `BRIEF` writing contract and
 surface-specific bug evidence. The source release is distributed and repository
 checked; client-specific runtime and marketplace levels remain separately
 evidence-scoped.
 
-The untagged `v1.5.0` candidate adds the mandatory public-surface coherence gate,
-refreshed README/flow artifacts and an explicit model policy for selected,
-extended or routed work. Until its publication readback is complete, it remains
-`SOURCE_VALIDATED` and `REPOSITORY_CHECKED` candidate state; it does not upgrade the
-client rows below.
+The pre-publication `v1.5.0` candidate checkpoint remains available in
+[`docs/releases/v1.5.0.md`](releases/v1.5.0.md). The published source release
+and its distribution proof are in the [v1.5.0 publication readback](releases/v1.5.0-publication-readback.md);
+neither record upgrades the client rows below without client-specific evidence.
 
 ## Model-neutral readiness
 
@@ -95,7 +94,7 @@ not mean the external client's parser accepted or loaded the package.
 | Antigravity and other plugin hosts | `SOURCE_VALIDATED` | no host-specific contract | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | Generic Agent Skills consumers | `SOURCE_VALIDATED` | canonical folders only | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 
-The table describes the current repository candidate, not private installations
+The table describes the current repository source release, not private installations
 on a maintainer's machine. There is deliberately no blanket “works everywhere”
 badge: an unknown harness gets portable skill folders, then needs its own
 discovery/bootstrap proof before promotion.

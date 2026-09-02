@@ -3211,7 +3211,7 @@ class SuiteTests(unittest.TestCase):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
-    def test_v1_5_coherence_candidate_is_explicit(self) -> None:
+    def test_v1_5_publication_readback_is_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
             encoding="utf-8"
@@ -3224,18 +3224,55 @@ class SuiteTests(unittest.TestCase):
         candidate = (ROOT / "docs" / "releases" / "v1.5.0.md").read_text(
             encoding="utf-8"
         )
+        publication = (
+            ROOT / "docs" / "releases" / "v1.5.0-publication-readback.md"
+        ).read_text(encoding="utf-8")
         self.assertIn("Astra Ready Flow", readme)
         self.assertIn("model-neutral", readme)
         self.assertIn("WORKFLOW_READY", compatibility)
         self.assertIn("Claude Fable 5.1 / Mythos 5.1", compatibility)
         self.assertIn("model policy", candidate.lower())
         self.assertIn(
-            "Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) is the latest",
+            "Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) is the latest",
             readme,
         )
-        self.assertIn("The unreleased [`v1.5.0` candidate]", readme)
-        self.assertIn("`DISTRIBUTED` for `v1.4.0`", compatibility)
-        self.assertIn("## v1.5.0 candidate — 2026-09-02", release_notes)
+        self.assertIn("pre-publication", readme)
+        self.assertIn("`DISTRIBUTED` for `v1.5.0`", compatibility)
+        self.assertIn("## v1.5.0 — 2026-09-02", release_notes)
+        evidence = parse_release_evidence(publication)
+        self.assertEqual("1.5.0", evidence["VERSION"])
+        self.assertEqual("PUBLISHED_WITH_POST_RELEASE_METADATA_UPDATE", evidence["STATUS"])
+        self.assertEqual("15", evidence["SKILL_COUNT"])
+        self.assertEqual("WORKFLOW_READY_ONLY", evidence["MODEL_POSITIONING"])
+        self.assertEqual("NOT_VERIFIED", evidence["MODEL_RUNTIME_PROOF"])
+        self.assertEqual("109", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("36", evidence["MERGE_PR"])
+        self.assertEqual("MERGED", evidence["MERGE"])
+        self.assertEqual(
+            "1bd73efc68a8bd4f6b616456f6c308cc9938dd57",
+            evidence["COMMIT_SHA"],
+        )
+        self.assertEqual("v1.5.0", evidence["TAG"])
+        self.assertEqual(evidence["COMMIT_SHA"], evidence["TAG_COMMIT_SHA"])
+        self.assertEqual("false", evidence["RELEASE_DRAFT"])
+        self.assertEqual("false", evidence["RELEASE_PRERELEASE"])
+        self.assertEqual("247", evidence["SOURCE_ARCHIVE_FILE_COUNT"])
+        self.assertEqual("0", evidence["SOURCE_ARCHIVE_PYCACHE_COUNT"])
+        self.assertEqual("15", evidence["SOURCE_ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("109/109 PASS", evidence["SOURCE_ARCHIVE_TESTS"])
+        self.assertEqual("agents", evidence["INSTALL_CLIENT"])
+        self.assertEqual("copy", evidence["INSTALL_MODE"])
+        self.assertEqual("15", evidence["INSTALL_SKILL_COUNT"])
+        self.assertEqual("PASS", evidence["INSTALL_FILE_MATCH"])
+        self.assertEqual("PUBLISHED", evidence["DISTRIBUTION"])
+        self.assertEqual(
+            "PUBLISHED_WITH_POST_RELEASE_METADATA_UPDATE",
+            evidence["ACCEPTANCE"],
+        )
+        for document in (publication, readme, compatibility, release_notes):
+            for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
+                self.assertNotIn(private_root, document)
         for review_surface in (contributing, pr_template):
             self.assertIn("PUBLIC_SURFACE", review_surface)
             self.assertIn("README/docs/templates/assets/flow", review_surface)
@@ -3368,6 +3405,7 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.3.1-publication-readback.md",
             "docs/releases/v1.4.0-publication-readback.md",
             "docs/releases/v1.5.0.md",
+            "docs/releases/v1.5.0-publication-readback.md",
             "skills/nobrainer-ultra/references/model-routing.md",
             "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
