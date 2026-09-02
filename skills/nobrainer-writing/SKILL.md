@@ -1,6 +1,6 @@
 ---
 name: nobrainer-writing
-description: "Use when the owner says nb-write, nobrainer-writing, nobrainer-style, or nobrainer-human-like, or asks to draft, rewrite, compress, humanize, edit, or review user-facing prose such as a message, comment, document, README, report, summary, email, post, or release note; maximize useful information per word without dropping facts, evidence, caveats, voice, or required action."
+description: "Use when the owner says nb-write, nb-brief, nobrainer-writing, nobrainer-style, or nobrainer-human-like, or asks to draft, rewrite, compress, humanize, edit, or review user-facing prose such as a message, comment, issue, user story, document, README, report, summary, email, post, or release note; maximize useful information per word without dropping facts, evidence, caveats, voice, or required action."
 ---
 
 # NoBrainer Writing
@@ -10,11 +10,20 @@ Treat the Pareto idea as a direction: preserve nearly all decision-relevant valu
 while using far fewer words. It is not permission to remove evidence, conditions
 or nuance merely to hit an arbitrary ratio.
 
+The protocol, field names and examples in this public skill are written in
+English. Match the requested output language; when English is requested, use
+plain, idiomatic English rather than a literal translation.
+
 This skill owns prose quality. `nobrainer-research` owns missing or current
 external facts, `nobrainer-decide` owns consequential choices, and
 `nobrainer-build` owns behavioral code changes and repository integration. A
 small text-only edit can stay here. Do not invoke this skill for a one-sentence
 answer that is already clear, specific and complete.
+
+Use `BRIEF` for a short actionable artifact: a comment, bug report, feature
+issue, user story, status update or one clear request. It is a mode of this
+skill, not a new skill. Read [references/brief-artifacts.md](references/brief-artifacts.md)
+for the matching shape and examples before drafting.
 
 Read [references/research.md](references/research.md) only when changing this
 protocol, auditing its rationale or comparing another writing method. Ordinary
@@ -28,6 +37,8 @@ writing runs should not spend context on the research record.
   the factual contract.
 - `REVIEW`: identify only material prose defects and propose the smallest useful
   correction; do not rewrite merely to express a preference.
+- `BRIEF`: create or compress one short actionable artifact. Choose exactly one
+  shape from the reference: `COMMENT`, `BUG`, `ISSUE`, `USER_STORY` or `REQUEST`.
 
 If the user did not name a mode, infer the smallest one that satisfies the
 request. A request to "humanize" means `REWRITE`, not detector evasion or the
@@ -54,6 +65,18 @@ Infer obvious fields from the request and current project. Ask one focused
 question only when the answer changes factual meaning, audience fit, material
 tone or safety. In a larger Ultra run, use the approved BUDDY brief and do not
 re-open settled requirements.
+
+For `BRIEF`, additionally freeze the observed problem or desired outcome, the
+reader's next action, the smallest useful evidence, and the pass/fail condition
+when one exists. If a missing fact would make the artifact misleading or
+non-actionable, ask one precise question or return `INPUT_REQUIRED`; do not fill
+the gap with a plausible cause, metric, user or environment.
+
+Preserve every material input detail, including onset, negation, current status,
+condition and uncertainty. Do not turn a fear, hypothesis or requested decision
+into an observed fact or an invented acceptance rule. If the desired behavior is
+not specified, keep the decision open or write `UNKNOWN` rather than choosing a
+warning, retry policy, UI state or technical solution.
 
 For `COMPRESS` and `REWRITE`, make a private meaning ledger before changing the
 text. Track every material claim, number, name, date, URL, quotation,
@@ -86,6 +109,25 @@ detail that the input does not support. Route a material knowledge gap to
 
 Compress structure before swapping vocabulary. A shorter synonym cannot repair
 a paragraph with no clear purpose.
+
+For `BRIEF`, put the outcome or failure in the title/first sentence, keep one
+problem or goal per artifact, and include only evidence that changes action or
+triage. Use the fewest applicable fields. A comment is normally a few sentences;
+an issue or story is normally one summary, a short evidence/context block and
+two to five testable criteria. Put long logs, transcripts and screenshots after
+the concise core or link them; never hide them when they are needed for proof.
+Return the finished artifact only unless the owner asks for an audit.
+
+For `BUG`, keep the diagnostic fields separate and in this order: `Environment`,
+`URL`, `Steps to reproduce`, `Current behavior`, `Expected behavior`, then
+`Evidence`. Use `N/A` only when a field genuinely does not apply and
+`UNKNOWN` when it is not known; never silently omit a field or invent its value.
+Evidence is surface-specific: an API needs both request and response, a DB
+needs query and result, and a UI needs a screenshot or MP4 recording. If several
+surfaces are involved, include proof for each; redact secrets and personal data.
+If required proof is missing, return `INPUT_REQUIRED` and name the missing
+artifact; a prose description of a UI state does not replace a screenshot or
+recording.
 
 ## Anti-slop gate
 
@@ -129,6 +171,12 @@ express. Do not optimize for an AI detector or claim that prose is human-written
   Delete comments that merely translate the code into English.
 - **Marketing or social copy:** audience problem, concrete value or proof and one
   honest action. Do not manufacture urgency, authority or transformation.
+
+For a natural human feel, preserve the author's actual nouns, stance, uncertainty
+and occasional first-person phrasing when supplied. Prefer a specific example
+over a polished generalization. Do not manufacture typos, slang, anecdotes,
+opinions, emotional claims or "human" irregularity; do not optimize for an AI
+detector or claim that a person wrote the result.
 
 ## Quality gate
 

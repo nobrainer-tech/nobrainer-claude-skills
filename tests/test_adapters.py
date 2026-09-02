@@ -154,12 +154,15 @@ if (count !== 1 || !combined.includes('nobrainer-ultra') || !combined.endsWith('
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
     def test_portable_gemini_and_kimi_manifests_bind_the_canonical_source(self) -> None:
+        canonical_version = json.loads(
+            (ROOT / "package.json").read_text(encoding="utf-8")
+        )["version"]
         portable = json.loads((ROOT / "plugin.json").read_text())
         gemini = json.loads((ROOT / "gemini-extension.json").read_text())
         kimi = json.loads((ROOT / ".kimi-plugin" / "plugin.json").read_text())
         for manifest in (portable, gemini, kimi):
             self.assertEqual("nobrainer-tech-skills", manifest["name"])
-            self.assertEqual("1.3.0", manifest["version"])
+            self.assertEqual(canonical_version, manifest["version"])
         self.assertEqual(
             "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
             portable["$schema"],

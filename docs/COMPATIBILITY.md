@@ -34,6 +34,10 @@ loaded or ran the package; the per-client rows remain `NOT_PUBLISHED` until
 that exact channel has an installation readback. The rollback release evidence
 also records an isolated installer readback.
 
+The current untagged `v1.3.1` candidate adds the `BRIEF` writing contract and
+surface-specific bug evidence. It remains `SOURCE_VALIDATED`/`REPOSITORY_CHECKED`
+candidate state until its own merge, tag, archive and distribution readback.
+
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
 

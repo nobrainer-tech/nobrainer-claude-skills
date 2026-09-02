@@ -450,6 +450,8 @@ class SuiteTests(unittest.TestCase):
             "COMPRESS",
             "REWRITE",
             "REVIEW",
+            "BRIEF",
+            "references/brief-artifacts.md",
             "meaning ledger",
             "VALUE_DENSITY",
             "CAVEATS_AND_CONDITIONS_PRESERVED",
@@ -459,6 +461,172 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("Do not optimize for an AI detector", text)
         self.assertIn("Ten approaches reviewed", research)
         self.assertEqual(10, len(re.findall(r"^\| \d+ \|", research, re.M)))
+
+    def test_writing_brief_artifacts_have_one_actionable_shape(self) -> None:
+        reference = (
+            SKILLS / "nobrainer-writing" / "references" / "brief-artifacts.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "COMMENT",
+            "BUG",
+            "ISSUE",
+            "USER_STORY",
+            "REQUEST",
+            "Environment",
+            "URL",
+            "Steps to reproduce",
+            "Current behavior",
+            "Expected behavior",
+            "Evidence",
+            "API",
+            "request and response",
+            "read-only query",
+            "result",
+            "UI",
+            "screenshot",
+            "MP4 recording",
+            "return `INPUT_REQUIRED`",
+            "A URL or prose description alone does not replace UI evidence",
+            "Acceptance",
+            "INPUT_REQUIRED",
+            "NO_INVENTED_CAUSE_OR_CONTEXT",
+            "when it started",
+            "A concern is not proof",
+            "invent a product policy",
+        ):
+            self.assertIn(term, reference)
+        bug_reference = reference[reference.index("## BUG") :]
+        field_order = (
+            "Environment:",
+            "URL:",
+            "Steps to reproduce:",
+            "Current behavior:",
+            "Expected behavior:",
+            "Evidence:",
+        )
+        positions = [bug_reference.index(field) for field in field_order]
+        self.assertEqual(sorted(positions), positions)
+        self.assertIn("Never add mistakes, random slang or fake personal experience", reference)
+        self.assertNotIn("AI detector", reference)
+
+    def test_public_bug_template_matches_brief_diagnostic_contract(self) -> None:
+        template = (
+            ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "## Environment",
+            "## URL",
+            "## Steps to reproduce",
+            "## Current behavior",
+            "## Expected behavior",
+            "## Evidence",
+            "### API request",
+            "### API response",
+            "### Database query (read-only)",
+            "### Database result",
+            "### UI screenshot or MP4 recording",
+            "both the request and response",
+            "read-only query and its result",
+            "screenshot or MP4 recording",
+            "write INPUT_REQUIRED",
+            "missing artifact",
+        ):
+            self.assertIn(term, template)
+        fields = (
+            "## Environment",
+            "## URL",
+            "## Steps to reproduce",
+            "## Current behavior",
+            "## Expected behavior",
+            "## Evidence",
+        )
+        positions = [template.index(field) for field in fields]
+        self.assertEqual(sorted(positions), positions)
+
+    def test_v1_3_1_brief_eval_binds_sources_and_runner(self) -> None:
+        record = (
+            ROOT / "docs" / "evals" / "v1.3.1-writing-brief-2026-09-02.md"
+        ).read_text(encoding="utf-8")
+        bindings = (
+            ("SKILL_SHA256", "skills/nobrainer-writing/SKILL.md"),
+            (
+                "REFERENCE_SHA256",
+                "skills/nobrainer-writing/references/brief-artifacts.md",
+            ),
+            (
+                "HOLDOUT_PROMPT_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
+            ),
+            (
+                "HOLDOUT_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",
+            ),
+            (
+                "HOLDOUT_OUTPUT_RAW_B64_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.raw.b64",
+            ),
+            (
+                "HOLDOUT_JUDGE_PROMPT_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge-prompt.md",
+            ),
+            (
+                "HOLDOUT_JUDGE_OUTPUT_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge.md",
+            ),
+            (
+                "HOLDOUT_JUDGE_OUTPUT_RAW_SHA256",
+                "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge.raw.md",
+            ),
+        )
+        for label, relative in bindings:
+            declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
+            self.assertIsNotNone(declared, label)
+            actual = hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+            self.assertEqual(actual, declared.group(1), label)
+
+        binding = hashlib.sha256()
+        for _, relative in bindings:
+            binding.update(relative.encode("utf-8"))
+            binding.update(b"\0")
+            binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
+        declared_set = re.search(
+            r"^SOURCE_AND_ARTIFACT_SET_SHA256: ([0-9a-f]{64})$", record, re.M
+        )
+        self.assertIsNotNone(declared_set)
+        self.assertEqual(binding.hexdigest(), declared_set.group(1))
+
+        for label in (
+            "CANDIDATE_HARNESS: codex-cli 0.149.1",
+            "CANDIDATE_MODEL: gpt-5.6-luna",
+            "CANDIDATE_REASONING: max",
+            "CANDIDATE_SANDBOX: read-only",
+            "CANDIDATE_EXIT: 0",
+            "JUDGE_HARNESS: codex-cli 0.149.1",
+            "JUDGE_MODEL: gpt-5.6-luna",
+            "JUDGE_REASONING: max",
+            "JUDGE_SANDBOX: read-only",
+            "JUDGE_EXIT: 0",
+            "HOLDOUT_RESULT: PASS 5/5",
+            "INDEPENDENT_JUDGE: PASS",
+        ):
+            self.assertIn(label, record)
+        self.assertRegex(record, r"CANDIDATE_SESSION: [0-9a-f-]{36}")
+        self.assertRegex(record, r"JUDGE_SESSION: [0-9a-f-]{36}")
+        raw_output = base64.b64decode(
+            b"".join((ROOT / bindings[4][1]).read_bytes().split()),
+            validate=True,
+        )
+        normalized_raw_output = b"\n".join(
+            line.rstrip(b" \t") for line in raw_output.split(b"\n")
+        )
+        self.assertEqual(
+            (ROOT / bindings[3][1]).read_bytes(), normalized_raw_output
+        )
+        self.assertIn(b"Environment: staging, release 1.3.1  \n", raw_output)
+        self.assertEqual(
+            (ROOT / bindings[6][1]).read_bytes(),
+            (ROOT / bindings[7][1]).read_bytes(),
+        )
 
     def test_security_contract_is_evidence_gated_and_read_only(self) -> None:
         text = (SKILLS / "nobrainer-security" / "SKILL.md").read_text(
@@ -1424,6 +1592,13 @@ class SuiteTests(unittest.TestCase):
         def sha256(relative: str) -> str:
             return hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
 
+        # The v1.2.0 writing packet is historical. Keep its source hash as
+        # evidence for that packet instead of silently rebinding it to the
+        # current writing skill after a later candidate change.
+        historical_skill_sha256 = (
+            "a756274e8a55cf32c7f2f15e2502801bcd7b31f30682d787646c81adee46dcda"
+        )
+
         for label, relative in (
             ("SKILL_SHA256", "skills/nobrainer-writing/SKILL.md"),
             (
@@ -1445,7 +1620,10 @@ class SuiteTests(unittest.TestCase):
         ):
             declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", run, re.M)
             self.assertIsNotNone(declared)
-            self.assertEqual(sha256(relative), declared.group(1))
+            if relative == "skills/nobrainer-writing/SKILL.md":
+                self.assertEqual(historical_skill_sha256, declared.group(1))
+            else:
+                self.assertEqual(sha256(relative), declared.group(1))
 
         for label, raw_relative, normalized_relative in (
             (
@@ -1481,7 +1659,11 @@ class SuiteTests(unittest.TestCase):
         for relative in writing_binding_paths:
             binding.update(relative.encode("utf-8"))
             binding.update(b"\0")
-            binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
+            if relative == "skills/nobrainer-writing/SKILL.md":
+                digest = bytes.fromhex(historical_skill_sha256)
+            else:
+                digest = hashlib.sha256((ROOT / relative).read_bytes()).digest()
+            binding.update(digest)
         declared_binding = re.search(
             r"^SOURCE_AND_ARTIFACT_SET_SHA256: ([0-9a-f]{64})$", run, re.M
         )
@@ -1839,6 +2021,7 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-writing": (
                 "nobrainer-style",
                 "nobrainer-human-like",
+                "nb-brief",
             ),
             "nobrainer-security": ("security-review",),
             "nobrainer-sessions": ("nb-multi", "session-handoff"),
@@ -2749,6 +2932,14 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.0.0.md",
             "docs/releases/v1.1.0.md",
             "docs/releases/v1.3.0.md",
+            "docs/releases/v1.3.1.md",
+            "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.raw.b64",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge-prompt.md",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge.md",
+            "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge.raw.md",
             "docs/TESTING.md",
             "docs/SKILL_CURATION.md",
             "docs/evals/core-routing-v1.1.0-2026-08-28.md",

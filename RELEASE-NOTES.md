@@ -1,5 +1,42 @@
 # NoBrainer Tech Skills release notes
 
+## v1.3.1 candidate — 2026-09-02
+
+This untagged candidate keeps exactly fifteen portable skills:
+
+- `nobrainer-ultra`
+- `nobrainer-team`
+- `nobrainer-dispatcher`
+- `nobrainer-research`
+- `nobrainer-writing`
+- `nobrainer-build`
+- `nobrainer-security`
+- `nobrainer-sessions`
+- `nobrainer-spec-driven-development`
+- `nobrainer-wiki`
+- `nobrainer-browser`
+- `nobrainer-autoimprove`
+- `nobrainer-decide`
+- `nobrainer-rca`
+- `nobrainer-review`
+
+Highlights:
+
+- `nobrainer-writing` adds the English-first `BRIEF` mode and the `nb-brief`
+  alias for short comments, bug reports, issues, user stories and requests.
+- Bug reports keep `Environment`, `URL`, `Steps to reproduce`, `Current
+  behavior`, `Expected behavior` and `Evidence` as separate fields.
+- API evidence requires request and response, database evidence requires a
+  read-only query and result, and UI evidence requires a screenshot or MP4.
+  Missing required proof returns `INPUT_REQUIRED` instead of a weaker substitute.
+- The repository's public bug template follows the same diagnostic contract;
+  no sixteenth skill or client-specific fork was introduced.
+
+This is a local release candidate, not a merged, tagged or distributed release.
+The exact candidate state and behavioral holdout are recorded in
+[`docs/releases/v1.3.1.md`](docs/releases/v1.3.1.md) and
+[`the BRIEF evaluation`](docs/evals/v1.3.1-writing-brief-2026-09-02.md).
+
 ## v1.3.0 — 2026-09-01
 
 This published source release keeps exactly fifteen portable skills:
