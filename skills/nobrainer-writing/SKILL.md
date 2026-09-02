@@ -113,21 +113,57 @@ a paragraph with no clear purpose.
 For `BRIEF`, put the outcome or failure in the title/first sentence, keep one
 problem or goal per artifact, and include only evidence that changes action or
 triage. Use the fewest applicable fields. A comment is normally a few sentences;
-an issue or story is normally one summary, a short evidence/context block and
+an issue or story is normally one description, a short evidence/context block and
 two to five testable criteria. Put long logs, transcripts and screenshots after
 the concise core or link them; never hide them when they are needed for proof.
 Return the finished artifact only unless the owner asks for an audit.
 
-For `BUG`, keep the diagnostic fields separate and in this order: `Environment`,
-`URL`, `Steps to reproduce`, `Current behavior`, `Expected behavior`, then
-`Evidence`. Use `N/A` only when a field genuinely does not apply and
-`UNKNOWN` when it is not known; never silently omit a field or invent its value.
-Evidence is surface-specific: an API needs both request and response, a DB
-needs query and result, and a UI needs a screenshot or MP4 recording. If several
-surfaces are involved, include proof for each; redact secrets and personal data.
+For task-shaped `BRIEF` artifacts (`BUG`, `ISSUE`, `USER_STORY` and `REQUEST`),
+write `Description:` and `Definition of Done (DoD):` as explicit fields.
+`Description` states what is wrong, needed or intended; `Acceptance` states
+observable product behavior when applicable; `Definition of Done (DoD)` states
+the closure condition and required proof. Do not hide either field inside a
+generic paragraph or rename DoD to a vague `Done when`. `COMMENT` stays compact
+and does not need task fields.
+
+Number every acceptance criterion with a sequential two-digit ID: `AC01`, `AC02`,
+`AC03` and so on. Start at `AC01`, do not leave gaps, and do not use anonymous
+checkboxes under `Acceptance`; DoD remains a separate section and may reference
+the acceptance IDs.
+
+For both `BUG` and `COMMENT`, always provide one compact `Env indicator` with
+`Name`, `URL` and `User`. `Name` is one of `QA`, `DEV`, `TEST`, `PROD`,
+`PREPROD`, `BETA` or `UNKNOWN`; use `N/A` when a field genuinely does not
+apply. `User` is a role or redacted/synthetic alias, never a credential.
+
+For `BUG`, start with `Description`, then keep the diagnostic fields separate and
+in this order: `Env indicator`, `Steps to reproduce`, `Current behavior` and
+`Expected behavior`; follow them with the applicable surface-proof sections:
+`API request (cURL)`, `API response`, `Database query (read-only)`,
+`Database result`, `Evidence` for a UI screenshot or MP4 recording and, only when
+the page-load/request chain matters, `HAR`; finish with `Definition of Done (DoD)`.
+Use `UNKNOWN` when a value is not known; never silently omit a required field or
+invent its value.
+
+Surface proof has a copyable artifact shape:
+
+- **API:** put the complete redacted request in a fenced `bash` block as a
+  `curl` command, including method, URL, all captured headers and body. Put the
+  observed response in a separate fenced `http` block with status, all captured
+  headers and body. Redact sensitive values without changing the request's
+  material shape.
+- **Database:** put the read-only query and its result in separate fenced code
+  blocks, using `sql` for the query and the result's actual format when useful.
+  Redact sensitive rows and values.
+- **UI:** put a screenshot or MP4 recording under `Evidence`. If the failure
+  depends on the page-load or request chain, attach a HAR as well; the exact URL
+  and steps still belong in the report.
+
+If several surfaces are involved, include each applicable proof pair or artifact.
+Do not replace the API/DB proof pairs with generic prose. For a UI bug, `Evidence`
+is the attachment field; a URL or prose description alone does not replace it.
 If required proof is missing, return `INPUT_REQUIRED` and name the missing
-artifact; a prose description of a UI state does not replace a screenshot or
-recording.
+artifact instead of drafting a weaker report.
 
 ## Anti-slop gate
 

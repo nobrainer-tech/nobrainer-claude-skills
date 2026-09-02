@@ -39,6 +39,11 @@ surface-specific bug evidence. The source release is distributed and repository
 checked; client-specific runtime and marketplace levels remain separately
 evidence-scoped.
 
+The untagged `v1.4.0` candidate adds Ultra's quick path for small reversible
+edits and the compact `Env indicator`/`Evidence` diagnostic contract. Until its
+publication readback is complete, it remains `SOURCE_VALIDATED` and
+`REPOSITORY_CHECKED` candidate state; it does not upgrade the client rows below.
+
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
 

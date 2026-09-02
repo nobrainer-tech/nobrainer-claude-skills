@@ -277,6 +277,11 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("one focused requirements round", text.lower())
         self.assertIn("do not make them owner questions", text.lower())
         self.assertIn("without routine check-ins", text.lower())
+        self.assertIn("quick path for small changes", text.lower())
+        self.assertIn("one coherent, reversible edit", text.lower())
+        self.assertIn("nearest deterministic check", text.lower())
+        self.assertIn("escalate to the full ultra lifecycle", text.lower())
+        self.assertIn("quick path never bypasses", text.lower())
         routing_contract = " ".join(text.lower().split())
         self.assertIn("a routing-table line or remembered summary is insufficient", routing_contract)
         self.assertIn("loading method context is not task execution", routing_contract)
@@ -472,21 +477,32 @@ class SuiteTests(unittest.TestCase):
             "ISSUE",
             "USER_STORY",
             "REQUEST",
-            "Environment",
+            "Env indicator",
+            "Name",
             "URL",
+            "User",
             "Steps to reproduce",
             "Current behavior",
             "Expected behavior",
+            "API request (cURL)",
+            "API response",
+            "Database query (read-only)",
+            "Database result",
+            "UI screenshot or MP4 recording",
             "Evidence",
-            "API",
-            "request and response",
-            "read-only query",
-            "result",
-            "UI",
-            "screenshot",
-            "MP4 recording",
+            "HAR",
+            "Surface-proof sections remain separate",
+            "complete redacted `curl` request",
+            "headers and body",
+            "separate fenced",
+            "page-load/request chain matters",
             "return `INPUT_REQUIRED`",
-            "A URL or prose description alone does not replace UI evidence",
+            "prose description alone does not replace UI evidence",
+            "Description",
+            "Definition of Done (DoD)",
+            "AC01",
+            "AC02",
+            "AC03",
             "Acceptance",
             "INPUT_REQUIRED",
             "NO_INVENTED_CAUSE_OR_CONTEXT",
@@ -495,17 +511,71 @@ class SuiteTests(unittest.TestCase):
             "invent a product policy",
         ):
             self.assertIn(term, reference)
-        bug_reference = reference[reference.index("## BUG") :]
+        bug_reference = reference[
+            reference.index("## BUG") : reference.index("## ISSUE")
+        ]
         field_order = (
-            "Environment:",
+            "Description:",
+            "Env indicator:",
+            "Name:",
             "URL:",
+            "User:",
+            "Build/client:",
             "Steps to reproduce:",
             "Current behavior:",
             "Expected behavior:",
-            "Evidence:",
+            "API request (cURL), when applicable:",
+            "API response, when applicable:",
+            "Database query (read-only), when applicable:",
+            "Database result, when applicable:",
+            "Evidence, for a UI screenshot or MP4 recording, when applicable:",
+            "HAR, only when the page-load/request chain matters:",
+            "Unknown or workaround:",
+            "Definition of Done (DoD):",
         )
         positions = [bug_reference.index(field) for field in field_order]
         self.assertEqual(sorted(positions), positions)
+        self.assertNotIn("Impact:", bug_reference)
+        self.assertNotIn("Environment:", bug_reference)
+        self.assertNotIn("Summary:", bug_reference)
+        self.assertNotIn("Done when:", bug_reference)
+        comment_reference = reference[
+            reference.index("## COMMENT") : reference.index("## BUG")
+        ]
+        self.assertIn("Env indicator:", comment_reference)
+        self.assertIn("Name", comment_reference)
+        self.assertIn("URL", comment_reference)
+        self.assertIn("User", comment_reference)
+        for heading, next_heading in (
+            ("## BUG", "## ISSUE"),
+            ("## ISSUE", "## USER_STORY"),
+            ("## USER_STORY", "## REQUEST"),
+            ("## REQUEST", "## Human-feel and compression gate"),
+        ):
+            section = reference[reference.index(heading) : reference.index(next_heading)]
+            self.assertGreaterEqual(section.count("Description:"), 2, heading)
+            self.assertGreaterEqual(
+                section.count("Definition of Done (DoD):"), 2, heading
+            )
+            self.assertLess(
+                section.index("Description:"),
+                section.index("Definition of Done (DoD):"),
+                heading,
+            )
+            for match in re.finditer(r"^Acceptance:\s*$", section, re.M):
+                end = section.index("Definition of Done (DoD):", match.end())
+                acceptance = section[match.end() : end]
+                criteria = re.findall(
+                    r"^\s*-\s+(?:\[ \]\s+)?(AC\d{2}):\s+.+$",
+                    acceptance,
+                    re.M,
+                )
+                self.assertTrue(criteria, heading)
+                self.assertEqual(
+                    criteria,
+                    [f"AC{index:02d}" for index in range(1, len(criteria) + 1)],
+                    heading,
+                )
         self.assertIn("Never add mistakes, random slang or fake personal experience", reference)
         self.assertNotIn("AI detector", reference)
 
@@ -514,36 +584,82 @@ class SuiteTests(unittest.TestCase):
             ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.md"
         ).read_text(encoding="utf-8")
         for term in (
-            "## Environment",
-            "## URL",
+            "## Description",
+            "## Env indicator",
+            "| Name |",
+            "| URL |",
+            "| User |",
             "## Steps to reproduce",
             "## Current behavior",
             "## Expected behavior",
+            "## API request (cURL)",
+            "## API response",
+            "## Database query (read-only)",
+            "## Database result",
             "## Evidence",
-            "### API request",
-            "### API response",
-            "### Database query (read-only)",
-            "### Database result",
-            "### UI screenshot or MP4 recording",
-            "both the request and response",
-            "read-only query and its result",
-            "screenshot or MP4 recording",
+            "## HAR (only when the page-load/request chain matters)",
+            "## Definition of Done (DoD)",
+            "complete redacted curl command",
+            "headers and body",
+            "separate blocks",
+            "screenshot or MP4",
             "write INPUT_REQUIRED",
             "missing artifact",
         ):
             self.assertIn(term, template)
+        self.assertNotIn("## Impact", template)
+        self.assertNotIn("## Environment", template)
+        self.assertNotIn("## URL", template)
+        self.assertNotIn("## UI screenshot or MP4 recording", template)
         fields = (
-            "## Environment",
-            "## URL",
+            "## Description",
+            "## Env indicator",
             "## Steps to reproduce",
             "## Current behavior",
             "## Expected behavior",
+            "## API request (cURL)",
+            "## API response",
+            "## Database query (read-only)",
+            "## Database result",
             "## Evidence",
+            "## HAR (only when the page-load/request chain matters)",
+            "## Definition of Done (DoD)",
         )
         positions = [template.index(field) for field in fields]
         self.assertEqual(sorted(positions), positions)
 
-    def test_v1_3_1_brief_eval_binds_sources_and_runner(self) -> None:
+    def test_public_feature_template_exposes_description_acceptance_and_dod(self) -> None:
+        template = (
+            ROOT / ".github" / "ISSUE_TEMPLATE" / "feature_request.md"
+        ).read_text(encoding="utf-8")
+        for term in (
+            "## Description",
+            "## Proposed outcome",
+            "## Acceptance criteria",
+            "## Definition of Done (DoD)",
+            "AC01",
+            "AC02",
+            "required checks and proof",
+        ):
+            self.assertIn(term, template)
+        fields = (
+            "## Description",
+            "## Proposed outcome",
+            "## Acceptance criteria",
+            "## Definition of Done (DoD)",
+            "## Alternatives considered",
+        )
+        positions = [template.index(field) for field in fields]
+        self.assertEqual(sorted(positions), positions)
+        acceptance = template[
+            template.index("## Acceptance criteria") : template.index(
+                "## Definition of Done (DoD)"
+            )
+        ]
+        self.assertRegex(acceptance, r"(?m)^- \[ \] AC01:")
+        self.assertRegex(acceptance, r"(?m)^- \[ \] AC02:")
+
+    def test_v1_3_1_brief_eval_remains_historical(self) -> None:
         record = (
             ROOT / "docs" / "evals" / "v1.3.1-writing-brief-2026-09-02.md"
         ).read_text(encoding="utf-8")
@@ -578,17 +694,33 @@ class SuiteTests(unittest.TestCase):
                 "docs/evals/artifacts/v1.3.1-writing-brief-holdout-judge.raw.md",
             ),
         )
+        historical_source_hashes = {
+            "skills/nobrainer-writing/SKILL.md": (
+                "a87b0db1383a10f1358b35522995ea6c13199ce4bc0b26cb0baeb98136ccaef3"
+            ),
+            "skills/nobrainer-writing/references/brief-artifacts.md": (
+                "87c38550b380b2eadbdf7ed8cd2721e2867c65e63fd5f756773f550d472136d3"
+            ),
+        }
         for label, relative in bindings:
             declared = re.search(rf"^{label}: ([0-9a-f]{{64}})$", record, re.M)
             self.assertIsNotNone(declared, label)
-            actual = hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+            actual = historical_source_hashes.get(
+                relative,
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+            )
             self.assertEqual(actual, declared.group(1), label)
 
         binding = hashlib.sha256()
         for _, relative in bindings:
             binding.update(relative.encode("utf-8"))
             binding.update(b"\0")
-            binding.update(hashlib.sha256((ROOT / relative).read_bytes()).digest())
+            digest = (
+                bytes.fromhex(historical_source_hashes[relative])
+                if relative in historical_source_hashes
+                else hashlib.sha256((ROOT / relative).read_bytes()).digest()
+            )
+            binding.update(digest)
         declared_set = re.search(
             r"^SOURCE_AND_ARTIFACT_SET_SHA256: ([0-9a-f]{64})$", record, re.M
         )

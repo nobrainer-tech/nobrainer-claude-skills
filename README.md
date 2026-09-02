@@ -227,6 +227,11 @@ and [the BRIEF evaluation](docs/evals/v1.3.1-writing-brief-2026-09-02.md).
 Client-specific runtime rows remain evidence-scoped; source publication does not
 imply marketplace discovery.
 
+The unreleased [`v1.4.0` candidate](docs/releases/v1.4.0.md) adds Ultra's quick
+path for small reversible edits and the compact `Env indicator`/`Evidence`
+diagnostic contract; `v1.3.1` remains the latest accepted source release until
+fresh publication readback is complete.
+
 The [`v1.3.0` release](docs/releases/v1.3.0-publication-readback.md) remains the
 previous accepted source release and a rollback option. `v1.3.1` adds the
 English `BRIEF` writing mode, concise issue/story templates and surface-specific
