@@ -36,7 +36,8 @@ Aliases are phrases, never duplicate directories.
 Keep bodies operational and client-neutral. Use relative links. Put long detail
 in focused `references/` files and deterministic helpers in `scripts/`.
 Never depend on a user's filesystem, account, private host or current model name.
-
+Canonical public templates and examples use English; `BRIEF` bug reports keep
+`Environment`, `URL` (`N/A` when inapplicable), `Steps to reproduce`, `Current behavior`, `Expected behavior` and `Evidence` as separate fields; API evidence includes request and response, DB evidence query and result, and UI evidence a screenshot or MP4, otherwise return `INPUT_REQUIRED`.
 The active portfolio is exactly fifteen `nobrainer-*` skills. A permanent skill
 must own a recurring cross-project boundary that no current skill or maintained
 native capability owns. Do not add one because a topic is popular.

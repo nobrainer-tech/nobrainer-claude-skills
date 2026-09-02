@@ -114,7 +114,7 @@ recurring boundary:
 | [`nobrainer-team`](skills/nobrainer-team/) | `nb-team` | Minimal capability roster, installed-skill inventory and safe temporary specialist discovery |
 | [`nobrainer-dispatcher`](skills/nobrainer-dispatcher/) | `nb-dispatcher` | Dependency-aware ready-set scheduling, bounded dispatch, backpressure and audited result routing |
 | [`nobrainer-research`](skills/nobrainer-research/) | `nb-research` | Bounded current research from primary sources with facts separated from inference |
-| [`nobrainer-writing`](skills/nobrainer-writing/) | `nb-write` | High-signal drafting, compression and editing that preserve meaning, evidence, voice and action |
+| [`nobrainer-writing`](skills/nobrainer-writing/) | `nb-write`, `nb-brief` | High-signal drafting, compression and short human-sounding comments, issues and stories that preserve meaning, evidence, voice and action |
 | [`nobrainer-build`](skills/nobrainer-build/) | `nb-build` | Smallest verified implementation using calibrated KISS, DRY, SOLID, YAGNI and anti-slop gates |
 | [`nobrainer-security`](skills/nobrainer-security/) | `nb-security` | Threat models, security review, supply-chain audit and high-risk release evidence |
 | [`nobrainer-sessions`](skills/nobrainer-sessions/) | `nb-sessions` | Named visible sessions, exact identity, isolated writers, audited handoff, lease and recovery |
@@ -225,6 +225,11 @@ scan and source distribution readback in the post-release record. The source-tag
 candidate checkpoint remains available in [the candidate record](docs/releases/v1.3.0.md).
 Client-specific runtime rows remain evidence-scoped; source publication does not
 imply marketplace discovery.
+
+The unreleased [`v1.3.1` candidate](docs/releases/v1.3.1.md) adds the English
+`BRIEF` writing mode, concise issue/story templates and surface-specific bug
+evidence; v1.3.0 remains the latest accepted source release until a fresh
+publication readback is complete.
 
 Version [`v1.2.1`](docs/releases/v1.2.1.md) remains the rollback source release
 at full commit `0010140d19a7ff847dff776569772ef04d82c314`, with its own exact
