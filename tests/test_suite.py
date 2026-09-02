@@ -2811,17 +2811,216 @@ class SuiteTests(unittest.TestCase):
                 self.assertNotIn(private_root, document)
 
         self.assertIn("v1.3.0", readme)
-        self.assertIn(
-            "Version [`v1.3.0`](docs/releases/v1.3.0-publication-readback.md) is the latest\n"
-            "fully accepted GitHub source release.",
-            readme,
-        )
+        self.assertIn("previous accepted source release", readme)
         self.assertIn(
             "8ae4a26548ce908fc5f98b22663f52e163541f56",
             readme,
         )
-        self.assertIn("docs/releases/v1.3.0.md", readme)
         self.assertIn("docs/releases/v1.3.0-publication-readback.md", readme)
+
+    def test_v1_3_1_publication_readback_is_explicit(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
+        compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
+            encoding="utf-8"
+        )
+        publication = (
+            ROOT / "docs" / "releases" / "v1.3.1-publication-readback.md"
+        ).read_text(encoding="utf-8")
+        evaluation = (
+            ROOT
+            / "docs"
+            / "evals"
+            / "v1.3.1-writing-brief-2026-09-02.md"
+        ).read_text(encoding="utf-8")
+
+        current_spans = markdown_heading_spans(
+            release_notes, "## v1.3.1 — 2026-09-02"
+        )
+        prior_spans = markdown_heading_spans(
+            release_notes, "## v1.3.0 — 2026-09-01"
+        )
+        self.assertEqual(1, len(current_spans))
+        self.assertEqual(1, len(prior_spans))
+        _, current_end = current_spans[0]
+        prior_start, _ = prior_spans[0]
+        self.assertLess(current_end, prior_start)
+        release_section = release_notes[current_end:prior_start]
+        self.assertEqual(
+            list(CANONICAL_ORDER),
+            re.findall(
+                r"^- `(nobrainer-[a-z0-9-]+)`$",
+                release_section,
+                re.MULTILINE,
+            ),
+        )
+        self.assertNotIn("release candidate", release_section.lower())
+        self.assertIn(
+            "The source release is merged in PR #33 at commit\n"
+            "`d1e0ea761d4bf439973727668ee871e2b367797e`, tagged as `v1.3.1`",
+            release_section,
+        )
+        self.assertIn(
+            "Version [`v1.3.1`](docs/releases/v1.3.1-publication-readback.md) is the latest\n"
+            "fully accepted GitHub source release.",
+            readme,
+        )
+        self.assertIn("`DISTRIBUTED` for `v1.3.1`", compatibility)
+        self.assertIn("HOLDOUT_RESULT: PASS 5/5", evaluation)
+
+        evidence = parse_release_evidence(publication)
+        expected_keys = {
+            "VERSION",
+            "STATUS",
+            "RELEASE_DATE",
+            "SKILL_COUNT",
+            "PORTFOLIO",
+            "WRITING_BRIEF_RESULT",
+            "WRITING_BRIEF_HOLDOUT",
+            "WRITING_BRIEF_EVALUATION",
+            "INDEPENDENT_REVIEW",
+            "INDEPENDENT_REVIEW_SESSION",
+            "DETERMINISTIC_TESTS_TOTAL",
+            "DETERMINISTIC_TESTS_STATUS",
+            "SECRET_SCAN",
+            "PUBLIC_SYNC",
+            "AUTOMATED_PUBLIC_COMMIT_PUSH",
+            "MERGE_PR",
+            "MERGE",
+            "COMMIT_SHA",
+            "TREE_SHA",
+            "TAG",
+            "TAG_OBJECT_SHA",
+            "TAG_COMMIT_SHA",
+            "TARGET_COMMITISH",
+            "CI_PR_RUN",
+            "CI_MAIN_RUN",
+            "GITHUB_RELEASE_IMMUTABLE",
+            "TAG_PROTECTION_STATUS",
+            "RELEASE_DRAFT",
+            "RELEASE_PRERELEASE",
+            "RELEASE_PUBLISHED_AT",
+            "RELEASE_URL",
+            "SOURCE_ARCHIVE_URL",
+            "SOURCE_ARCHIVE_FILENAME",
+            "SOURCE_ARCHIVE_SHA256",
+            "SOURCE_ARCHIVE_DOWNLOADED_AT",
+            "SOURCE_ARCHIVE_TREE_MATCH",
+            "SOURCE_ARCHIVE_FILE_COUNT",
+            "SOURCE_ARCHIVE_PYCACHE_COUNT",
+            "SOURCE_ARCHIVE_SKILL_COUNT",
+            "SOURCE_ARCHIVE_VALIDATOR",
+            "SOURCE_ARCHIVE_SUITE_VALIDATOR",
+            "SOURCE_ARCHIVE_TESTS",
+            "SOURCE_ARCHIVE_PYTHON_SYNTAX",
+            "SOURCE_ARCHIVE_SHELL_SYNTAX",
+            "SOURCE_ARCHIVE_SECRET_SCAN",
+            "INSTALL_CLIENT",
+            "INSTALL_MODE",
+            "INSTALL_SKILL_COUNT",
+            "INSTALL_FILE_MATCH",
+            "INSTALL_READBACK",
+            "DISTRIBUTION",
+            "ACCEPTANCE",
+        }
+        self.assertEqual(expected_keys, set(evidence))
+        self.assertEqual("1.3.1", evidence["VERSION"])
+        self.assertEqual("PUBLISHED", evidence["STATUS"])
+        self.assertEqual("15", evidence["SKILL_COUNT"])
+        self.assertEqual("EXACT_FIFTEEN_CANONICAL_NOBRAINER_SKILLS", evidence["PORTFOLIO"])
+        self.assertEqual("PASS", evidence["WRITING_BRIEF_RESULT"])
+        self.assertEqual("PASS 5/5", evidence["WRITING_BRIEF_HOLDOUT"])
+        self.assertEqual("CLEAN", evidence["INDEPENDENT_REVIEW"])
+        self.assertEqual("105", evidence["DETERMINISTIC_TESTS_TOTAL"])
+        self.assertEqual("PASS", evidence["DETERMINISTIC_TESTS_STATUS"])
+        self.assertEqual("PASS", evidence["SECRET_SCAN"])
+        self.assertEqual("FETCH_ONLY", evidence["PUBLIC_SYNC"])
+        self.assertEqual("BLOCKED", evidence["AUTOMATED_PUBLIC_COMMIT_PUSH"])
+        self.assertEqual("33", evidence["MERGE_PR"])
+        self.assertEqual("MERGED", evidence["MERGE"])
+        self.assertEqual(
+            "d1e0ea761d4bf439973727668ee871e2b367797e",
+            evidence["COMMIT_SHA"],
+        )
+        self.assertEqual(
+            "1c5c34fd2560f0a4e39e0c05085d350eb404997e",
+            evidence["TREE_SHA"],
+        )
+        self.assertEqual("v1.3.1", evidence["TAG"])
+        self.assertEqual(evidence["COMMIT_SHA"], evidence["TAG_COMMIT_SHA"])
+        self.assertEqual("main", evidence["TARGET_COMMITISH"])
+        self.assertEqual("33617119505", evidence["CI_PR_RUN"])
+        self.assertEqual("33617181865", evidence["CI_MAIN_RUN"])
+        self.assertEqual("false", evidence["GITHUB_RELEASE_IMMUTABLE"])
+        self.assertEqual("NOT_VERIFIED", evidence["TAG_PROTECTION_STATUS"])
+        self.assertEqual("false", evidence["RELEASE_DRAFT"])
+        self.assertEqual("false", evidence["RELEASE_PRERELEASE"])
+        self.assertEqual("v1.3.1.tar.gz", evidence["SOURCE_ARCHIVE_FILENAME"])
+        self.assertEqual("79fd101206aa8b1cc6bb3d219f8e984c1a3a34102f01382d687ccec5640d2bc6", evidence["SOURCE_ARCHIVE_SHA256"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_TREE_MATCH"])
+        self.assertEqual("241", evidence["SOURCE_ARCHIVE_FILE_COUNT"])
+        self.assertEqual("0", evidence["SOURCE_ARCHIVE_PYCACHE_COUNT"])
+        self.assertEqual("15", evidence["SOURCE_ARCHIVE_SKILL_COUNT"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_VALIDATOR"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_SUITE_VALIDATOR"])
+        self.assertEqual("105/105 PASS", evidence["SOURCE_ARCHIVE_TESTS"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_PYTHON_SYNTAX"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_SHELL_SYNTAX"])
+        self.assertEqual("PASS", evidence["SOURCE_ARCHIVE_SECRET_SCAN"])
+        self.assertEqual("agents", evidence["INSTALL_CLIENT"])
+        self.assertEqual("copy", evidence["INSTALL_MODE"])
+        self.assertEqual("15", evidence["INSTALL_SKILL_COUNT"])
+        self.assertEqual("PASS", evidence["INSTALL_FILE_MATCH"])
+        self.assertEqual("PASS", evidence["INSTALL_READBACK"])
+        self.assertEqual("PUBLISHED", evidence["DISTRIBUTION"])
+        self.assertEqual("PASS_RELEASE", evidence["ACCEPTANCE"])
+
+        if (ROOT / ".git").exists():
+            tag_object_readback = subprocess.run(
+                ["git", "rev-parse", "--verify", "refs/tags/v1.3.1"],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if tag_object_readback.returncode == 0:
+                self.assertEqual(
+                    evidence["TAG_OBJECT_SHA"],
+                    tag_object_readback.stdout.strip(),
+                )
+                tag_readback = subprocess.run(
+                    ["git", "rev-parse", "--verify", "refs/tags/v1.3.1^{commit}"],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(0, tag_readback.returncode, tag_readback.stderr)
+                self.assertEqual(evidence["COMMIT_SHA"], tag_readback.stdout.strip())
+                tag_tree_readback = subprocess.run(
+                    [
+                        "git",
+                        "rev-parse",
+                        "--verify",
+                        f"{tag_readback.stdout.strip()}^{{tree}}",
+                    ],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(0, tag_tree_readback.returncode, tag_tree_readback.stderr)
+                self.assertEqual(evidence["TREE_SHA"], tag_tree_readback.stdout.strip())
+            elif os.environ.get("NOBRAINER_REQUIRE_RELEASE_TAG") == "1":
+                self.fail(
+                    "v1.3.1 tag is required for release readback in the "
+                    "release-validation checkout: "
+                    + tag_object_readback.stderr.strip()
+                )
+
+        for document in (publication, evaluation, readme, compatibility):
+            for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
+                self.assertNotIn(private_root, document)
 
     def test_v1_3_spec_self_authenticates(self) -> None:
         spec = (
@@ -2933,6 +3132,7 @@ class SuiteTests(unittest.TestCase):
             "docs/releases/v1.1.0.md",
             "docs/releases/v1.3.0.md",
             "docs/releases/v1.3.1.md",
+            "docs/releases/v1.3.1-publication-readback.md",
             "docs/evals/v1.3.1-writing-brief-2026-09-02.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-prompt.md",
             "docs/evals/artifacts/v1.3.1-writing-brief-holdout-output.md",

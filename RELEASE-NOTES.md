@@ -1,8 +1,8 @@
 # NoBrainer Tech Skills release notes
 
-## v1.3.1 candidate — 2026-09-02
+## v1.3.1 — 2026-09-02
 
-This untagged candidate keeps exactly fifteen portable skills:
+This published source release keeps exactly fifteen portable skills:
 
 - `nobrainer-ultra`
 - `nobrainer-team`
@@ -32,8 +32,11 @@ Highlights:
 - The repository's public bug template follows the same diagnostic contract;
   no sixteenth skill or client-specific fork was introduced.
 
-This is a local release candidate, not a merged, tagged or distributed release.
-The exact candidate state and behavioral holdout are recorded in
+The source release is merged in PR #33 at commit
+`d1e0ea761d4bf439973727668ee871e2b367797e`, tagged as `v1.3.1` and published on
+GitHub. The exact publication evidence is recorded in
+[`docs/releases/v1.3.1-publication-readback.md`](docs/releases/v1.3.1-publication-readback.md);
+the candidate checkpoint and BRIEF evaluation remain available in
 [`docs/releases/v1.3.1.md`](docs/releases/v1.3.1.md) and
 [`the BRIEF evaluation`](docs/evals/v1.3.1-writing-brief-2026-09-02.md).
 

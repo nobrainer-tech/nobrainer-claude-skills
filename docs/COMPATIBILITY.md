@@ -21,22 +21,23 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.3.0`, the latest fully
-accepted source release. Its exact merge, tag, deterministic checks, secret scan
-and calibrated final5 holdout are recorded in [the release evidence](releases/v1.3.0-publication-readback.md)
-and [the behavioral receipt](evals/artifacts/v1.3.0-autoimprove-integrity-final5-receipt.md).
-`v1.2.1` remains the rollback source release; `v1.2.0` remains available but
-failed one archive-native test and is superseded. GitHub reports the `v1.3.0`
-release object as non-immutable and tag protection was not independently
-verified, so security-sensitive consumers should pin the reviewed full commit
-SHA. Source distribution does not prove that a client marketplace accepted,
-loaded or ran the package; the per-client rows remain `NOT_PUBLISHED` until
-that exact channel has an installation readback. The rollback release evidence
-also records an isolated installer readback.
+The GitHub source channel is `DISTRIBUTED` for `v1.3.1`, the latest fully
+accepted source release. Its exact merge, tag, deterministic checks, secret scan,
+BRIEF holdout and isolated installer readback are recorded in [the publication
+evidence](releases/v1.3.1-publication-readback.md) and [the behavioral
+evaluation](evals/v1.3.1-writing-brief-2026-09-02.md). `v1.3.0` remains the
+previous rollback source release; `v1.2.1` remains an older accepted rollback
+release, while `v1.2.0` remains available but failed one archive-native test and
+is superseded. GitHub reports the `v1.3.1` release object as non-immutable and
+tag protection was not independently verified, so security-sensitive consumers
+should pin the reviewed full commit SHA. Source distribution does not prove that
+a client marketplace accepted, loaded or ran the package; the per-client rows
+remain `NOT_PUBLISHED` until that exact channel has an installation readback.
 
-The current untagged `v1.3.1` candidate adds the `BRIEF` writing contract and
-surface-specific bug evidence. It remains `SOURCE_VALIDATED`/`REPOSITORY_CHECKED`
-candidate state until its own merge, tag, archive and distribution readback.
+The published `v1.3.1` source adds the `BRIEF` writing contract and
+surface-specific bug evidence. The source release is distributed and repository
+checked; client-specific runtime and marketplace levels remain separately
+evidence-scoped.
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
