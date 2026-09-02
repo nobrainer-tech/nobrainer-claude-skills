@@ -31,6 +31,13 @@
 - [ ] Public-clean and secret scan completed
 - [ ] Complete diff reviewed
 
+## Public-surface coherence
+
+- [ ] `PUBLIC_SURFACE: UPDATE` lists affected README/docs/templates/assets/flow, or `PUBLIC_SURFACE: NOT_NEEDED` includes a reason
+- [ ] Every affected public surface was updated and read back
+- [ ] Public contract, routing, workflow or portfolio changes refresh and read back both the workflow SVG and README Mermaid flow
+- [ ] Unrelated diagrams and assets were not regenerated
+
 ## Risks, uncertainty, and rollback
 
 <!-- State what is not proven and the exact rollback. -->

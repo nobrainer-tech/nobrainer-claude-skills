@@ -13,6 +13,8 @@ Highlights:
   the full lifecycle and require fresh SVG and README Mermaid readback.
 - The quick path is limited to small reversible edits with no public contract,
   routing, workflow or portfolio impact.
+- `CONTRIBUTING.md` and the pull-request template carry the same coherence
+  checklist for human review.
 - README's Mermaid flow and `assets/nobrainer-workflow.svg` now show the quick
   path and coherence gate.
 - The v1.4.0 publication gap is recorded in

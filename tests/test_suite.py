@@ -3161,6 +3161,10 @@ class SuiteTests(unittest.TestCase):
         compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
             encoding="utf-8"
         )
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        pr_template = (ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md").read_text(
+            encoding="utf-8"
+        )
         release_notes = (ROOT / "RELEASE-NOTES.md").read_text(encoding="utf-8")
         candidate = (ROOT / "docs" / "releases" / "v1.5.0.md").read_text(
             encoding="utf-8"
@@ -3172,6 +3176,10 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("The unreleased [`v1.5.0` candidate]", readme)
         self.assertIn("`DISTRIBUTED` for `v1.4.0`", compatibility)
         self.assertIn("## v1.5.0 candidate — 2026-09-02", release_notes)
+        for review_surface in (contributing, pr_template):
+            self.assertIn("PUBLIC_SURFACE", review_surface)
+            self.assertIn("README/docs/templates/assets/flow", review_surface)
+            self.assertIn("workflow SVG and README Mermaid", review_surface)
         for term in (
             "COHERENCE_GATE: PASS",
             "README_COHERENCE_READBACK: PASS",

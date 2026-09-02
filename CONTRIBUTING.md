@@ -37,6 +37,10 @@ not ordinary prose.
   portfolio merely to increase the active count.
 - Generated visuals require exact-text review, descriptive alt text and sensible
   compression before use.
+- For public contract, routing, workflow or portfolio changes, set
+  `PUBLIC_SURFACE: UPDATE`, list affected README/docs/templates/assets/flow and
+  read them back. Use `PUBLIC_SURFACE: NOT_NEEDED` only with a reason; flow
+  changes require fresh readback of both the workflow SVG and README Mermaid.
 
 ## Required checks
 
