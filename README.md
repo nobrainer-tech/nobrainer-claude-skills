@@ -218,18 +218,19 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version [`v1.3.0`](docs/releases/v1.3.0-publication-readback.md) is the latest
+Version [`v1.3.1`](docs/releases/v1.3.1-publication-readback.md) is the latest
 fully accepted GitHub source release. It keeps exactly fifteen skills and
-records the calibrated Autoimprove final5 holdout, deterministic gates, secret
-scan and source distribution readback in the post-release record. The source-tag
-candidate checkpoint remains available in [the candidate record](docs/releases/v1.3.0.md).
+records the BRIEF holdout, deterministic gates, secret scan and source
+distribution readback in the post-release record. The candidate checkpoint and
+behavioral evaluation remain available in [the candidate record](docs/releases/v1.3.1.md)
+and [the BRIEF evaluation](docs/evals/v1.3.1-writing-brief-2026-09-02.md).
 Client-specific runtime rows remain evidence-scoped; source publication does not
 imply marketplace discovery.
 
-The unreleased [`v1.3.1` candidate](docs/releases/v1.3.1.md) adds the English
-`BRIEF` writing mode, concise issue/story templates and surface-specific bug
-evidence; v1.3.0 remains the latest accepted source release until a fresh
-publication readback is complete.
+The [`v1.3.0` release](docs/releases/v1.3.0-publication-readback.md) remains the
+previous accepted source release and a rollback option. `v1.3.1` adds the
+English `BRIEF` writing mode, concise issue/story templates and surface-specific
+bug evidence.
 
 Version [`v1.2.1`](docs/releases/v1.2.1.md) remains the rollback source release
 at full commit `0010140d19a7ff847dff776569772ef04d82c314`, with its own exact
