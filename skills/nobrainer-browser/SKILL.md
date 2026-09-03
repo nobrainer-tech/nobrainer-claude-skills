@@ -1,6 +1,6 @@
 ---
 name: nobrainer-browser
-description: "Use when the owner says nb-browser or nobrainer-browser, asks to inspect or operate a rendered website, attach to an existing approved Chrome/Edge session, reproduce a browser flow, run Playwright tests, or record and analyze a Playwright trace. Prefer a current Playwright CLI with an explicit version readback; do not set up MCP or extra browser plugins by default."
+description: "Use when the owner says nb-browser or nobrainer-browser, asks to inspect or operate a rendered website, attach to an existing approved Chrome/Edge session, restart an approved non-default Chromium profile for loopback CDP, reproduce a browser flow, run Playwright tests, or record and analyze a Playwright trace. Prefer a current Playwright CLI with an explicit version readback; do not set up MCP or extra browser plugins by default."
 ---
 
 # NoBrainer Browser
@@ -54,6 +54,15 @@ while `nobrainer-browser` owns browser routing: that would add another skill
 owner with overlapping triggers. Read the live CLI help instead. If the owner
 chooses the upstream Playwright skills, reconcile to one browser-skill owner
 rather than keeping both active.
+
+## Restart an approved profile for CDP attach
+
+Use this flow only when the owner explicitly approves closing the target browser
+and the target is an existing, dedicated Chromium user-data directory. It is
+not a way to make a daily/default Chrome profile remotely debuggable. Read the
+[bounded CDP profile restart reference](references/cdp-profile-restart.md)
+before any process or profile action; it separates identity readback, stopping,
+loopback launch, endpoint verification and CLI attach.
 
 ## Existing-session attach
 
@@ -138,10 +147,14 @@ CLI flag is sufficient.
 - If a trace cannot reproduce the issue, report `NOT_REPRODUCED`; do not invent
   a cause.
 - For an attached external session use `playwright-cli detach`; never close it.
-  Close only a disposable session owned by this CLI run.
+  Restart or close an existing profile only through the explicit pre-attach flow
+  above. Close only a disposable session owned by this CLI run.
 - Report the exact CLI version, browser/session mode, pages or tests inspected,
   trace/report paths, observed result, side effects, uncertainty and cleanup.
 
-Sources: [Playwright test CLI](https://playwright.dev/docs/test-cli),
-[Trace Viewer](https://playwright.dev/docs/trace-viewer), and
-[`@playwright/cli` on npm](https://www.npmjs.com/package/@playwright/cli).
+Sources: [Playwright attach](https://playwright.dev/agent-cli/commands/attach),
+[Playwright `connectOverCDP`](https://playwright.dev/docs/api/class-browsertype),
+[Playwright test CLI](https://playwright.dev/docs/test-cli),
+[Trace Viewer](https://playwright.dev/docs/trace-viewer),
+[Chrome remote-debugging security changes](https://developer.chrome.com/blog/remote-debugging-port),
+and [`@playwright/cli` on npm](https://www.npmjs.com/package/@playwright/cli).

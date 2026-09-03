@@ -35,7 +35,7 @@ Popularity, file size and prior existence are not admission criteria.
 | `nobrainer-sessions` | Exact visible session identity, transport, writer ownership, handoff, receive-audit and recovery. |
 | `nobrainer-spec-driven-development` | Durable behavior contract and acceptance ledger when risk/dependencies justify it. |
 | `nobrainer-wiki` | Setup, targeted retrieval, sourced capture and deterministic maintenance of durable knowledge. |
-| `nobrainer-browser` | Rendered UI, approved browser-session attach, browser tests and trace evidence. |
+| `nobrainer-browser` | Rendered UI, bounded CDP profile restart, approved browser-session attach, browser tests and trace evidence. |
 | `nobrainer-autoimprove` | Measured artifact improvement with baseline, holdout, budget and keep-or-revert. |
 | `nobrainer-decide` | One consequential decision after alternatives, scoring and adversarial attack. |
 | `nobrainer-rca` | Read-only causal diagnosis of an observed failure. |
