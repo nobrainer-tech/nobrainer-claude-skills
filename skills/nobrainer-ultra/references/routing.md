@@ -90,6 +90,18 @@ identity preflight and transport; Dispatcher records `READY -> SENT` from its
 readback. Reports return through `Sessions RECEIVE_AUDIT -> Dispatcher
 RECONCILE`. Do not duplicate the transport step inside Dispatcher.
 
+## Unattended-run evidence
+
+For unattended, scheduled, background or batch work that can outlive the current
+interaction, a schedule entry,
+notification, log line, exit code, vanished process or partial output is an
+observation only. Before calling the run healthy or complete, read back the
+trigger registration, live process and lease/lock state, completion marker,
+per-unit accepted/rejected/DEAD state, expected-output manifest and destination
+count. Missing, stale or partial evidence means `UNVERIFIED` or `INCOMPLETE`;
+preserve state and reconcile/resume from the checkpoint. Never delete a lock or
+retry blindly to manufacture completion.
+
 ## Attention contract
 
 For delegated or unattended work record maximum active sessions, urgent owner
