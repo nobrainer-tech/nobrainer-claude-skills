@@ -6,8 +6,8 @@ ordinary single-session work.
 
 ## One canonical ledger
 
-Use the project's existing durable tracker when suitable. Otherwise create one
-small task-local artifact. It is the only mutable owner of execution state;
+Use the project's existing Markdown tracker when suitable. Otherwise create one
+small task-local Markdown artifact. It is the only mutable owner of execution state;
 specifications define required truth, reports provide evidence, and the wiki
 stores durable knowledge.
 
@@ -42,6 +42,33 @@ exit code cannot move a row to `ACCEPTED` without current proof.
 
 The owner-facing Progress checklist is only a view of this ledger. Update both
 from the same evidence at meaningful transitions.
+
+## Durable goal and resume
+
+When this reference is active, keep the portable goal in an existing Markdown
+tracker or one task-local Markdown `GOAL_FILE`. Do not create a second mutable
+status owner. The minimum readable block is:
+
+```text
+GOAL_ID: <stable identity>
+OUTCOME: <observable result>
+NON_GOALS: <bounded exclusions>
+DOD: <acceptance checks>
+STATUS: ACTIVE | OWNER_DECISION_REQUIRED | COMPLETE | BLOCKED
+CHECKPOINT: <last verified state and evidence pointer>
+NEXT_SAFE_ACTION: <one action or NONE>
+SESSION_POLICY: <policy reference or NONE>
+LAST_HEALTH_READBACK: <event, result, evidence pointer>
+```
+
+The host-native goal is a mirror and control handle, not the source of truth.
+After session start, compaction or a verified clear, read `GOAL_FILE` from disk,
+verify `GOAL_ID`, repository, checkout, HEAD/dirty state, status and evidence,
+then reconcile the native goal and continue only from `NEXT_SAFE_ACTION`. A
+transcript summary, cached plan or native goal never overrides newer file state.
+The same file owns the outcome-level TODO rows; health gates may checkpoint them
+but cannot mark work complete. On every material transition, update the current
+row, evidence and next safe action before starting another unit.
 
 ## Recovery card
 
@@ -78,15 +105,27 @@ TURN_AGE_LIMIT: <configured value | NONE>
 HISTORY_SIZE_LIMIT: <configured value | NONE>
 COMPACTION_LIMIT: <configured value | NONE>
 COST_OR_TOKENS_LIMIT: <configured value | NONE>
+WARNING_THRESHOLD: <configured value | NONE>
+HARD_THRESHOLD: <configured value | NONE>
 SIGNALS: <turn age, history size, compactions, cost/tokens, owned workers>
 ```
 
 Each signal is a readback value, `UNKNOWN`, `UNSUPPORTED`, or `NONE` when no
 limit is configured. Missing expected telemetry is not `HEALTHY`. The gate
-result is `HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED`; a limit hit
-means checkpoint, compact handoff and semantic `END_TURN`. Creating or
-rotating a session requires owner approval; do not infer a new session from a
-timeout, compaction or goal continuation.
+result is `HEALTHY | WARNING | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED`. A
+warning checkpoints the goal/TODO and stops starting optional workers or large
+new units while continuing the safe current unit. A hard limit means persist `GOAL_FILE`,
+write a compact handoff, verify no write is in flight, and select:
+
+```text
+CLEAR_MODE: HOST_CLEAR | END_TURN | MANUAL_REQUIRED | UNSUPPORTED
+```
+
+Use `HOST_CLEAR` only when the host advertises the capability and readback
+proves the same goal file remains durable and no task-owned writer is active.
+Otherwise end the turn or require manual action. Never claim a clear from a
+command submission alone. Creating or rotating a session requires owner
+approval; do not infer it from a timeout, compaction or continued goal.
 
 `task_complete` closes an outcome only; it does not prove `RUNTIME_RELEASE`.
 Record `RUNTIME_RELEASE` as `VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED`.

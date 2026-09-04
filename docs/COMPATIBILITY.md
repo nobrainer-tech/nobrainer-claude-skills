@@ -134,6 +134,14 @@ host/configured policy rather than assuming universal limits. Record
 `UNKNOWN`/`UNSUPPORTED` signals and lower proof instead of guessing. Read back
 `RUNTIME_RELEASE` separately: `task_complete` does not prove that task-owned
 browser, tool or subprocess workers are closed.
+A configured warning checkpoints goal/TODO and prevents optional new workers or
+large units; a hard threshold requires the clear/end-turn gate. Repository
+examples are not universal host limits.
+For resumable probes, persist one task-local Markdown `GOAL_FILE`. Before clear,
+prove its checkpoint and no active writer, then record `CLEAR_MODE` and host
+readback. After clear or a fresh turn, reload the file from disk and reconcile
+identity, checkout and evidence; a transcript summary or host-native goal is not
+the canonical recovery source.
 
 ### Automatic routing
 

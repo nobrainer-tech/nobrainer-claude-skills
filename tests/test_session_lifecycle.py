@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 
 
@@ -22,6 +23,7 @@ SIGNALS = ("turn_age", "history_size", "compactions", "cost_or_tokens")
 class HealthSnapshot:
     policy: dict[str, int]
     signals: dict[str, int]
+    warning_policy: dict[str, int] | None = None
     unsupported: bool = False
 
 
@@ -29,17 +31,29 @@ def session_health_gate(snapshot: HealthSnapshot) -> str:
     """Small test-only reference for the portable gate, not a host adapter."""
     if snapshot.unsupported:
         return "UNSUPPORTED"
-    if any(name not in snapshot.signals for name in snapshot.policy):
+    expected = set(snapshot.policy)
+    if snapshot.warning_policy:
+        expected.update(snapshot.warning_policy)
+    if any(name not in snapshot.signals for name in expected):
         return "UNKNOWN"
     if any(
         snapshot.signals[name] > limit
         for name, limit in snapshot.policy.items()
     ):
         return "ROTATE_REQUIRED"
+    if snapshot.warning_policy and any(
+        snapshot.signals.get(name, 0) > limit
+        for name, limit in snapshot.warning_policy.items()
+    ):
+        return "WARNING"
     return "HEALTHY"
 
 
 def rotation_action(health: str, *, owner_approved: bool) -> tuple[str, bool]:
+    if health == "WARNING":
+        return "CHECKPOINT_AND_RESTRICT_DISPATCH", False
+    if health in {"UNKNOWN", "UNSUPPORTED"}:
+        return "OWNER_DECISION_REQUIRED", False
     if health != "ROTATE_REQUIRED":
         return "CONTINUE", False
     if not owner_approved:
@@ -67,6 +81,35 @@ def no_ready_action(ready_rows: list[str], owner_gated: bool) -> str:
     if not ready_rows and owner_gated:
         return "OWNER_DECISION_REQUIRED"
     return "CONTINUE"
+
+
+def read_goal(path: Path) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if ": " in line:
+            key, value = line.split(": ", 1)
+            fields[key] = value
+    return fields
+
+
+def clear_mode(
+    *,
+    clear_supported: bool,
+    clear_readback: bool,
+    goal_persisted: bool,
+    goal_readback: bool,
+    handoff_persisted: bool,
+    writers: int,
+) -> str:
+    if writers:
+        return "MANUAL_REQUIRED"
+    if not goal_persisted or not goal_readback or not handoff_persisted:
+        return "MANUAL_REQUIRED"
+    if not clear_supported:
+        return "END_TURN"
+    if clear_readback:
+        return "HOST_CLEAR"
+    return "MANUAL_REQUIRED"
 
 
 class SessionLifecycleTests(unittest.TestCase):
@@ -107,15 +150,48 @@ class SessionLifecycleTests(unittest.TestCase):
             session_health_gate(HealthSnapshot(self.policy, incomplete)), "UNKNOWN"
         )
         self.assertEqual(
-            session_health_gate(HealthSnapshot(self.policy, self.signals, True)),
+            session_health_gate(
+                HealthSnapshot(self.policy, self.signals, unsupported=True)
+            ),
             "UNSUPPORTED",
         )
         self.assertFalse(clean_closeout("UNKNOWN", True, "VERIFIED"))
         self.assertFalse(clean_closeout("HEALTHY", True, "UNSUPPORTED"))
+        self.assertEqual(
+            rotation_action("UNKNOWN", owner_approved=False),
+            ("OWNER_DECISION_REQUIRED", False),
+        )
+        self.assertEqual(
+            rotation_action("UNSUPPORTED", owner_approved=False),
+            ("OWNER_DECISION_REQUIRED", False),
+        )
 
     def test_task_complete_does_not_release_live_workers(self) -> None:
         self.assertEqual(runtime_release(1), "NOT_RELEASED")
         self.assertFalse(clean_closeout("HEALTHY", True, "NOT_RELEASED"))
+
+    def test_warning_checkpoints_before_hard_limit(self) -> None:
+        warning_policy = dict(self.policy, history_size=700)
+        signals = dict(self.signals, history_size=800)
+        health = session_health_gate(
+            HealthSnapshot(self.policy, signals, warning_policy=warning_policy)
+        )
+        self.assertEqual(health, "WARNING")
+        action, created_session = rotation_action(health, owner_approved=False)
+        self.assertEqual(action, "CHECKPOINT_AND_RESTRICT_DISPATCH")
+        self.assertFalse(created_session)
+
+    def test_missing_warning_signal_is_unknown(self) -> None:
+        self.assertEqual(
+            session_health_gate(
+                HealthSnapshot(
+                    {"turn_age": 100},
+                    {"turn_age": 20},
+                    warning_policy={"history_size": 700},
+                )
+            ),
+            "UNKNOWN",
+        )
 
     def test_clean_session_releases_a_controlled_live_worker(self) -> None:
         worker = subprocess.Popen(
@@ -132,6 +208,92 @@ class SessionLifecycleTests(unittest.TestCase):
     def test_no_ready_work_returns_owner_decision_required(self) -> None:
         action = no_ready_action([], owner_gated=True)
         self.assertEqual(action, "OWNER_DECISION_REQUIRED")
+
+    def test_resume_reads_durable_goal_instead_of_stale_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            goal_path = Path(directory) / "goal.md"
+            goal_path.write_text(
+                "GOAL_ID: runtime-guard\n"
+                "OUTCOME: Resume safely\n"
+                "STATUS: ACTIVE\n"
+                "CHECKPOINT: tests passed\n"
+                "NEXT_SAFE_ACTION: review current diff\n",
+                encoding="utf-8",
+            )
+            stale_summary = {"NEXT_SAFE_ACTION": "repeat implementation"}
+            goal = read_goal(goal_path)
+            self.assertEqual(goal["GOAL_ID"], "runtime-guard")
+            self.assertEqual(goal["NEXT_SAFE_ACTION"], "review current diff")
+            self.assertNotEqual(
+                goal["NEXT_SAFE_ACTION"], stale_summary["NEXT_SAFE_ACTION"]
+            )
+
+    def test_clear_requires_no_writer_and_positive_readback(self) -> None:
+        self.assertEqual(
+            clear_mode(
+                clear_supported=True,
+                clear_readback=True,
+                goal_persisted=True,
+                goal_readback=True,
+                handoff_persisted=True,
+                writers=0,
+            ),
+            "HOST_CLEAR",
+        )
+        self.assertEqual(
+            clear_mode(
+                clear_supported=True,
+                clear_readback=False,
+                goal_persisted=True,
+                goal_readback=True,
+                handoff_persisted=True,
+                writers=0,
+            ),
+            "MANUAL_REQUIRED",
+        )
+        self.assertEqual(
+            clear_mode(
+                clear_supported=True,
+                clear_readback=True,
+                goal_persisted=True,
+                goal_readback=True,
+                handoff_persisted=True,
+                writers=1,
+            ),
+            "MANUAL_REQUIRED",
+        )
+        self.assertEqual(
+            clear_mode(
+                clear_supported=False,
+                clear_readback=False,
+                goal_persisted=True,
+                goal_readback=True,
+                handoff_persisted=True,
+                writers=0,
+            ),
+            "END_TURN",
+        )
+        for goal_persisted, goal_readback, handoff_persisted in (
+            (False, True, True),
+            (True, False, True),
+            (True, True, False),
+        ):
+            with self.subTest(
+                goal_persisted=goal_persisted,
+                goal_readback=goal_readback,
+                handoff_persisted=handoff_persisted,
+            ):
+                self.assertEqual(
+                    clear_mode(
+                        clear_supported=True,
+                        clear_readback=True,
+                        goal_persisted=goal_persisted,
+                        goal_readback=goal_readback,
+                        handoff_persisted=handoff_persisted,
+                        writers=0,
+                    ),
+                    "MANUAL_REQUIRED",
+                )
 
     def test_portable_contract_names_health_and_release_boundaries(self) -> None:
         paths = (
@@ -158,6 +320,11 @@ class SessionLifecycleTests(unittest.TestCase):
             "UNKNOWN",
             "UNSUPPORTED",
             "RUNTIME_RELEASE readback",
+            "GOAL_FILE",
+            "CLEAR_MODE",
+            "HOST_CLEAR",
+            "MANUAL_REQUIRED",
+            "WARNING",
         ):
             self.assertIn(term, combined)
         self.assertNotRegex(combined, re.compile(r"\bPID\b"))

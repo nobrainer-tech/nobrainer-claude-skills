@@ -54,10 +54,16 @@ submission is not delivery; record `SENT` only with transport readback.
 A goal may span turns, but each turn/session is bounded. Run
 `SESSION_HEALTH_GATE` at `START`, `AFTER_COMPACTION`, `MATERIAL_TRANSITION` and
 `BEFORE_CLOSEOUT` using host/configured signals such as turn age, history size,
-compactions, cost/tokens and owned workers. `UNKNOWN` or `UNSUPPORTED` lowers
-runtime proof; a limit means checkpoint, compact handoff and `END_TURN`, with
-owner approval required before rotation. `task_complete` is not
-`RUNTIME_RELEASE`; require owned-worker readback where the host supports it.
+compactions, cost/tokens and owned workers. `UNKNOWN` or `UNSUPPORTED` blocks
+advancement and lowers runtime proof. `WARNING` checkpoints the goal/TODO, stops optional workers and
+large new units, and permits only the safe current unit to continue. A hard
+limit persists the canonical Markdown goal, writes a compact handoff, verifies
+no write is in flight, then selects verified host clear or `END_TURN`, with
+owner approval required before rotation. Resume by reading that file and
+reconciling identity and checkout; stale transcript or native-goal text cannot
+override it.
+`task_complete` is not `RUNTIME_RELEASE`; require owned-worker readback where
+the host supports it.
 
 ## Modes
 

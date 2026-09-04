@@ -39,8 +39,10 @@ ISOLATION: SHARED_READ_ONLY | ISOLATED_WORKTREE | OTHER_VERIFIED
 LEASE: FREE | HELD | RELEASED | CONFLICT | UNSUPPORTED
 FENCING_SUPPORTED: YES | NO
 FENCING_EPOCH: <monotonic token or NONE>
-SESSION_HEALTH_GATE: PENDING | HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
+SESSION_HEALTH_GATE: PENDING | HEALTHY | WARNING | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
+CLEAR_MODE: HOST_CLEAR | END_TURN | MANUAL_REQUIRED | UNSUPPORTED
 RUNTIME_RELEASE: PENDING | VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
+GOAL_FILE: <canonical Markdown path/reference or NONE>
 LAST_READBACK: <UTC timestamp and evidence pointer>
 ```
 
@@ -54,8 +56,9 @@ SESSION_HEALTH_GATE:
 - EVENT: START | AFTER_COMPACTION | MATERIAL_TRANSITION | BEFORE_CLOSEOUT
 - POLICY: <host/configured limits or NONE>
 - SIGNALS: <turn age, history size, compactions, cost/tokens, owned workers>
-- RESULT: HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
-- ACTION: CONTINUE | CHECKPOINT_AND_END_TURN | OWNER_DECISION_REQUIRED
+- RESULT: HEALTHY | WARNING | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
+- ACTION: CONTINUE | CHECKPOINT_AND_RESTRICT_DISPATCH | CHECKPOINT_AND_END_TURN | OWNER_DECISION_REQUIRED
+- CLEAR_MODE: HOST_CLEAR | END_TURN | MANUAL_REQUIRED | UNSUPPORTED
 - ROTATION: OWNER_APPROVAL_REQUIRED
 
 RUNTIME_RELEASE:
@@ -67,9 +70,14 @@ Signals are host-native or adapter-provided and must be read back; the
 portable contract assumes no particular operating system, process mechanism or
 transcript format. `UNKNOWN` means an expected signal was not readable;
 `UNSUPPORTED` means the host cannot provide it. Neither result is
-`HEALTHY`, and both lower runtime proof. `ROTATE_REQUIRED` means checkpoint,
-write a compact handoff and end the current turn; never create a successor
-session automatically. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
+`HEALTHY`, and both lower runtime proof. `ROTATE_REQUIRED` means persist the
+canonical Markdown goal, write a compact handoff and verify no writer remains.
+`WARNING` means checkpoint goal/TODO, stop optional workers and large new units,
+and continue only the safe current unit.
+Use `HOST_CLEAR` only with capability and completion readback; otherwise use
+`END_TURN`, `MANUAL_REQUIRED` or `UNSUPPORTED`. Resume reads the goal file from
+disk and reconciles goal identity, checkout and evidence before work. Never
+create a successor session automatically. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
 requires readback that task-owned workers are closed where that capability
 exists. If no legal `READY` row remains, use `OWNER_DECISION_REQUIRED`.
 
@@ -151,8 +159,9 @@ CLOSE_GATE:
 1. Record changed paths and final commit/state.
 2. Run required tests/verifier/build/runtime and preserve raw output.
 3. Review scope, quality, secrets, side effects and rollback.
-4. Run `SESSION_HEALTH_GATE` for `BEFORE_CLOSEOUT`; a limit hit requires a
-   checkpoint, compact handoff and `END_TURN`, not automatic rotation.
+4. Run `SESSION_HEALTH_GATE` for `BEFORE_CLOSEOUT`; `WARNING` checkpoints and
+   restricts dispatch. `ROTATE_REQUIRED` requires a durable goal checkpoint,
+   compact handoff and verified clear or `END_TURN`, not automatic rotation.
 5. Read back `RUNTIME_RELEASE` separately from task completion; do not claim a
    clean runtime with `NOT_RELEASED`, `UNKNOWN` or unsupported worker evidence.
 6. Write close-gate evidence and release LEASE if held.
@@ -199,6 +208,8 @@ TESTS: <commands, result, raw evidence pointer>
 VERIFIER: <command, result, evidence pointer>
 BUILD_RUNTIME: <result or NOT_RUN with reason>
 SESSION_HEALTH_GATE: <events, policy, result and evidence pointer>
+CLEAR_MODE: HOST_CLEAR | END_TURN | MANUAL_REQUIRED | UNSUPPORTED
+GOAL_FILE: <canonical Markdown path/reference or NONE>
 RUNTIME_RELEASE: VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
 OWNED_WORKER_READBACK: <evidence pointer or NONE>
 QUALITY_REVIEW: <result/evidence or NOT_APPLICABLE>
@@ -222,7 +233,8 @@ MAIN verifies from independent readback:
 4. frozen inputs, exact context source/hash/readback, start manifest and close evidence;
 5. reproducible test, verifier, build/runtime and quality evidence;
 6. `SESSION_HEALTH_GATE` is recorded for required events; `UNKNOWN` or
-   `UNSUPPORTED` lowers proof and a `ROTATE_REQUIRED` checkpoint ends the turn;
+   `UNSUPPORTED` blocks advancement, `WARNING` restricts dispatch, and a
+   `ROTATE_REQUIRED` checkpoint ends the turn;
 7. `RUNTIME_RELEASE` is independently read back; `NOT_RELEASED` or active
    owned workers blocks a clean-release claim;
 8. no hidden writer, task, side effect, secret, or scope expansion;
