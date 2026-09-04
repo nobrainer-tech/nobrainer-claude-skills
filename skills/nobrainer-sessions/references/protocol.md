@@ -39,8 +39,39 @@ ISOLATION: SHARED_READ_ONLY | ISOLATED_WORKTREE | OTHER_VERIFIED
 LEASE: FREE | HELD | RELEASED | CONFLICT | UNSUPPORTED
 FENCING_SUPPORTED: YES | NO
 FENCING_EPOCH: <monotonic token or NONE>
+SESSION_HEALTH_GATE: PENDING | HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
+RUNTIME_RELEASE: PENDING | VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
 LAST_READBACK: <UTC timestamp and evidence pointer>
 ```
+
+## Bounded-turn and release gate
+
+An outcome/goal may cross turns, but no turn/session is an unlimited lease. At
+`START`, `AFTER_COMPACTION`, `MATERIAL_TRANSITION` and `BEFORE_CLOSEOUT`, record:
+
+```text
+SESSION_HEALTH_GATE:
+- EVENT: START | AFTER_COMPACTION | MATERIAL_TRANSITION | BEFORE_CLOSEOUT
+- POLICY: <host/configured limits or NONE>
+- SIGNALS: <turn age, history size, compactions, cost/tokens, owned workers>
+- RESULT: HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
+- ACTION: CONTINUE | CHECKPOINT_AND_END_TURN | OWNER_DECISION_REQUIRED
+- ROTATION: OWNER_APPROVAL_REQUIRED
+
+RUNTIME_RELEASE:
+- RESULT: VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
+- OWNED_WORKER_READBACK: <host readback or NONE>
+```
+
+Signals are host-native or adapter-provided and must be read back; the
+portable contract assumes no particular operating system, process mechanism or
+transcript format. `UNKNOWN` means an expected signal was not readable;
+`UNSUPPORTED` means the host cannot provide it. Neither result is
+`HEALTHY`, and both lower runtime proof. `ROTATE_REQUIRED` means checkpoint,
+write a compact handoff and end the current turn; never create a successor
+session automatically. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
+requires readback that task-owned workers are closed where that capability
+exists. If no legal `READY` row remains, use `OWNER_DECISION_REQUIRED`.
 
 ## Delegating prompt
 
@@ -98,13 +129,15 @@ START_GATE:
 1. Read repository instructions, the owning method and canonical inputs. Return
    `CONTEXT_READBACK` bound to `CONTEXT_SOURCE_REF` and `CONTEXT_SHA256` before work.
 2. Verify identity, CHECKOUT, task, scope, current HEAD and expected state.
-3. Verify frozen inputs, writer isolation and relevant preflight check. Stale context or evidence,
+3. Run `SESSION_HEALTH_GATE` for `START`; record policy, signal values or
+   `UNKNOWN`/`UNSUPPORTED` and the resulting proof level.
+4. Verify frozen inputs, writer isolation and relevant preflight check. Stale context or evidence,
    a mismatch or unread required source stops the task without writing.
-4. Immediately before the first write, acquire LEASE according to the project
+5. Immediately before the first write, acquire LEASE according to the project
    rule and record its owner, time and evidence. If it is held, conflicting,
    unsupported where required, or changed after preflight, stop without writing.
-5. Record a start manifest after the lease check and before the first write.
-6. Stop on any mismatch; do not repair canonical state yourself.
+6. Record a start manifest after the lease check and before the first write.
+7. Stop on any mismatch; do not repair canonical state yourself.
 
 WORK_UNIT:
 - <one bounded action>
@@ -118,8 +151,12 @@ CLOSE_GATE:
 1. Record changed paths and final commit/state.
 2. Run required tests/verifier/build/runtime and preserve raw output.
 3. Review scope, quality, secrets, side effects and rollback.
-4. Write close-gate evidence and release LEASE if held.
-5. Send exactly one final report to MAIN and end the turn.
+4. Run `SESSION_HEALTH_GATE` for `BEFORE_CLOSEOUT`; a limit hit requires a
+   checkpoint, compact handoff and `END_TURN`, not automatic rotation.
+5. Read back `RUNTIME_RELEASE` separately from task completion; do not claim a
+   clean runtime with `NOT_RELEASED`, `UNKNOWN` or unsupported worker evidence.
+6. Write close-gate evidence and release LEASE if held.
+7. Send exactly one final report to MAIN and end the turn.
 
 ON_FAILURE:
 Stop this task. Preserve evidence and checkpoint. Do not start a successor.
@@ -161,6 +198,9 @@ CHANGES: <paths or NONE>
 TESTS: <commands, result, raw evidence pointer>
 VERIFIER: <command, result, evidence pointer>
 BUILD_RUNTIME: <result or NOT_RUN with reason>
+SESSION_HEALTH_GATE: <events, policy, result and evidence pointer>
+RUNTIME_RELEASE: VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
+OWNED_WORKER_READBACK: <evidence pointer or NONE>
 QUALITY_REVIEW: <result/evidence or NOT_APPLICABLE>
 START_MANIFEST: <path/reference>
 CLOSE_EVIDENCE: <path/reference>
@@ -181,11 +221,15 @@ MAIN verifies from independent readback:
 3. task, allowed transition, write scope and changed paths;
 4. frozen inputs, exact context source/hash/readback, start manifest and close evidence;
 5. reproducible test, verifier, build/runtime and quality evidence;
-6. no hidden writer, task, side effect, secret, or scope expansion;
-7. lease passes: `RELEASED`, or independently verified `NOT_HELD` or
+6. `SESSION_HEALTH_GATE` is recorded for required events; `UNKNOWN` or
+   `UNSUPPORTED` lowers proof and a `ROTATE_REQUIRED` checkpoint ends the turn;
+7. `RUNTIME_RELEASE` is independently read back; `NOT_RELEASED` or active
+   owned workers blocks a clean-release claim;
+8. no hidden writer, task, side effect, secret, or scope expansion;
+9. lease passes: `RELEASED`, or independently verified `NOT_HELD` or
    `UNSUPPORTED`; `NOT_RELEASED_WITH_REASON` always blocks advancement; when
    fencing is supported, the fencing token must also be valid;
-8. message and payload identity, idempotency key, delivery receipt and ACK, or
+10. message and payload identity, idempotency key, delivery receipt and ACK, or
    honest `UNSUPPORTED`/`NOT_SENT`; uncertain delivery blocks retry and advance.
 
 Only MAIN updates canonical execution state. A worker's `NEXT_ACTION` is a
@@ -197,6 +241,8 @@ recommendation, not a command.
 ATTEMPT_NO: <integer>
 LAST_BLOCKER_FINGERPRINT: <stable fingerprint>
 LAST_BLOCKER_EVIDENCE: <path/reference>
+SESSION_HEALTH_GATE: <last event/result/evidence pointer>
+RUNTIME_RELEASE: <result/evidence pointer>
 NEW_EVIDENCE_REQUIRED: YES | NO
 RECOVERY_OWNER: <owner/session>
 RETRY_BUDGET: <integer>

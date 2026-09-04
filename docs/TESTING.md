@@ -22,9 +22,10 @@ python3 scripts/validate_skills.py --suite
 ## 2. Deterministic behavior contracts
 
 Unit tests pressure the routing, model-policy and safety invariants that can be
-checked without an LLM: Ultra states, session identity and lease gates, SDD
-boundaries, trigger ownership, browser routing, adapter registration and
-installer races.
+checked without an LLM: Ultra states, bounded-turn `SESSION_HEALTH_GATE`,
+checkpoint/end-turn decisions, separate `RUNTIME_RELEASE`, session identity and
+lease gates, SDD boundaries, trigger ownership, browser routing, adapter
+registration and installer races.
 Adapter tests execute every bootstrap mechanism that can run locally: the Claude
 and Cursor SessionStart JSON shapes, OpenCode injection/deduplication, and Pi
 discovery plus post-compaction re-injection. They also parse the portable Agent
@@ -35,6 +36,18 @@ diagram contract.
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+### Session-lifetime smoke
+
+[`tests/test_session_lifecycle.py`](../tests/test_session_lifecycle.py) is a
+deterministic, model-free protocol smoke. It covers the nominal clean-session
+trace, each health-gate event, configurable limit handling, unknown and
+unsupported signals, checkpoint plus `END_TURN` without automatic rotation,
+`task_complete` with a live controlled worker followed by explicit release, and
+the `OWNER_DECISION_REQUIRED` stop when no legal `READY` work remains. It does
+not prove that Codex, Claude Code,
+OpenCode or another host exposes those signals; that requires the clean-session
+readback below.
 
 GitHub Actions runs these deterministic layers on Linux and macOS. It checks
 Python, Node and shell syntax plus deterministic adapter contracts, and runs a
@@ -71,6 +84,13 @@ A client becomes runtime-verified only after a clean-session transcript proves
 discovery and correct first actions. Follow
 [`COMPATIBILITY.md`](COMPATIBILITY.md). Marketplace publication, production
 behavior and buyer usefulness each require their own readback.
+
+For a long-running probe, read back `SESSION_HEALTH_GATE` at `START`,
+`AFTER_COMPACTION`, `MATERIAL_TRANSITION` and `BEFORE_CLOSEOUT`, including the
+host policy and actual signal values. Read back `RUNTIME_RELEASE` separately;
+`task_complete` is not evidence that task-owned browser, tool or subprocess
+workers ended. A missing capability is `UNKNOWN` or `UNSUPPORTED`, lowers the
+runtime proof, and must not be reported as a clean-session pass.
 
 For Codex, test explicit canonical invocation with `$nobrainer-ultra` and test
 plain aliases separately as implicit-routing controls. Bind the transcript to

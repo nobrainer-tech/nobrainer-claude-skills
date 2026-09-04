@@ -36,7 +36,8 @@ implementation, verification, correction, integration and closeout work must
 appear before execution starts.
 
 Useful states are `PENDING`, `READY`, `RUNNING`, `BLOCKED`, `REPORTED`,
-`AUDITED`, `ACCEPTED`, `CORRECTION_REQUIRED` and `STOPPED`. A report or green
+`AUDITED`, `ACCEPTED`, `CORRECTION_REQUIRED`, `OWNER_DECISION_REQUIRED` and
+`STOPPED`. A report or green
 exit code cannot move a row to `ACCEPTED` without current proof.
 
 The owner-facing Progress checklist is only a view of this ledger. Update both
@@ -64,6 +65,39 @@ gate.
 At session start or after compaction, reconcile the exact checkout, base/HEAD,
 dirty state, ledger fingerprint, active sessions/writers, last accepted proof
 and next `READY` row. A stale summary never authorizes a successor.
+
+## Bounded turns and runtime release
+
+An outcome or goal may span bounded turns, but it never grants an unlimited
+turn/session lease. Run `SESSION_HEALTH_GATE` at `START`, `AFTER_COMPACTION`,
+`MATERIAL_TRANSITION` and `BEFORE_CLOSEOUT`. The policy is host/config supplied;
+these are policy fields, not universal limits:
+
+```text
+TURN_AGE_LIMIT: <configured value | NONE>
+HISTORY_SIZE_LIMIT: <configured value | NONE>
+COMPACTION_LIMIT: <configured value | NONE>
+COST_OR_TOKENS_LIMIT: <configured value | NONE>
+SIGNALS: <turn age, history size, compactions, cost/tokens, owned workers>
+```
+
+Each signal is a readback value, `UNKNOWN`, `UNSUPPORTED`, or `NONE` when no
+limit is configured. Missing expected telemetry is not `HEALTHY`. The gate
+result is `HEALTHY | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED`; a limit hit
+means checkpoint, compact handoff and semantic `END_TURN`. Creating or
+rotating a session requires owner approval; do not infer a new session from a
+timeout, compaction or goal continuation.
+
+`task_complete` closes an outcome only; it does not prove `RUNTIME_RELEASE`.
+Record `RUNTIME_RELEASE` as `VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED`.
+Where the host can read back task-owned browser, tool or subprocess workers,
+`VERIFIED` requires no owned worker remains. Active workers are
+`NOT_RELEASED`; missing or unsupported readback lowers runtime proof and never
+supports a clean-runtime claim.
+
+If every remaining row is `BLOCKED` or owner-gated and no legal `READY` row
+exists, checkpoint and end with `OWNER_DECISION_REQUIRED`; never invent work to
+keep a goal active.
 
 ## Team, queue and transport
 

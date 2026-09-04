@@ -5,50 +5,43 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 
 # NoBrainer Ultra
 
-Turn one owner request into the smallest complete verified outcome the current
-project and runtime can deliver; hide orchestration from the owner and
-surface scope, proof, decisions and blockers.
+Turn one owner request into the smallest verified outcome current project/runtime
+can deliver; surface scope, proof, decisions and blockers.
 
-Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods. For
-setup, upgrade, installation or repair, also read [references/setup.md](references/setup.md).
-Read [references/correction-hooks.md](references/correction-hooks.md) only after
-an owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
+Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods; setup, upgrade, installation or repair also require [references/setup.md](references/setup.md).
+Read [references/correction-hooks.md](references/correction-hooks.md) after owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
 
 ## Choose the smallest workflow
 
 ### Quick path for small changes
 
-Use it for one coherent, reversible edit with acceptance and no
-authentication, secrets, data/production mutation, external effect, architecture,
-migration or dependency decision. Public contract, routing, workflow or portfolio
-changes use full lifecycle and coherence gate.
+Use one coherent, reversible edit with acceptance and no authentication, secrets,
+data/production mutation, external effect, architecture, migration or dependency
+decision. Public contract, routing, workflow or portfolio changes use full
+lifecycle and coherence gate.
 
 1. Inspect the actual checkout, instructions, dirty state and nearest caller/test.
 2. Edit only scoped files; run the nearest deterministic check and `git diff --check`.
 3. Read back diff/status; report outcome, proof, uncertainty and rollback.
 
 Skip requirements, ledger, team/dispatcher/sessions and independent review;
-escalate to the full Ultra lifecycle when scope, risk, proof or an owner decision
-expands; quick path never bypasses an owner gate.
+escalate to the full Ultra lifecycle when scope, risk, proof or owner decision expands;
+quick path never bypasses an owner gate.
 
-Default to one primary agent. Add workers only for an independent unit earning latency, isolation or judgment cost.
+Default to one primary agent; add workers only for an independent unit earning
+latency, isolation or judgment cost.
 
-The ordinary lifecycle is `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal control points, not an owner-facing state machine.
+Lifecycle: `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal control points, not an owner-facing state machine.
+
+Bounded turns: run `SESSION_HEALTH_GATE` at START, AFTER_COMPACTION, MATERIAL_TRANSITION and BEFORE_CLOSEOUT; results: `HEALTHY`, `ROTATE_REQUIRED`, `UNKNOWN`, `UNSUPPORTED`; missing signals lower proof.
+`ROTATE_REQUIRED` -> checkpoint, compact handoff, `END_TURN`; rotation needs owner approval. `task_complete` is not `RUNTIME_RELEASE`; require worker readback. No legal `READY` row -> checkpoint + `OWNER_DECISION_REQUIRED`.
 
 ## `DRIFT_CHECK`: establish current truth
 
-Read repository root, instructions, dirty state, branch/worktree, plan/spec, callers, tests, runtime and capabilities; preserve unrelated work.
-Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
-Research current, external, niche, uncertain, high-stakes or source-attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges;
-respect context budget and name any unread required surface.
+Read root, instructions, dirty state, branch/worktree, plan/spec, callers, tests, runtime and capabilities; preserve unrelated work. Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
+Research current, external, niche, uncertain, high-stakes or source-attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges; respect context budget and name unread required surface.
 
-`PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that
-a documented command produced the failure. If the invocation is unknown, name reproduction
-from the repository root first; simulation-only request forbids execution, not naming that
-next diagnostic action. Only then propose path, dependency or configuration changes. Check
-related wiki decisions. Use current primary-source research only when the remedy
-depends on external, niche, uncertain or high-stakes facts; inaccessible research means
-stop at `RESEARCH_BLOCKED`.
+`PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that a documented command produced the failure. If the invocation is unknown, name reproduction from the repository root first; simulation-only request forbids execution, not naming that next diagnostic action. Only then propose path, dependency or configuration changes. Check related wiki decisions. Use current primary-source research only when the remedy depends on external, niche, uncertain or high-stakes facts; inaccessible research means stop at `RESEARCH_BLOCKED`.
 
 ## `BUDDY`: clarify once
 
@@ -64,12 +57,12 @@ do not make them owner questions. Establish:
 
 Use `nobrainer-decide` for consequential choices among real alternatives.
 Use `nobrainer-spec-driven-development` only when a maintained contract pays for architecture,
-public behavior, migration, difficult rollback, dependent phases or resumability.
+public behavior, migration, rollback, dependent phases or resumability.
 
 ## Scope the minimum sufficient change
 
 Before the first non-trivial write, resolve this compact contract. Keep it in the
-canonical plan; show only the parts the owner needs to inspect.
+canonical plan; show only fields the owner needs to inspect.
 
 ```text
 Outcome:
@@ -83,26 +76,26 @@ Done clean:
 ```
 
 `Outcome` is the portable goal; `Proof` plus `Done clean` are the definition of done. `Expected files`
-predict scope; `Untouched` protects unrelated work and compatibility; update scope
-before expanding. `Done clean` requires matching scope, passing proof, no placeholders
-or surprises; excluded inspection stays provisional.
-`PUBLIC_SURFACE` is mandatory: set `UPDATE` and map affected README/docs/templates/assets/flow, or set `PUBLIC_SURFACE: NOT_NEEDED` with a reason; public contract, routing or workflow changes use full lifecycle and require fresh SVG + README Mermaid readback.
+predict scope; `Untouched` protects compatibility; update scope before expanding.
+`Done clean` requires matching scope, passing proof, no placeholders or surprises;
+excluded inspection stays provisional.
+`PUBLIC_SURFACE` is mandatory: set `UPDATE` and map affected README/docs/templates/assets/flow, or set `PUBLIC_SURFACE: NOT_NEEDED` with a reason; public contract, routing or workflow changes require fresh SVG + README Mermaid readback.
 When the owner requests goal/DoD, show every field above and state the detailed-ledger decision.
 Create a host-native goal after scope is frozen and require goal readback; the canonical
 plan supersedes stale goal text after correction.
-Default to at most 160 words: one outcome sentence, three scope bullets, compact
-Progress, three proof bullets plus next action. Do not add a repetitive
-skill/mode preamble or planning claim; avoid mechanism lists and invent unseen schemas, endpoints, state machines,
-storage or polling; name required boundaries/proof and mark exact paths/methods
-pending inspection.
+Default to at most 160 words: outcome, scope, Progress, proof and next action.
+Do not add a repetitive
+skill/mode preamble or planning claim; avoid mechanism lists and invent unseen
+schemas, endpoints, state machines, storage or polling; name required
+boundaries/proof and mark exact paths/methods pending inspection.
 
 Do not add a dependency, compatibility layer, fallback stack, worker, skill or
-test without an acceptance need or demonstrated risk. A new shared abstraction
-needs two real current callers or an explicit contract that requires it; a
-hypothetical future caller is not enough.
+test without an acceptance need or demonstrated risk. A shared abstraction needs
+two real current callers or an explicit contract; a future caller is
+not enough.
 
 Use a short checkable plan ordered by outcomes, not tools. One canonical TODO
-owner may be the host plan, a repository tracker or the current response.
+owner may be the host plan, repository tracker or current response.
 
 ## Show human progress
 
