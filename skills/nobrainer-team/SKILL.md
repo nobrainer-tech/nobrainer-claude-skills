@@ -11,8 +11,10 @@ batch ordering and backpressure after the plan is approved. `nobrainer-sessions`
 owns actual visible session identity, transport, checkout isolation, leases and
 receive-audit.
 
-Read [references/team-plan.md](references/team-plan.md) before persisting a team
-plan or delegating work.
+For a bounded native subagent, an inline assignment with exact returned ID,
+inputs, output, write scope, verifier and stop condition is enough. Keep it in
+the current plan; no visible task, persistent registry or queue is required.
+Read [references/team-plan.md](references/team-plan.md) only for a durable team plan.
 
 ## Start from work, not personas
 
@@ -45,8 +47,8 @@ least one measurable benefit:
 - independent review materially reduces a stated risk;
 - a handoff or resume boundary needs durable ownership.
 
-Start with 2-4 workers only when their units are truly independent and MAIN can
-audit the combined result. Do not split one tightly coupled edit, dispatch work
+Start with one useful worker; add more only for independent work within the
+host and task budget, when MAIN can audit the combined result. Do not split one tightly coupled edit, dispatch work
 whose output cannot be reviewed, or build a standing swarm because capacity is
 available.
 
@@ -107,8 +109,10 @@ batches or retries exist,
 `nobrainer-dispatcher` activates only the current safe group; Team does not
 schedule it.
 
-After the plan passes, invoke `nobrainer-dispatcher` when more than one delegated
-unit or controlled batch needs scheduling, then invoke `nobrainer-sessions` to
+Use native subagents directly for independent units with no persistent queue;
+audit output, completion and released write ownership before integration.
+After a durable team plan passes, invoke `nobrainer-dispatcher` when a dependent
+queue or controlled batch needs scheduling, then invoke `nobrainer-sessions` to
 create or reuse exact visible sessions when transport and isolation are
 available. A single bounded delegate may go directly from Team to Sessions. If
 transport is unavailable, run the same bounded roles sequentially in MAIN and

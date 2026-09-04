@@ -16,6 +16,10 @@ session prepare bounded task prompts, and bring child results back for review.
 Exact identity, write ownership, stop gates and independent receive-audit are
 required; a convenient parent-child topology is not itself a safety contract.
 
+For a single temporary native subagent, use its returned ID, scoped prompt,
+observable completion and artifact review; no durable registry or new visible
+task is required. Use this full protocol for durable or explicitly visible sessions.
+
 Read [references/protocol.md](references/protocol.md) before setup, dispatch, or
 RECEIVE_AUDIT.
 
@@ -54,8 +58,10 @@ submission is not delivery; record `SENT` only with transport readback.
 A goal may span turns, but each turn/session is bounded. Run
 `SESSION_HEALTH_GATE` at `START`, `AFTER_COMPACTION`, `MATERIAL_TRANSITION` and
 `BEFORE_CLOSEOUT` using host/configured signals such as turn age, history size,
-compactions, cost/tokens and owned workers. `UNKNOWN` or `UNSUPPORTED` blocks
-advancement and lowers runtime proof. `WARNING` checkpoints the goal/TODO, stops optional workers and
+compactions, cost/tokens and owned workers. `UNKNOWN` or `UNSUPPORTED` lowers
+runtime proof; optional telemetry does not block safe work. An unmeasurable
+explicitly required hard budget blocks work relying on that guarantee.
+`WARNING` checkpoints the goal/TODO, stops optional workers and
 large new units, and permits only the safe current unit to continue. A hard
 limit persists the canonical Markdown goal, writes a compact handoff, verifies
 no write is in flight, then selects verified host clear or `END_TURN`, with
@@ -153,8 +159,9 @@ Return exactly one audited result to `nobrainer-dispatcher`, or to
   preserve state and stop;
 - owner decision or irreversible action: ask for one explicit decision;
 - no remaining task: report closure eligibility; do not manufacture a successor.
-  If no legal `READY` row remains because all work is blocked or owner-gated,
-  checkpoint and return `OWNER_DECISION_REQUIRED`.
+  An empty `READY` set may mean wait for `RUNNING`, audit `REPORTED`, or finish
+  accepted work. If all unfinished work is blocked, checkpoint and name its
+  unblock action; use `OWNER_DECISION_REQUIRED` only for an actual owner decision.
 
 Retries require new evidence or a changed condition. Preserve a stable blocker
 fingerprint, attempt number, recovery owner, retry budget, checkpoint, rollback,

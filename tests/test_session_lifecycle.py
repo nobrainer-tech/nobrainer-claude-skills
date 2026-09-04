@@ -49,11 +49,16 @@ def session_health_gate(snapshot: HealthSnapshot) -> str:
     return "HEALTHY"
 
 
-def rotation_action(health: str, *, owner_approved: bool) -> tuple[str, bool]:
+def rotation_action(
+    health: str, *, owner_approved: bool, hard_budget_required: bool = False
+) -> tuple[str, bool]:
     if health == "WARNING":
         return "CHECKPOINT_AND_RESTRICT_DISPATCH", False
     if health in {"UNKNOWN", "UNSUPPORTED"}:
-        return "OWNER_DECISION_REQUIRED", False
+        return (
+            "BLOCKED_REQUIRED_BUDGET" if hard_budget_required else "CONTINUE_BOUNDED",
+            False,
+        )
     if health != "ROTATE_REQUIRED":
         return "CONTINUE", False
     if not owner_approved:
@@ -77,7 +82,16 @@ def clean_closeout(health: str, task_complete: bool, release: str) -> bool:
     return health == "HEALTHY" and task_complete and release == "VERIFIED"
 
 
-def no_ready_action(ready_rows: list[str], owner_gated: bool) -> str:
+def no_ready_action(
+    ready_rows: list[str], owner_gated: bool, *, running: bool = False,
+    reported: bool = False, complete: bool = False,
+) -> str:
+    if not ready_rows and reported:
+        return "AUDIT"
+    if not ready_rows and running:
+        return "WAIT"
+    if not ready_rows and complete:
+        return "COMPLETE"
     if not ready_rows and owner_gated:
         return "OWNER_DECISION_REQUIRED"
     return "CONTINUE"
@@ -159,12 +173,25 @@ class SessionLifecycleTests(unittest.TestCase):
         self.assertFalse(clean_closeout("HEALTHY", True, "UNSUPPORTED"))
         self.assertEqual(
             rotation_action("UNKNOWN", owner_approved=False),
-            ("OWNER_DECISION_REQUIRED", False),
+            ("CONTINUE_BOUNDED", False),
         )
         self.assertEqual(
             rotation_action("UNSUPPORTED", owner_approved=False),
-            ("OWNER_DECISION_REQUIRED", False),
+            ("CONTINUE_BOUNDED", False),
         )
+
+    def test_unmeasurable_required_budget_still_blocks_dependent_work(self) -> None:
+        for health in ("UNKNOWN", "UNSUPPORTED"):
+            self.assertEqual(
+                rotation_action(health, owner_approved=False, hard_budget_required=True),
+                ("BLOCKED_REQUIRED_BUDGET", False),
+            )
+
+    def test_empty_ready_set_distinguishes_wait_audit_and_completion(self) -> None:
+        self.assertEqual(no_ready_action([], False, running=True), "WAIT")
+        self.assertEqual(no_ready_action([], False, reported=True), "AUDIT")
+        self.assertEqual(no_ready_action([], False, complete=True), "COMPLETE")
+        self.assertEqual(no_ready_action([], True, running=True), "WAIT")
 
     def test_task_complete_does_not_release_live_workers(self) -> None:
         self.assertEqual(runtime_release(1), "NOT_RELEASED")

@@ -1,5 +1,22 @@
 # NoBrainer Tech Skills release notes
 
+## v1.6.0 — 2026-09-04
+
+- Clear coding and everyday tasks take a direct path, including chat-only and non-Git work.
+- Optional native goals and telemetry no longer block bounded safe execution;
+  explicitly required hard budgets and unknown writer ownership still stop dependent work.
+- Empty queues distinguish waiting, auditing, completion and real owner decisions.
+- Native subagents use scoped assignments without forced persistent sessions.
+- Setup reuses existing TODO/spec/wiki structures; consumer projects do not need
+  new SVG/Mermaid diagrams merely to satisfy a workflow rule.
+- Existing authorization is preserved; corrective attempts are bounded and stop
+  when acceptance passes.
+- Current Astra positioning, dated ecosystem research and scoped model evidence
+  replace stale availability statements. No universal cost or quality guarantee.
+
+See [verification and runtime limits](docs/releases/v1.6.0.md) and
+[review/research decisions](docs/reviews/v1.6.0-review.md).
+
 ## v1.5.0 — 2026-09-02
 
 This published source release keeps exactly fifteen portable skills and closes

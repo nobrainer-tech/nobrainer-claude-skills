@@ -42,9 +42,10 @@ python3 -m unittest discover -s tests -v
 [`tests/test_session_lifecycle.py`](../tests/test_session_lifecycle.py) is a
 deterministic, model-free protocol smoke. It covers the nominal clean-session
 trace, each health-gate event, configurable warning/hard limits, unknown and
-unsupported signals, checkpoint plus `END_TURN` without automatic rotation,
+unsupported signals with safe bounded continuation, strict-budget refusal, checkpoint plus `END_TURN` without automatic rotation,
 `task_complete` with a live controlled worker followed by explicit release, and
-the `OWNER_DECISION_REQUIRED` stop when no legal `READY` work remains. It also
+empty-ready-set handling: wait for running work, audit reports, finish accepted
+work, or surface a real owner decision. It also
 proves that resume reads the durable Markdown goal instead of stale summary
 text, and that host clear requires capability, no active writer and positive
 readback; otherwise the contract ends the turn or requires manual action. It does
@@ -72,7 +73,9 @@ changed receipt fields require re-baselining. Predeclare equal repetitions for
 stochastic comparisons and require at least three paired runs for a borderline
 promotion claim.
 
-The current changed-control records are
+The v1.6 probes and their source bindings are in
+[`releases/v1.6.0.md`](releases/v1.6.0.md). Source-only contract tests and
+one behavioral trial are not a comparative benchmark. Earlier changed-control records are
 [`evals/v1.3.0-harness-clarity-2026-08-30.md`](evals/v1.3.0-harness-clarity-2026-08-30.md),
 [`evals/dispatcher-routing-v1.2.0-2026-08-28.md`](evals/dispatcher-routing-v1.2.0-2026-08-28.md)
 and
@@ -93,8 +96,11 @@ For a long-running probe, read back `SESSION_HEALTH_GATE` at `START`,
 host policy and actual signal values. Read back `RUNTIME_RELEASE` separately;
 `task_complete` is not evidence that task-owned browser, tool or subprocess
 workers ended. A missing capability is `UNKNOWN` or `UNSUPPORTED`, lowers the
-runtime proof, and must not be reported as a clean-session pass.
-Before a host clear, persist and read back `GOAL_FILE`, verify no task-owned
+runtime proof, and must not be reported as a clean-runtime pass. Missing optional telemetry
+does not block safe artifact delivery; missing enforcement of an explicitly
+required hard budget blocks only work that depends on that guarantee.
+Native goals are optional and require the host tool's authorization; a Markdown
+goal is sufficient. Before a host clear, persist and read back `GOAL_FILE`, verify no task-owned
 writer remains, record `CLEAR_MODE`, then prove clear completion. Start a fresh
 turn by reading the same goal file and reconciling repository, checkout, state
 and next safe action; transcript text alone is not recovery evidence.

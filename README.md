@@ -23,92 +23,64 @@
   <a href="https://nobrainertech.gumroad.com">Production-ready agentic workflows</a>
 </p>
 
-Give the agent one outcome. `nobrainer-ultra` inspects the real project, asks at
-most one focused requirements round, scopes the minimum complete change, shows
-one short Progress checklist and drives approved work until verified delivery or
-a real owner gate. Small reversible edits without a public contract, routing,
-workflow or portfolio change take a quick path; other changes use the full path so
-docs, README and diagrams stay aligned. Every turn is bounded by a portable
-health gate, and runtime release is read back separately from task completion.
-Resumable work persists one Markdown goal before a verified clear or end-turn;
-the next session reads it from disk. Detailed state and specialists appear only
-when they earn their coordination cost.
+Give the agent one outcome. Say **“Use nb-ultra”** (or invoke
+`$nobrainer-ultra` in Codex). Clear tasks go straight to execution; meaningful
+ambiguity gets one focused question round. You see a short checklist for larger
+work, relevant evidence, and the finished result.
 
-![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, bounded turns, separate runtime-release readback, verified delivery and learning](assets/nobrainer-workflow.svg)
+**Small mouth. Big brain.** A quick answer stays a quick answer. Longer work uses
+one plan, bounded corrective attempts and a Markdown checkpoint when needed.
+Native goals, telemetry, subagents and client-specific tools are optional.
+
+![NoBrainer Ultra: direct work for clear small tasks; focused clarification, bounded execution and verification when needed](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
 
 ```mermaid
 flowchart TD
-    A[Owner request] --> B{Outcome clear?}
-    B -->|no| C[BUDDY: one focused clarification]
-    B -->|yes| D[Freeze outcome, scope, proof, untouched work and model policy]
+    A[One outcome] --> B{Material ambiguity?}
+    B -->|yes| C[BUDDY: one focused question round]
+    B -->|no| D{Small and clear?}
     C --> D
-    D --> E{Public contract, routing, workflow or portfolio may change?}
-    E -->|yes| F[COHERENCE: update README/docs/templates/assets; bind model policy; refresh SVG + Mermaid; read back]
-    E -->|no| G{One coherent, reversible edit with obvious acceptance?}
-    G -->|yes| H[QUICK PATH: inspect -> scoped edit -> nearest deterministic check -> diff/status readback]
-    G -->|no| I[One canonical plan + compact Progress]
-    F --> I
-    H --> J{Owner gate or proof expands?}
-    J -->|yes| I
-    J -->|no| K[VERIFY + report]
-    K --> T[LEARN + CLOSE]
-    I --> L{Resume, dependencies or recovery need a ledger?}
-    L -->|yes| M[Durable Markdown goal, identity, bounded turns, checkpoints and rollback]
-    L -->|no| N[Keep ordinary work lightweight]
-    M --> MA{Health gate result?}
-    MA -->|WARNING| MW[Checkpoint goal/TODO; restrict optional dispatch]
-    MW --> O
-    MA -->|ROTATE_REQUIRED| MB[Persist goal + handoff; verified clear or END_TURN]
-    MB --> M
-    MA -->|HEALTHY| O{Ready and authorized?}
-    MA -->|UNKNOWN / UNSUPPORTED| P
-    N --> O
-    O -->|no| P[STOP: re-plan, block or ask owner]
-    P --> B
-    O -->|yes| Q{Independent work earns coordination?}
-    Q -->|no| R[MAIN + relevant skill]
-    Q -->|yes| S[TEAM / DISPATCHER / SESSIONS]
-    R --> U[VERIFY + REVIEW when justified]
-    S --> U
-    U --> V{Review passes?}
-    V -->|no| W[BUILD correction + invalidate proof]
-    W --> U
-    V -->|yes| X{Delegated result?}
-    X -->|yes| Y[RECEIVE_AUDIT]
-    X -->|no| Z{Evidence current?}
-    Y --> Z
-    Z -->|no| P
-    Z -->|yes| AA{RUNTIME_RELEASE readback?}
-    AA -->|no| P
-    AA -->|yes| T
+    D -->|yes| E[Direct answer or edit; check the result]
+    D -->|no| F[SCOPE + PLAN: outcome, authority, proof; concise TODO]
+    F --> G[AUTOPILOT: execute the authorized scope]
+    G --> H[Verify; independent REVIEW when useful]
+    H -->|verified defect; attempt budget remains| G
+    H -->|acceptance met| I[Audit delegated artifacts and stop owned workers]
+    H -->|blocked| J[Checkpoint; report one unblock action]
+    E --> K[Deliver evidence and stop]
+    I --> K
+    F -. optional .-> L[Markdown goal for resume]
+    G -. independent work .-> M[Bounded native subagents]
+    M --> H
+    L -. unavailable native goals or telemetry .-> G
 ```
 
-## Astra Ready Flow for current model fleets
+## Astra Ready Flow, portable by design
 
-`v1.5.0` introduces an **Astra Ready Flow** at the workflow level: the
-skills stay model-neutral while making scope, evidence, model, effort, budget
-and escalation explicit before execution. The same portable contract is
-designed to pair with the [current Codex model catalog](https://developers.openai.com/api/docs/models)
-and Anthropic's Claude 5.1 line, officially [Claude Fable 5.1 and Claude Mythos 5.1](https://www.anthropic.com/claude-fable-and-mythos-5-1).
+Version **1.6.0** removes client-specific prerequisites from ordinary work.
+OpenAI [introduced GPT-6 Astra](https://openai.com/index/gpt-6-astra/) on
+September 3, 2026. The suite keeps the host-selected model and uses the same
+plain-text instructions with other models; it does not pin a provider or choose
+an expensive tier automatically.
 
-This is workflow readiness, not a provider integration badge. [OpenAI describes
-Astra as being prepared for release](https://openai.com/index/path-to-astra/), and
-the current public API catalog does not list it; this repository has no
-clean-session runtime proof for Astra or the Claude 5.1 releases. See the
-[model policy](skills/nobrainer-ultra/references/model-routing.md) and
-[compatibility evidence](docs/COMPATIBILITY.md).
+[Compatibility](docs/COMPATIBILITY.md) separates available models, tested
+behavior, client loading and source distribution. Local smoke evidence covers
+only its recorded source and scenarios. It is not a universal compatibility,
+quality or token-savings benchmark.
 
 ```text
-STANDARD -> host-selected model + declared effort
-EXTENDED -> larger declared budget; any stronger model is explicit
-ROUTED -> advertised capability tier; exact model recorded; escalation needs proposal/approval
+Small task       -> direct result + relevant check
+Larger task      -> clarify if needed + short TODO + execute + verify
+Resumable task   -> same workflow + one Markdown goal/checkpoint
+Independent work -> optional bounded subagents, audited before integration
 ```
 
-**Continuous improvement beats delayed perfection.** A small task stays small.
-A non-trivial task gets enough structure to be reliable, but no speculative
-framework, automatic swarm or documentation theatre.
+Load specialists only when needed. Reuse the project's instructions, tests,
+specs and wiki. Choose SDD for durable contracts and TDD when a failing test
+would expose the behavior; neither requires installing a framework.
+See the [v1.6 review and research decisions](docs/reviews/v1.6.0-review.md).
 
 ## Start with one skill
 
@@ -148,16 +120,16 @@ CONTROL_MODE: BUDDY -> AUTOPILOT
 SESSION_MODE: MAIN | MULTI_SESSION
 ```
 
-`SESSION_HEALTH_GATE` bounds each turn at start, after compaction, at material
-transitions and before closeout. A configured warning checkpoints TODO and
-avoids optional new workers; a hard threshold clears or ends the turn.
-`RUNTIME_RELEASE` is a separate readback of
-task-owned workers; a completed outcome does not prove a clean runtime. For
-resumable work, `GOAL_FILE` is canonical across compaction or clear; host-native
-goals mirror it and stale transcript summaries cannot override it.
+For resumable or delegated work, `SESSION_HEALTH_GATE` uses available,
+configured limits. Missing optional telemetry lowers the health claim and still
+allows bounded safe work. An explicitly required hard budget must be enforceable.
+`RUNTIME_RELEASE` concerns actual task-owned workers; a completed result does not
+prove they stopped. `GOAL_FILE` is optional Markdown recovery state. A native goal
+is used only when available and authorized; the file alone suffices.
 
-Autopilot can run in one MAIN session. A multi-session plan is not automatically
-autonomous. This keeps the workflow understandable and avoids agent theatre.
+Autopilot works in one MAIN session. Native subagents need a scoped assignment,
+observable completion and reviewed output. Use persistent sessions and a
+Dispatcher only when a real handoff or dependent queue needs them.
 
 ## Fifteen skills, distinct ownership
 
@@ -274,13 +246,14 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) is the latest
-published GitHub source release. It keeps exactly fifteen skills, and its tag,
-archive, deterministic checks, secret scan and isolated copy installation are
-recorded in the [publication readback](docs/releases/v1.5.0-publication-readback.md).
-Its model positioning is workflow-level; direct Astra and Claude runtime support
-remains unverified in [Compatibility](docs/COMPATIBILITY.md). The pre-publication
-checkpoint remains available in [`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
+Current source version: **1.6.0**. Check the
+[latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/latest)
+for distribution, and the [v1.6 evidence](docs/releases/v1.6.0.md) for its exact
+verification scope. Source publication does not imply client marketplace discovery.
+
+Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) remains an
+accepted rollback source release. Its historical pre-publication checkpoint is
+[`docs/releases/v1.5.0.md`](docs/releases/v1.5.0.md).
 
 Version [`v1.4.0`](docs/releases/v1.4.0-publication-readback.md) remains the
 previous accepted source release and rollback option. Client-specific runtime

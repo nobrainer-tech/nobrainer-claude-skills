@@ -341,7 +341,14 @@ def validate(suite_only: bool) -> list[str]:
                     f"{path.relative_to(ROOT)}: forbidden public value {forbidden!r}"
                 )
         for brand in EXTERNAL_WORKFLOW_BRANDS:
-            if brand in text.lower():
+            # Dated review reports may attribute outside projects. Operational
+            # instructions retain the branding gate; public-value scanning above
+            # still applies to every report.
+            is_review_document = (
+                path.parent == ROOT / "docs" / "reviews"
+                and path.suffix.lower() == ".md"
+            )
+            if brand in text.lower() and not is_review_document:
                 errors.append(
                     f"{path.relative_to(ROOT)}: external workflow branding {brand!r}"
                 )

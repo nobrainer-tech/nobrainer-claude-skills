@@ -1,0 +1,109 @@
+{
+  "started_utc": "2026-09-04T19:29:22.184000+00:00",
+  "finished_utc": "2026-09-04T19:29:47.682048+00:00",
+  "elapsed_seconds": 25.498,
+  "timeout_seconds": 180,
+  "retry_budget": 0,
+  "status": "COMPLETED",
+  "returncode": 0,
+  "client": "Codex CLI 0.153.1",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "low",
+  "sandbox": "read-only",
+  "invocation": "EXPLICIT_SOURCE_INJECTION",
+  "source_manifest": "../candidate-source-hashes.json",
+  "source_files_verified": 31,
+  "prompt_scope": "19 selected source files in the order below, followed by four sealed case prompts. All 31 manifest files were hash-verified. Cases share one model batch. No tools or task execution.",
+  "raw_prompt_sha256": "8fc2eaa6b5fdc760fde730a49eab0c2138c03fba30a8b6d007d4a564000d9a52",
+  "raw_artifacts_published": false,
+  "public_verdict_redaction": "Removed host thread identifier only. CLI receipt selects public fields; raw host paths and logs are excluded.",
+  "public_artifact_hashes": {
+    "H01.json": "9133dea955f10f95e87959307715b7d1b1e9ee01fc084cade160b147f589b302",
+    "H02.json": "153a0fa2399a6d1f5268ab67fffe73b0b4835c96542d382e779c26a4293110d5",
+    "H03.json": "df974d83b828904d47de7b32dcf2181ec18affd78195e1e11f2847cd71c8ae3c",
+    "H04.json": "03988204f416486738c587c097f2ea1d7e9d907a99a71f0f5b077bcf7dcfce9b",
+    "calibration.json": "47a258997a1f11b83f13060509e60fccc167cb6a39ad7fdc0922c1b5017d6658",
+    "manifest.json": "84b6cb16adf83d5c95fc355928a090475c9d2ead1de9418e6b1984702d9c1d49",
+    "output.json": "9c93eb876ac54e7e289e684ebf57fc6bc53a52a75e307953649b6588d1213e51",
+    "schema.json": "4b443bfc511bff17ab396077a5de461fc4f0ab2caef57fbde2272f34a8abd414",
+    "verdict.json": "f167d6f0bef9106c32b42a66a482d1e8573d62e1a589aa6e94b4ebae75bd9774"
+  },
+  "source_packet": [
+    {
+      "path": "adapters/bootstrap.md",
+      "sha256": "f9fe246e8bc49a7cfa100fab37d305e13f1a33d658c974994ab3ea14a4ecd04b"
+    },
+    {
+      "path": "skills/nobrainer-ultra/SKILL.md",
+      "sha256": "854fe2b3ff07594efd04ec1b3566af43e7248aea000e8b18f43a6eb51beaef86"
+    },
+    {
+      "path": "skills/nobrainer-build/SKILL.md",
+      "sha256": "744ed3bbf3fa79843f58bb9c9c4bfa4c60f4267fc0daa82b77552abc849f515e"
+    },
+    {
+      "path": "skills/nobrainer-sessions/SKILL.md",
+      "sha256": "967cfb8e4ab1eb35f9632d82124ec513f5196fbee976a15aa441b67855d4c610"
+    },
+    {
+      "path": "skills/nobrainer-dispatcher/SKILL.md",
+      "sha256": "0e48aecc273eaf6ac2ae0c8cacc7f40d139b5cd9366f80e0414cded4d50d4a7d"
+    },
+    {
+      "path": "skills/nobrainer-team/SKILL.md",
+      "sha256": "85d7c9af1a754ac189558d68e3005acf7645b4d5085a5f274a5a630347d6b071"
+    },
+    {
+      "path": "skills/nobrainer-spec-driven-development/SKILL.md",
+      "sha256": "a99ce3115055e561c093e3ac32566736222d68759a8fb5e1096abe88f7bb6bc8"
+    },
+    {
+      "path": "skills/nobrainer-wiki/SKILL.md",
+      "sha256": "925bb17109dfa12345f04e25c4d0a0f1fcaec7c8264a85a51e328a512041d2b9"
+    },
+    {
+      "path": "skills/nobrainer-writing/SKILL.md",
+      "sha256": "9795586d1e25729dffaf4233fca8ba769f42c251e5d56867da8c02b0a29d2111"
+    },
+    {
+      "path": "skills/nobrainer-ultra/references/routing.md",
+      "sha256": "1e529f1ce8c2aa5877d4928aad862e79ee70060b93601ffbe6665dc80120aa3e"
+    },
+    {
+      "path": "skills/nobrainer-ultra/references/model-routing.md",
+      "sha256": "be8a8354f54324e07c67e315cee4bcf7e094ba2ef81001c9406f55f83d0f4fc9"
+    },
+    {
+      "path": "skills/nobrainer-ultra/references/setup.md",
+      "sha256": "0076a787ff608f82e8fb1a635946e25cf3e074a2f6ac93b6620d36c52e096e9a"
+    },
+    {
+      "path": "skills/nobrainer-ultra/references/long-run-state.md",
+      "sha256": "cc8a7d4f6bbf4151fe65e755a4b4bbe6739b38568b029fc33a4b72ef7dfe6b6e"
+    },
+    {
+      "path": "skills/nobrainer-ultra/references/correction-hooks.md",
+      "sha256": "7a009de9fc42c01af131edc563ad0e9c80fea11c3490d0f63a97f58416fb0d97"
+    },
+    {
+      "path": "skills/nobrainer-sessions/references/protocol.md",
+      "sha256": "d89e27f7026649932fae3fcc6d4b92cc83a251288b869d814b1fa31f71d2ea3c"
+    },
+    {
+      "path": "skills/nobrainer-team/references/team-plan.md",
+      "sha256": "5f1e80743ee277d7cff6ef9415af5db403f69c1333e6c19b3089908b048c27e4"
+    },
+    {
+      "path": "skills/nobrainer-spec-driven-development/references/spec-template.md",
+      "sha256": "d81492c9db532eea9ae89573e733949347219d4729a1f759064df372b0f803ec"
+    },
+    {
+      "path": "skills/nobrainer-wiki/references/setup.md",
+      "sha256": "b3dd5080527fd07157430cae2b8ce106939caf5440f2f06cb76558ab5cf11291"
+    },
+    {
+      "path": "skills/nobrainer-writing/references/brief-artifacts.md",
+      "sha256": "cb3efa0b35f13415d0fae4eb56d403b50f321cc8907942d10d32a23c9926b13e"
+    }
+  ]
+}

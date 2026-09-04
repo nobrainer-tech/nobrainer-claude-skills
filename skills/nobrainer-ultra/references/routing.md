@@ -59,7 +59,9 @@ It orders work without duplicating the specification or wiki.
 For a skill, workflow, template or portfolio change, map README, compatibility and
 release docs, public templates and diagrams. Update each affected surface or record
 `PUBLIC_SURFACE: NOT_NEEDED` with a reason. Flow, contract or routing changes require
-fresh SVG and README Mermaid readback; do not regenerate unrelated assets.
+fresh readback of existing affected diagrams. Use SVG and README Mermaid when
+the project maintains them; otherwise record `NOT_NEEDED`. Do not create diagram
+formats or regenerate unrelated assets merely to satisfy this workflow.
 
 ### Spec-driven development
 
@@ -77,7 +79,10 @@ transient blockers and current hashes do not belong there.
 
 ### Team, dispatcher and sessions
 
-Use `nobrainer-team` to decide roles/capabilities, `nobrainer-dispatcher` to
+Use native subagents directly for simple independent units: exact returned ID,
+bounded prompt, disjoint scope, observable completion and artifact/test review.
+Do not turn a subtask into a new user-owned visible task unless requested.
+Use `nobrainer-team` to decide missing roles/capabilities, `nobrainer-dispatcher` to
 schedule an approved queue with multiple delegated units, and
 `nobrainer-sessions` to operate exact visible sessions. Prefer multi-session work
 for independent critical-path units, isolation, handoff, resume or a reused

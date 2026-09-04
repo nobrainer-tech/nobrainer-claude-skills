@@ -71,6 +71,11 @@ Record approval identity, UTC time, version and a stable content hash. Freeze
 that revision. A draft, an unbound hash, or approval from the implementer alone
 does not authorize risky work.
 
+Existing owner authorization counts: record the current task instruction when
+it already defines and authorizes the scope. Do not demand another approval for
+the same reversible implementation. Ask only for an unresolved product/risk
+choice or consequential effect outside that authority.
+
 ### `IMPLEMENTING`
 
 Derive bounded work units from the approved spec. The plan may describe order

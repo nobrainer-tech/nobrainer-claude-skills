@@ -21,28 +21,16 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The GitHub source channel is `DISTRIBUTED` for `v1.5.0`, the latest published
-source release. Its exact merge, tag, deterministic checks, secret scan and
-isolated installer readback are recorded in the [publication evidence](releases/v1.5.0-publication-readback.md).
-The current `main` documentation was aligned after tag creation through the
-post-release metadata PR recorded there; the tag remains pinned to its reviewed
-merge commit. `v1.4.0` remains the previous rollback source release, while
-`v1.3.1`, `v1.3.0` and `v1.2.1` remain older accepted rollback releases. GitHub's
-release API did not expose an immutability field in this readback and tag
-protection was not independently verified, so security-sensitive consumers
-should pin the reviewed full commit SHA. Source distribution does not prove
-that a client marketplace accepted, loaded or ran the package; the per-client
-rows remain `NOT_PUBLISHED` until that exact channel has an installation readback.
+The current source version is **1.6.0**. Its local validation and scoped runtime
+probes are recorded in [v1.6 evidence](releases/v1.6.0.md). The
+[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.6.0)
+is the publication authority; a version in a manifest alone is not distribution.
 
-The published `v1.3.1` source adds the `BRIEF` writing contract and
-surface-specific bug evidence. The source release is distributed and repository
-checked; client-specific runtime and marketplace levels remain separately
-evidence-scoped.
-
-The pre-publication `v1.5.0` candidate checkpoint remains available in
-[`docs/releases/v1.5.0.md`](releases/v1.5.0.md). The published source release
-and its distribution proof are in the [v1.5.0 publication readback](releases/v1.5.0-publication-readback.md);
-neither record upgrades the client rows below without client-specific evidence.
+The source channel was `DISTRIBUTED` for `v1.5.0`, with its exact historical
+merge, tag and installation in the [publication evidence](releases/v1.5.0-publication-readback.md).
+That record and [v1.3.1](releases/v1.3.1-publication-readback.md) remain rollback evidence. Pin a reviewed full
+commit SHA when immutability matters. Neither source publication nor an installed
+folder proves marketplace acceptance or model behavior.
 
 ## Model-neutral readiness
 
@@ -51,17 +39,16 @@ level. It means the portable policy can carry a selected model, effort, budget
 and escalation gate; it does not prove that a provider exposes or follows that
 policy.
 
-| Model family | Workflow posture | Direct runtime proof in this repository |
+| Model / family | Workflow posture | Runtime evidence |
 |---|---|---|
-| Astra | `WORKFLOW_READY`: model-neutral scope, budget and escalation contract | `NOT_VERIFIED`: OpenAI describes Astra as being prepared for release, and its current public API catalog does not list it |
-| Claude Fable 5.1 / Mythos 5.1 | `WORKFLOW_READY`: portable skills with explicit effort and escalation boundaries | `NOT_VERIFIED`: no clean-session transcript for either release |
-| Current Codex model catalog | `WORKFLOW_READY`: host-selected or explicitly routed model policy | `NOT_VERIFIED` per model variant; the client rows below remain the runtime source of truth |
+| GPT-6 Astra | `WORKFLOW_READY`: host-selected policy, optional native capabilities | Bounded v1.6 Codex behavioral probes; exact source and limits in the [release evidence](releases/v1.6.0.md) |
+| Other OpenAI models | Same portable instructions and policy | Only exact tested model IDs in the release evidence; no family-wide pass |
+| Claude models | Same portable instructions and policy | Historical explicit client evidence below; no automatic claim for a new model |
+| Other models / clients | Portable Markdown plus available tools | Unverified until tested in that host |
 
-The official Anthropic announcement uses the names Fable 5.1 and Mythos 5.1;
-`Claude 5.1` is a convenient family description, not the exact model name.
-See [OpenAI's Astra update](https://openai.com/index/path-to-astra/),
-[OpenAI's model catalog](https://developers.openai.com/api/docs/models) and
-[Anthropic's Fable 5.1/Mythos 5.1 announcement](https://www.anthropic.com/claude-fable-and-mythos-5-1).
+OpenAI [announced GPT-6 Astra](https://openai.com/index/gpt-6-astra/) on
+2026-09-03. Names and access change; inspect the host's actual model list rather
+than treating this document as a model catalogue. No provider is a dependency.
 
 `v1.0.0` remains a separately verified nine-skill rollback anchor with its own
 [publication readback](releases/v1.0.0.md).
@@ -74,7 +61,7 @@ The older client transcripts remain hash-scoped and do not silently upgrade to
 marketplace or automatic-routing claims. Both clients retain explicit-runtime
 evidence only; automatic routing and client publication remain unverified.
 
-## Current evidence
+## Adapter contracts and historical client evidence
 
 `REPOSITORY_CHECKED` below means deterministic repository tests passed. It does
 not mean the external client's parser accepted or loaded the package.
@@ -94,8 +81,9 @@ not mean the external client's parser accepted or loaded the package.
 | Antigravity and other plugin hosts | `SOURCE_VALIDATED` | no host-specific contract | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 | Generic Agent Skills consumers | `SOURCE_VALIDATED` | canonical folders only | `NOT_VERIFIED` | `NOT_VERIFIED` | `NOT_PUBLISHED` |
 
-The table describes the current repository source release, not private installations
-on a maintainer's machine. There is deliberately no blanket “works everywhere”
+Adapter checks apply to the current source. The client/runtime cells retain their
+recorded historical versions and hashes; they do not silently transfer to v1.6.
+Consult the v1.6 evidence for new probes. There is deliberately no blanket “works everywhere”
 badge: an unknown harness gets portable skill folders, then needs its own
 discovery/bootstrap proof before promotion.
 
@@ -134,7 +122,9 @@ host/configured policy rather than assuming universal limits. Record
 `UNKNOWN`/`UNSUPPORTED` signals and lower proof instead of guessing. Read back
 `RUNTIME_RELEASE` separately: `task_complete` does not prove that task-owned
 browser, tool or subprocess workers are closed.
-A configured warning checkpoints goal/TODO and prevents optional new workers or
+Missing optional telemetry does not block safe bounded work or artifact acceptance;
+it only limits the health claim. An explicitly required hard budget still needs
+reliable enforcement. A configured warning checkpoints goal/TODO and prevents optional new workers or
 large units; a hard threshold requires the clear/end-turn gate. Repository
 examples are not universal host limits.
 For resumable probes, persist one task-local Markdown `GOAL_FILE`. Before clear,

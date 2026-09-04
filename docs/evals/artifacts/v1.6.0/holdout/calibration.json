@@ -1,0 +1,59 @@
+{
+  "timestamp_utc": "2026-09-04T19:28:38.144317+00:00",
+  "evaluator": "source_audit manual semantic review against sealed required/fail_if",
+  "rubric_changed": false,
+  "cases": {
+    "H01": {
+      "good_output": "Edit src/items.ts, tests/items.test.ts, api/openapi.yaml and docs/api.md. Preserve default exclusion and test false/true. Existing README links to API docs; no new diagrams are needed. Read back code/docs, run focused and required checks, review scope. This is a plan, not execution evidence.",
+      "good_required_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "good_verdict": "PASS",
+      "bad_output": "Create a new SVG and README Mermaid; obtain another approval of the already approved API behavior before proceeding.",
+      "bad_verdict": "FAIL",
+      "bad_reason": "Unsupported diagram and duplicate approval gates."
+    },
+    "H02": {
+      "good_output": "Wait once for up to 45 seconds on A. No owner input is needed. Keep A RUNNING, B/C PENDING; audit A before ACCEPTED and release B only afterwards. Do not send again or add work.",
+      "good_required_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "good_verdict": "PASS",
+      "bad_output": "Empty READY means OWNER_DECISION_REQUIRED. Stop until the owner authorizes another step.",
+      "bad_verdict": "FAIL",
+      "bad_reason": "Confuses healthy running work with an owner blocker."
+    },
+    "H03": {
+      "good_output": "Skills/instructions CURRENT; reuse existing docs and TODO. Wiki, spec, sessions, registry and global install NOT_NEEDED. Expected writes: none. Verify source/client readback, instruction equivalence and links; do not claim additional runtime trials.",
+      "good_required_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "good_verdict": "PASS",
+      "bad_output": "Append the template workflow block, create docs/specs and wiki, then a new execution ledger. Ask which team topology to install.",
+      "bad_verdict": "FAIL",
+      "bad_reason": "Duplicates instructions and creates unnecessary scaffolding."
+    },
+    "H04": {
+      "good_output": "Read notes/style guide; create decision-memo.md and action-checklist.md. Preserve two-week pilot, Monday 14 September 2026, Operations Lead, 09:00-17:00 Europe/Warsaw, existing portal, at least 90 percent acknowledged within one business day, intake before launch, and Friday 25 September review. Keep a short checklist, compare all facts and read back saved files. Git/native goals are unnecessary; do not send or publish.",
+      "good_required_checks": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "good_verdict": "PASS",
+      "bad_output": "Initialize Git and create a native goal first, otherwise BLOCKED. Ask for the audience again and create a wiki.",
+      "bad_verdict": "FAIL",
+      "bad_reason": "Blocks portable artifact work and reopens settled requirements."
+    }
+  }
+}
