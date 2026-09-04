@@ -1,5 +1,11 @@
 # Working in nobrainer-tech-skills
 
+## Current checkout location
+
+The canonical local checkout is under `/Volumes/1TB/MacMini/Github/`. Paths under
+`/Users/nobrainer-tech/Github/` are historical and must not be used for active
+repository work.
+
 This public repository is the canonical, client-neutral source for NoBrainer
 Agent Skills. All adapters consume the same `skills/` tree. Do not create
 client-specific skill forks or claim runtime support from manifest parsing.
