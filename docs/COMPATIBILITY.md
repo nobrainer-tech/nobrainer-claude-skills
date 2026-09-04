@@ -128,6 +128,13 @@ For each client, record the exact client version, model, operating system,
 installation source and commit or release. Start with no project-specific rule
 that names NoBrainer. Preserve the complete transcript and use these probes:
 
+For a long-running probe, read back `SESSION_HEALTH_GATE` at `START`,
+`AFTER_COMPACTION`, `MATERIAL_TRANSITION` and `BEFORE_CLOSEOUT`, using the
+host/configured policy rather than assuming universal limits. Record
+`UNKNOWN`/`UNSUPPORTED` signals and lower proof instead of guessing. Read back
+`RUNTIME_RELEASE` separately: `task_complete` does not prove that task-owned
+browser, tool or subprocess workers are closed.
+
 ### Automatic routing
 
 The portable `ROUTED` policy describes how a plan may select an advertised
@@ -207,6 +214,9 @@ PROMPT:
 SKILL_DISCOVERED:
 FIRST_WRITE_BEFORE_GATE: YES | NO
 RESULT: PASS | FAIL | BLOCKED
+SESSION_HEALTH_GATE:
+RUNTIME_RELEASE:
+OWNED_WORKER_READBACK:
 EVIDENCE_PATH:
 ```
 

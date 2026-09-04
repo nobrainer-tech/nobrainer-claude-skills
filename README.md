@@ -26,10 +26,11 @@ most one focused requirements round, scopes the minimum complete change, shows
 one short Progress checklist and drives approved work until verified delivery or
 a real owner gate. Small reversible edits without a public contract, routing,
 workflow or portfolio change take a quick path; other changes use the full path so
-docs, README and diagrams stay aligned. Detailed state and specialists appear only
-when they earn their coordination cost.
+docs, README and diagrams stay aligned. Every turn is bounded by a portable
+health gate, and runtime release is read back separately from task completion.
+Detailed state and specialists appear only when they earn their coordination cost.
 
-![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, minimum scope, bounded build, review, verification, delivery and learning](assets/nobrainer-workflow.svg)
+![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, bounded turns, separate runtime-release readback, verified delivery and learning](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
 
@@ -50,7 +51,7 @@ flowchart TD
     J -->|no| K[VERIFY + report]
     K --> T[LEARN + CLOSE]
     I --> L{Resume, dependencies or recovery need a ledger?}
-    L -->|yes| M[Durable identity, checkpoints and rollback]
+    L -->|yes| M[Durable identity, bounded turns, checkpoints and rollback]
     L -->|no| N[Keep ordinary work lightweight]
     M --> O{Ready and authorized?}
     N --> O
@@ -69,7 +70,9 @@ flowchart TD
     X -->|no| Z{Evidence current?}
     Y --> Z
     Z -->|no| P
-    Z -->|yes| T
+    Z -->|yes| AA{RUNTIME_RELEASE readback?}
+    AA -->|no| P
+    AA -->|yes| T
 ```
 
 ## Astra Ready Flow for current model fleets
@@ -134,6 +137,10 @@ The two execution axes stay independent:
 CONTROL_MODE: BUDDY -> AUTOPILOT
 SESSION_MODE: MAIN | MULTI_SESSION
 ```
+
+`SESSION_HEALTH_GATE` bounds each turn at start, after compaction, at material
+transitions and before closeout. `RUNTIME_RELEASE` is a separate readback of
+task-owned workers; a completed outcome does not prove a clean runtime.
 
 Autopilot can run in one MAIN session. A multi-session plan is not automatically
 autonomous. This keeps the workflow understandable and avoids agent theatre.

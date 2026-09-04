@@ -49,6 +49,16 @@ Before reuse or dispatch, bind the target in the session registry:
 Unknown, ambiguous, stale, or title-only identity is a stop condition. A
 submission is not delivery; record `SENT` only with transport readback.
 
+## Bounded turns and runtime release
+
+A goal may span turns, but each turn/session is bounded. Run
+`SESSION_HEALTH_GATE` at `START`, `AFTER_COMPACTION`, `MATERIAL_TRANSITION` and
+`BEFORE_CLOSEOUT` using host/configured signals such as turn age, history size,
+compactions, cost/tokens and owned workers. `UNKNOWN` or `UNSUPPORTED` lowers
+runtime proof; a limit means checkpoint, compact handoff and `END_TURN`, with
+owner approval required before rotation. `task_complete` is not
+`RUNTIME_RELEASE`; require owned-worker readback where the host supports it.
+
 ## Modes
 
 - `setup`: reconcile an existing registry, name MAIN, and create only the next
@@ -137,6 +147,8 @@ Return exactly one audited result to `nobrainer-dispatcher`, or to
   preserve state and stop;
 - owner decision or irreversible action: ask for one explicit decision;
 - no remaining task: report closure eligibility; do not manufacture a successor.
+  If no legal `READY` row remains because all work is blocked or owner-gated,
+  checkpoint and return `OWNER_DECISION_REQUIRED`.
 
 Retries require new evidence or a changed condition. Preserve a stable blocker
 fingerprint, attempt number, recovery owner, retry budget, checkpoint, rollback,
