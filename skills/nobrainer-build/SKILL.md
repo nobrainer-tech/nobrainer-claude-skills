@@ -12,6 +12,11 @@ independent close gate to `nobrainer-review`.
 
 ## Start gate
 
+Use the actual task workspace, including an ordinary folder without Git. Repository,
+branch, commit and build fields are `NOT_APPLICABLE` when absent; do not initialize
+Git or request a repository merely to deliver an artifact. Verify documents through
+their source facts, acceptance and content/rendered readback.
+
 Before the first write, resolve:
 
 - observable outcome and acceptance IDs or checks;

@@ -61,10 +61,12 @@ SESSION_POLICY: <policy reference or NONE>
 LAST_HEALTH_READBACK: <event, result, evidence pointer>
 ```
 
-The host-native goal is a mirror and control handle, not the source of truth.
+The Markdown goal works without any native goal API. A host-native goal is an
+optional mirror and control handle, used only when available and authorized by
+the host's tool rules; never create it merely because this reference was loaded.
 After session start, compaction or a verified clear, read `GOAL_FILE` from disk,
 verify `GOAL_ID`, repository, checkout, HEAD/dirty state, status and evidence,
-then reconcile the native goal and continue only from `NEXT_SAFE_ACTION`. A
+then reconcile any native goal actually used and continue from `NEXT_SAFE_ACTION`. A
 transcript summary, cached plan or native goal never overrides newer file state.
 The same file owns the outcome-level TODO rows; health gates may checkpoint them
 but cannot mark work complete. On every material transition, update the current
@@ -111,7 +113,11 @@ SIGNALS: <turn age, history size, compactions, cost/tokens, owned workers>
 ```
 
 Each signal is a readback value, `UNKNOWN`, `UNSUPPORTED`, or `NONE` when no
-limit is configured. Missing expected telemetry is not `HEALTHY`. The gate
+limit is configured. Missing expected telemetry is not `HEALTHY`. Missing optional
+telemetry lowers that proof claim but does not block safe work: use bounded work
+units and the Markdown checkpoint. An explicitly required hard budget that cannot
+be measured or enforced blocks only the work depending on that guarantee; report
+the missing capability instead of claiming the cap holds. The gate
 result is `HEALTHY | WARNING | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED`. A
 warning checkpoints the goal/TODO and stops starting optional workers or large
 new units while continuing the safe current unit. A hard limit means persist `GOAL_FILE`,
@@ -134,13 +140,19 @@ Where the host can read back task-owned browser, tool or subprocess workers,
 `NOT_RELEASED`; missing or unsupported readback lowers runtime proof and never
 supports a clean-runtime claim.
 
-If every remaining row is `BLOCKED` or owner-gated and no legal `READY` row
-exists, checkpoint and end with `OWNER_DECISION_REQUIRED`; never invent work to
-keep a goal active.
+An empty ready set is not itself a blocker. If work is `RUNNING`, wait for its
+bounded result; if `REPORTED`, audit it; if all acceptance is met, finish. If all
+unfinished work is blocked, record the blocker, owner and next unblock step;
+use `OWNER_DECISION_REQUIRED` only when an actual owner decision is needed.
+Do not invent work to keep a goal active.
 
 ## Team, queue and transport
 
-Use one primary MAIN session. Before assigning any worker:
+Use one primary MAIN session. A native subagent with a returned ID, bounded task,
+disjoint write scope and observable completion needs no new visible task or
+persistent session registry. Audit its artifact and termination before integration.
+Use a durable session only when visibility, reuse, isolation or handoff needs it.
+For a persistent delegated queue:
 
 1. `nobrainer-team` proves the minimum roster and bounded work units.
 2. If several delegated units form a queue, `nobrainer-dispatcher` computes the

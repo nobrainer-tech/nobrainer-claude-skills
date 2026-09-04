@@ -1,0 +1,1 @@
+{"type": "object", "properties": {"H01": {"type": "string"}, "H02": {"type": "string"}, "H03": {"type": "string"}, "H04": {"type": "string"}}, "required": ["H01", "H02", "H03", "H04"], "additionalProperties": false}

@@ -1,47 +1,41 @@
 ---
 name: nobrainer-ultra
-description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one non-trivial task from brief requirements through concise progress, bounded execution, recovery and evidence audit, or set up or repair that workflow."
+description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; complete coding or non-coding tasks with brief clarification, concise progress, bounded execution and verification, or set up or repair that workflow."
 ---
 
 # NoBrainer Ultra
 
 Deliver the smallest verified outcome; surface scope, proof and blockers.
 
-Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods; setup, upgrade, installation or repair also require [references/setup.md](references/setup.md).
+Small tasks use the quick path below without loading companion skills. For non-trivial work read [references/routing.md](references/routing.md). Keep the host-selected model and default effort; read [references/model-routing.md](references/model-routing.md) only when choosing models, effort or budgets. Setup, upgrade, installation or repair also require [references/setup.md](references/setup.md).
 Read [references/correction-hooks.md](references/correction-hooks.md) after owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
 
 ## Choose the smallest workflow
 
 ### Quick path for small changes
 
-Use one coherent, reversible edit with acceptance and no authentication, secrets,
-data/production mutation, external effect, architecture, migration or dependency
-decision. Public contract, routing, workflow or portfolio changes use full
-lifecycle and coherence gate.
-
-1. Inspect the actual checkout, instructions, dirty state and nearest caller/test.
-2. Edit only scoped files; run the nearest deterministic check and `git diff --check`.
-3. Read back diff/status; report outcome, proof, uncertainty and rollback.
-
-Skip requirements, ledger, team/dispatcher/sessions and independent review;
-escalate to the full Ultra lifecycle when scope, risk, proof or owner decision expands;
-quick path never bypasses an owner gate.
+For a clear low-risk answer, rewrite, calculation or one coherent, reversible edit,
+deliver and check the result directly. Chat-only work needs no repository or tools.
+For file edits inspect instructions, actual files and the nearest deterministic check;
+use checkout, dirty-state and `git diff --check` only in a Git repository.
+Skip requirements, ledger, team/dispatcher/sessions and independent review.
+Escalate to the full Ultra lifecycle for ambiguity, architecture, public behavior,
+workflow/routing changes or consequential side effects; quick path never bypasses
+an owner gate. A wording-only correction does not itself change a public contract.
 
 Default to one agent; add workers only when latency, isolation or judgment earns
 their cost.
 
 Lifecycle: `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal controls.
 
-Bounded turns: run `SESSION_HEALTH_GATE` at START, AFTER_COMPACTION,
-MATERIAL_TRANSITION and BEFORE_CLOSEOUT. `WARNING` checkpoints and restricts
-dispatch; a hard limit persists the durable goal, writes a compact handoff, then
-uses a verified host clear or `END_TURN`; automatic
-rotation is forbidden. `task_complete` is not `RUNTIME_RELEASE`. No legal
-`READY` row means checkpoint + `OWNER_DECISION_REQUIRED`.
+For resumable or delegated work use `SESSION_HEALTH_GATE` and `RUNTIME_RELEASE`
+from the long-run reference. Optional telemetry is not an execution prerequisite.
+Finish when acceptance is met; wait or audit when workers are in flight. Use
+`OWNER_DECISION_REQUIRED` only when unfinished work needs an owner decision.
 
 ## `DRIFT_CHECK`: establish current truth
 
-Read root, instructions, dirty state, branch/worktree, plan/spec, callers, tests, runtime and capabilities; preserve unrelated work. Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
+Inspect the actual inputs, instructions and required capabilities; for project work include dirty state, callers, tests and existing plan/spec. Preserve unrelated work. Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
 Research current, external, niche, uncertain, high-stakes or attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges; respect context budget and name unread required surface.
 
 `PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that a documented command produced the failure. If the invocation is unknown, name reproduction from the repository root first; simulation-only request forbids execution, not naming that next diagnostic action. Only then propose path, dependency or configuration changes. Check related wiki decisions. Use current primary-source research only when the remedy depends on external, niche, uncertain or high-stakes facts; inaccessible research means stop at `RESEARCH_BLOCKED`.
@@ -50,7 +44,8 @@ Research current, external, niche, uncertain, high-stakes or attributed facts. F
 
 Use one focused requirements round only when evidence cannot resolve scope,
 architecture, safety or acceptance. Code, schema, tests or conventions settle it;
-do not make them owner questions. Establish:
+do not make them owner questions. Ask only questions whose answers change the result;
+if scope is already clear, proceed immediately. Establish:
 
 - observable outcome, audience and quality bar;
 - target-workflow proof;
@@ -64,8 +59,7 @@ public behavior, migration, rollback, dependent phases or resumability.
 
 ## Scope the minimum sufficient change
 
-Before the first non-trivial write, resolve this compact contract. Keep it in the
-canonical plan; show only fields the owner needs to inspect.
+Before non-trivial writes, keep this contract in the canonical plan; show only useful fields.
 
 ```text
 Outcome:
@@ -78,33 +72,33 @@ Test decision: EXISTING | NEW_REQUIRED | NOT_NEEDED — reason
 Done clean:
 ```
 
-`Outcome` is the portable goal; `Proof` plus `Done clean` are the definition of done. `Expected files`
-predict scope; `Untouched` protects compatibility; update scope before expanding.
-`Done clean` requires matching scope, passing proof, no placeholders or surprises;
-excluded inspection stays provisional.
-`PUBLIC_SURFACE` is mandatory: set `UPDATE` and map affected README/docs/templates/assets/flow, or set `PUBLIC_SURFACE: NOT_NEEDED` with a reason; public contract, routing or workflow changes require fresh SVG + README Mermaid readback.
+`Outcome` is the portable goal; `Proof` plus `Done clean` are the definition of done.
+Update scope before expanding; require matching files, passing proof and no surprises.
+`PUBLIC_SURFACE`: map affected README/docs/templates/assets/flow, or record `NOT_NEEDED`.
+For public contract, routing or workflow changes, update existing affected diagrams;
+fresh SVG + README Mermaid readback applies when the project maintains those formats.
+Do not create diagrams merely to satisfy a workflow gate.
 When the owner requests goal/DoD, show every field above and state the detailed-ledger decision.
 For work that passes the detailed-ledger gate, persist the goal in an existing
 Markdown tracker or task-local Markdown `GOAL_FILE`; it is canonical across clears,
-compactions and sessions. Mirror it into a host-native goal after scope freezes
-and require goal readback from both. The file supersedes stale transcript text.
+compactions and sessions. A host-native goal is optional: use it only when available
+and authorized under that tool's rules. Require goal readback only from stores actually
+used; the file alone is sufficient and supersedes stale transcript text.
 Default to at most 160 words: outcome, scope, Progress, proof and next action.
 Do not add a repetitive
 skill/mode preamble or planning claim; avoid mechanism lists and invent unseen
 schemas, endpoints, state machines, storage or polling; name required
 boundaries/proof and mark exact paths/methods pending inspection.
 
-Do not add a dependency, compatibility layer, fallback stack, worker, skill or
-test without an acceptance need or demonstrated risk. A shared abstraction needs
-two real current callers or an explicit contract; a future caller is
-not enough.
+New dependencies, abstractions, workers, skills and tests need an acceptance reason.
+A shared abstraction needs two real current callers or an explicit contract.
 
 Use a short plan ordered by outcomes. One canonical TODO owner may be the host
 plan, repository tracker or current response.
 
 ## Show human progress
 
-For ordinary single-session work, show only a compact update:
+For ordinary single-session work, show a compact update:
 
 ```text
 Progress
@@ -114,14 +108,14 @@ Progress
 Next: open the named caller and its existing test
 ```
 
-Update it after scope is frozen, at a material transition, blocker, safety gate,
-new evidence and closeout. Run tools without announcing the next command when
+Update after scope is frozen, at transitions, blockers, new evidence and closeout.
+Run tools without announcing the next command when
 the host permits; otherwise emit its shortest useful scope or evidence sentence.
 Never repeat the plan, unchanged state or already reported proof. Preserve exact
 commands, errors, numbers and negations; expand when brevity risks ambiguity.
 Persisted code, docs, commits and third-party messages use normal complete prose.
-The checklist views the canonical TODO; worker reports, exit codes and summaries
-cannot advance it. A stale summary never authorizes a successor.
+The checklist views the canonical TODO; accept evidence, not worker reports.
+A stale summary never authorizes a successor.
 Use a detailed ledger only when at least one condition is true:
 
 - work crosses sessions or must resume safely after context loss;
@@ -136,9 +130,11 @@ owner-facing Progress checklist concise.
 
 ## Readiness and method routing
 
-Proceed only when state, scope, dependencies, proof, rollback, gates and capability are known; unknown identity, overlap, stale input, missing verifier or ambiguous irreversible effect blocks writing.
+Proceed when required inputs, authority and proof are available; unknown write ownership,
+stale input or ambiguous irreversible effects block the affected action. Missing optional
+goals, telemetry or subagents does not block safe work; use ordinary files or MAIN.
 
-Choose the least complex capable method; route implementation through `nobrainer-build`.
+Choose the least complex capable method; route non-trivial implementation through `nobrainer-build`.
 When another skill owns a stage, load its canonical body and required references before
 planning. Loading method context is not task execution; a routing-table line or remembered
 summary is insufficient. Load specialists only:
@@ -149,12 +145,8 @@ summary is insufficient. Load specialists only:
 - `nobrainer-browser` for rendered behavior or trace evidence;
 - `nobrainer-rca` after repeated or causally unclear failure;
 - `nobrainer-review` when independent closeout adds material confidence;
-- `nobrainer-team`, `nobrainer-dispatcher` and `nobrainer-sessions` only for
-  justified roles, a real delegated queue and exact transport/identity.
-
-Do not add Research for a stable locally testable fact, SDD for an explicit
-single-session change, Review for a mechanical typo, or a worker for work the
-primary agent can complete coherently.
+- `nobrainer-team` for capability gaps; native subagents for bounded independent work;
+  `nobrainer-dispatcher` for a real queue and `nobrainer-sessions` for durable visible sessions.
 
 ## `AUTOPILOT`: execute the bounded scope
 
@@ -168,12 +160,11 @@ contact people, change credentials, migrate data, mutate production or weaken
 safety controls remain explicit gates unless the owner already authorized that
 exact action.
 
-Retry only when evidence or a condition changes and within a declared budget.
+Default to at most two corrective attempts per observed failure, each supported by
+new evidence. Then diagnose or report the blocker; do not restart the same loop.
+Use a smaller owner-supplied budget. Stop adding work once acceptance passes.
 A timeout, partial result, dead session, failed check or exhausted retry is not
 completion.
-
-Specialist schemas are audit inputs. Report outcome, evidence, uncertainty and
-next action. Do not dump forms.
 
 ## `VERIFY` and `RECEIVE_AUDIT`
 
@@ -181,10 +172,10 @@ Prove every acceptance item at its actual layer. Static validation, local
 runtime, deployed runtime, production behavior, external delivery and user
 usefulness are different evidence levels.
 
-For delegated work, use `nobrainer-sessions` `RECEIVE_AUDIT`. Bind the
-report to the exact session, host, checkout, commit, work unit, diff, proof and
-released writer state. If Dispatcher owns a queue, return the audited result to
-its reconcile mode before releasing dependencies.
+Audit native-worker output against its exact returned ID, assigned scope, current
+artifact and tests; verify it has stopped writing. Durable sessions use
+`nobrainer-sessions` `RECEIVE_AUDIT`. If Dispatcher owns a queue, reconcile the
+audited result before releasing dependencies. A finished report is not proof.
 
 Invoke `nobrainer-review` for a justified adversarial or release closeout.
 A verified finding returns to `nobrainer-build`; changed work invalidates old
@@ -201,17 +192,14 @@ Apply corrections immediately:
   prevention candidate under the configured learning policy.
 - `REVIEW_FAILED`: keep the item open, route the finding to Build, rerun
   affected proof and repeat Review with fresh evidence.
-- `CANDIDATE_REJECTED`: preserve the champion, close that experiment rather than
-  the owner outcome, then try one smallest high-leverage change against a fresh holdout or report the concrete blocker.
+- `CANDIDATE_REJECTED`: preserve the champion and close that experiment. Continue only
+  if owner acceptance is still unmet and a bounded next attempt is justified.
 - `REPEATED_DEFECT`: stop blind retries and route the frozen failure to RCA.
 Detailed canonical-store rules live in the correction-hooks reference.
 ## `LEARN` and close
 
-Discard transient state. Persist only durable,
-sourced, authorized and non-secret knowledge. Route a repeatable behavior gap to
-`nobrainer-autoimprove` only with a frozen baseline, calibrated evaluator
-outside candidate write scope and sealed holdout; a null result is valid.
-Lead the final response with the delivered outcome. Include changed scope,
-fresh checks and proof layer, unresolved uncertainty, rollback, owner gate if
-any, and one next action. Do not repeat internal forms or invent follow-up work
-after acceptance.
+Persist only durable, sourced, authorized and non-secret knowledge.
+Use `nobrainer-autoimprove` only with a frozen baseline, calibrated evaluator
+outside candidate write scope and a fresh holdout; a null result is valid.
+Final: delivered outcome, decisive proof, uncertainty and recovery if needed.
+Do not dump internal forms or invent follow-up work after acceptance.

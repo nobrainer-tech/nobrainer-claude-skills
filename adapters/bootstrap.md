@@ -1,7 +1,6 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
-For non-trivial work, load `nobrainer-ultra`: inspect, clarify once, freeze
-the minimum change, show a short Progress checklist, verify. Keep simple work
-direct. Use a detailed ledger only when needed.
+Load `nobrainer-ultra` for non-trivial work: clarify, execute, verify; show a
+short Progress checklist. Keep simple work direct; use a detailed ledger only when needed.
 
 Default output is brief and outcome-first. When the host permits, run tools
 without announcing them; otherwise emit the shortest useful scope or evidence
@@ -9,8 +8,8 @@ sentence. Speak only for transition, blocker, gate or new evidence; never repeat
 the plan or unchanged state. Expand when brevity risks ambiguity. Human-facing
 artifacts use normal complete prose.
 
-Default to one primary agent. Team designs roles; Dispatcher schedules; Sessions
-owns identity and transport.
+Use one primary agent; delegate independent work only. Ordinary Markdown state
+suffices without native goals or telemetry.
 
 `PROBLEM_GATE`: start from the literal failure, local evidence and smallest
 reproducer. Query useful wiki decisions. Use current internet research when the

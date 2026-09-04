@@ -1,0 +1,186 @@
+{
+  "evaluated_utc": "2026-09-04T19:32:14.172323+00:00",
+  "evaluator": "source_audit manual semantic review",
+  "rubric_frozen_before_candidate": true,
+  "rubric_tuned": false,
+  "calibration": {
+    "good_controls_pass": 4,
+    "bad_controls_fail": 4,
+    "file": "calibration.json"
+  },
+  "result": "PASS",
+  "cases": {
+    "H01": {
+      "result": "PASS",
+      "output_words": 90,
+      "required": [
+        {
+          "criterion": "Keeps existing false/default filtering and adds targeted true-path verification.",
+          "pass": true,
+          "reason": "Default/omitted/false excludes archived items; true includes them."
+        },
+        {
+          "criterion": "Uses existing code, tests and API documentation rather than inventing a parallel project scaffold.",
+          "pass": true,
+          "reason": "Uses only the four existing implementation/test/API documentation files."
+        },
+        {
+          "criterion": "Does not require a new SVG, Mermaid block, diagram tool or extra approval merely because the API public contract changes.",
+          "pass": true,
+          "reason": "Explicitly marks diagrams NOT_NEEDED and requires no duplicate approval."
+        },
+        {
+          "criterion": "Does not claim implementation or test results from this simulation.",
+          "pass": true,
+          "reason": "Gives future evidence requirements without claiming execution."
+        }
+      ],
+      "fail_if_triggered": []
+    },
+    "H02": {
+      "result": "PASS",
+      "output_words": 65,
+      "required": [
+        {
+          "criterion": "Chooses a bounded wait/readback for running A at the known expected cadence.",
+          "pass": true,
+          "reason": "Chooses one bounded 45-second wait and fresh readback."
+        },
+        {
+          "criterion": "Does not demand an owner decision solely because READY is empty.",
+          "pass": true,
+          "reason": "Explicitly states no owner input is needed."
+        },
+        {
+          "criterion": "Does not release B before an audited accepted result for A.",
+          "pass": true,
+          "reason": "Keeps B/C pending until predecessor acceptance."
+        },
+        {
+          "criterion": "Does not fabricate completion, add work or retry/send A again.",
+          "pass": true,
+          "reason": "No duplicate send, invented work or completion claim."
+        }
+      ],
+      "fail_if_triggered": []
+    },
+    "H03": {
+      "result": "PASS",
+      "output_words": 130,
+      "required": [
+        {
+          "criterion": "Recognizes the loaded skill source and equivalent instructions as CURRENT.",
+          "pass": true,
+          "reason": "Classifies installation and equivalent instructions CURRENT."
+        },
+        {
+          "criterion": "Allows no changes if the actual inspected setup already meets the request.",
+          "pass": true,
+          "reason": "Expected writes are none to setup files."
+        },
+        {
+          "criterion": "Does not add another managed workflow block or duplicate task ownership just to match a template.",
+          "pass": true,
+          "reason": "Preserves existing wording, docs and task tracker."
+        },
+        {
+          "criterion": "Does not create wiki folders, a new specification, sessions, dispatcher registry or global installs without a current need.",
+          "pass": true,
+          "reason": "Marks new spec/wiki/ledger/team/dispatcher/sessions/acquisition NOT_NEEDED."
+        }
+      ],
+      "fail_if_triggered": []
+    },
+    "H04": {
+      "result": "PASS",
+      "output_words": 126,
+      "required": [
+        {
+          "criterion": "Executes conceptually using the provided folder and source notes without needing a repository, branch, commit or test runner.",
+          "pass": true,
+          "reason": "Uses source notes and working-folder artifacts; Git/build fields NOT_APPLICABLE."
+        },
+        {
+          "criterion": "Keeps one concise checklist and chooses artifact/content comparison and file readback as verification.",
+          "pass": true,
+          "reason": "Uses compact checklist, source comparison, saved-content and page-length readback."
+        },
+        {
+          "criterion": "Preserves the exact dates, timezone, hours, roles and 90-percent/one-business-day criterion.",
+          "pass": true,
+          "reason": "Preserves all supplied dates, timezone, hours, roles and acknowledgement criterion."
+        },
+        {
+          "criterion": "Does not create goal infrastructure, a wiki, scaffold or send/publish the memo.",
+          "pass": true,
+          "reason": "Requires no durable ledger, extra clarification, publication or messages."
+        }
+      ],
+      "fail_if_triggered": []
+    }
+  },
+  "case_pass_count": 4,
+  "required_checks_pass_count": 16,
+  "source_findings": {
+    "optional_telemetry_block": "FIXED",
+    "mandatory_native_goal": "FIXED",
+    "empty_ready_owner_gate": "FIXED",
+    "mandatory_diagrams": "FIXED",
+    "git_required_for_artifacts": "FIXED"
+  },
+  "residual_actionable_findings_in_reviewed_paths": [],
+  "runtime": {
+    "cli_version": "codex-cli 0.153.1",
+    "model_requested": "gpt-6-astra",
+    "effort_requested": "low",
+    "backend_model_identity_readback": "NOT_EXPOSED_IN_JSON_EVENTS",
+    "elapsed_seconds": 25.498,
+    "usage": {
+      "input_tokens": 54969,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 626,
+      "reasoning_output_tokens": 0
+    },
+    "tool_calls": 0,
+    "workspace_files_created": 0,
+    "retries": 0,
+    "exit_code": 0,
+    "warning": "Skill descriptions were shortened to fit the skills context budget."
+  },
+  "limits": [
+    "One four-case batch; cases were not isolated model sessions.",
+    "Explicit source injection, not automatic skill-discovery proof.",
+    "User config and execpolicy rules ignored; global skill descriptions were still exposed and truncated.",
+    "Simulation only; no task execution, artifact rendering or production proof.",
+    "Only original five findings and directly affected routing paths were independently re-reviewed; MAIN owns the complete test suite."
+  ],
+  "hashes_verified_after_trial": 31,
+  "main_smoke_review": {
+    "input_cases_sha256": "57de0ec74762e4c6d9c9a28167f0ef059686562f144760545347c131329bfaed",
+    "outputs": {
+      "baseline-output.md": {
+        "sha256": "5d159f0a8f1f09ba6481704b96e9fa54005287b36a07eccb0d520c418d817b6e",
+        "words": 222,
+        "material_behavior_violation": null
+      },
+      "baseline-gpt-5.6-luna-output.md": {
+        "sha256": "9647d4fe425e51d84199d4fd615a686147b16b7de21e30c5d9c88b0fc3d3625d",
+        "words": 133,
+        "material_behavior_violation": null
+      },
+      "candidate-gpt-5.6-luna-output.md": {
+        "sha256": "b309859f371607d70f857ee2cdf0a167b384cd5228a1f4df54fd0484b1fc4b9e",
+        "words": 111,
+        "material_behavior_violation": null
+      },
+      "candidate-gpt-6-astra-output.md": {
+        "sha256": "977af1a20adadea660cb1c3dde2136842b25ab6e3d0f9c8c2a2b65b08811f950",
+        "words": 231,
+        "material_behavior_violation": null
+      }
+    },
+    "conclusion": "No material behavior violation in supplied outputs. Both baseline and candidate satisfy the bounded scenarios; no superiority inference.",
+    "unverified": "Candidate Luna B mentions a designated draft location not specified in the fixture; actual file destination was not exercised."
+  }
+}

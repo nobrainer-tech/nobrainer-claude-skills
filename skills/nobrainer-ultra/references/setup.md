@@ -20,6 +20,21 @@ capabilities. Classify each component:
 Do not create SDD, a wiki, session registry, lease or adapter merely because a
 template exists.
 
+Use the smallest existing structure:
+
+| Need | Artifact decision |
+|---|---|
+| One clear answer or edit | No new workflow files |
+| Several steps in one session | Existing TODO or inline checklist |
+| Safe resume after interruption | One existing tracker or task-local Markdown goal |
+| Public contract, migration or dependent phases | Existing spec/ADR; a small new spec only if missing |
+| Reusable decisions across tasks | Existing docs/wiki first; add an index only when retrieval needs it |
+
+Reuse Spec Kit or another maintained project workflow when already present;
+do not install a framework just to use SDD. TDD is useful when a reliable failing
+test can expose changed behavior; use existing tests or direct artifact readback
+for changes where a new test adds no evidence.
+
 Choose and record `LEARNING_WRITE_POLICY: AUTO_SCOPED | ASK | OFF` for the
 project. Use `AUTO_SCOPED` only with explicit standing owner authorization and a
 resolved project-local wiki/instruction boundary. It never grants commit, push,

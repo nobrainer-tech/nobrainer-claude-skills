@@ -79,7 +79,9 @@ Use `HOST_CLEAR` only with capability and completion readback; otherwise use
 disk and reconciles goal identity, checkout and evidence before work. Never
 create a successor session automatically. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
 requires readback that task-owned workers are closed where that capability
-exists. If no legal `READY` row remains, use `OWNER_DECISION_REQUIRED`.
+exists. If no legal `READY` row remains, wait for `RUNNING`, audit `REPORTED`,
+or finish accepted work. Only blocked unfinished work needs an unblock action;
+`OWNER_DECISION_REQUIRED` requires an actual owner decision.
 
 ## Delegating prompt
 
@@ -233,7 +235,9 @@ MAIN verifies from independent readback:
 4. frozen inputs, exact context source/hash/readback, start manifest and close evidence;
 5. reproducible test, verifier, build/runtime and quality evidence;
 6. `SESSION_HEALTH_GATE` is recorded for required events; `UNKNOWN` or
-   `UNSUPPORTED` blocks advancement, `WARNING` restricts dispatch, and a
+   `UNSUPPORTED` lowers health proof but missing optional telemetry does not
+   block safe work. Missing enforcement of an explicitly required hard budget
+   blocks the dependent action. `WARNING` restricts dispatch, and a
    `ROTATE_REQUIRED` checkpoint ends the turn;
 7. `RUNTIME_RELEASE` is independently read back; `NOT_RELEASED` or active
    owned workers blocks a clean-release claim;

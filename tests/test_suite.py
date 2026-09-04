@@ -850,7 +850,7 @@ class SuiteTests(unittest.TestCase):
             "nobrainer-dispatcher",
             "nobrainer-sessions",
             "MAIN",
-            "2-4",
+            "one useful worker",
             "untrusted",
         ):
             self.assertIn(term, text)
@@ -1912,6 +1912,29 @@ class SuiteTests(unittest.TestCase):
                 for brand in validate_skills.EXTERNAL_WORKFLOW_BRANDS:
                     self.assertNotIn(brand, text)
 
+    def test_review_attribution_does_not_disable_operational_or_public_value_gates(self) -> None:
+        review = ROOT / "docs" / "reviews" / "v1.6.0-review.md"
+        adapter = ROOT / "adapters" / "bootstrap.md"
+        original_read = Path.read_text
+        brand = validate_skills.EXTERNAL_WORKFLOW_BRANDS[-1]
+        for path, payload, expected_error in (
+            (review, brand, None),
+            (review.with_suffix(".py"), brand, "external workflow branding"),
+            (review.with_suffix(".json"), brand, "external workflow branding"),
+            (review.parent / "nested" / "review.md", brand, "external workflow branding"),
+            (adapter, brand, "external workflow branding"),
+            (review, validate_skills.PUBLIC_FORBIDDEN[0], "forbidden public value"),
+        ):
+            with self.subTest(path=path, expected=expected_error):
+                def read(candidate, *args, **kwargs):
+                    return payload if candidate == path else original_read(candidate, *args, **kwargs)
+                with mock.patch.object(validate_skills, "public_text_files", return_value=[path]), mock.patch.object(Path, "read_text", read):
+                    errors = validate_skills.validate(suite_only=True)
+                if expected_error:
+                    self.assertTrue(any(expected_error in error for error in errors), errors)
+                else:
+                    self.assertEqual([], errors)
+
     def test_sessions_fail_closed_contract(self) -> None:
         text = (SKILLS / "nobrainer-sessions" / "SKILL.md").read_text(encoding="utf-8")
         for term in (
@@ -2131,8 +2154,8 @@ class SuiteTests(unittest.TestCase):
         )
         wiki = (SKILLS / "nobrainer-wiki" / "SKILL.md").read_text(encoding="utf-8")
 
-        self.assertIn("Continuous improvement beats delayed perfection", readme)
-        self.assertIn("A small task stays small", readme)
+        self.assertIn("bounded corrective attempts", readme)
+        self.assertIn("A quick answer stays a quick answer", readme)
         self.assertIn("Lightweight learning loop", agents)
         self.assertIn("Correction hooks", ultra)
         self.assertIn("OWNER_DECISION_CHANGED", ultra)
@@ -2412,8 +2435,8 @@ class SuiteTests(unittest.TestCase):
             normalized_notes,
         )
         self.assertIn("docs/releases/v1.0.0.md", release_notes)
-        self.assertIn("GitHub source channel is `DISTRIBUTED`", compatibility)
-        self.assertIn("isolated installer readback", compatibility)
+        self.assertIn("`DISTRIBUTED` for `v1.5.0`", compatibility)
+        self.assertIn("publication evidence", compatibility)
         self.assertNotIn("does not claim publication", release_notes)
         self.assertIn(
             "This is not a claim of publication in npm or any client marketplace",
@@ -3211,6 +3234,27 @@ class SuiteTests(unittest.TestCase):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
+    def test_v1_6_behavior_evidence_matches_current_source(self) -> None:
+        artifacts = ROOT / "docs" / "evals" / "artifacts" / "v1.6.0"
+        bindings = json.loads((artifacts / "candidate-source-hashes.json").read_text())
+        self.assertIn("skills/nobrainer-ultra/SKILL.md", bindings)
+        self.assertIn("adapters/bootstrap.md", bindings)
+        for relative, digest in bindings.items():
+            with self.subTest(source=relative):
+                path = (ROOT / relative).resolve()
+                self.assertTrue(path.is_relative_to(ROOT.resolve()))
+                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+        receipts = json.loads((artifacts / "smoke-receipts.json").read_text())
+        self.assertEqual(
+            hashlib.sha256((artifacts / "cases.txt").read_bytes()).hexdigest(),
+            receipts["case_sha256"],
+        )
+        for trial in receipts["trials"]:
+            self.assertEqual(
+                hashlib.sha256((artifacts / trial["output"]).read_bytes()).hexdigest(),
+                trial["output_sha256"],
+            )
+
     def test_v1_5_publication_readback_is_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         compatibility = (ROOT / "docs" / "COMPATIBILITY.md").read_text(
@@ -3230,10 +3274,10 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("Astra Ready Flow", readme)
         self.assertIn("model-neutral", readme)
         self.assertIn("WORKFLOW_READY", compatibility)
-        self.assertIn("Claude Fable 5.1 / Mythos 5.1", compatibility)
+        self.assertIn("GPT-6 Astra", compatibility)
         self.assertIn("model policy", candidate.lower())
         self.assertIn(
-            "Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) is the latest",
+            "Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) remains an",
             readme,
         )
         self.assertIn("pre-publication", readme)
@@ -3466,18 +3510,17 @@ class SuiteTests(unittest.TestCase):
         self.assertIn("```mermaid", readme)
         self.assertIn("flowchart TD", readme)
         for term in (
-            "BUDDY: one focused clarification",
-            "One canonical plan + compact Progress",
-            "Public contract, routing, workflow or portfolio may change?",
-            "COHERENCE:",
-            "bind model policy",
-            "Freeze outcome, scope, proof, untouched work and model policy",
-            "QUICK PATH:",
-            "refresh SVG + Mermaid",
-            "Ready and authorized?",
-            "BUILD correction + invalidate proof",
-            "RECEIVE_AUDIT",
-            "LEARN + CLOSE",
+            "Material ambiguity?",
+            "BUDDY: one focused question round",
+            "Direct answer or edit; check the result",
+            "SCOPE + PLAN: outcome, authority, proof; concise TODO",
+            "AUTOPILOT: execute the authorized scope",
+            "Verify; independent REVIEW when useful",
+            "attempt budget remains",
+            "Audit delegated artifacts and stop owned workers",
+            "Markdown goal for resume",
+            "Bounded native subagents",
+            "Deliver evidence and stop",
         ):
             self.assertIn(term, readme)
 

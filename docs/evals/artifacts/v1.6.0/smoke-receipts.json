@@ -1,0 +1,131 @@
+{
+  "case_sha256": "57de0ec74762e4c6d9c9a28167f0ef059686562f144760545347c131329bfaed",
+  "baseline_commit": "d94dd05",
+  "comparison_claim": "NONE; single bounded trials, different tool/context paths",
+  "trials": [
+    {
+      "name": "baseline",
+      "variant": "baseline",
+      "model_requested": "gpt-6-astra",
+      "model_actual": "NOT_EXPOSED_BY_JSON_EVENTS",
+      "effort": "low",
+      "client": "Codex CLI 0.153.1",
+      "invocation": "EXPLICIT_SOURCE_PATH",
+      "repetitions": 1,
+      "seconds": null,
+      "usage": {
+        "input_tokens": 111655,
+        "cached_input_tokens": 90880,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 497,
+        "reasoning_output_tokens": 14
+      },
+      "reads": [
+        {
+          "command": "/bin/zsh -lc 'cat ./skills/nobrainer-ultra/SKILL.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat ./skills/nobrainer-ultra/references/routing.md ./skills/nobrainer-ultra/references/model-routing.md ./skills/nobrainer-ultra/references/correction-hooks.md ./tasks/todo.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat ./skills/nobrainer-ultra/references/long-run-state.md'",
+          "exit_code": 0
+        }
+      ],
+      "output": "baseline-output.md",
+      "output_sha256": "5d159f0a8f1f09ba6481704b96e9fa54005287b36a07eccb0d520c418d817b6e"
+    },
+    {
+      "name": "baseline-gpt-5.6-luna",
+      "variant": "baseline",
+      "model_requested": "gpt-5.6-luna",
+      "model_actual": "NOT_EXPOSED_BY_JSON_EVENTS",
+      "effort": "low",
+      "client": "Codex CLI 0.153.1",
+      "invocation": "EXPLICIT_SOURCE_PATH",
+      "repetitions": 1,
+      "seconds": 27.9,
+      "usage": {
+        "input_tokens": 70987,
+        "cached_input_tokens": 52480,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 902,
+        "reasoning_output_tokens": 445
+      },
+      "reads": [
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,240p' ./skills/nobrainer-ultra/SKILL.md\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,240p' ./skills/nobrainer-ultra/references/routing.md && sed -n '1,240p' ./skills/nobrainer-ultra/references/model-routing.md\"",
+          "exit_code": 0
+        }
+      ],
+      "output": "baseline-gpt-5.6-luna-output.md",
+      "output_sha256": "9647d4fe425e51d84199d4fd615a686147b16b7de21e30c5d9c88b0fc3d3625d"
+    },
+    {
+      "name": "candidate-gpt-5.6-luna",
+      "variant": "candidate",
+      "model_requested": "gpt-5.6-luna",
+      "model_actual": "NOT_EXPOSED_BY_JSON_EVENTS",
+      "effort": "low",
+      "client": "Codex CLI 0.153.1",
+      "invocation": "EXPLICIT_SOURCE_PATH",
+      "repetitions": 1,
+      "seconds": 21.8,
+      "usage": {
+        "input_tokens": 71488,
+        "cached_input_tokens": 52480,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 624,
+        "reasoning_output_tokens": 167
+      },
+      "reads": [
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,240p' ./skills/nobrainer-ultra/SKILL.md && printf '\\\\n--- files ---\\\\n' && rg --files ./skills/nobrainer-ultra . | sed -n '1,120p' && printf '\\\\n--- todo ---\\\\n' && sed -n '1,200p' tasks/todo.md\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc \"sed -n '1,220p' ./skills/nobrainer-ultra/references/routing.md\"",
+          "exit_code": 0
+        }
+      ],
+      "output": "candidate-gpt-5.6-luna-output.md",
+      "output_sha256": "b309859f371607d70f857ee2cdf0a167b384cd5228a1f4df54fd0484b1fc4b9e"
+    },
+    {
+      "name": "candidate-gpt-6-astra",
+      "variant": "candidate",
+      "model_requested": "gpt-6-astra",
+      "model_actual": "NOT_EXPOSED_BY_JSON_EVENTS",
+      "effort": "low",
+      "client": "Codex CLI 0.153.1",
+      "invocation": "EXPLICIT_SOURCE_PATH",
+      "repetitions": 1,
+      "seconds": 24.7,
+      "usage": {
+        "input_tokens": 81127,
+        "cached_input_tokens": 61184,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 441,
+        "reasoning_output_tokens": 0
+      },
+      "reads": [
+        {
+          "command": "/bin/zsh -lc 'cat ./skills/nobrainer-ultra/SKILL.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat tasks/todo.md skills/nobrainer-ultra/references/long-run-state.md skills/nobrainer-ultra/references/correction-hooks.md skills/nobrainer-ultra/references/routing.md'",
+          "exit_code": 0
+        }
+      ],
+      "output": "candidate-gpt-6-astra-output.md",
+      "output_sha256": "977af1a20adadea660cb1c3dde2136842b25ab6e3d0f9c8c2a2b65b08811f950"
+    }
+  ]
+}
