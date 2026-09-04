@@ -2,8 +2,8 @@
 
 ## Current checkout location
 
-The canonical local checkout is under `/Volumes/1TB/MacMini/Github/`. Paths under
-`/Users/nobrainer-tech/Github/` are historical and must not be used for active
+The canonical local checkout is under `/Volumes/1TB/MacMini/Github/`. Older
+user-home checkout paths are historical and must not be used for active
 repository work.
 
 This public repository is the canonical, client-neutral source for NoBrainer
