@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">NoBrainer Ultra delivery workflow</title>
-  <desc id="desc">One owner request takes a quick path when the edit is small, reversible and has no public-surface impact; otherwise it passes through clarification, minimum scope, explicit model policy, coherence readback, bounded turns with a SESSION_HEALTH_GATE, review, verification, separate RUNTIME_RELEASE readback, delivery and learning. Detailed state and specialists appear only when recovery, dependencies or independent work require them.</desc>
+  <desc id="desc">One owner request takes a quick path when the edit is small, reversible and has no public-surface impact; otherwise it passes through clarification, minimum scope, explicit model policy, coherence readback, bounded turns with a SESSION_HEALTH_GATE and durable Markdown goal, review, verification, separate RUNTIME_RELEASE readback, delivery and learning. Warning checkpoints and restricts new work; a hard limit persists the goal before verified clear or end-turn. Detailed state and specialists appear only when recovery, dependencies or independent work require them.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#071317"/>
@@ -44,7 +44,7 @@
 
   <text x="76" y="70" class="eyebrow">NOBRAINER ULTRA</text>
   <text x="76" y="120" class="headline">One request. Clear progress. Verified delivery.</text>
-  <text x="76" y="154" class="subtitle">Small reversible edits take the quick path; bounded turns, release readback and public-flow docs stay explicit.</text>
+  <text x="76" y="154" class="subtitle">Small edits stay quick; resumable work checkpoints one durable goal before clear or end-turn.</text>
 
   <g filter="url(#soft-shadow)">
     <rect x="76" y="220" width="205" height="116" rx="20" class="node"/>
@@ -60,12 +60,12 @@
     <rect x="594" y="220" width="236" height="116" rx="20" class="node-accent"/>
     <text x="618" y="258" class="tiny">03 · SCOPE THE MINIMUM</text>
     <text x="618" y="289" class="node-title">SCOPE + PLAN</text>
-    <text x="618" y="316" class="node-copy">Proof · model policy</text>
+    <text x="618" y="316" class="node-copy">Proof · model policy · goal file</text>
 
     <rect x="884" y="220" width="205" height="116" rx="20" class="node"/>
     <text x="908" y="258" class="tiny">04 · COHERENCE / START</text>
     <text x="908" y="289" class="node-title">READY</text>
-    <text x="908" y="316" class="node-copy">Scope · model · docs · health readback</text>
+    <text x="908" y="316" class="node-copy">Goal · TODO · health budget · readback</text>
   </g>
 
   <path d="M281 278H325" class="flow"/>
@@ -145,5 +145,5 @@
     <path d="M306 420H322V336" class="flow-dashed"/>
   </g>
 
-  <text x="76" y="870" class="subtitle">Default: one MAIN session and bounded turns. Rotation needs owner approval; add 2–4 workers only when parallelism, isolation or independent evidence earns its cost.</text>
+  <text x="76" y="870" class="subtitle">Default: one MAIN session. WARNING restricts dispatch; hard limit persists GOAL_FILE before clear or END_TURN; rotation needs approval.</text>
 </svg>

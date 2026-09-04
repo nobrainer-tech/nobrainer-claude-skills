@@ -5,8 +5,7 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; take one
 
 # NoBrainer Ultra
 
-Turn one owner request into the smallest verified outcome current project/runtime
-can deliver; surface scope, proof, decisions and blockers.
+Deliver the smallest verified outcome; surface scope, proof and blockers.
 
 Read [references/routing.md](references/routing.md) and [references/model-routing.md](references/model-routing.md) before selecting methods; setup, upgrade, installation or repair also require [references/setup.md](references/setup.md).
 Read [references/correction-hooks.md](references/correction-hooks.md) after owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
@@ -28,25 +27,29 @@ Skip requirements, ledger, team/dispatcher/sessions and independent review;
 escalate to the full Ultra lifecycle when scope, risk, proof or owner decision expands;
 quick path never bypasses an owner gate.
 
-Default to one primary agent; add workers only for an independent unit earning
-latency, isolation or judgment cost.
+Default to one agent; add workers only when latency, isolation or judgment earns
+their cost.
 
-Lifecycle: `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal control points, not an owner-facing state machine.
+Lifecycle: `DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN`; these are internal controls.
 
-Bounded turns: run `SESSION_HEALTH_GATE` at START, AFTER_COMPACTION, MATERIAL_TRANSITION and BEFORE_CLOSEOUT; results: `HEALTHY`, `ROTATE_REQUIRED`, `UNKNOWN`, `UNSUPPORTED`; missing signals lower proof.
-`ROTATE_REQUIRED` -> checkpoint, compact handoff, `END_TURN`; rotation needs owner approval. `task_complete` is not `RUNTIME_RELEASE`; require worker readback. No legal `READY` row -> checkpoint + `OWNER_DECISION_REQUIRED`.
+Bounded turns: run `SESSION_HEALTH_GATE` at START, AFTER_COMPACTION,
+MATERIAL_TRANSITION and BEFORE_CLOSEOUT. `WARNING` checkpoints and restricts
+dispatch; a hard limit persists the durable goal, writes a compact handoff, then
+uses a verified host clear or `END_TURN`; automatic
+rotation is forbidden. `task_complete` is not `RUNTIME_RELEASE`. No legal
+`READY` row means checkpoint + `OWNER_DECISION_REQUIRED`.
 
 ## `DRIFT_CHECK`: establish current truth
 
 Read root, instructions, dirty state, branch/worktree, plan/spec, callers, tests, runtime and capabilities; preserve unrelated work. Prior summaries, wiki and worker reports are context, not proof; query wiki only for a decision or lesson that can change this task.
-Research current, external, niche, uncertain, high-stakes or source-attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges; respect context budget and name unread required surface.
+Research current, external, niche, uncertain, high-stakes or attributed facts. For large documents or data and repositories, inspect structure first, then read selected contracts in full and relevant ranges; respect context budget and name unread required surface.
 
 `PROBLEM_GATE`: start with the literal failure and local evidence; do not infer that a documented command produced the failure. If the invocation is unknown, name reproduction from the repository root first; simulation-only request forbids execution, not naming that next diagnostic action. Only then propose path, dependency or configuration changes. Check related wiki decisions. Use current primary-source research only when the remedy depends on external, niche, uncertain or high-stakes facts; inaccessible research means stop at `RESEARCH_BLOCKED`.
 
 ## `BUDDY`: clarify once
 
-Use one focused requirements round only when repository evidence cannot resolve scope,
-architecture, safety or acceptance. Current code, schema, tests or conventions settle details;
+Use one focused requirements round only when evidence cannot resolve scope,
+architecture, safety or acceptance. Code, schema, tests or conventions settle it;
 do not make them owner questions. Establish:
 
 - observable outcome, audience and quality bar;
@@ -81,8 +84,10 @@ predict scope; `Untouched` protects compatibility; update scope before expanding
 excluded inspection stays provisional.
 `PUBLIC_SURFACE` is mandatory: set `UPDATE` and map affected README/docs/templates/assets/flow, or set `PUBLIC_SURFACE: NOT_NEEDED` with a reason; public contract, routing or workflow changes require fresh SVG + README Mermaid readback.
 When the owner requests goal/DoD, show every field above and state the detailed-ledger decision.
-Create a host-native goal after scope is frozen and require goal readback; the canonical
-plan supersedes stale goal text after correction.
+For work that passes the detailed-ledger gate, persist the goal in an existing
+Markdown tracker or task-local Markdown `GOAL_FILE`; it is canonical across clears,
+compactions and sessions. Mirror it into a host-native goal after scope freezes
+and require goal readback from both. The file supersedes stale transcript text.
 Default to at most 160 words: outcome, scope, Progress, proof and next action.
 Do not add a repetitive
 skill/mode preamble or planning claim; avoid mechanism lists and invent unseen
@@ -94,8 +99,8 @@ test without an acceptance need or demonstrated risk. A shared abstraction needs
 two real current callers or an explicit contract; a future caller is
 not enough.
 
-Use a short checkable plan ordered by outcomes, not tools. One canonical TODO
-owner may be the host plan, repository tracker or current response.
+Use a short plan ordered by outcomes. One canonical TODO owner may be the host
+plan, repository tracker or current response.
 
 ## Show human progress
 
@@ -131,7 +136,7 @@ owner-facing Progress checklist concise.
 
 ## Readiness and method routing
 
-Proceed only when state, scope, dependencies, proof, rollback, owner gates and capability are known; unknown identity, dirty overlap, stale input, missing verifier or ambiguous irreversible effect blocks writing.
+Proceed only when state, scope, dependencies, proof, rollback, gates and capability are known; unknown identity, overlap, stale input, missing verifier or ambiguous irreversible effect blocks writing.
 
 Choose the least complex capable method; route implementation through `nobrainer-build`.
 When another skill owns a stage, load its canonical body and required references before
@@ -167,8 +172,8 @@ Retry only when evidence or a condition changes and within a declared budget.
 A timeout, partial result, dead session, failed check or exhausted retry is not
 completion.
 
-Specialist schemas are audit inputs. Report once: outcome, decisive evidence,
-remaining uncertainty or gate, and next action. Do not dump status forms.
+Specialist schemas are audit inputs. Report outcome, evidence, uncertainty and
+next action. Do not dump forms.
 
 ## `VERIFY` and `RECEIVE_AUDIT`
 
@@ -202,7 +207,7 @@ Apply corrections immediately:
 Detailed canonical-store rules live in the correction-hooks reference.
 ## `LEARN` and close
 
-Keep learning proportional. Discard transient state. Persist only durable,
+Discard transient state. Persist only durable,
 sourced, authorized and non-secret knowledge. Route a repeatable behavior gap to
 `nobrainer-autoimprove` only with a frozen baseline, calibrated evaluator
 outside candidate write scope and sealed holdout; a null result is valid.

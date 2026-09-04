@@ -30,7 +30,9 @@ a real owner gate. Small reversible edits without a public contract, routing,
 workflow or portfolio change take a quick path; other changes use the full path so
 docs, README and diagrams stay aligned. Every turn is bounded by a portable
 health gate, and runtime release is read back separately from task completion.
-Detailed state and specialists appear only when they earn their coordination cost.
+Resumable work persists one Markdown goal before a verified clear or end-turn;
+the next session reads it from disk. Detailed state and specialists appear only
+when they earn their coordination cost.
 
 ![NoBrainer Ultra workflow: quick path for small reversible edits, public-surface coherence gate, explicit model policy, bounded turns, separate runtime-release readback, verified delivery and learning](assets/nobrainer-workflow.svg)
 
@@ -53,9 +55,15 @@ flowchart TD
     J -->|no| K[VERIFY + report]
     K --> T[LEARN + CLOSE]
     I --> L{Resume, dependencies or recovery need a ledger?}
-    L -->|yes| M[Durable identity, bounded turns, checkpoints and rollback]
+    L -->|yes| M[Durable Markdown goal, identity, bounded turns, checkpoints and rollback]
     L -->|no| N[Keep ordinary work lightweight]
-    M --> O{Ready and authorized?}
+    M --> MA{Health gate result?}
+    MA -->|WARNING| MW[Checkpoint goal/TODO; restrict optional dispatch]
+    MW --> O
+    MA -->|ROTATE_REQUIRED| MB[Persist goal + handoff; verified clear or END_TURN]
+    MB --> M
+    MA -->|HEALTHY| O{Ready and authorized?}
+    MA -->|UNKNOWN / UNSUPPORTED| P
     N --> O
     O -->|no| P[STOP: re-plan, block or ask owner]
     P --> B
@@ -141,8 +149,12 @@ SESSION_MODE: MAIN | MULTI_SESSION
 ```
 
 `SESSION_HEALTH_GATE` bounds each turn at start, after compaction, at material
-transitions and before closeout. `RUNTIME_RELEASE` is a separate readback of
-task-owned workers; a completed outcome does not prove a clean runtime.
+transitions and before closeout. A configured warning checkpoints TODO and
+avoids optional new workers; a hard threshold clears or ends the turn.
+`RUNTIME_RELEASE` is a separate readback of
+task-owned workers; a completed outcome does not prove a clean runtime. For
+resumable work, `GOAL_FILE` is canonical across compaction or clear; host-native
+goals mirror it and stale transcript summaries cannot override it.
 
 Autopilot can run in one MAIN session. A multi-session plan is not automatically
 autonomous. This keeps the workflow understandable and avoids agent theatre.

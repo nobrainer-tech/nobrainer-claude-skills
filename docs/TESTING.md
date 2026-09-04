@@ -41,10 +41,13 @@ python3 -m unittest discover -s tests -v
 
 [`tests/test_session_lifecycle.py`](../tests/test_session_lifecycle.py) is a
 deterministic, model-free protocol smoke. It covers the nominal clean-session
-trace, each health-gate event, configurable limit handling, unknown and
+trace, each health-gate event, configurable warning/hard limits, unknown and
 unsupported signals, checkpoint plus `END_TURN` without automatic rotation,
 `task_complete` with a live controlled worker followed by explicit release, and
-the `OWNER_DECISION_REQUIRED` stop when no legal `READY` work remains. It does
+the `OWNER_DECISION_REQUIRED` stop when no legal `READY` work remains. It also
+proves that resume reads the durable Markdown goal instead of stale summary
+text, and that host clear requires capability, no active writer and positive
+readback; otherwise the contract ends the turn or requires manual action. It does
 not prove that Codex, Claude Code,
 OpenCode or another host exposes those signals; that requires the clean-session
 readback below.
@@ -91,6 +94,10 @@ host policy and actual signal values. Read back `RUNTIME_RELEASE` separately;
 `task_complete` is not evidence that task-owned browser, tool or subprocess
 workers ended. A missing capability is `UNKNOWN` or `UNSUPPORTED`, lowers the
 runtime proof, and must not be reported as a clean-session pass.
+Before a host clear, persist and read back `GOAL_FILE`, verify no task-owned
+writer remains, record `CLEAR_MODE`, then prove clear completion. Start a fresh
+turn by reading the same goal file and reconciling repository, checkout, state
+and next safe action; transcript text alone is not recovery evidence.
 
 For Codex, test explicit canonical invocation with `$nobrainer-ultra` and test
 plain aliases separately as implicit-routing controls. Bind the transcript to
