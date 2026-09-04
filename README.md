@@ -18,6 +18,8 @@
 <p align="center">
   <a href="https://nobrainer.tech">NoBrainer.tech</a>
   ·
+  <a href="https://nobrainer.tech/skills/">Skills overview</a>
+  ·
   <a href="https://nobrainertech.gumroad.com">Production-ready agentic workflows</a>
 </p>
 
