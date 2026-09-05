@@ -21,12 +21,12 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The current source version is **1.7.1**. Its naming and installation compatibility
-are recorded in the [migration guide](MIGRATION_TO_FLOW.md) and
-[v1.7.1 rebrand record](releases/v1.7.1.md). The unchanged runtime keeps its
-[v1.7.0 evidence](releases/v1.7.0.md). The
-[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-flow/releases/tag/v1.7.1)
-is the publication authority; a version in a manifest alone is not distribution.
+The current source version is **1.8.0**. Its scope and installation metadata are
+recorded in the [v1.8.0 release record](releases/v1.8.0.md). The naming migration
+remains documented in the [migration guide](MIGRATION_TO_FLOW.md), and the
+unchanged command runner keeps its [v1.7.0 evidence](releases/v1.7.0.md). The
+published `v1.7.1` release remains the rollback anchor; this source update does
+not claim a GitHub release, client loading or marketplace distribution.
 
 The [1.6.1 instruction review](reviews/2026-09-05-astra-instructions.md)
 clarifies skill precedence and sufficient verification. Its evidence is a
@@ -245,7 +245,7 @@ compatibility. See [runtime limits and examples](BOUNDED_RUNNER.md).
 
 ## Session restart capability levels
 
-The development `session-restart` mode is a client/model-neutral Sessions
+The `session-restart` mode shipped in v1.8.0 is a client/model-neutral Sessions
 protocol. The optional Python 3.11+ helper evaluates observations and runs without
 a model or client SDK. It does not implement native creation or archival.
 
