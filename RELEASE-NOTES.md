@@ -1,5 +1,18 @@
 # NoBrainer Tech Skills release notes
 
+## v1.6.1 — 2026-09-05
+
+- Explicit user instructions take precedence over skill guidelines within the host hierarchy.
+- A skill-caused pause identifies the exact source and explains the applicable requirement.
+- Verification stops after acceptance and required checks pass, unless new evidence warrants more.
+- Setup reconciles stale or conflicting project instructions before adding more.
+- Historical runtime evidence now checks its frozen source archive, so later edits cannot inherit old proof.
+- The fifteen-skill portfolio and existing prompt-size caps remain unchanged.
+
+See [verification and limits](docs/releases/v1.6.1.md),
+[instruction review](docs/reviews/2026-09-05-astra-instructions.md) and
+[public prompt research](docs/reviews/2026-09-05-v1.6.1-research.md).
+
 ## v1.6.0 — 2026-09-04
 
 - Clear coding and everyday tasks take a direct path, including chat-only and non-Git work.

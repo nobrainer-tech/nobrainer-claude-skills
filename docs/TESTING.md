@@ -60,6 +60,12 @@ model followed a skill.
 
 ## 3. Forward behavior evaluation
 
+Historical v1.6 runtime receipts bind the frozen source archive, not a changing
+checkout. The test rejects missing, duplicate or altered archived entries and
+continues checking the original case and output hashes. A later instruction
+review is source-contract evidence unless fresh model runs are recorded for its
+exact bytes; it cannot upgrade the release's runtime proof.
+
 Behavior-shaping changes need a frozen scenario set, an unchanged baseline and
 an independent judge. Keep development cases separate from final holdout cases;
 do not tune against a failed holdout. Record accepted findings, null results,
@@ -72,6 +78,11 @@ harness. Bind each score to target/evaluator/case identities and raw evidence;
 changed receipt fields require re-baselining. Predeclare equal repetitions for
 stochastic comparisons and require at least three paired runs for a borderline
 promotion claim.
+
+The [v1.6.1 evidence](releases/v1.6.1.md) records fresh response simulations
+and actual artifact execution, including failed behavioral gates. No measured
+model-quality promotion is accepted. Artifact integrity and score arithmetic
+are checked independently of those behavioral verdicts.
 
 The v1.6 probes and their source bindings are in
 [`releases/v1.6.0.md`](releases/v1.6.0.md). Source-only contract tests and

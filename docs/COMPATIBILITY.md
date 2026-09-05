@@ -21,10 +21,15 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The current source version is **1.6.0**. Its local validation and scoped runtime
-probes are recorded in [v1.6 evidence](releases/v1.6.0.md). The
-[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.6.0)
+The current source version is **1.6.1**. Its verification and limits are
+recorded in [v1.6.1 evidence](releases/v1.6.1.md). The
+[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.6.1)
 is the publication authority; a version in a manifest alone is not distribution.
+
+The [1.6.1 instruction review](reviews/2026-09-05-astra-instructions.md)
+clarifies skill precedence and sufficient verification. Its evidence is a
+source-contract review; the v1.6 runtime results apply only to the archived
+release bytes. It adds no model-wide or cross-client runtime claim.
 
 The source channel was `DISTRIBUTED` for `v1.5.0`, with its exact historical
 merge, tag and installation in the [publication evidence](releases/v1.5.0-publication-readback.md).

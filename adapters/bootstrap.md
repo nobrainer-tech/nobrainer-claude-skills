@@ -1,6 +1,7 @@
 <!-- NOBRAINER_BOOTSTRAP_V1 -->
-Load `nobrainer-ultra` for non-trivial work: clarify, execute, verify; show a
-short Progress checklist. Keep simple work direct; use a detailed ledger only when needed.
+Load `nobrainer-ultra` for non-trivial work; show a short Progress checklist.
+Keep simple work direct; detailed ledger only when needed.
+Respect the host hierarchy; explicit user instructions override skill guidelines.
 
 Default output is brief and outcome-first. When the host permits, run tools
 without announcing them; otherwise emit the shortest useful scope or evidence

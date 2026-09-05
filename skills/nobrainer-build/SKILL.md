@@ -89,6 +89,8 @@ artifact merely to make the change look substantial.
    stop if the required write surface expands beyond the approved scope.
 4. Run the focused proof, then affected baseline tests and the repository's
    required verifier/build/runtime in increasing cost order.
+   Once acceptance and required checks pass, broaden or repeat only for a new
+   change, failure or unresolved concern.
    Before changing shared fixtures, runners, mocks, defaults or test
    infrastructure, inventory all consumers and run at least one representative
    suite per affected behavior class. A test-helper cleanup must not silently

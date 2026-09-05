@@ -1,6 +1,6 @@
 {
   "name": "nobrainer-tech-skills",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Portable NoBrainer skills and lightweight runtime adapters for evidence-gated agentic delivery.",
   "type": "module",
   "main": ".opencode/plugins/nobrainer-tech-skills.js",
