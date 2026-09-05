@@ -1,4 +1,4 @@
-# Installing NoBrainer Tech Skills for OpenCode
+# Installing NoBrainer Tech Flow for OpenCode
 
 Add the git-backed package to the `plugin` array in the global or project
 `opencode.json`:
@@ -11,7 +11,7 @@ explicit skills path instead.
 ```json
 {
   "plugin": [
-    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#NB_REVIEWED_COMMIT_SHA"
+    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-flow.git#NB_REVIEWED_COMMIT_SHA"
   ]
 }
 ```
@@ -29,3 +29,6 @@ every step when the marker is already present.
 For a local checkout, either use `scripts/install_skills.py --client opencode`
 or configure the checkout's `skills/` directory as an OpenCode skills path.
 See [the full installation guide](../docs/INSTALL.md).
+
+The package ID remains `nobrainer-tech-skills` to update existing installations.
+See the [Flow migration guide](../docs/MIGRATION_TO_FLOW.md) before changing a configured source.

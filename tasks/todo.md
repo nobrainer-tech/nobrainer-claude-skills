@@ -258,6 +258,37 @@ a writer. Added runtime scope after owner correction; changed target to v1.7.0.
 Model policy: ROUTED for the bounded worker, host-selected MAIN; no worker
 escalation or external skill installation. No measured team-speed claim.
 
-- [ ] Merge verified library and website PRs; publish v1.7.0.
-- [ ] Deploy reviewed site with backup and live readback.
-- [ ] Update existing seven X scheduled posts and verify exact queue.
+- [x] Merge verified library and website PRs; publish v1.7.0.
+- [x] Deploy reviewed v1.7.0 site with backup and 40-file live readback.
+- [x] Update seven existing X scheduled posts to v1.7.0; subsequent Flow rebrand supersedes their copy.
+
+
+## Coverage completion and product naming — owner steering, 2026-09-05
+
+The existing 435-item metadata screen does not prove complete competitor source
+coverage. Reconcile every relevant peer in the collected repository/developer
+views with a pinned capability decision and public comparison destination.
+Inspect ambiguous descriptions before exclusion. Record missing/unavailable
+sources explicitly. A source-backed fit claim is not a performance benchmark.
+
+- [x] Reconcile relevant and uncertain discoveries with current comparison pages.
+- [x] Close evidenced workflow gaps or document retain/defer decisions.
+- [ ] Publish and verify missing relevant comparisons and evidence boundaries.
+- [x] Owner selected NoBrainer Tech Flow and From task to done; preserve commands.
+
+Naming proposal: NoBrainer Flow, described as a portable workflow for AI agents.
+This is a proposal, not an approved rename or a trademark clearance.
+
+
+## Approved rebrand — 2026-09-05
+
+Owner selected NoBrainer Tech Flow and authorized repo/site/social rebranding,
+X author bio, canonical nobrainer.tech/flow and flow.nobrainer.tech plus
+skills.nobrainer.tech aliases. Preserve skill identifiers, nb-ultra invocation,
+old repository links and historical release provenance. Do not rewrite tagged
+historical evidence. Route the former /skills paths to matching /flow paths.
+
+- [ ] Rename public product/repo and update maintained documentation/adapters.
+- [ ] Deploy /flow and verify HTTPS aliases and legacy deep-link redirects.
+- [ ] Rebrand seven existing scheduled X posts and add authorship to current bio.
+- [ ] Reconcile weekly automation, installation compatibility and publication evidence.

@@ -1,6 +1,6 @@
-# Working in nobrainer-tech-skills
+# Working in NoBrainer Tech Flow
 
-This is the canonical, client-neutral NoBrainer Agent Skills source; adapters share `skills/`.
+This is the canonical, client-neutral NoBrainer Tech Flow source; adapters share `skills/`.
 Do not fork skills per client or claim runtime support from manifests; see `docs/COMPATIBILITY.md`.
 
 Respect the host hierarchy; explicit user instructions override skill guidelines. Use Ultra's instruction-conflict and exact-source pause explanation.

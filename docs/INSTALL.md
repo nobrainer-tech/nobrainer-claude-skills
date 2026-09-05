@@ -1,8 +1,11 @@
-# Installation
+# NoBrainer Tech Flow installation
 
 All clients consume one canonical `skills/` tree. Prefer an immutable reviewed
 release, dry-run every local target and keep installation evidence separate from
 clean-session routing evidence.
+
+Upgrading an existing installation? Preserve its `nobrainer-tech-skills` identity;
+see the [Flow migration guide](MIGRATION_TO_FLOW.md).
 
 ## Safe default
 
@@ -12,8 +15,8 @@ clean-session routing evidence.
   : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
   test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
   case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
-  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
-  cd nobrainer-tech-skills || exit 3
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-flow.git || exit 3
+  cd nobrainer-tech-flow || exit 3
   git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
   test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
   python3 scripts/validate_skills.py --suite || exit 4
@@ -147,7 +150,7 @@ Pin the Git package to an immutable full commit in `opencode.json`:
 ```json
 {
   "plugin": [
-    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-skills.git#NB_REVIEWED_COMMIT_SHA"
+    "nobrainer-tech-skills@git+https://github.com/nobrainer-tech/nobrainer-tech-flow.git#NB_REVIEWED_COMMIT_SHA"
   ]
 }
 ```

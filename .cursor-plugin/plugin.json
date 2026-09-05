@@ -1,13 +1,13 @@
 {
   "name": "nobrainer-tech-skills",
-  "displayName": "NoBrainer Tech Skills",
-  "description": "Portable workflows for one-brief autopilot, specialist teams, research, secure implementation, review, and durable learning.",
-  "version": "1.7.0",
+  "displayName": "NoBrainer Tech Flow",
+  "description": "NoBrainer Tech Flow: portable agentic workflows from task to checked result.",
+  "version": "1.7.1",
   "author": {
     "name": "NoBrainer Tech"
   },
-  "homepage": "https://nobrainer.tech",
-  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-skills",
+  "homepage": "https://nobrainer.tech/flow/",
+  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-flow",
   "license": "MIT",
   "logo": "assets/nobrainer-tech-logo.svg",
   "keywords": [

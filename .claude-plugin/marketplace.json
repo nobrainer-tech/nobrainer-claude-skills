@@ -1,14 +1,14 @@
 {
   "name": "nobrainer-tech",
-  "description": "NoBrainer Tech portable agent skills",
+  "description": "NoBrainer Tech Flow portable agentic workflows",
   "owner": {
     "name": "NoBrainer Tech"
   },
   "plugins": [
     {
       "name": "nobrainer-tech-skills",
-      "description": "One-brief autopilot, specialist teams, research, secure implementation, review, and durable learning.",
-      "version": "1.7.0",
+      "description": "NoBrainer Tech Flow: portable agentic workflows from task to checked result.",
+      "version": "1.7.1",
       "source": "./",
       "author": {
         "name": "NoBrainer Tech"

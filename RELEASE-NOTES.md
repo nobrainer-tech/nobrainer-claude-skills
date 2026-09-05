@@ -1,4 +1,17 @@
-# NoBrainer Tech Skills release notes
+# NoBrainer Tech Flow release notes
+
+## v1.7.1 — 2026-09-05
+
+- The product is now **NoBrainer Tech Flow**: **From task to done.**
+- Maintained repository links use `nobrainer-tech/nobrainer-tech-flow`; the product
+  website is [nobrainer.tech/flow](https://nobrainer.tech/flow/).
+- Package/plugin IDs, marketplace IDs, all fifteen skill names and `nb-ultra`
+  commands remain unchanged so existing installations retain their identity.
+- This is a naming and documentation release. Skill behavior, adapters and the
+  bounded command runner are unchanged; historical evidence retains its provenance.
+
+See the [migration guide](docs/MIGRATION_TO_FLOW.md) and
+[v1.7.1 record](docs/releases/v1.7.1.md) for verification and publication boundaries.
 
 ## v1.7.0 — 2026-09-05
 

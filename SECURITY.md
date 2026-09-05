@@ -6,7 +6,7 @@ Do not open a public issue containing a secret, exploit detail, private path,
 account identifier or vulnerable production target. Use GitHub private
 vulnerability reporting for this repository:
 
-https://github.com/nobrainer-tech/nobrainer-tech-skills/security/advisories/new
+https://github.com/nobrainer-tech/nobrainer-tech-flow/security/advisories/new
 
 Include the affected release or commit, impact, minimum reproduction, evidence
 and a safe way to validate a fix. Redact credentials and personal data.

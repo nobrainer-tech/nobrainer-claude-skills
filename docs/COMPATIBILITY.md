@@ -1,6 +1,6 @@
 # Compatibility evidence
 
-NoBrainer Tech Skills keeps one portable `skills/` source, but portability is
+NoBrainer Tech Flow keeps one portable `skills/` source, but portability is
 not the same as a proven client integration. Record these levels separately:
 
 1. `SOURCE_VALIDATED` — the portable `SKILL.md` folders pass repository
@@ -21,9 +21,11 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The current source version is **1.7.0**. Its verification and limits are
-recorded in [v1.7.0 evidence](releases/v1.7.0.md). The
-[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.7.0)
+The current source version is **1.7.1**. Its naming and installation compatibility
+are recorded in the [migration guide](MIGRATION_TO_FLOW.md) and
+[v1.7.1 rebrand record](releases/v1.7.1.md). The unchanged runtime keeps its
+[v1.7.0 evidence](releases/v1.7.0.md). The
+[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-flow/releases/tag/v1.7.1)
 is the publication authority; a version in a manifest alone is not distribution.
 
 The [1.6.1 instruction review](reviews/2026-09-05-astra-instructions.md)
