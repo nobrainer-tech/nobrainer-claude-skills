@@ -258,6 +258,21 @@ class SuiteTests(unittest.TestCase):
                 self.assertIn(alias, frontmatter["description"])
                 self.assertLessEqual(len(frontmatter["description"]), 1024)
 
+    def test_nb_flow_alias_routes_to_canonical_ultra_without_duplicate_skill(self) -> None:
+        description = parse_frontmatter(
+            SKILLS / "nobrainer-ultra" / "SKILL.md"
+        )["description"]
+        self.assertIn("nb-flow", description)
+        self.assertIn(
+            "nb-flow",
+            validate_skills.REQUIRED_ALIASES["nobrainer-ultra"],
+        )
+        self.assertEqual(
+            "nobrainer-ultra",
+            install_skills.LEGACY_TO_CANONICAL["nb-flow"],
+        )
+        self.assertFalse((SKILLS / "nb-flow").exists())
+
     def test_ultra_contract(self) -> None:
         text = (SKILLS / "nobrainer-ultra" / "SKILL.md").read_text(encoding="utf-8")
         for term in (

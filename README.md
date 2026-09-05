@@ -25,7 +25,7 @@
 
 Tell it what you need. Flow clarifies the goal, does the work, and checks the result.
 
-Say **“Use nb-ultra”** (or invoke `$nobrainer-ultra` in Codex) to fix code, prepare
+Say **“Use nb-flow”** or **“Use nb-ultra”** (or invoke `$nobrainer-ultra` in Codex) to fix code, prepare
 an everyday document, or investigate a problem. Clear tasks go straight to execution;
 meaningful ambiguity gets one focused question round. Done means the agreed
 criteria are met and the result is checked. A real blocker is reported with the
@@ -145,9 +145,9 @@ Use [`nobrainer-ultra`](skills/nobrainer-ultra/) for setup or any non-trivial
 outcome. A small reversible edit without a public contract, routing, workflow or
 portfolio change can use its quick path; other changes use the full path and its
 coherence gate.
-In Codex, explicit invocation is `$nobrainer-ultra`; `nb-ultra` is a
-natural-language trigger phrase and therefore depends on a client's implicit
-description matching.
+In Codex, explicit invocation is `$nobrainer-ultra`; `nb-flow` and `nb-ultra`
+are natural-language trigger phrases and therefore depend on a client's
+implicit description matching.
 
 ```text
 DRIFT_CHECK -> BUDDY -> SCOPE -> AUTOPILOT -> VERIFY -> RECEIVE_AUDIT -> LEARN
@@ -195,7 +195,7 @@ recurring boundary:
 
 | Skill | Alias | Responsibility |
 |---|---|---|
-| [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-ultra` | End-to-end setup and delivery: one requirements gate, concise progress, bounded execution, recovery, audit and learning |
+| [`nobrainer-ultra`](skills/nobrainer-ultra/) | `nb-flow`, `nb-ultra` | End-to-end setup and delivery: one requirements gate, concise progress, bounded execution, recovery, audit and learning |
 | [`nobrainer-team`](skills/nobrainer-team/) | `nb-team` | Minimal capability roster, installed-skill inventory and safe temporary specialist discovery |
 | [`nobrainer-dispatcher`](skills/nobrainer-dispatcher/) | `nb-dispatcher` | Dependency-aware ready-set scheduling, bounded dispatch, backpressure and audited result routing |
 | [`nobrainer-research`](skills/nobrainer-research/) | `nb-research` | Bounded current research from primary sources with facts separated from inference |

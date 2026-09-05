@@ -26,7 +26,7 @@ as a second package:
 | OpenCode adapter module | `.opencode/plugins/nobrainer-tech-skills.js` |
 | Pi extension module | `.pi/extensions/nobrainer-tech-skills.js` |
 | Shared bootstrap marker | `NOBRAINER_BOOTSTRAP_V1` |
-| Ultra invocation | `nb-ultra`; explicit Codex invocation `$nobrainer-ultra` |
+| Ultra invocation | `nb-flow` or `nb-ultra`; explicit Codex invocation `$nobrainer-ultra` |
 
 All fifteen skill directory and frontmatter names remain unchanged:
 
