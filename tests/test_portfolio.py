@@ -109,6 +109,7 @@ class PortfolioAuditTests(unittest.TestCase):
                 )
             if label in {
                 "ULTRA_SHA256",
+                "REVIEW_SHA256",
                 "AUTOIMPROVE_SHA256",
                 "BOOTSTRAP_SHA256",
             }:

@@ -107,6 +107,23 @@ trace reachability and reject anything that fails the gate below. Reviewer
 agreement does not replace evidence; disagreement is a prompt to inspect, not a
 vote.
 
+Choose review perspectives from the actual changed boundary and risk: for example
+testing, compatibility, context size or security. Do not automatically run every
+available perspective or require maximum reasoning effort for each one. Record
+which perspectives were selected and why; unchecked relevant risk remains visible.
+
+## Optional pull-request monitoring
+
+When the owner asks to monitor an open pull request, bind every snapshot and action
+to the exact PR head SHA. Check CI, mergeability and published review feedback;
+pending draft reviews are not published feedback and must not be marked handled.
+After a new head appears, discard conclusions for the old SHA and inspect again.
+Retry only a diagnosed transient failure, with a finite recorded budget and a new
+fact that justifies each retry. Persistent, branch-caused or ambiguous failures
+need diagnosis or a stop, not repeated reruns. A green snapshot is progress, not
+merge authorization. Monitoring never grants permission to merge, publish, reply
+to reviewers or perform another externally visible action.
+
 ## Finding gate
 
 Report a finding only when all are present:

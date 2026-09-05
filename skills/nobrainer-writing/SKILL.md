@@ -203,6 +203,10 @@ express. Do not optimize for an AI detector or claim that prose is human-written
   material.
 - **README or instructions:** purpose, prerequisites, shortest successful path,
   verification and only likely failure recovery.
+- **Pull request:** lead with why the change is needed, then describe only the net
+  change against the actual PR base and the verification that helps review it.
+  Remove abandoned approaches, local absolute paths and routine checks already
+  evident from required CI; preserve still-relevant links, images and caveats.
 - **Report or decision note:** answer, verified facts, inference or trade-off,
   decision and next action. Keep fact and inference visibly distinct.
 - **Long-form content:** thesis, evidence and implications in a coherent arc.
