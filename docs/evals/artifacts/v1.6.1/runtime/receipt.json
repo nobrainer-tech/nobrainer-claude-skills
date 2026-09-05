@@ -1,0 +1,24 @@
+{
+  "mode": "actual_local_artifact_execution",
+  "model_requested": "gpt-5.6-luna",
+  "effort": "medium",
+  "model_actual": "NOT_EXPOSED",
+  "cli": "codex-cli 0.149.1",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 29.89,
+  "usage": [
+    {
+      "input_tokens": 64216,
+      "cached_input_tokens": 48128,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1133,
+      "reasoning_output_tokens": 473
+    }
+  ],
+  "policy_sha256": "22b8123782e59f0cb7cafbac18ef44b6f587746122368ec97bef6ff2c12bd75a",
+  "prompt_sha256": "d679b10f57e7d4cb80d8bec04b4d718e775b2d31a6d7a7cdf916c279a3c1dd05",
+  "task_sha256": "4cdb4b4e6eadce635a102544e235ec0276921458afbc6a3d91787f002298c910",
+  "runner_sha256": "1a633e078afd30f143d2a83bcc350bf75dacbd74f812958b0049e54b5fc5576e",
+  "output_sha256": "a0633d137356a76ee0bbdd4d96f326342cec3a9a37f0c894e1a3e763e1bb14b8"
+}

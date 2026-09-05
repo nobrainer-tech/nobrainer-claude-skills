@@ -1,4 +1,134 @@
-# Version 1.6.0 delivery
+# Version 1.6.1 quality release — 2026-09-05
+
+Outcome: publish a compact, verified 1.6.1 release and a matching premium-quality
+Skills website with source-backed comparison coverage. User authorized the goal,
+implementation, release and corresponding website update in this task.
+
+- AC01: Review the 2026-08-22–2026-09-05 harvest window and attributed public
+  Claude Code, Fable/Mythos 5.1 and Astra prompt/workflow sources; separate
+  official material from unverified community extractions.
+- AC02: Keep the fifteen-skill portable core. Retain only changes justified by
+  actual task failures or clarified contracts; preserve previously verified fixes.
+- AC03: Test intent, bounded execution, completion and context economy with an
+  available cheaper model, frozen cases and unseen regression cases. No claim
+  that a prompt makes a cheap model universally equivalent to a frontier model.
+- AC04: Every adopted inspiration has a dated source-to-change mapping and an
+  appropriate canonical comparison page; website AGENTS requires this check.
+- AC05: Required checks and independent review pass on exact release bytes;
+  publish 1.6.1, verify remote state and public affected routes.
+
+Expected files: scoped skill/reference fixes if evidence warrants them, version
+manifests, evaluation/release documents, existing relevant tests and diagrams;
+the separate Skills website's instructions, comparison source, generated pages
+and version/evidence presentation. MAIN owns integration and publication.
+Untouched: unrelated commercial-site work, global instructions, credentials,
+social queue, unrelated branches and private wiki content in public artifacts.
+Minimum solution: reuse existing owners and generators; no permanent extra skill,
+model gateway, standing swarm or blanket instruction expansion.
+Test decision: EXISTING plus representative behavioral fixtures where necessary.
+
+Progress
+- [x] Establish native goal, current source, prior diff and release authority.
+- [x] Review the bounded harvest and public prompt sources.
+- [x] Freeze representative cases, assess minimal candidates and verify source.
+- [x] Update comparison coverage and website instruction rule.
+- [>] Complete release review, publish 1.6.1 and verify public readback.
+
+Verification: both validators and 126 tests pass; independent release review
+accepts the contract patch. Measured behavioral promotion is rejected: the
+completion-label holdout and actual-run scope gate failed, reported in
+`docs/releases/v1.6.1.md`. No source tuning or quality retries followed.
+
+Research: two independent Sol-low scouts, no nested delegation. MAIN uses the
+host-selected model. One source change owner per experiment; fresh holdout after
+any rejected candidate. Execution budgets and receipts are frozen before model
+trials. A native goal supplements this canonical Markdown tracker.
+Rollback: retained v1.6.0 release, scoped diff and prior private receipts; website
+backup and additive deployment only. No deletion of server-only routes.
+
+---
+
+# Astra bookmarks and instruction review — 2026-09-05
+
+Outcome: reconcile the new bookmarks and official guidance with the portable
+library, retaining only justified instruction changes.
+Minimum solution: clarify skill precedence and sufficient verification under
+the existing Ultra/Build owners. First-principles simplification already exists.
+
+Expected files: Ultra, Build, setup, bootstrap and identical AGENTS/CLAUDE;
+compatibility/testing notes and a dated review. Freeze the historical v1.6
+source receipt separately so a later edit cannot inherit its runtime claim.
+Proof: source-contract scenarios, independent sealed safety/non-trigger review,
+existing validators and tests, secret scan, diff and instruction equality.
+Test decision: EXISTING; correct historical source binding, no wording-only tests.
+Untouched: other skills, settings, installations, website, social queue, release
+versions and all prior unrelated work. No new workflow stage or diagram needed.
+
+Progress
+- [x] Read both new bookmarks in full and check primary guidance.
+- [x] Freeze the baseline gaps and independent review scenarios.
+- [x] Apply the smallest portable clarification and preserve historical evidence.
+- [x] Verify final bytes, review held-out cases and record limits.
+
+Evidence level: source-contract review, not a model benchmark or token/RAM claim.
+Release, installation and cross-client runtime verification are outside this patch.
+
+Closeout: both validators and all 125 tests pass, including the source package
+without Git metadata. Corrupt, missing and duplicate archive entries are rejected.
+Scoped secret scan, diff check and instruction equality pass; independent review
+found no remaining defect. Limits remain 1600 Ultra words, 190 bootstrap words
+and 200 AGENTS/CLAUDE lines. [Review and sources](../docs/reviews/2026-09-05-astra-instructions.md).
+The global instruction file was inspected read-only; obsolete local references
+and conflicting defaults are recorded privately for a separate configuration fix.
+
+---
+
+# Orchestration research and bounded experiment — 2026-09-05
+
+Outcome: review harvested capabilities, diagnose the reported context-growth
+symptom, retrieve the supplied courier design and assess a minimal improvement.
+Baseline and retained champion: released v1.6.0, `d51d1e1`.
+
+Scope: dated review, this tracker, and one scoped lesson. Active skill bodies,
+adapters, installed clients, settings, website and release artifacts are unchanged.
+The rejected source patch and evaluation receipts are preserved privately.
+
+Progress
+- [x] Inspect source, existing constraints and targeted session telemetry.
+- [x] Verify four harvested candidates and distinguish source/ingestion dates.
+- [x] Retrieve and read the complete supplied multi-session courier document.
+- [x] Run three paired development repetitions and one sealed holdout per variant.
+- [x] Reject the regressing candidate and restore the exact baseline source.
+- [x] Record an optional supervisor/worker/courier design within existing owners.
+- [x] Finish deterministic checks, scoped review and resource-release readback.
+
+Closeout: zero operational-source diff from the baseline; both validators,
+125 unit tests and diff checks pass. Independent report review is complete.
+Browser detached and Telegram client disconnected; no background work scheduled.
+
+Experiment result: NO_CHANGE. Development mean 29.33/30 baseline versus 28/30
+candidate; holdout tied 20/20. All eight model calls completed; no model retries.
+The candidate omitted required source/context identity more often. The rubric's
+ceiling also prevents an improvement claim. This closes one experiment, not a
+claim that the user's broader resource-control objective is solved.
+
+Current limitation: small packets, role separation and economical model selection
+are configuration/design choices; no cross-client memory/billing enforcement or
+multi-host courier runtime was implemented or verified. A subsequent runtime
+pilot needs fresh cases and must measure prompt overhead and delivery directly.
+Do not re-use this revealed holdout for tuning.
+
+Model policy for this review: MAIN host-selected; independent scouts/evaluator
+requested advertised Sol low with fresh task context, at most two active workers,
+no nested delegation. Research and evaluator assignments completed.
+
+Evidence and decisions: [dated review](../docs/reviews/2026-09-05-bounded-orchestration.md).
+Rollback of the rejected experiment is complete. Remaining edits are review
+artifacts only; no commit, push, release, installation or social action occurred.
+
+---
+
+# Version 1.6.0 delivery (historical source checkpoint)
 
 ## Goal and acceptance
 

@@ -59,7 +59,7 @@ flowchart TD
 
 ## Astra Ready Flow, portable by design
 
-Version **1.6.0** removes client-specific prerequisites from ordinary work.
+Version **1.6** removes client-specific prerequisites from ordinary work.
 OpenAI [introduced GPT-6 Astra](https://openai.com/index/gpt-6-astra/) on
 September 3, 2026. The suite keeps the host-selected model and uses the same
 plain-text instructions with other models; it does not pin a provider or choose
@@ -69,6 +69,11 @@ an expensive tier automatically.
 behavior, client loading and source distribution. Local smoke evidence covers
 only its recorded source and scenarios. It is not a universal compatibility,
 quality or token-savings benchmark.
+
+The [1.6.1 instruction review](docs/reviews/2026-09-05-astra-instructions.md)
+clarifies user authority, skill-caused pauses and when verification is sufficient.
+The same rules apply across models; historical runtime proof stays tied to the
+tested release bytes.
 
 ```text
 Small task       -> direct result + relevant check
@@ -246,9 +251,9 @@ subset, refuses foreign targets and can use links or copies. Restart the client
 and perform clean-session discovery before claiming runtime installation. Full
 client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 
-Current source version: **1.6.0**. Check the
+Current source version: **1.6.1**. Check the
 [latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/latest)
-for distribution, and the [v1.6 evidence](docs/releases/v1.6.0.md) for its exact
+for distribution, and the [v1.6.1 evidence](docs/releases/v1.6.1.md) for its exact
 verification scope. Source publication does not imply client marketplace discovery.
 
 Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) remains an

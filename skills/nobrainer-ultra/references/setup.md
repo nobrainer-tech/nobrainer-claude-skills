@@ -42,6 +42,11 @@ public disclosure or global-instruction authority.
 
 ## 2. Reconcile project instructions
 
+Before adding rules, reconcile obsolete, duplicate and conflicting guidance
+within the authorized project scope. Check approval pauses, default effort,
+delegation and repeated verification. A model upgrade does not authorize a
+global rewrite; use Ultra's instruction hierarchy and pause explanation.
+
 Preserve existing content and managed blocks. Add or update exactly one marked
 block only when equivalent durable routing is missing. Replace project-specific
 placeholders with verified paths/commands and remove duplicate lines:

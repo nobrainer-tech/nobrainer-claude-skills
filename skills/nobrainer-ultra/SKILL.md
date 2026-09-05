@@ -7,7 +7,7 @@ description: "Use when the owner says nb-ultra, nb-flow or nb-workflow; complete
 
 Deliver the smallest verified outcome; surface scope, proof and blockers.
 
-Small tasks use the quick path below without loading companion skills. For non-trivial work read [references/routing.md](references/routing.md). Keep the host-selected model and default effort; read [references/model-routing.md](references/model-routing.md) only when choosing models, effort or budgets. Setup, upgrade, installation or repair also require [references/setup.md](references/setup.md).
+Small tasks need no companions. For non-trivial work read [references/routing.md](references/routing.md). Keep the host-selected model and default effort; read [references/model-routing.md](references/model-routing.md) only when choosing models, effort or budgets. Setup, upgrade, installation or repair require [references/setup.md](references/setup.md).
 Read [references/correction-hooks.md](references/correction-hooks.md) after owner decision changes, correction or review failure; read [references/long-run-state.md](references/long-run-state.md) only when its gate passes.
 
 ## Choose the smallest workflow
@@ -129,6 +129,10 @@ use [references/long-run-state.md](references/long-run-state.md) and keep the
 owner-facing Progress checklist concise.
 
 ## Readiness and method routing
+
+Respect the host instruction hierarchy; explicit user instructions override skill
+guidelines. For a skill-caused pause, link its exact `SKILL.md`, quote the clause
+and explain applicability; distinguish requirements from interpretation.
 
 Proceed when required inputs, authority and proof are available; unknown write ownership,
 stale input or ambiguous irreversible effects block the affected action. Missing optional

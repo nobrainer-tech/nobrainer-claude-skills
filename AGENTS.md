@@ -1,9 +1,9 @@
 # Working in nobrainer-tech-skills
 
-This public repository is the canonical, client-neutral source for NoBrainer
-Agent Skills. All adapters consume the same `skills/` tree. Do not create
-client-specific skill forks or claim runtime support from manifest parsing.
-Current proof levels belong in `docs/COMPATIBILITY.md`.
+This is the canonical, client-neutral NoBrainer Agent Skills source; adapters share `skills/`.
+Do not fork skills per client or claim runtime support from manifests; see `docs/COMPATIBILITY.md`.
+
+Respect the host hierarchy; explicit user instructions override skill guidelines. Use Ultra's instruction-conflict and exact-source pause explanation.
 
 `CLAUDE.md` must remain a byte-identical copy of this file.
 

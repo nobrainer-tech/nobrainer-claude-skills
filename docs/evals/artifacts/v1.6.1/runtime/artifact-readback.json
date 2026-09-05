@@ -1,0 +1,9 @@
+{
+  "test_exit": 0,
+  "test_stdout": "",
+  "test_stderr": "test_quotes_commas_and_empty_trailing_column (test_exporter.EncodeRowTest.test_quotes_commas_and_empty_trailing_column) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+  "protected_changes": [],
+  "editable_changed": true,
+  "file_set_ok": true,
+  "pass": true
+}

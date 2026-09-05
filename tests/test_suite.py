@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+import zipfile
 from unittest import mock
 from pathlib import Path
 
@@ -3234,16 +3235,18 @@ class SuiteTests(unittest.TestCase):
             for private_root in ("/" + "Users/", "/" + "Volumes/", "/" + "tmp/"):
                 self.assertNotIn(private_root, document)
 
-    def test_v1_6_behavior_evidence_matches_current_source(self) -> None:
+    def test_v1_6_behavior_evidence_matches_frozen_source(self) -> None:
         artifacts = ROOT / "docs" / "evals" / "artifacts" / "v1.6.0"
         bindings = json.loads((artifacts / "candidate-source-hashes.json").read_text())
         self.assertIn("skills/nobrainer-ultra/SKILL.md", bindings)
         self.assertIn("adapters/bootstrap.md", bindings)
-        for relative, digest in bindings.items():
-            with self.subTest(source=relative):
-                path = (ROOT / relative).resolve()
-                self.assertTrue(path.is_relative_to(ROOT.resolve()))
-                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+        with zipfile.ZipFile(artifacts / "source-snapshot.zip") as frozen:
+            self.assertCountEqual(bindings, frozen.namelist())
+            for relative, digest in bindings.items():
+                with self.subTest(source=relative):
+                    path = (ROOT / relative).resolve()
+                    self.assertTrue(path.is_relative_to(ROOT.resolve()))
+                    self.assertEqual(hashlib.sha256(frozen.read(relative)).hexdigest(), digest)
         receipts = json.loads((artifacts / "smoke-receipts.json").read_text())
         self.assertEqual(
             hashlib.sha256((artifacts / "cases.txt").read_bytes()).hexdigest(),
@@ -3254,6 +3257,33 @@ class SuiteTests(unittest.TestCase):
                 hashlib.sha256((artifacts / trial["output"]).read_bytes()).hexdigest(),
                 trial["output_sha256"],
             )
+
+    def test_v1_6_1_evidence_integrity_and_score_arithmetic(self) -> None:
+        artifacts = ROOT / "docs/evals/artifacts/v1.6.1"
+        bindings = json.loads((artifacts / "artifact-hashes.json").read_text())
+        actual = {str(path.relative_to(artifacts)) for path in artifacts.rglob("*")
+                  if path.is_file() and path.name != "artifact-hashes.json"}
+        self.assertEqual(set(bindings), actual)
+        for relative, digest in bindings.items():
+            path = (artifacts / relative).resolve()
+            self.assertTrue(path.is_relative_to(artifacts.resolve()))
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+        verdict = json.loads((artifacts / "semantic-verdict.json").read_text())
+        for variant in ("baseline", "candidate"):
+            development = verdict["development"][variant]
+            self.assertEqual(development["points"], sum(
+                sum(run["case_points"].values()) for run in development["runs"]))
+            self.assertEqual(development["hard_gate_clean_runs"], sum(
+                run["hard_gates"] == "PASS" for run in development["runs"]))
+            for run in development["runs"]:
+                output = artifacts / (run["id"] + ".output.json")
+                self.assertEqual(hashlib.sha256(output.read_bytes()).hexdigest(),
+                                 run["output_sha256"])
+            holdout = verdict["holdout"][variant]
+            self.assertEqual(holdout["points"], sum(holdout["case_points"].values()))
+            output = artifacts / (variant + "-holdout.output.json")
+            self.assertEqual(hashlib.sha256(output.read_bytes()).hexdigest(),
+                             holdout["output_sha256"])
 
     def test_v1_5_publication_readback_is_explicit(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
