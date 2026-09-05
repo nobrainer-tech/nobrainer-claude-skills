@@ -273,11 +273,10 @@ sources explicitly. A source-backed fit claim is not a performance benchmark.
 
 - [x] Reconcile relevant and uncertain discoveries with current comparison pages.
 - [x] Close evidenced workflow gaps or document retain/defer decisions.
-- [ ] Publish and verify missing relevant comparisons and evidence boundaries.
+- [x] Publish and verify missing relevant comparisons and evidence boundaries.
 - [x] Owner selected NoBrainer Tech Flow and From task to done; preserve commands.
 
-Naming proposal: NoBrainer Flow, described as a portable workflow for AI agents.
-This is a proposal, not an approved rename or a trademark clearance.
+Naming proposal superseded by the approved NoBrainer Tech Flow brand below.
 
 
 ## Approved rebrand — 2026-09-05
@@ -288,7 +287,27 @@ skills.nobrainer.tech aliases. Preserve skill identifiers, nb-ultra invocation,
 old repository links and historical release provenance. Do not rewrite tagged
 historical evidence. Route the former /skills paths to matching /flow paths.
 
-- [ ] Rename public product/repo and update maintained documentation/adapters.
-- [ ] Deploy /flow and verify HTTPS aliases and legacy deep-link redirects.
-- [ ] Rebrand seven existing scheduled X posts and add authorship to current bio.
-- [ ] Reconcile weekly automation, installation compatibility and publication evidence.
+- [x] Rename public product/repo and update maintained documentation/adapters.
+- [x] Deploy /flow and verify HTTPS aliases and legacy deep-link redirects.
+- [x] Rebrand seven existing scheduled X posts and add authorship to current bio.
+- [x] Reconcile weekly automation, installation compatibility and publication evidence.
+
+
+## Comparison clarity — owner correction, 2026-09-05
+
+Each of the 40 source pages must explain the source's useful problem and strength,
+how Flow handles the same task with concrete modules, additional Flow value,
+and when to choose each. Details and source pins belong below that explanation.
+Do not imply missing runtime parity or exclusive features without evidence.
+
+- [x] Write concrete source-specific stories and replace abstract lead sections.
+- [x] Review attribution and verify all 40 pages plus desktop/mobile layouts.
+- [x] Merge, back up, deploy and read back the updated public comparisons.
+- [x] Record publication evidence and close the expanded goal.
+
+Outcome: v1.7.1 and the renamed Flow repository are public; installation and
+redirect compatibility passed. Website PR 8 provides all 40 clearer comparisons;
+56 public files match, nine redirects pass, and desktop/mobile checks passed.
+Seven existing X slots and authorship are reconciled; Friday Sol-low research
+is active. Publication evidence is in docs/releases/v1.7.1-publication-readback.md.
+No new model-quality or runtime-parity benchmark is claimed.

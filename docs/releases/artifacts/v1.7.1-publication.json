@@ -1,0 +1,74 @@
+{
+  "date": "2026-09-05",
+  "release": "v1.7.1",
+  "release_commit": "a5b2dcccae3aeb8e64f19f121f98f74f59719d82",
+  "website_commit": "61bbda65f968368a59616f4edbbee40e6ef0d001",
+  "website_pr": "https://github.com/nobrainer-tech/nobrainer-tech-flow-www/pull/8",
+  "canonical": "https://nobrainer.tech/flow/",
+  "source_comparisons": 40,
+  "public_files_matched": 56,
+  "redirect_cases_passed": 9,
+  "legacy_runpane": "200 preserved",
+  "site_tests_passed": 10,
+  "desktop_mobile_route_checks_passed": 10,
+  "scheduled_posts_preserved": 7,
+  "runtime_changed_since_v1_7_0": false,
+  "redirects": [
+    {
+      "url": "https://flow.nobrainer.tech/",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/",
+      "final": "https://nobrainer.tech/flow/"
+    },
+    {
+      "url": "https://flow.nobrainer.tech/compare/ecc/?from=legacy",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/compare/ecc/?from=legacy",
+      "final": "https://nobrainer.tech/flow/compare/ecc/?from=legacy"
+    },
+    {
+      "url": "https://flow.nobrainer.tech/assets/skills-og.png",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/assets/skills-og.png",
+      "final": "https://nobrainer.tech/flow/assets/skills-og.png"
+    },
+    {
+      "url": "https://skills.nobrainer.tech/",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/",
+      "final": "https://nobrainer.tech/flow/"
+    },
+    {
+      "url": "https://skills.nobrainer.tech/compare/ecc/?from=legacy",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/compare/ecc/?from=legacy",
+      "final": "https://nobrainer.tech/flow/compare/ecc/?from=legacy"
+    },
+    {
+      "url": "https://skills.nobrainer.tech/assets/skills-og.png",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/assets/skills-og.png",
+      "final": "https://nobrainer.tech/flow/assets/skills-og.png"
+    },
+    {
+      "url": "https://nobrainer.tech/skills/",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/",
+      "final": "https://nobrainer.tech/flow/"
+    },
+    {
+      "url": "https://nobrainer.tech/skills/compare/ecc/?from=legacy",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/compare/ecc/?from=legacy",
+      "final": "https://nobrainer.tech/flow/compare/ecc/?from=legacy"
+    },
+    {
+      "url": "https://nobrainer.tech/skills/assets/skills-og.png",
+      "status": 301,
+      "location": "https://nobrainer.tech/flow/assets/skills-og.png",
+      "final": "https://nobrainer.tech/flow/assets/skills-og.png"
+    }
+  ],
+  "file_manifest_sha256": "437bf78bac2e217ceffe7fc5d7923f8be0cbd57c0cf45d0b60f1222a68e3cb57",
+  "file_manifest_note": "Full path and byte-check manifest retained with the deployment preimage; this release receipt records the aggregate result."
+}
