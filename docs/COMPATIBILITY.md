@@ -185,9 +185,11 @@ required relative reference without the user pasting either one.
 
 ```text
 Use nb-ultra to deliver this task with the smallest safe workflow.
+Use nb-flow to deliver this task with the smallest safe workflow.
 ```
 
-`nb-ultra` is a trigger phrase in the description, not a second skill name.
+`nb-ultra` and `nb-flow` are trigger phrases in the description, not additional
+skill names.
 Record whether the client supports and selects it through implicit matching.
 Do not present this as an explicit invocation guarantee. In the v1.3.0 Codex
 probe, alias-only selection failed under a crowded skill catalog and a prompt

@@ -33,6 +33,9 @@ SUITE = {
     "nobrainer-rca": "nb-rca",
     "nobrainer-review": "nb-review",
 }
+REQUIRED_ALIASES = {
+    "nobrainer-ultra": ("nb-ultra", "nb-flow"),
+}
 
 LEGACY = {
     "add-gitleaks",
@@ -328,6 +331,11 @@ def validate(suite_only: bool) -> list[str]:
             errors.append(f"{path.relative_to(ROOT)}: description must start with 'Use when'")
         if alias not in frontmatter.get("description", ""):
             errors.append(f"{path.relative_to(ROOT)}: missing alias trigger {alias}")
+        for required_alias in REQUIRED_ALIASES.get(name, ()):
+            if required_alias not in frontmatter.get("description", ""):
+                errors.append(
+                    f"{path.relative_to(ROOT)}: missing required alias trigger {required_alias}"
+                )
     for name in LEGACY:
         if (SKILLS / name / "SKILL.md").exists():
             errors.append(f"legacy skill remains discoverable: {name}")

@@ -8,7 +8,7 @@ is not a successful model run. Pick one small trial and inspect the artifact.
 
 In an ordinary empty folder, ask:
 
-> Use nb-ultra. Create invitation.md for a free board-game evening on 18 September
+> Use nb-flow. Create invitation.md for a free board-game evening on 18 September
 > at 18:00, ending at 21:00, at the community room. Bring a game if you have one;
 > newcomers are welcome. Also make checklist.md with the organizer's preparation
 > tasks. Use only these supplied details. Do not initialize Git or add frameworks.

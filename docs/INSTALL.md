@@ -132,9 +132,9 @@ python3 scripts/install_skills.py --client codex --apply
 
 Restart Codex and test discovery in a fresh task. Repository instructions or the
 native skill trigger provide bootstrap; a file on disk is not routing proof.
-Use `$nobrainer-ultra` for an explicit invocation. Plain `nb-ultra` depends on
-implicit description matching and must be recorded separately. Existing legacy
-entries under `~/.codex/skills` are not deleted or rewritten automatically.
+Use `$nobrainer-ultra` for an explicit invocation. Plain `nb-flow` and `nb-ultra`
+depend on implicit description matching and must be recorded separately. Existing
+legacy entries under `~/.codex/skills` are not deleted or rewritten automatically.
 
 ### Cursor
 
