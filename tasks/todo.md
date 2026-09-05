@@ -32,7 +32,10 @@ Progress
 - [x] Review the bounded harvest and public prompt sources.
 - [x] Freeze representative cases, assess minimal candidates and verify source.
 - [x] Update comparison coverage and website instruction rule.
-- [>] Complete release review, publish 1.6.1 and verify public readback.
+- [x] Complete release review, publish 1.6.1 and verify public readback.
+
+Closeout: source release and matching website published; 35 public files match
+the reviewed deployment bytes. See `docs/releases/v1.6.1-publication-readback.md`.
 
 Verification: both validators and 126 tests pass; independent release review
 accepts the contract patch. Measured behavioral promotion is rejected: the

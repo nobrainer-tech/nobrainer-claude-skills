@@ -254,7 +254,8 @@ client-specific steps and rollback are in [Installation](docs/INSTALL.md).
 Current source version: **1.6.1**. Check the
 [latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/latest)
 for distribution, and the [v1.6.1 evidence](docs/releases/v1.6.1.md) for its exact
-verification scope. Source publication does not imply client marketplace discovery.
+verification scope. The [publication readback](docs/releases/v1.6.1-publication-readback.md)
+records the tag and website delivery. Source publication does not imply client marketplace discovery.
 
 Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) remains an
 accepted rollback source release. Its historical pre-publication checkpoint is
