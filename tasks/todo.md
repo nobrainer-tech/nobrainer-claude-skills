@@ -1,3 +1,22 @@
+# Correct Codex source classification — 2026-09-05
+
+Outcome: present Codex as an execution host used with NoBrainer instructions.
+Scope: research/release links and lesson here; website category, page, links,
+manifest, validator and AGENTS in the separate website repository. No skill
+behavior, version bump or frozen evaluation changes.
+
+- [x] Correct library attribution, links and the durable lesson.
+- [x] Move the website page to integrations and verify category coverage.
+- [x] Deploy the website and verify new and legacy URLs.
+
+Verification: both library validators and 126 tests pass; 10 website tests
+pass. Public readback matches all 36 staged files; the legacy URL redirects.
+Website correction merged at `11e0fe716cbb50d5b3555d29d7d8d71a503e5e76`.
+Library publication is tracked by the associated pull request. The preimage
+backup is retained; unrelated work and historical evidence stay intact.
+
+---
+
 # Version 1.6.1 quality release — 2026-09-05
 
 Outcome: publish a compact, verified 1.6.1 release and a matching premium-quality
@@ -13,7 +32,7 @@ implementation, release and corresponding website update in this task.
   available cheaper model, frozen cases and unseen regression cases. No claim
   that a prompt makes a cheap model universally equivalent to a frontier model.
 - AC04: Every adopted inspiration has a dated source-to-change mapping and an
-  appropriate canonical comparison page; website AGENTS requires this check.
+  appropriately classified public destination; website AGENTS requires this check.
 - AC05: Required checks and independent review pass on exact release bytes;
   publish 1.6.1, verify remote state and public affected routes.
 
