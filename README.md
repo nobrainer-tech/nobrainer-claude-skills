@@ -4,33 +4,42 @@
   </a>
 </p>
 
-<h1 align="center">nobrainer-tech-skills</h1>
+<h1 align="center">NoBrainer Tech Flow</h1>
 
 <p align="center">
-  Lightweight, portable, model-neutral agentic workflows for fast and evidence-gated delivery.
+  From task to done.
 </p>
 
 <p align="center">
-  <a href="https://github.com/nobrainer-tech/nobrainer-tech-skills/actions/workflows/validate.yml"><img alt="Validation" src="https://github.com/nobrainer-tech/nobrainer-tech-skills/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/nobrainer-tech/nobrainer-tech-flow/actions/workflows/validate.yml"><img alt="Validation" src="https://github.com/nobrainer-tech/nobrainer-tech-flow/actions/workflows/validate.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-27d8cf.svg"></a>
 </p>
 
 <p align="center">
   <a href="https://nobrainer.tech">NoBrainer.tech</a>
   ·
-  <a href="https://nobrainer.tech/skills/">Skills overview</a>
+  <a href="https://nobrainer.tech/flow/">Flow overview</a>
   ·
   <a href="https://nobrainertech.gumroad.com">Production-ready agentic workflows</a>
 </p>
 
-Give the agent one outcome. Say **“Use nb-ultra”** (or invoke
-`$nobrainer-ultra` in Codex). Clear tasks go straight to execution; meaningful
-ambiguity gets one focused question round. You see a short checklist for larger
-work, relevant evidence, and the finished result.
+Tell it what you need. Flow clarifies the goal, does the work, and checks the result.
 
-**Small mouth. Big brain.** A quick answer stays a quick answer. Longer work uses
-one plan, bounded corrective attempts and a Markdown checkpoint when needed.
-Native goals, telemetry, subagents and client-specific tools are optional.
+Say **“Use nb-ultra”** (or invoke `$nobrainer-ultra` in Codex) to fix code, prepare
+an everyday document, or investigate a problem. Clear tasks go straight to execution;
+meaningful ambiguity gets one focused question round. Done means the agreed
+criteria are met and the result is checked. A real blocker is reported with the
+next unblock action.
+
+A quick answer stays a quick answer. The model-neutral workflow uses one plan,
+bounded corrective attempts and a Markdown checkpoint for longer work. Native
+goals, telemetry, subagents and client-specific tools are optional.
+
+Existing installations keep the `nobrainer-tech-skills` package/plugin ID and all
+skill commands. See the [Flow migration guide](docs/MIGRATION_TO_FLOW.md).
+
+[Source-backed comparison decisions](docs/reviews/2026-09-05-flow-coverage.md)
+cover the current collected Trending snapshot and explain what we adopted or retained.
 
 ## Try one real task
 
@@ -55,8 +64,8 @@ Clone a reviewed ref, validate it, preview exact targets, then apply:
   : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
   test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
   case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
-  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
-  cd nobrainer-tech-skills || exit 3
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-flow.git || exit 3
+  cd nobrainer-tech-flow || exit 3
   git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
   test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
   python3 scripts/validate_skills.py --suite || exit 4
@@ -266,11 +275,12 @@ prove production. See [Compatibility](docs/COMPATIBILITY.md) for current proof
 and [Testing](docs/TESTING.md) for acceptance evidence.
 
 
-Current source version: **1.7.0**. Check the
-[latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/latest)
-for distribution, and the [v1.7.0 evidence](docs/releases/v1.7.0.md) for the
-runner's exact verification scope. Source publication does not imply client
-marketplace discovery or improved model reasoning. The earlier
+Current source version: **1.7.1**. Check the
+[latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-flow/releases/latest)
+for distribution and the [v1.7.1 rebrand record](docs/releases/v1.7.1.md) for the
+preserved installation identities. The unchanged command runner keeps its
+[v1.7.0 verification scope](docs/releases/v1.7.0.md). Source publication does not
+imply client marketplace discovery or improved model reasoning. The earlier
 [v1.6.1 publication readback](docs/releases/v1.6.1-publication-readback.md)
 remains historical evidence.
 

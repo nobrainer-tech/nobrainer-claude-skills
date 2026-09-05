@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "nobrainer-tech-skills",
-  "description": "Portable workflows for one-brief autopilot, specialist teams, research, secure implementation, review, and durable learning.",
-  "version": "1.7.0",
+  "description": "NoBrainer Tech Flow: portable agentic workflows from task to checked result.",
+  "version": "1.7.1",
   "author": {
     "name": "NoBrainer Tech"
   }

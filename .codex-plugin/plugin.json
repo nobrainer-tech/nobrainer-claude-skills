@@ -1,13 +1,13 @@
 {
   "name": "nobrainer-tech-skills",
-  "version": "1.7.0",
-  "description": "Portable workflows for one-brief autopilot, specialist teams, research, secure implementation, review, and durable learning.",
+  "version": "1.7.1",
+  "description": "NoBrainer Tech Flow: portable agentic workflows from task to checked result.",
   "author": {
     "name": "NoBrainer Tech",
     "url": "https://nobrainer.tech"
   },
-  "homepage": "https://nobrainer.tech",
-  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-skills",
+  "homepage": "https://nobrainer.tech/flow/",
+  "repository": "https://github.com/nobrainer-tech/nobrainer-tech-flow",
   "license": "MIT",
   "keywords": [
     "skills",
@@ -18,7 +18,7 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "NoBrainer Tech Skills",
+    "displayName": "NoBrainer Tech Flow",
     "shortDescription": "Fast, visible, evidence-gated agentic workflows",
     "longDescription": "Turn one request into minimum scope, concise progress, bounded execution, conditional recovery state, secure implementation, independent review, and durable learning.",
     "developerName": "NoBrainer Tech",
@@ -32,7 +32,7 @@
       "Use $nobrainer-ultra to deliver this task with the smallest safe workflow.",
       "Use $nobrainer-team to build the minimum specialist team and deliver this project with evidence."
     ],
-    "websiteURL": "https://nobrainer.tech",
+    "websiteURL": "https://nobrainer.tech/flow/",
     "privacyPolicyURL": "https://nobrainer.tech/privacy",
     "termsOfServiceURL": "https://nobrainer.tech/terms",
     "brandColor": "#00D8E8",

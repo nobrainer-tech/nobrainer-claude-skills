@@ -24,3 +24,9 @@
   tested enforcement; do not treat runtime capability as inherently outside
   the product. The owner expanded this release audit to all collected Trending
   discoveries, not ECC alone.
+
+- A metadata inventory is not complete competitor coverage. Reconcile cross-task
+  workflow and harness peers (including developer discoveries and blank descriptions)
+  with explicit source decisions and public pages before claiming coverage.
+- Product name is NoBrainer Tech Flow; skills are modules. Use “From task to done.”
+  with checked acceptance and explicit blockers, not an unconditional success claim.

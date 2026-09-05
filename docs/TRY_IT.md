@@ -1,4 +1,4 @@
-# Try NoBrainer on one task
+# Try NoBrainer Tech Flow on one task
 
 Install from the [reviewed source and dry-run](INSTALL.md), restart your client,
 and check that it can discover `nobrainer-ultra`. A successful file installation

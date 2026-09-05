@@ -3393,6 +3393,11 @@ class SuiteTests(unittest.TestCase):
 
     def test_readme_branding_and_links(self) -> None:
         text = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("NoBrainer Tech Flow", text)
+        self.assertIn("From task to done.", text)
+        self.assertIn("https://github.com/nobrainer-tech/nobrainer-tech-flow", text)
+        self.assertIn("https://nobrainer.tech/flow/", text)
+        self.assertIn("docs/MIGRATION_TO_FLOW.md", text)
         self.assertIn("nobrainer-tech-skills", text)
         self.assertIn("assets/nobrainer-tech-logo.svg", text)
         self.assertIn("https://nobrainer.tech", text)
@@ -3443,7 +3448,7 @@ class SuiteTests(unittest.TestCase):
                             )
                             self.assertNotEqual(0, result.returncode)
                             self.assertFalse(
-                                (Path(temp) / "nobrainer-tech-skills").exists()
+                                (Path(temp) / "nobrainer-tech-flow").exists()
                             )
 
     def test_coverage_graphic_is_readme_ready(self) -> None:
