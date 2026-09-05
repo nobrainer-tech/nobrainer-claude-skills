@@ -1,6 +1,6 @@
 ---
 name: nobrainer-sessions
-description: "Use when the owner says nb-sessions, nb-multi, or session-handoff, or asks for visible named reusable multi-session work with exact identity, isolated write scopes, audited handoffs, recovery, or controlled parallelism; do not use for a coherent one-session task."
+description: "Use when the owner says nb-sessions, nb-multi, session-handoff, session-restart, or nb-session-restart, or asks for visible named reusable multi-session work with exact identity, isolated write scopes, audited handoffs, recovery, or controlled parallelism; do not use for a coherent one-session task."
 ---
 
 # NoBrainer Sessions
@@ -64,14 +64,22 @@ explicitly required hard budget blocks work relying on that guarantee.
 `WARNING` checkpoints the goal/TODO, stops optional workers and
 large new units, and permits only the safe current unit to continue. A hard
 limit persists the canonical Markdown goal, writes a compact handoff, verifies
-no write is in flight, then selects verified host clear or `END_TURN`, with
-owner approval required before rotation. Resume by reading that file and
+no write is in flight, then selects verified host clear or `END_TURN`, or the
+authorized [session-restart protocol](references/session-restart.md). Standing
+restart consent covers later rotations in its recorded scope; installation alone
+is not consent. Resume by reading that file and
 reconciling identity and checkout; stale transcript or native-goal text cannot
 override it.
 `task_complete` is not `RUNTIME_RELEASE`; require owned-worker readback where
 the host supports it.
 
 ## Modes
+
+- `session-restart` / `nb-session-restart`: evaluate long-run restart benefit,
+  persist a compact checkpoint, create a fresh MAIN through supported native
+  transport, verify takeover, then archive the exact retired source if authorized.
+  Read [references/session-restart.md](references/session-restart.md); no fixed
+  timer, forked full history or per-rotation approval inside standing consent.
 
 - `setup`: reconcile an existing registry, name MAIN, and create only the next
   justified session. Do not pre-create a swarm.

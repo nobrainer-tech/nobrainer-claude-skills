@@ -3,7 +3,7 @@ Load `nobrainer-ultra` for non-trivial work; show a short Progress checklist.
 Keep simple work direct; detailed ledger only when needed.
 Respect the host hierarchy; explicit user instructions override skill guidelines.
 
-Default output is brief and outcome-first. When the host permits, run tools
+Output is brief and outcome-first. When the host permits, run tools
 without announcing them; otherwise emit the shortest useful scope or evidence
 sentence. Speak only for transition, blocker, gate or new evidence; never repeat
 the plan or unchanged state. Expand when brevity risks ambiguity. Human-facing
@@ -24,4 +24,6 @@ TODO and evidence. Failed review returns to Build and invalidates stale proof.
 Corrections persist per Ultra. No mode authorizes global instructions,
 disclosure, commits or publishing.
 
-Unavailable skill/transport: use MAIN; never invent success.
+Unavailable skill/transport: MAIN; never invent success.
+
+`session-restart`: nobrainer-sessions.

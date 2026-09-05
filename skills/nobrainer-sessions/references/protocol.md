@@ -59,7 +59,7 @@ SESSION_HEALTH_GATE:
 - RESULT: HEALTHY | WARNING | ROTATE_REQUIRED | UNKNOWN | UNSUPPORTED
 - ACTION: CONTINUE | CHECKPOINT_AND_RESTRICT_DISPATCH | CHECKPOINT_AND_END_TURN | OWNER_DECISION_REQUIRED
 - CLEAR_MODE: HOST_CLEAR | END_TURN | MANUAL_REQUIRED | UNSUPPORTED
-- ROTATION: OWNER_APPROVAL_REQUIRED
+- ROTATION: STANDING_POLICY_AUTHORIZED | OWNER_APPROVAL_REQUIRED
 
 RUNTIME_RELEASE:
 - RESULT: VERIFIED | NOT_RELEASED | UNKNOWN | UNSUPPORTED
@@ -77,7 +77,9 @@ and continue only the safe current unit.
 Use `HOST_CLEAR` only with capability and completion readback; otherwise use
 `END_TURN`, `MANUAL_REQUIRED` or `UNSUPPORTED`. Resume reads the goal file from
 disk and reconciles goal identity, checkout and evidence before work. Never
-create a successor session automatically. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
+create a successor without current or standing authorization. MAIN may use
+[session-restart](session-restart.md) for an authorized, verified fresh-session
+transfer; workers never create successors. `task_complete` is not `RUNTIME_RELEASE`: `VERIFIED`
 requires readback that task-owned workers are closed where that capability
 exists. If no legal `READY` row remains, wait for `RUNNING`, audit `REPORTED`,
 or finish accepted work. Only blocked unfinished work needs an unblock action;
@@ -163,7 +165,8 @@ CLOSE_GATE:
 3. Review scope, quality, secrets, side effects and rollback.
 4. Run `SESSION_HEALTH_GATE` for `BEFORE_CLOSEOUT`; `WARNING` checkpoints and
    restricts dispatch. `ROTATE_REQUIRED` requires a durable goal checkpoint,
-   compact handoff and verified clear or `END_TURN`, not automatic rotation.
+   compact handoff and verified clear or `END_TURN`. This worker does not rotate
+   MAIN; an authorized MAIN uses the separate session-restart protocol.
 5. Read back `RUNTIME_RELEASE` separately from task completion; do not claim a
    clean runtime with `NOT_RELEASED`, `UNKNOWN` or unsupported worker evidence.
 6. Write close-gate evidence and release LEASE if held.
