@@ -30,6 +30,14 @@ load history just for accounting. Store one latest observation with its source,
 time, measured/estimated fields and decision in the existing task state. Update
 it at meaningful transitions, not every tool call. Missing values stay unknown.
 
+Before restarting, inventory every context fragment the fresh session must load.
+Each fragment needs a purpose and a finite bound appropriate to the host; split or
+summarize an oversized fragment instead of copying an unbounded transcript. Keep
+stable instructions and other reusable inputs in a stable order and byte form when
+the host can reuse cached input. Put changing task state in the checkpoint rather
+than rewriting stable inputs merely to force freshness. Cache behavior, token use,
+cost and net savings remain `UNKNOWN` unless host telemetry measures them.
+
 The optional helper conservatively considers at most three upcoming calls:
 `avoided = (current_input_tokens - fresh_input_tokens) * min(remaining_calls, 3)`.
 Auto-restart qualifies only when avoided tokens exceed twice the estimated

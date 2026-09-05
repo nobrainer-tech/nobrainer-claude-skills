@@ -102,6 +102,9 @@ artifact merely to make the change look substantial.
    prove the simpler path. Do not compress readable code merely to reduce lines.
    Check `Done clean`: actual files match the expected scope, no unexpected
    status entry remains, and no placeholder or speculative layer survived.
+   If a pull request is part of the authorized delivery, bind its reported checks
+   and review state to the exact current head SHA; evidence from a replaced head is
+   stale.
 6. Route a consequential or user-requested final gate to `nobrainer-review`.
    Every fix invalidates earlier evidence for the changed path and must be
    rechecked.

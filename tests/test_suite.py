@@ -3839,6 +3839,29 @@ class SuiteTests(unittest.TestCase):
                 with self.subTest(relative=relative, phase="checkout"):
                     self.assertEqual(original, (repo / relative).read_bytes())
 
+    def test_openai_codex_inspirations_keep_portable_boundaries(self) -> None:
+        sessions = (SKILLS / "nobrainer-sessions/references/session-restart.md").read_text()
+        review = (SKILLS / "nobrainer-review/SKILL.md").read_text()
+        build = (SKILLS / "nobrainer-build/SKILL.md").read_text()
+        writing = (SKILLS / "nobrainer-writing/SKILL.md").read_text()
+        source_map = (ROOT / "docs/reviews/2026-09-05-openai-codex-skills.md").read_text()
+
+        for required in ("finite bound", "stable order and byte form", "remain `UNKNOWN`"):
+            self.assertIn(required, sessions)
+        for required in (
+            "exact PR head SHA",
+            "pending draft reviews are not published feedback",
+            "finite recorded budget",
+            "not\nmerge authorization",
+            "Do not automatically run every",
+        ):
+            self.assertIn(required, review)
+        self.assertIn("evidence from a replaced head is\n   stale", build)
+        self.assertIn("lead with why", writing)
+        self.assertIn("net\n  change against the actual PR base", writing)
+        self.assertIn("5d358057152d5e2950f20a25cb6cf050ed5b5d85", source_map)
+        self.assertIn("does not\nadd a watcher daemon, require GitHub", source_map)
+
     def test_public_text_scan_ignores_unknown_extensionless_binary(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             binary = Path(directory) / ".DS_Store"
