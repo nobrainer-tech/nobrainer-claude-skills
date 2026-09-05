@@ -13,3 +13,14 @@
   Adopting guidance never automatically requires a "versus" page. Codex runs
   tools and work; NoBrainer supplies portable instructions that the host loads.
   Source: owner correction of the Codex comparison.
+
+- 2026-09-05: GitHub Trending research must preserve view provenance: repositories
+  and developers, daily/weekly/monthly, plus explicitly selected language categories.
+  Deduplicate discoveries, keep developer rankings separate, report unavailable
+  views, and never label the union as a global top 50. Owner chose a weekly scan.
+
+- 2026-09-05: The portable skills product may include maintained scripts, hooks
+  and adapters that enforce behavior. Distinguish documented guidance from
+  tested enforcement; do not treat runtime capability as inherently outside
+  the product. The owner expanded this release audit to all collected Trending
+  discoveries, not ECC alone.

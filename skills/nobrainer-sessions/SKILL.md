@@ -173,3 +173,12 @@ Report topology, exact identities created or reused, canonical state change,
 transport readback, audit result, evidence, uncertainty, recovery/rollback, and
 one next action. Never claim session creation, rename, dispatch, receipt, or
 completion without readback from the responsible system.
+
+## Optional bounded command
+
+For a non-interactive command that needs enforced wall-time/output limits, use
+the inspected [bundled runner](scripts/run_bounded.py) when Python 3.11+ and POSIX
+are available. Pass explicit argv, finite `--wall-seconds`, `--max-output-bytes`
+and a fresh `--receipt`; no shell or automatic retries. It controls only its
+child process group, not model context, cost, escaped sessions or other tools.
+A receipt is process evidence, never task acceptance; missing proof is not success.

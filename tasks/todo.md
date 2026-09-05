@@ -233,3 +233,31 @@ Scope update: sourced attribution is permitted only in dated review documents;
 operational-branding and public-value scans remain enforced with a regression.
 Website metadata must preserve fresh public content and add only Skills entries.
 Native goal creation is not required or requested for this run; this file owns progress.
+
+
+## Trending-wide improvements and next release — 2026-09-05
+
+Outcome: audit all collected Trending discoveries (repositories and developer-featured repositories), deeply inspect relevant mechanisms including ECC, implement justified improvements, publish next release and reconciled website comparisons, then update seven existing X scheduled posts.
+Non-goals: matching ECC's paid services/runtime, adding skills for feature count, or asserting benchmark superiority.
+Expected files: README.md, one trial guide, docs/reviews ECC evidence, tasks/todo.md; website comparison generator/page, discovery and source map.
+Proof: pinned primary-source audit; existing suite/site checks; isolated documented installer trial; rendered comparison; authenticated X queue readback.
+Untouched: unrelated browser tabs, credentials and installed skills. Existing scheduled X posts are updated only after publication, preserving their dates.
+Minimum solution: improve discovery and proof of existing behavior; change skill contracts only for a reproduced gap.
+Test decision: EXISTING for documentation and installer checks; no model-quality promotion without controlled behavioral evidence.
+Done clean: scoped diff, no invented capabilities or superiority, verification and publication status explicit.
+
+- [x] Inspect current NB and ECC landing page; authenticate browser access.
+- [x] Screen 435 Trending discoveries; inspect selected sources and twelve ECC files.
+- [x] Add bounded runner, earlier installation, trials and three source-backed comparisons.
+- [x] Verify both repositories and record remaining proof boundaries.
+
+Team: MAIN owns integration, research screen, docs, website and delivery;
+/root/ecc_source_audit (Sol medium) owns the bounded source audit and two runner
+files. Reviewed reports and tested artifacts before acceptance; no worker remains
+a writer. Added runtime scope after owner correction; changed target to v1.7.0.
+Model policy: ROUTED for the bounded worker, host-selected MAIN; no worker
+escalation or external skill installation. No measured team-speed claim.
+
+- [ ] Merge verified library and website PRs; publish v1.7.0.
+- [ ] Deploy reviewed site with backup and live readback.
+- [ ] Update existing seven X scheduled posts and verify exact queue.
