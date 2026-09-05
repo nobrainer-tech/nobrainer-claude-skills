@@ -1,6 +1,7 @@
 # Adaptive session restart
 
-Development feature after v1.7.1; the existing tagged archive is unchanged.
+The v1.8.0 source includes this portable protocol. The existing v1.7.1 tagged
+archive remains unchanged and is the rollback anchor.
 
 Tell Flow: “Enable automatic session-restart for this task. Keep progress in
 files and archive the old conversation only after the successor takes over.”

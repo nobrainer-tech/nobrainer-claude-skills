@@ -275,10 +275,10 @@ prove production. See [Compatibility](docs/COMPATIBILITY.md) for current proof
 and [Testing](docs/TESTING.md) for acceptance evidence.
 
 
-Current source version: **1.7.1**. Check the
+Current source version: **1.8.0**. Check the
 [latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-flow/releases/latest)
-for distribution and the [v1.7.1 rebrand record](docs/releases/v1.7.1.md) for the
-preserved installation identities. The unchanged command runner keeps its
+for distribution and the [v1.8.0 release record](docs/releases/v1.8.0.md) for the
+current source scope and preserved installation identities. The unchanged command runner keeps its
 [v1.7.0 verification scope](docs/releases/v1.7.0.md). Source publication does not
 imply client marketplace discovery or improved model reasoning. The earlier
 [v1.6.1 publication readback](docs/releases/v1.6.1-publication-readback.md)
@@ -364,7 +364,7 @@ without surrendering control. Learn more at [nobrainer.tech](https://nobrainer.t
 or browse ready-to-use workflow products on
 [Gumroad](https://nobrainertech.gumroad.com).
 
-## Adaptive session restart (development branch feature)
+## Adaptive session restart
 
 For multi-day work, enable `session-restart` once. Flow keeps progress in the
 project's existing task file and quietly assesses whether a fresh conversation
@@ -374,6 +374,6 @@ archive the old conversation. Other clients receive a compact manual handoff.
 
 This belongs to [Sessions](skills/nobrainer-sessions/references/session-restart.md),
 not a sixteenth skill. The optional stdlib [decision helper](skills/nobrainer-sessions/scripts/restart_gate.py)
-can serve a client hook without requiring one. Instructions are portable; native
-transport and all-client savings are not implied. This feature is not included
-in the existing v1.7.1 archive. See [session restart](docs/SESSION_RESTART.md).
+can serve a client hook without requiring one. The protocol is included in the
+v1.8.0 source; native transport and all-client savings are not implied. The
+v1.7.1 archive remains the rollback anchor. See [session restart](docs/SESSION_RESTART.md).

@@ -1,5 +1,19 @@
 # NoBrainer Tech Flow release notes
 
+## v1.8.0 — 2026-09-06
+
+- Ships the adaptive session-restart protocol and deterministic decision helper
+  inside the existing Sessions skill, with explicit handoff, takeover and
+  rollback boundaries.
+- Includes portable context, exact-head review, bounded retry and focused-review
+  refinements adopted from the source-backed OpenAI Codex review.
+- Keeps the fifteen-skill portfolio, package/plugin identities and client-neutral
+  adapters intact; this release adds no watcher daemon, scheduler or global hook.
+
+See the [v1.8.0 record](docs/releases/v1.8.0.md) for verification limits and the
+`v1.7.1` rollback anchor. Source preparation does not by itself prove a GitHub
+release, client loading, marketplace distribution or model-quality improvement.
+
 ## v1.7.1 — 2026-09-05
 
 - The product is now **NoBrainer Tech Flow**: **From task to done.**
