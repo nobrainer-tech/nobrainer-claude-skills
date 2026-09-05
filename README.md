@@ -32,6 +32,49 @@ work, relevant evidence, and the finished result.
 one plan, bounded corrective attempts and a Markdown checkpoint when needed.
 Native goals, telemetry, subagents and client-specific tools are optional.
 
+## Try one real task
+
+[Install safely](#install-safely), start a fresh session, then give the agent a
+small task with a checkable result:
+
+> Use nb-ultra. Fix one bug in this project. Reproduce it first, make the
+> smallest correction and run the relevant check. Tell me what changed and
+> what remains unverified. Ask only if a missing decision changes the result.
+
+Prefer a non-coding trial? [Try an invitation, a small code fix or a bounded
+command](docs/TRY_IT.md). The guide gives explicit acceptance criteria so you
+can judge your own result. These are trials, not promised benchmark scores.
+
+## Install safely
+
+Clone a reviewed ref, validate it, preview exact targets, then apply:
+
+```bash
+(
+  set -u
+  : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
+  test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
+  case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
+  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
+  cd nobrainer-tech-skills || exit 3
+  git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
+  test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
+  python3 scripts/validate_skills.py --suite || exit 4
+  python3 scripts/install_skills.py --client codex || exit 4
+  python3 scripts/install_skills.py --client codex --apply || exit 4
+)
+```
+
+Set `NB_REVIEWED_COMMIT` to the exact full commit SHA you reviewed. Tags and
+branches are rejected because they can move; every failed gate stops before the
+next command.
+
+The installer defaults to all fifteen canonical skills, supports an exact
+subset, refuses foreign targets and can use links or copies. Restart the client
+and perform clean-session discovery before claiming runtime installation. Full
+client-specific steps and rollback are in [Installation](docs/INSTALL.md).
+
+
 ![NoBrainer Ultra: direct work for clear small tasks; focused clarification, bounded execution and verification when needed](assets/nobrainer-workflow.svg)
 
 ### GitHub flow chart
@@ -222,40 +265,14 @@ A valid manifest does not prove clean-session routing. A local test does not
 prove production. See [Compatibility](docs/COMPATIBILITY.md) for current proof
 and [Testing](docs/TESTING.md) for acceptance evidence.
 
-## Install safely
 
-Clone a reviewed ref, validate it, preview exact targets, then apply:
-
-```bash
-(
-  set -u
-  : "${NB_REVIEWED_COMMIT:?set a reviewed full 40-character commit SHA}"
-  test "${#NB_REVIEWED_COMMIT}" -eq 40 || exit 2
-  case "$NB_REVIEWED_COMMIT" in *[!0-9a-f]*) exit 2 ;; esac
-  git clone --no-checkout https://github.com/nobrainer-tech/nobrainer-tech-skills.git || exit 3
-  cd nobrainer-tech-skills || exit 3
-  git checkout --detach "$NB_REVIEWED_COMMIT" || exit 3
-  test "$(git rev-parse HEAD)" = "$NB_REVIEWED_COMMIT" || exit 3
-  python3 scripts/validate_skills.py --suite || exit 4
-  python3 scripts/install_skills.py --client codex || exit 4
-  python3 scripts/install_skills.py --client codex --apply || exit 4
-)
-```
-
-Set `NB_REVIEWED_COMMIT` to the exact full commit SHA you reviewed. Tags and
-branches are rejected because they can move; every failed gate stops before the
-next command.
-
-The installer defaults to all fifteen canonical skills, supports an exact
-subset, refuses foreign targets and can use links or copies. Restart the client
-and perform clean-session discovery before claiming runtime installation. Full
-client-specific steps and rollback are in [Installation](docs/INSTALL.md).
-
-Current source version: **1.6.1**. Check the
+Current source version: **1.7.0**. Check the
 [latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/latest)
-for distribution, and the [v1.6.1 evidence](docs/releases/v1.6.1.md) for its exact
-verification scope. The [publication readback](docs/releases/v1.6.1-publication-readback.md)
-records the tag and website delivery. Source publication does not imply client marketplace discovery.
+for distribution, and the [v1.7.0 evidence](docs/releases/v1.7.0.md) for the
+runner's exact verification scope. Source publication does not imply client
+marketplace discovery or improved model reasoning. The earlier
+[v1.6.1 publication readback](docs/releases/v1.6.1-publication-readback.md)
+remains historical evidence.
 
 Version [`v1.5.0`](docs/releases/v1.5.0-publication-readback.md) remains an
 accepted rollback source release. Its historical pre-publication checkpoint is

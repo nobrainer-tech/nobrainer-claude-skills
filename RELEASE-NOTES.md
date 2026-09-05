@@ -1,5 +1,19 @@
 # NoBrainer Tech Skills release notes
 
+## v1.7.0 — 2026-09-05
+
+Adds an optional Python/POSIX bounded command runner inside Sessions: explicit
+argv, wall-time and combined output limits, owned process-group cleanup and
+new-only receipts. No daemon, global hook, model-token or cost-cap claim.
+
+The first-use guide and earlier install section make the existing fifteen skills
+easier to try. A 435-discovery Trending screen and pinned source review inform
+the release; no cross-product model-quality benchmark is claimed.
+
+See [verification and limits](docs/releases/v1.7.0.md),
+[runner usage](docs/BOUNDED_RUNNER.md) and
+[research decisions](docs/reviews/2026-09-05-trending-release.md).
+
 ## v1.6.1 — 2026-09-05
 
 - Explicit user instructions take precedence over skill guidelines within the host hierarchy.

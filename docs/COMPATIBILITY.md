@@ -21,9 +21,9 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The current source version is **1.6.1**. Its verification and limits are
-recorded in [v1.6.1 evidence](releases/v1.6.1.md). The
-[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.6.1)
+The current source version is **1.7.0**. Its verification and limits are
+recorded in [v1.7.0 evidence](releases/v1.7.0.md). The
+[GitHub release record](https://github.com/nobrainer-tech/nobrainer-tech-skills/releases/tag/v1.7.0)
 is the publication authority; a version in a manifest alone is not distribution.
 
 The [1.6.1 instruction review](reviews/2026-09-05-astra-instructions.md)
@@ -230,3 +230,11 @@ For a hook-based client, preserve the emitted JSON and prove the client consumed
 the marker. For OpenCode or Pi, preserve both adapter logs/readback and the first
 model action. A prompt that pastes the skill body does not prove discovery. A
 valid explicit `$nobrainer-ultra` run proves explicit loading, not automatic routing.
+
+## Optional bounded command runtime (1.7.0)
+
+The Sessions helper runs explicit argv commands using Python 3.11+ on POSIX.
+It is opt-in and ships with the skill; no daemon or new hook registration is
+required. Windows process-group enforcement is unsupported. The fifteen
+plain-text skills remain portable; this helper does not narrow their format
+compatibility. See [runtime limits and examples](BOUNDED_RUNNER.md).

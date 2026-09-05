@@ -1,0 +1,45 @@
+{
+  "version": "1.7.0",
+  "helper_sha256": "659576a64bce6091433b6dc8f54d0b3251d3f86617fd2d223b236e18ef7c377e",
+  "copy_install": "PASS",
+  "python": "3.14.5",
+  "platform": "darwin",
+  "cases": [
+    {
+      "status": "completed",
+      "duration_seconds": 0.351854,
+      "wall_seconds_limit": 5.0,
+      "output_bytes_limit": 4096,
+      "stdout_bytes_captured": 16,
+      "stderr_bytes_captured": 0,
+      "exit_code": 0,
+      "signal": null,
+      "model_tokens": "UNKNOWN",
+      "model_cost": "UNKNOWN"
+    },
+    {
+      "status": "timed_out",
+      "duration_seconds": 0.506185,
+      "wall_seconds_limit": 0.2,
+      "output_bytes_limit": 4096,
+      "stdout_bytes_captured": 0,
+      "stderr_bytes_captured": 0,
+      "exit_code": null,
+      "signal": 15,
+      "model_tokens": "UNKNOWN",
+      "model_cost": "UNKNOWN"
+    },
+    {
+      "status": "output_limit",
+      "duration_seconds": 0.333596,
+      "wall_seconds_limit": 5.0,
+      "output_bytes_limit": 100,
+      "stdout_bytes_captured": 100,
+      "stderr_bytes_captured": 0,
+      "exit_code": null,
+      "signal": 15,
+      "model_tokens": "UNKNOWN",
+      "model_cost": "UNKNOWN"
+    }
+  ]
+}
