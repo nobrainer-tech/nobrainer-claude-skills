@@ -363,3 +363,17 @@ NoBrainer Tech builds practical agentic workflows for teams that want speed
 without surrendering control. Learn more at [nobrainer.tech](https://nobrainer.tech)
 or browse ready-to-use workflow products on
 [Gumroad](https://nobrainertech.gumroad.com).
+
+## Adaptive session restart (development branch feature)
+
+For multi-day work, enable `session-restart` once. Flow keeps progress in the
+project's existing task file and quietly assesses whether a fresh conversation
+will repay its startup cost. It does not rotate simply because a day passed.
+Supported clients create a fresh continuation, verify its takeover and only then
+archive the old conversation. Other clients receive a compact manual handoff.
+
+This belongs to [Sessions](skills/nobrainer-sessions/references/session-restart.md),
+not a sixteenth skill. The optional stdlib [decision helper](skills/nobrainer-sessions/scripts/restart_gate.py)
+can serve a client hook without requiring one. Instructions are portable; native
+transport and all-client savings are not implied. This feature is not included
+in the existing v1.7.1 archive. See [session restart](docs/SESSION_RESTART.md).

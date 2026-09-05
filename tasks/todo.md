@@ -311,3 +311,27 @@ redirect compatibility passed. Website PR 8 provides all 40 clearer comparisons;
 Seven existing X slots and authorship are reconciled; Friday Sol-low research
 is active. Publication evidence is in docs/releases/v1.7.1-publication-readback.md.
 No new model-quality or runtime-parity benchmark is claimed.
+
+## Portable session restart — 2026-09-05
+
+OUTCOME: maintain durable progress and rotate an authorized long-running MAIN
+into a fresh session when useful, archiving only after verified takeover.
+NON_GOALS: a universal client API, promised token savings, forced daily restarts,
+new permanent skill, account quota bypass, copying whole transcripts.
+Expected files: Sessions protocol/reference/helper, Ultra routing, bootstrap,
+README, compatibility/testing docs and focused regression tests.
+PROOF: real helper failure cases, suite checks, independent protocol review.
+UNTOUCHED: installed skills, current conversation, user browser, runtime runner.
+MINIMUM_SOLUTION: one portable Sessions mode and optional deterministic gate;
+native lifecycle adapters remain discovered capabilities, never fabricated.
+TEST_DECISION: NEW_REQUIRED for lifecycle decisions; native transport and cost
+benchmarks are not inferred from deterministic tests.
+Done clean: coherent instructions, 15 modules, documented fallback and proof.
+
+- [x] Add checkpoint/restart/takeover contract and optional hook decision helper.
+- [x] Test stale ACK, uncertain create, live writers, no transport, archive failure.
+- [x] Review and reconcile documentation and delivery state.
+
+Source and decision-level proof: docs/reviews/2026-09-05-session-restart.md.
+152 tests pass; native cross-client automation and savings remain unverified.
+The v1.7.1 release archive is preserved; this change is development source.

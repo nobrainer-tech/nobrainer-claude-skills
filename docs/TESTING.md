@@ -42,7 +42,7 @@ python3 -m unittest discover -s tests -v
 [`tests/test_session_lifecycle.py`](../tests/test_session_lifecycle.py) is a
 deterministic, model-free protocol smoke. It covers the nominal clean-session
 trace, each health-gate event, configurable warning/hard limits, unknown and
-unsupported signals with safe bounded continuation, strict-budget refusal, checkpoint plus `END_TURN` without automatic rotation,
+unsupported signals with safe bounded continuation, strict-budget refusal, checkpoint plus `END_TURN` without authorized rotation,
 `task_complete` with a live controlled worker followed by explicit release, and
 empty-ready-set handling: wait for running work, audit reports, finish accepted
 work, or surface a real owner decision. It also
@@ -155,3 +155,17 @@ gitleaks git --pre-commit --staged --redact --no-banner --ignore-gitleaks-allow
 A full-history finding is a separate history-remediation decision. Investigate
 it explicitly; do not hide it behind a broad allowlist or treat it as proof that
 the staged candidate introduced a secret.
+
+## Session restart
+
+`tests/test_restart_gate.py` invokes the shipped helper rather than a test-only
+copy. It covers startup-cost payback, unknown economics, repeated restart without
+progress, consent, unknown writers, stale checkpoints/ACKs, uncertain transport,
+unsupported transfer and archive/takeover ordering. These are decision-level
+tests; no real session is created or archived by the helper.
+
+Native-adapter acceptance additionally requires an actual fresh target, visible
+read-only ACK, authoritative conditional transfer, target takeover and exact old
+session archive readback. Include a competing trigger and interrupted create.
+Measure accepted work and total input/output/compaction/recovery usage before
+and after; deterministic decisions do not establish token or quality gains.

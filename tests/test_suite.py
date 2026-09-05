@@ -2240,7 +2240,7 @@ class SuiteTests(unittest.TestCase):
                 "nb-brief",
             ),
             "nobrainer-security": ("security-review",),
-            "nobrainer-sessions": ("nb-multi", "session-handoff"),
+            "nobrainer-sessions": ("nb-multi", "session-handoff", "session-restart", "nb-session-restart"),
             "nobrainer-wiki": ("nb-add", "nb-get", "nb-tidy"),
             "nobrainer-autoimprove": (
                 "deep-autoresearch",

@@ -190,3 +190,12 @@ before releasing dependencies.
 Close the ledger only when every required row is `ACCEPTED` or explicitly
 `STOPPED` by a superseding owner decision, all writers are released, final proof
 is current and rollback is still intelligible.
+
+## Adaptive fresh-session continuation
+
+For owner-enabled `session-restart`, reuse this goal and its progress rows.
+Sessions owns the [restart protocol](../../nobrainer-sessions/references/session-restart.md):
+quiet milestone assessment, compact checkpoint, verified fresh target, conditional
+ownership transfer and source archive after takeover. A stale summary or timer
+does not authorize a successor. Keep model policy, pending operations and native
+goal/scheduler ownership in the handoff; do not create another status owner.

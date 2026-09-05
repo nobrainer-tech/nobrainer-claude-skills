@@ -240,3 +240,22 @@ It is opt-in and ships with the skill; no daemon or new hook registration is
 required. Windows process-group enforcement is unsupported. The fifteen
 plain-text skills remain portable; this helper does not narrow their format
 compatibility. See [runtime limits and examples](BOUNDED_RUNNER.md).
+
+## Session restart capability levels
+
+The development `session-restart` mode is a client/model-neutral Sessions
+protocol. The optional Python 3.11+ helper evaluates observations and runs without
+a model or client SDK. It does not implement native creation or archival.
+
+- No hooks: the model checks at task boundaries and prepares durable progress.
+- Hooks: a reviewed client adapter may supply normalized observations and invoke
+  the helper; hook names and output envelopes remain client-specific.
+- Native sessions: automatic rotation additionally requires fresh creation, exact
+  identity/readback, shared checkpoint access and authoritative ownership transfer.
+- No archive API: a verified successor can continue with source archive pending.
+- No safe transport/ownership: manual handoff; no hidden worker substitution.
+
+Existing client-load evidence does not establish restart support. Native
+end-to-end restart, all-model behavior and net cost savings are unverified until
+tested separately for the exact adapter/client version. No global hooks are
+installed by enabling portable instructions. See [the guide](SESSION_RESTART.md).

@@ -30,3 +30,9 @@
   with explicit source decisions and public pages before claiming coverage.
 - Product name is NoBrainer Tech Flow; skills are modules. Use “From task to done.”
   with checked acceptance and explicit blockers, not an unconditional success claim.
+
+- 2026-09-05: Session restart is a portable Sessions responsibility, not a
+  client-specific hook or a new permanent module. Automatic policy should assess
+  benefit quietly from available observations; age and compaction count alone do
+  not prove savings. Archive only after verified takeover; missing transport uses
+  an honest fallback, and user-granted standing consent is not re-requested.
