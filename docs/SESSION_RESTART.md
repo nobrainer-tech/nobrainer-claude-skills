@@ -1,7 +1,7 @@
 # Adaptive session restart
 
-The v1.8.0 source includes this portable protocol. The existing v1.7.1 tagged
-archive remains unchanged and is the rollback anchor.
+The v1.8.1 source includes this portable protocol and dated session titles. The
+existing v1.8.0 tagged archive remains unchanged and is the rollback anchor.
 
 Tell Flow: “Enable automatic session-restart for this task. Keep progress in
 files and archive the old conversation only after the successor takes over.”
@@ -14,6 +14,19 @@ Compaction count and elapsed time trigger assessment, not automatic rotation.
 It preserves decisions, acceptance, authorized scope, dirty work, evidence and
 the next action. A successful restart gets one brief notification; routine
 checks do not add chat noise.
+
+There is no fixed restart interval. The default adaptive policy assesses at
+accepted milestones and context-pressure signals; two compactions trigger an
+assessment. The optional daily policy assesses once session age reaches 24 hours,
+but still restarts only when the bounded forecast, remaining work and transfer
+safety justify it.
+
+When the client supports titles, each conversation keeps the stable task name and
+adds its own start date: `<task title> | started DD-MM`. Flow removes an older
+start suffix before applying the new one, stores the full timestamp and timezone
+in the session registry, and reads the title back. Clients without title mutation
+continue with the same safe handoff and report that cosmetic capability as
+unsupported. Session IDs, goal identity and checkpoint digest remain authoritative.
 
 The core is the [Sessions protocol](../skills/nobrainer-sessions/references/session-restart.md),
 usable as instructions in any capable client. An optional deterministic helper

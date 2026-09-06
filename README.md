@@ -106,6 +106,8 @@ flowchart TD
     F -. optional .-> L[Markdown goal for resume]
     G -. independent work .-> M[Bounded native subagents]
     M --> H
+    L -. context pressure; transfer supported .-> N[Fresh session: same task + started DD-MM]
+    N --> G
     L -. unavailable native goals or telemetry .-> G
 ```
 
@@ -275,9 +277,9 @@ prove production. See [Compatibility](docs/COMPATIBILITY.md) for current proof
 and [Testing](docs/TESTING.md) for acceptance evidence.
 
 
-Current source version: **1.8.0**. Check the
+Current source version: **1.8.1**. Check the
 [latest published GitHub release](https://github.com/nobrainer-tech/nobrainer-tech-flow/releases/latest)
-for distribution and the [v1.8.0 release record](docs/releases/v1.8.0.md) for the
+for distribution and the [v1.8.1 release record](docs/releases/v1.8.1.md) for the
 current source scope and preserved installation identities. The unchanged command runner keeps its
 [v1.7.0 verification scope](docs/releases/v1.7.0.md). Source publication does not
 imply client marketplace discovery or improved model reasoning. The earlier
@@ -371,9 +373,12 @@ project's existing task file and quietly assesses whether a fresh conversation
 will repay its startup cost. It does not rotate simply because a day passed.
 Supported clients create a fresh continuation, verify its takeover and only then
 archive the old conversation. Other clients receive a compact manual handoff.
+When title mutation is supported, every source and successor keeps the stable task
+name and adds its own ` | started DD-MM` suffix. The full timestamp, timezone and
+session ID remain in the registry; the short title is never used as identity.
 
 This belongs to [Sessions](skills/nobrainer-sessions/references/session-restart.md),
 not a sixteenth skill. The optional stdlib [decision helper](skills/nobrainer-sessions/scripts/restart_gate.py)
 can serve a client hook without requiring one. The protocol is included in the
-v1.8.0 source; native transport and all-client savings are not implied. The
-v1.7.1 archive remains the rollback anchor. See [session restart](docs/SESSION_RESTART.md).
+v1.8.1 source; native transport and all-client savings are not implied. The
+v1.8.0 archive remains the rollback anchor. See [session restart](docs/SESSION_RESTART.md).

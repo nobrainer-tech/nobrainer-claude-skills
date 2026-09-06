@@ -123,8 +123,8 @@ Load a specialist only when its boundary is active:
 - Autoimprove owns frozen baseline/candidate/holdout experiments.
 - Writing owns material user-facing prose; tiny clear answers stay direct.
 
-A coherent edit remains in MAIN. Delegated `FINISHED` is an untrusted report
-until the exact diff, tests, identity and released writer state are audited.
+A coherent edit remains in MAIN. Delegated `FINISHED` is untrusted until its diff, tests, identity and released writer state are audited.
+For fresh-session transfer, keep one task title, replace its ` | started DD-MM` suffix using that session's verified start in the recorded timezone, and verify by session ID; titles are never identity.
 
 ## Problems and research
 

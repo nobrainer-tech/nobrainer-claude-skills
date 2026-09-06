@@ -21,11 +21,11 @@ Never promote one level from evidence belonging to another.
 Merge is a repository delivery state, not a client-compatibility level; release
 evidence records it separately.
 
-The current source version is **1.8.0**. Its scope and installation metadata are
-recorded in the [v1.8.0 release record](releases/v1.8.0.md). The naming migration
+The current source version is **1.8.1**. Its scope and installation metadata are
+recorded in the [v1.8.1 release record](releases/v1.8.1.md). The naming migration
 remains documented in the [migration guide](MIGRATION_TO_FLOW.md), and the
 unchanged command runner keeps its [v1.7.0 evidence](releases/v1.7.0.md). The
-published `v1.7.1` release remains the rollback anchor; this source update does
+published `v1.8.0` release remains the rollback anchor; this source update does
 not claim a GitHub release, client loading or marketplace distribution.
 
 The [1.6.1 instruction review](reviews/2026-09-05-astra-instructions.md)
@@ -245,9 +245,15 @@ compatibility. See [runtime limits and examples](BOUNDED_RUNNER.md).
 
 ## Session restart capability levels
 
-The `session-restart` mode shipped in v1.8.0 is a client/model-neutral Sessions
+The `session-restart` mode shipped in v1.8.0 and refined in v1.8.1 is a
+client/model-neutral Sessions
 protocol. The optional Python 3.11+ helper evaluates observations and runs without
 a model or client SDK. It does not implement native creation or archival.
+Human-readable rollover titles use `<stable task title> | started DD-MM` where a
+host supports create-time titles or rename. The registry retains the full start
+timestamp and timezone, and IDs remain authoritative. A client without title
+mutation reports that cosmetic capability as unsupported; this is not a failed
+transfer and no universal rename API is implied.
 
 - No hooks: the model checks at task boundaries and prepares durable progress.
 - Hooks: a reviewed client adapter may supply normalized observations and invoke

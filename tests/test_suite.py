@@ -3569,10 +3569,31 @@ class SuiteTests(unittest.TestCase):
             "attempt budget remains",
             "Audit delegated artifacts and stop owned workers",
             "Markdown goal for resume",
+            "Fresh session: same task + started DD-MM",
             "Bounded native subagents",
             "Deliver evidence and stop",
         ):
             self.assertIn(term, readme)
+
+    def test_session_restart_titles_are_human_labels_not_identity(self) -> None:
+        restart = (
+            ROOT / "skills/nobrainer-sessions/references/session-restart.md"
+        ).read_text(encoding="utf-8")
+        protocol = (
+            ROOT / "skills/nobrainer-sessions/references/protocol.md"
+        ).read_text(encoding="utf-8")
+        public_doc = (ROOT / "docs/SESSION_RESTART.md").read_text(encoding="utf-8")
+        for text in (restart, protocol, public_doc):
+            self.assertIn("started DD-MM", text)
+            self.assertIn("timezone", text.lower())
+        restart_words = " ".join(restart.split())
+        protocol_words = " ".join(protocol.split())
+        public_words = " ".join(public_doc.split())
+        self.assertIn("title can collide and is never identity evidence", restart_words)
+        self.assertIn("never use a title to establish identity", protocol_words)
+        self.assertIn("Session IDs, goal identity and checkpoint digest remain authoritative", public_words)
+        self.assertIn("Strip an existing ` | started DD-MM` suffix", restart)
+        self.assertIn("TITLE_STATUS: VERIFIED | UNAVAILABLE | UNSUPPORTED | UNKNOWN", protocol)
 
     def test_manifest_versions_are_consistent(self) -> None:
         versions = {

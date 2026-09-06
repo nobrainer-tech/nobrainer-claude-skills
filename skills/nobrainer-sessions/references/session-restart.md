@@ -22,6 +22,13 @@ observed context-pressure signal; two compactions or `daily` age of 24 hours are
 assessment triggers, not restart orders. Never poll in a tight loop or invoke a
 model solely to check a timer. Inactive chats need an available scheduler to wake.
 
+Record one stable human task title and each session's verified start timestamp.
+Display a session as `<stable task title> | started DD-MM`, using the owner's or
+task's configured timezone; if neither is known, use UTC and record that choice.
+Strip an existing ` | started DD-MM` suffix before formatting so retries never
+stack dates. The full timestamp, timezone, session ID and goal ID remain in the
+registry because the short title can collide and is never identity evidence.
+
 Estimate the next bounded unit using current input size, the fresh session's full
 startup input (including system instructions, relevant tools, checkpoint and
 necessary re-reads), expected calls, and checkpoint/create/ACK overhead. Reuse
@@ -98,11 +105,19 @@ explicit manual packet and report the missing persistence guarantee.
    goals and scheduled jobs; a scheduler must not wake the retired source as a
    second writer. Do not mark the task complete merely to permit a restart.
 2. **Discover.** Verify fresh-session creation, exact ID readback, target reading,
-   workspace access, ownership transfer and archive capabilities independently.
+   workspace access, title create/rename, ownership transfer and archive capabilities
+   independently. Title support is cosmetic and does not replace any safety check.
    Use a genuinely fresh conversation, not resume or a fork that copies history.
    Preserve the selected model/effort where supported; report unsupported fields.
-3. **Create once.** Register RESTART_ID and the checkpoint digest before transport.
-   Create one successor with only the packet location, expected identity/digest,
+3. **Name and create once.** Derive the source display title from its verified
+   start timestamp and derive the target title from the target's actual creation
+   date. When supported, rename the source once and create the successor with its
+   target title; otherwise set the target title immediately after creation. Read
+   back every supported title change. An unavailable source start timestamp keeps
+   its existing title and records `TITLE_UNAVAILABLE`; unsupported title mutation
+   records `TITLE_UNSUPPORTED` and does not block a safe transfer. Register
+   RESTART_ID and the checkpoint digest before transport. Create one successor
+   with only the packet location, expected identity/digest,
    required instructions and a read-only validation request. Record its exact
    session/host and creation receipt. A timeout is UNKNOWN: reconcile that attempt;
    never blindly create another successor. Repeated hooks reuse the same attempt.
@@ -160,6 +175,10 @@ transfer_supported, ownership_committed, target_takeover_readback,
 source_retired_readback, archive_authorized, archive_supported and
 source_archived_readback as verified. An uncertain archive uses archive_status
 "unknown" and requires readback before retry.
+Adapters also record title_base, source_started_at, target_started_at, timezone,
+expected source/target display titles and title readback or an explicit
+`TITLE_UNSUPPORTED`/`TITLE_UNAVAILABLE`; these labels never influence identity or
+the helper's transfer decision.
 Never set safety observations to true merely to get a desired action. Optional
 signals: context_pressure, session_age_seconds, explicit_restart. A required
 unmeasurable budget uses required_budget_unmeasurable=true and blocks work.

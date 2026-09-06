@@ -22,6 +22,10 @@ protocol. Do not copy execution status into a wiki.
 
 ```text
 TITLE: <repo> | <MAIN|ROLE|TASK_ID>
+TITLE_BASE: <stable human task title without a started suffix>
+STARTED_AT: <full timestamp and timezone or UNKNOWN>
+DISPLAY_TITLE: <TITLE_BASE> | started DD-MM
+TITLE_STATUS: VERIFIED | UNAVAILABLE | UNSUPPORTED | UNKNOWN
 HARNESS: <client and version>
 MODEL_POLICY: <STANDARD | EXTENDED | ROUTED and policy fingerprint>
 THREAD_ID: <exact ID>
@@ -84,6 +88,13 @@ requires readback that task-owned workers are closed where that capability
 exists. If no legal `READY` row remains, wait for `RUNNING`, audit `REPORTED`,
 or finish accepted work. Only blocked unfinished work needs an unblock action;
 `OWNER_DECISION_REQUIRED` requires an actual owner decision.
+
+For an authorized fresh-session transfer, keep `TITLE_BASE` stable and give each
+session the suffix ` | started DD-MM` from its own verified start timestamp. Use
+the task/owner timezone, or recorded UTC when none is known. Remove an existing
+suffix before formatting. Read back supported create/rename operations, but never
+use a title to establish identity or block an otherwise safe transfer when the
+host reports title mutation as unsupported. See [session restart](session-restart.md).
 
 ## Delegating prompt
 
