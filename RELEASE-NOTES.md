@@ -1,5 +1,12 @@
 # NoBrainer Tech Flow release notes
 
+## v1.8.1 — 2026-09-06
+
+- Fresh-session transfers now keep a stable task title and append each session's
+  own ` | started DD-MM` date where the client supports title creation or rename.
+  The full timestamp and timezone remain in the registry, existing suffixes are
+  replaced instead of stacked, and titles never replace ID-based verification.
+
 ## v1.8.0 — 2026-09-06
 
 - Ships the adaptive session-restart protocol and deterministic decision helper
